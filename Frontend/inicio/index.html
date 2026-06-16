@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <title>Kosmos</title>
+</head>
+<body>
+
+    <!--  HEADER  -->
+    <header class="header" id="header">
+        <div class="header__inner">
+            <span class="logo__text">Kosmos</span>
+
+            <nav class="nav" id="nav">
+                <a href="#sobre" class="nav__link">Sobre</a>
+                <a href="#recursos" class="nav__link">Recursos</a>
+                <a href="#historia" class="nav__link">Nossa História</a>
+            </nav>
+            <div class="header__actions">
+                <a href="../login/index.html" class="btn btn--ghost">Entrar</a>
+                <a href="../cadastro/index.html" class="btn btn--primary">Cadastre-se</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <div class="mobile-nav" id="mobileNav">
+            <a href="#sobre" class="mobile-nav__link">Sobre</a>
+            <a href="#recursos" class="mobile-nav__link">Recursos</a>
+            <a href="#historia" class="mobile-nav__link">Nossa História</a>
+            <a href="../login/index.html" class="btn btn--ghost">Entrar</a>
+            <a href="../cadastro/index.html" class="btn btn--primary">Cadastre-se</a>
+        </div>
+    </header>
+
+    <!-- ───── HERO ───── -->
+    <section class="hero">
+        <div class="hero__bg">
+            <div class="hero__orb hero__orb--1"></div>
+            <div class="hero__orb hero__orb--2"></div>
+            <div class="hero__grid"></div>
+        </div>
+        <div class="hero__inner">
+            
+            <h1 class="hero__title">
+                Organize seus<br>
+                <em>estudos</em> com<br>
+                <span class="hero__title-highlight">facilidade.</span>
+            </h1>
+            <p class="hero__desc">
+                A Kosmos é uma plataforma completa para você, estudante, organizar e potencializar seus estudos — do dia a dia ao vestibular.
+            </p>
+            <div class="hero__cta">
+                <a href="../cadastro/index.html" class="btn btn--primary btn--lg">Começe agora <span class="btn__arrow">→</span></a>
+                <a href="#recursos" class="btn btn--outline btn--lg">Ver recursos</a>
+            </div>
+            <div class="hero__stats">
+                <div class="hero__stat">
+                    <strong>6</strong>
+                    <span>Ferramentas</span>
+                </div>
+                <div class="hero__stat-divider"></div>
+                <div class="hero__stat">
+                    <strong>100%</strong>
+                    <span>Gratuito</span>
+                </div>
+                <div class="hero__stat-divider"></div>
+                <div class="hero__stat">
+                    <strong>Tudo</strong>
+                    <span>Organizado</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── SOBRE ───── -->
+    <section class="sobre" id="sobre">
+        <div class="container">
+            <div class="sobre__inner">
+                <div class="sobre__img-wrap">
+                    <img src="imagens/imgSobre.png" alt="Estudante usando Kosmos" class="sobre__img">
+                    <div class="sobre__img-glow"></div>
+                </div>
+                <div class="sobre__content">
+                    <span class="section-tag">Nossos objetivos</span>
+                    <h2 class="section-title">Uma plataforma feita <em>de estudante para estudante</em></h2>
+                    <p class="sobre__text">
+                        Nosso WebApp é focado em ajudar estudantes nos momentos de estudar, com foco em estudos escolares diários e vestibulares, trazendo uma plataforma dividida em sessões organizadas para maior facilidade.
+                    </p>
+                    <p class="sobre__text">
+                        Toda a nossa plataforma foi desenvolvida por quem sente na pele os desafios de conciliar estudos com a correria do dia a dia — garantindo sua satisfação e reconhecimento!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── RECURSOS ───── -->
+    <section class="recursos" id="recursos">
+        <div class="container">
+            <div class="recursos__header">
+                <h2 class="section-title">Por que nos escolher?</h2>
+                <p class="recursos__subtitle">Tudo que você precisa para estudar de forma organizada, em um só lugar.</p>
+            </div>
+            <div class="recursos__grid">
+
+                <!-- Dashboard -->
+                <div class="card card--featured">
+                    <div class="card__icon-wrap">
+                        <svg viewBox="0 0 40 40" fill="none" class="card__svg">
+                            <rect x="4" y="22" width="7" height="14" rx="2" fill="#a541ff" opacity=".9"/>
+                            <rect x="16.5" y="14" width="7" height="22" rx="2" fill="#c97cff" opacity=".9"/>
+                            <rect x="29" y="8" width="7" height="28" rx="2" fill="#a541ff" opacity=".7"/>
+                            <path d="M4 10 L16 16 L24 8 L36 4" stroke="#c97cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="4" cy="10" r="2" fill="#fff"/>
+                            <circle cx="16" cy="16" r="2" fill="#fff"/>
+                            <circle cx="24" cy="8" r="2" fill="#fff"/>
+                            <circle cx="36" cy="4" r="2" fill="#fff"/>
+                        </svg>
+                    </div>
+                    <h3 class="card__title">Dashboard</h3>
+                    <p class="card__desc">Visualize suas matérias mais e menos estudadas com gráficos de horas detalhados.</p>
+                    <span class="card__tag">Análise</span>
+                </div>
+
+                <!-- Resumos -->
+                <div class="card">
+                    <div class="card__icon-wrap">
+                        <svg viewBox="0 0 40 40" fill="none" class="card__svg">
+                            <rect x="7" y="4" width="22" height="30" rx="3" fill="rgba(165,65,255,0.15)" stroke="#a541ff" stroke-width="1.5"/>
+                            <rect x="3" y="7" width="22" height="30" rx="3" fill="rgba(165,65,255,0.1)" stroke="#7203bd" stroke-width="1.5"/>
+                            <path d="M9 16 L19 16" stroke="#c97cff" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M9 20 L21 20" stroke="#c97cff" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M9 24 L17 24" stroke="#c97cff" stroke-width="1.8" stroke-linecap="round"/>
+                            <circle cx="28" cy="29" r="7" fill="#1a0230" stroke="#a541ff" stroke-width="1.5"/>
+                            <path d="M25 29 L27.5 31.5 L31 27" stroke="#a541ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card__title">Resumos</h3>
+                    <p class="card__desc">Armazene fotos dos seus resumos organizados por matéria.</p>
+                    <span class="card__tag">Organização</span>
+                </div>
+
+                <!-- FlashCards -->
+                <div class="card">
+                    <div class="card__icon-wrap">
+                        <svg viewBox="0 0 40 40" fill="none" class="card__svg">
+                            <rect x="5" y="9" width="24" height="16" rx="3" fill="rgba(165,65,255,0.12)" stroke="#7203bd" stroke-width="1.5"/>
+                            <rect x="11" y="15" width="24" height="16" rx="3" fill="rgba(165,65,255,0.2)" stroke="#a541ff" stroke-width="1.5"/>
+                            <path d="M16 23 L30 23" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M16 27 L25 27" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M23 5 L25 9 L29 9 L26 12 L27 16 L23 14 L19 16 L20 12 L17 9 L21 9 Z" fill="#a541ff" opacity=".8"/>
+                        </svg>
+                    </div>
+                    <h3 class="card__title">FlashCards</h3>
+                    <p class="card__desc">Crie você mesmo seus flashcards, mantendo seu estudo mais dinâmico e eficiente.</p>
+                    <span class="card__tag">Memorização</span>
+                </div>
+
+                <!-- Exercícios -->
+                <div class="card">
+                    <div class="card__icon-wrap">
+                        <svg viewBox="0 0 40 40" fill="none" class="card__svg">
+                            <rect x="5" y="6" width="30" height="28" rx="3" fill="rgba(165,65,255,0.1)" stroke="#a541ff" stroke-width="1.5"/>
+                            <circle cx="12" cy="14" r="2.5" fill="#a541ff"/>
+                            <path d="M18 14 L32 14" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <circle cx="12" cy="22" r="2.5" fill="#7203bd"/>
+                            <path d="M18 22 L28 22" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <circle cx="12" cy="30" r="2.5" stroke="#a541ff" stroke-width="1.5"/>
+                            <path d="M18 30 L25 30" stroke="#c97cff" stroke-width="1" stroke-linecap="round" opacity=".5"/>
+                            <path d="M30 27 L34 31 L38 22" stroke="#a541ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card__title">Exercícios com IA</h3>
+                    <p class="card__desc">Gere exercícios personalizados com inteligência artificial para praticar com eficiência.</p>
+                    <span class="card__tag">Prática</span>
+                </div>
+
+                <!-- Sequência -->
+                <div class="card">
+                    <div class="card__icon-wrap">
+                        <svg viewBox="0 0 40 40" fill="none" class="card__svg">
+                            <path d="M8 30 C8 30 12 20 20 20 C28 20 32 10 32 10" stroke="#a541ff" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="8" cy="30" r="3" fill="#7203bd" stroke="#a541ff" stroke-width="1.5"/>
+                            <circle cx="20" cy="20" r="3" fill="#7203bd" stroke="#a541ff" stroke-width="1.5"/>
+                            <circle cx="32" cy="10" r="3.5" fill="#a541ff"/>
+                            <path d="M29 6 L31 9 L34 7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M32 33 L34 36 L37 31" stroke="#c97cff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="28" y="29" width="12" height="10" rx="2" fill="rgba(165,65,255,0.15)" stroke="#7203bd" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    <h3 class="card__title">Sequência de Estudos</h3>
+                    <p class="card__desc">Mantenha uma sequência que cresce cada dia que você acessa a plataforma.</p>
+                    <span class="card__tag">Motivação</span>
+                </div>
+
+                <!-- Pomodoro -->
+                <div class="card">
+                    <div class="card__icon-wrap">
+                        <svg viewBox="0 0 40 40" fill="none" class="card__svg">
+                            <circle cx="20" cy="22" r="14" fill="rgba(165,65,255,0.1)" stroke="#a541ff" stroke-width="1.8"/>
+                            <circle cx="20" cy="22" r="10" stroke="#7203bd" stroke-width="1.2" stroke-dasharray="3 2"/>
+                            <path d="M20 12 L20 22 L27 25" stroke="#c97cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="20" cy="22" r="2.5" fill="#a541ff"/>
+                            <path d="M16 5 L20 9 L24 5" stroke="#a541ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="20" y1="5" x2="20" y2="9" stroke="#a541ff" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card__title">Método Pomodoro</h3>
+                    <p class="card__desc">Cronometre seu tempo de estudo de forma tranquila e organizada.</p>
+                    <span class="card__tag">Produtividade</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── HISTORIA ───── -->
+    <section class="historia" id="historia">
+        <div class="container">
+            <div class="historia__inner">
+                <div class="historia__content">
+                    <span class="section-tag">Nossa história</span>
+                    <h2 class="section-title">Por que criamos a Kosmos?</h2>
+                    <p class="historia__text">
+                        Inicialmente criado como projeto de <abbr title="Trabalho de Conclusão de Curso">TCC</abbr> do Ensino Médio, fundado por quatro estudantes do técnico em <abbr title="Tecnologia da Informação">T.I</abbr>.
+                    </p>
+                    <p class="historia__text">
+                        Por isso esse site foi pensado especialmente para você, estudante! Por sentirmos na pele as complicações de organizar os estudos com a correria de atividades e trabalhos do dia a dia.
+                    </p>
+                    <div class="historia__badges">
+                        <div class="historia__badge"> Projeto de TCC</div>
+                        <div class="historia__badge"> 4 estudantes</div>
+                        <div class="historia__badge"> Técnico em T.I</div>
+                    </div>
+                </div>
+                <div class="historia__img-wrap">
+                    <img src="imagens/imgAmigos.png" alt="Fundadores da Kosmos" class="historia__img">
+                    <div class="historia__img-glow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── CTA FINAL ───── -->
+    <section class="cta-final">
+        <div class="cta-final__orb"></div>
+        <div class="container">
+            <div class="cta-final__inner">
+                <h2 class="cta-final__title">Pronto para organizar<br>seus estudos?</h2>
+                <p class="cta-final__desc">Junte-se à Kosmos e comece a estudar de forma mais organizada hoje mesmo.</p>
+                <div class="cta-final__actions">
+                    <a href="../cadastro/index.html" class="btn btn--primary btn--lg">Criar conta grátis</a>
+                    <a href="../login/index.html" class="btn btn--ghost btn--lg">Já tenho conta</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── FOOTER ───── -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__inner">
+                <div class="footer__brand">
+                    <a href="#" class="logo">
+                        <svg class="logo__icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6C18 6 11 8 5 8V28C11 28 18 26 18 26C18 26 25 28 31 28V8C25 8 18 6 18 6Z" stroke="#a541ff" stroke-width="2" stroke-linejoin="round" fill="rgba(165,65,255,0.12)"/>
+                            <line x1="18" y1="6" x2="18" y2="26" stroke="#a541ff" stroke-width="2"/>
+                            <path d="M9 13 L13 13" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M9 17 L13 17" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M23 13 L27 13" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M23 17 L27 17" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <circle cx="27" cy="7" r="3" fill="#a541ff"/>
+                        </svg>
+                        <span class="logo__text">Kosmos</span>
+                    </a>
+                    <p class="footer__tagline">Estudar nunca foi difícil.</p>
+                </div>
+                <div class="footer__links">
+                    <a href="#sobre">Sobre</a>
+                    <a href="#recursos">Recursos</a>
+                    <a href="#historia">Nossa história</a>
+                    <a href="../login/index.html">Entrar</a>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>© 2026 Kosmos. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('header--scrolled', window.scrollY > 20);
+        });
+
+        const hamburger = document.getElementById('hamburger');
+        const mobileNav = document.getElementById('mobileNav');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileNav.classList.toggle('open');
+        });
+
+        document.querySelectorAll('.mobile-nav__link, .mobile-nav .btn').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                mobileNav.classList.remove('open');
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.card, .sobre__inner, .historia__inner, .cta-final__inner').forEach(el => observer.observe(el));
+
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+            });
+        });
+    </script>
+</body>
+</html>

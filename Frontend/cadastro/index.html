@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kosmos — Cadastro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+</head>
+<body>
+ 
+    <!-- Background -->
+    <div class="bg">
+        <div class="bg__orb bg__orb--1"></div>
+        <div class="bg__orb bg__orb--2"></div>
+        <div class="bg__grid"></div>
+    </div>
+ 
+    <!-- Layout -->
+    <div class="page">
+ 
+        <!-- Right panel — Form first on desktop right s[] -->
+        <div class="panel panel--form">
+            <div class="form-card">
+                <div class="form-card__header">
+                    <a href="../inicio/index.html" class="logo logo--mobile">
+                        <svg class="logo__icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6C18 6 11 8 5 8V28C11 28 18 26 18 26C18 26 25 28 31 28V8C25 8 18 6 18 6Z" stroke="#a541ff" stroke-width="2" stroke-linejoin="round" fill="rgba(165,65,255,0.12)"/><line x1="18" y1="6" x2="18" y2="26" stroke="#a541ff" stroke-width="2"/><path d="M9 13 L13 13" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/><path d="M9 17 L13 17" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/><path d="M23 13 L27 13" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/><path d="M23 17 L27 17" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/><circle cx="27" cy="7" r="3" fill="#a541ff"/></svg>
+                        <span class="logo__text">Kosmos</span>
+                    </a>
+                    <h2 class="form-card__title">Comece a usar a Kosmos</h2>
+                    <p class="form-card__sub">Cadastre-se e estude de forma organizada.</p>
+                </div>
+ 
+                <!-- Google -->
+                <button class="btn-google" type="button">
+                    <img src="imagens/google.png" alt="Google" class="btn-google__icon">
+                    Cadastrar com o Google
+                </button>
+ 
+                <div class="divider"><span>ou preencha os dados</span></div>
+ 
+                <!-- Form -->
+                <form class="form" novalidate>
+                    <div class="field">
+                        <label class="field__label" for="nome">Nome Completo</label>
+                        <div class="field__wrap">
+                            <svg class="field__ico" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <input id="nome" type="text" class="field__input" placeholder="Seu nome completo" autocomplete="name">
+                        </div>
+                    </div>
+ 
+                    <div class="field">
+                        <label class="field__label" for="email">E-mail</label>
+                        <div class="field__wrap">
+                            <svg class="field__ico" viewBox="0 0 20 20" fill="none"><path d="M2.5 5.5A1.5 1.5 0 014 4h12a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5v-9z" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 5.5l7.5 5.25L17.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <input id="email" type="email" class="field__input" placeholder="seu@email.com" autocomplete="email">
+                        </div>
+                    </div>
+ 
+                    <div class="field">
+                        <label class="field__label" for="senha">Senha</label>
+                        <div class="field__wrap">
+                            <svg class="field__ico" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <input id="senha" type="password" class="field__input" placeholder="Mín. 8 caracteres" autocomplete="new-password">
+                            <button type="button" class="field__toggle" aria-label="Mostrar senha" onclick="togglePwd(this)">
+                                <svg viewBox="0 0 20 20" fill="none"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                            </button>
+                        </div>
+                    </div>
+ 
+                    <button type="submit" class="btn-submit">
+                        Criar minha conta
+                        <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M4 10h12M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </form>
+ 
+                <div class="form-card__links">
+                    <a href="../inicio/index.html" class="form-card__link">← Voltar para início</a>
+                    <a href="../login/index.html" class="form-card__link form-card__link--accent">Já tenho conta →</a>
+                </div>
+ 
+                <p class="form-card__terms">
+                    Ao criar uma conta, você concorda com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a> da Kosmos.
+                </p>
+            </div>
+        </div>
+ 
+        <!-- Left info panel -->
+        <div class="panel panel--info">
+            <a href="../inicio/index.html" class="logo">
+                <span class="logo__text">Kosmos</span>
+            </a>
+            <div class="panel__content">
+                <div class="panel__tag">Junte-se à Kosmos</div>
+                <h1 class="panel__title">Seja muito bem-vindo<br>à nossa <em>plataforma!</em></h1>
+                <p class="panel__desc">Ficamos felizes com sua vontade de aprender. Complete os dados ao lado e comece sua jornada.</p>
+            </div>
+            <p class="panel__footer">© 2026 Kosmos. Todos os direitos reservados.</p>
+        </div>
+ 
+    </div>
+ 
+    <script>
+        /* --- Mostrar/ocultar senha --- */
+        function togglePwd(btn) {
+            const input = btn.closest('.field__wrap').querySelector('input');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            btn.style.opacity = input.type === 'text' ? '1' : '0.5';
+        }
+ 
+        /* --- Envio do formulário para o backend PHP --- */
+        document.querySelector('.form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+ 
+            const btn    = this.querySelector('.btn-submit');
+            const nome   = document.getElementById('nome').value.trim();
+            const email  = document.getElementById('email').value.trim();
+            const senha  = document.getElementById('senha').value.trim();
+ 
+            // Remove mensagem anterior
+            document.querySelector('.msg-feedback')?.remove();
+ 
+            // Monta os dados do formulário
+            const dados = new FormData();
+            dados.append('nome',  nome);
+            dados.append('email', email);
+            dados.append('senha', senha);
+ 
+            btn.disabled    = true;
+            btn.textContent = 'Aguarde…';
+ 
+            try {
+                const resposta = await fetch('http://localhost/tccFront-pro/BackEnd/cadastro.php', {
+                    method : 'POST',
+                    body   : dados,
+                });
+ 
+                const json = await resposta.json();
+                mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
+ 
+                if (json.ok) {
+                    this.reset();
+                    setTimeout(() => {
+                        window.location.href = '../login/index.html';
+                    }, 1800);
+                }
+            } catch (err) {
+                mostrarMsg('Não foi possível conectar ao servidor. Verifique se o XAMPP está rodando.', 'erro');
+            } finally {
+                btn.disabled    = false;
+                btn.textContent = 'Criar minha conta';
+            }
+        });
+ 
+        /* --- Exibe mensagem de feedback --- */
+        function mostrarMsg(texto, tipo) {
+            const div = document.createElement('div');
+            div.className = 'msg-feedback msg-feedback--' + tipo;
+            div.textContent = texto;
+            div.style.cssText = `
+                margin-top: 12px;
+                padding: 10px 14px;
+                border-radius: 8px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                background: ${tipo === 'sucesso' ? 'rgba(52,211,153,0.15)' : 'rgba(239,68,68,0.15)'};
+                color: ${tipo === 'sucesso' ? '#34d399' : '#f87171'};
+                border: 1px solid ${tipo === 'sucesso' ? '#34d39940' : '#f8717140'};
+            `;
+            document.querySelector('.form').after(div);
+        }
+    </script>
+</body>
+</html>
+ 
