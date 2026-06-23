@@ -1,92 +1,114 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kosmos - Organize seus estudos</title>
-    <link rel="stylesheet" href="../../css/principal.css">
-     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Kosmos — Dashboard</title>
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
-
 <body>
+
+    <!-- Background Efeitos -->
+    <div class="bg">
+        <div class="bg__orb bg__orb--1"></div>
+        <div class="bg__orb bg__orb--2"></div>
+        <div class="bg__grid"></div>
+    </div>
+
+    <!-- Layout Container -->
     <div class="contGeral">
-        <div class="contLateral">
+
+        <!-- Sidebar (Lateral) -->
+        <aside class="contLateral">
             <div class="contLogo">
-                <img src="" alt="img logo">
+                <a href="../inicio/index.html" class="logo__text">Kosmos</a>
             </div>
             
-           <div class="botoesL">
-               <button id="btnLateral">
-                    <a href=""><img id="iconBtn" src="" alt=""> Início</a>
-                </button>
-                <button id="btnLateral">
-                    <a href=""> <img id="iconBtn" src="" alt=""> Resumos</a>
-                </button>
-                <button id="btnLateral">
-                    <a href=""> <img id="iconBtn" src="" alt=""> Flashacards</a>
-                </button>
-                <button id="btnLateral">
-                    <a href=""> <img id="iconBtn" src="" alt=""> Exercícios</a>
-                </button>
-                <button id="btnLateral">
-                    <a href=""> <img id="iconBtn" src="" alt=""> Pomodóro</a>
-                </button>
-           </div>
+            <nav class="botoesL">
+                <a href="index.html" class="active">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Início
+                </a>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Resumos
+                </a>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 4 L20 4 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 10 L20 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Flashcards
+                </a>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 8 L12 12 L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Exercícios
+                </a>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 4 L12 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Pomodoro
+                </a>
+            </nav>
                 
             <div class="contSequencia">
                 <div class="linhaCima"> 
                     Sequência
-                    <img src="" alt="">
                 </div>
                 <div class="linhaBaixo"> 
-                 6 dias
-                 <br>
+                    6 dias
+                </div>
                 <progress id="sequencia" value="70" max="100"></progress>
-                </div>
-
             </div>
+        </aside>
 
-        </div>
+        <!-- Main Content (Meio) -->
+        <main class="contMeio">
+            <header class="contCabeca">
+                <h1>Bem-vindo, <span class="h-nome" id="nomeUsuario">Estudante</span>!</h1>
+                <p>Veja seu resumo semanal e organize seu fluxo de estudos.</p>
+            </header>
 
-      <div class="contMeio">
-          <div class="contCabeca">
-                <div class="textoCabeca">
-                    <h1>Bem-vindo!
-                        <br>
-                        Veja seu resumo semanal aqui
-                    </h1>
-                </div>
-          </div>
-
-          <div class="dashGeral">
-            <div class="dashCima">
-                <div class="menosEmais">
-                    <div class="textoDash">
-                        <h2> Matéria menos estudada:</h2>
+            <section class="dashGeral">
+                <!-- Cards Superiores -->
+                <div class="dashCima">
+                    <div class="menosEmais">
+                        <div class="textoDash">
+                            <h2>Matéria menos estudada:</h2>
+                        </div>
+                        <div class="dashInfo" style="color: #f87171;">Física</div>
+                    </div>
+                    <div class="menosEmais">
+                        <div class="textoDash">
+                            <h2>Matéria mais estudada:</h2>
+                        </div>
+                        <div class="dashInfo" style="color: #34d399;">Matemática</div>
                     </div>
                 </div>
-                <div class="menosEmais">
-                    <div class="textoDash">
-                        <h2> Matéria mais estudada:</h2>
+
+                <!-- Gráfico Inferior -->
+                <div class="dashBaixo">
+                    <div class="grafico">
+                        <div class="textoDash">
+                            <h2>Estudo Semanal:</h2>
+                        </div>
+                        <div style="display:flex; justify-content:center; align-items:center; height:70%; color:var(--text-muted); border: 1px dashed var(--border); border-radius: var(--radius-sm); margin-top:20px;">
+                            Área do Gráfico (Aqui vai o canvas)
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="dashBaixo">
-                <div class="grafico">
-                    <div class="textoDash">
-                        <h2> Estudo semanal:</h2>
-                    </div>
-                </div>
-            </div>
-          </div>
-
-      </div>
+            </section>
+        </main>
 
     </div>
-</body>
 
+    <!-- Resgatar Nome do Usuário ao carregar -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const nomeStorage = sessionStorage.getItem("kosmos_usuario");
+            if (nomeStorage) {
+                document.getElementById("nomeUsuario").textContent = nomeStorage;
+            }
+        });
+    </script>
+</body>
 </html>

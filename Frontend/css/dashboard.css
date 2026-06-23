@@ -1,0 +1,300 @@
+﻿/* ==== IDENTIDADE VISUAL - DASHBOARD ==== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0d0118; }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #7203bd 0%, #a541ff 100%);
+    border-radius: 100px;
+    border: 2px solid #0d0118;
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #a541ff 0%, #c97cff 100%); }
+* { scrollbar-width: thin; scrollbar-color: #a541ff #0d0118; }
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --black:    #000000;
+    --bg-deep:  #0d0118;
+    --bg-nav:   #12011f;
+    --bg-card:  #130220;
+    --purple-dk:#2f0a4b;
+    --purple-md:#7203bd;
+    --purple:   #8200db;
+    --accent:   #a541ff;
+    --accent-lt:#c97cff;
+    --text:     #ffffff;
+    --text-dim: #b8a8cc;
+    --text-muted:#6a5880;
+    --border:   rgba(165,65,255,.2);
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 28px;
+    --transition: .22s cubic-bezier(.4,0,.2,1);
+}
+
+body {
+    background: var(--bg-deep);
+    font-family: "DM Sans", sans-serif;
+    color: var(--text);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
+
+/* Background Efeitos */
+.bg {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    overflow: hidden; background: radial-gradient(circle at 50% 0%, #150025 0%, var(--black) 80%);
+}
+.bg__orb {
+    position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.4;
+}
+.bg__orb--1 { width: 500px; height: 500px; background: var(--purple-md); top: -200px; left: -100px; }
+.bg__orb--2 { width: 600px; height: 600px; background: var(--purple-dk); bottom: -300px; right: -200px; }
+.bg__grid {
+    position: absolute; inset: 0;
+    background-image: 
+        linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(circle at 50% 50%, black 10%, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, black 10%, transparent 80%);
+}
+
+/* Layout Geral */
+.contGeral {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Menu Lateral */
+.contLateral {
+    width: 280px;
+    background: rgba(19, 2, 32, 0.6);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+}
+
+.contLogo {
+    margin-bottom: 40px;
+}
+.logo__text {
+    font-family: "Syne", sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.03em;
+}
+
+.botoesL {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-grow: 1;
+}
+
+.botoesL a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--text-dim);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.botoesL a:hover,
+.botoesL a.active {
+    background: rgba(165,65,255,0.15);
+    color: var(--accent-lt);
+    border: 1px solid rgba(165,65,255,0.3);
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+}
+
+.botoesL a:hover .nav-icon,
+.botoesL a.active .nav-icon {
+    opacity: 1;
+}
+
+/* Sequência / Progress */
+.contSequencia {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    text-align: center;
+    margin-top: auto;
+}
+
+.linhaCima {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.linhaBaixo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: "Syne", sans-serif;
+    color: var(--accent-lt);
+}
+progress {
+    width: 100%;
+    margin-top: 10px;
+    height: 8px;
+    border-radius: 10px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+progress::-webkit-progress-bar {
+    background-color: var(--purple-dk);
+    border-radius: 10px;
+}
+progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--purple-md), var(--accent));
+    border-radius: 10px;
+}
+
+/* Conteúdo Meio */
+.contMeio {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.contCabeca h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.contCabeca p {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+.h-nome { color: var(--accent-lt); }
+
+/* Dashboard Grid */
+.dashGeral {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.dashCima {
+    display: flex;
+    gap: 24px;
+}
+.menosEmais, .grafico {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 30px;
+    backdrop-filter: blur(10px);
+}
+.dashCima .menosEmais {
+    flex: 1;
+}
+.textoDash h2 {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+.dashInfo {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: "Syne", sans-serif;
+    color: var(--text);
+}
+.dashBaixo .grafico {
+    height: 300px;
+}
+
+
+/* ==== RESPONSIVIDADE ==== */
+@media (max-width: 1024px) {
+    .dashCima {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .contGeral {
+        flex-direction: column;
+    }
+    
+    .contLateral {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 20px;
+        flex-direction: column;
+    }
+    
+    .contLogo {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .botoesL {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        gap: 15px;
+    }
+    
+    /* Remove barra de scroll visivel no mobile */
+    .botoesL::-webkit-scrollbar {
+        height: 4px;
+    }
+    .botoesL::-webkit-scrollbar-thumb {
+        background: var(--purple-md);
+    }
+    
+    .botoesL a {
+        padding: 10px 15px;
+        white-space: nowrap;
+    }
+    
+    .contSequencia {
+        margin-top: 20px;
+    }
+    
+    .contMeio {
+        padding: 24px 20px;
+    }
+    
+    .contCabeca h1 {
+        font-size: 2rem;
+    }
+    
+    .menosEmais, .grafico {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contCabeca h1 {
+        font-size: 1.6rem;
+    }
+    
+    .dashInfo {
+        font-size: 1.5rem;
+    }
+}
+
