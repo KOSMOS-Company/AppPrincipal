@@ -130,7 +130,7 @@
                 mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
                 if (json.ok) {
                     sessionStorage.setItem('kosmos_usuario', json.nome);
-                    setTimeout(() => { window.location.href = '../inicio/index.html'; }, 1200);
+                    setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 1200);
                 }
             } catch (err) {
                 mostrarMsg('Nao foi possivel conectar ao servidor. Verifique se o XAMPP esta rodando.', 'erro');
