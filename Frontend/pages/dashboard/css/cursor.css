@@ -1,0 +1,54 @@
+/* ============================================================
+   KOSMOS — cursor.css  (cursor do dashboard: anel + ponto)
+   Efeito próprio do dashboard — diferente do brilho da home.
+   ============================================================ */
+
+.dash-cursor,
+.dash-cursor__dot {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 50%;
+    will-change: transform;
+}
+
+/* Anel que persegue o mouse com atraso */
+.dash-cursor {
+    width: 34px; height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 1.5px solid rgba(165, 65, 255, .6);
+    transition: width .25s ease, height .25s ease, margin .25s ease,
+                background-color .25s ease, border-color .25s ease, opacity .3s ease;
+}
+
+/* Ponto preciso na ponta do mouse */
+.dash-cursor__dot {
+    width: 6px; height: 6px;
+    margin: -3px 0 0 -3px;
+    background: var(--accent-lt, #c97cff);
+    transition: opacity .3s ease;
+}
+
+/* Sobre elementos interativos: o anel cresce e preenche levemente */
+.dash-cursor--hover {
+    width: 54px; height: 54px;
+    margin: -27px 0 0 -27px;
+    background: rgba(165, 65, 255, .12);
+    border-color: rgba(201, 124, 255, .9);
+}
+
+/* Ao clicar: o anel encolhe (feedback) */
+.dash-cursor--down {
+    width: 24px; height: 24px;
+    margin: -12px 0 0 -12px;
+}
+
+/* Esconde o cursor nativo só quando o efeito está ativo */
+.has-dash-cursor, .has-dash-cursor * { cursor: none !important; }
+
+/* Sem cursor custom no toque/telas pequenas — volta o nativo */
+@media (max-width: 768px), (pointer: coarse) {
+    .dash-cursor, .dash-cursor__dot { display: none; }
+    .has-dash-cursor, .has-dash-cursor * { cursor: auto !important; }
+}
