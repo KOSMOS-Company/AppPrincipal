@@ -192,14 +192,18 @@ em { font-style: normal; color: var(--accent-lt); }
     display: none;
     flex-direction: column;
     gap: 8px;
-    padding: 20px 24px 28px;
+    padding: 0 24px;
     background: rgba(13,1,24,.98);
-    border-top: 1px solid rgba(165,65,255,.15);
     max-height: 0;
     overflow: hidden;
-    transition: max-height .4s ease, padding .4s ease;
+    transition: max-height .4s ease, padding .4s ease, border-color .4s ease;
+    border-top: 1px solid transparent;
 }
-.mobile-nav.open { max-height: 400px; }
+.mobile-nav.open {
+    max-height: 400px;
+    padding: 20px 24px 28px;
+    border-top-color: rgba(165,65,255,.15);
+}
 .mobile-nav__link { font-size: 1rem; color: var(--text-dim); text-decoration: none; padding: 10px 4px; border-bottom: 1px solid rgba(255,255,255,.05); }
 .mobile-nav__link:hover { color: #fff; }
 .mobile-nav .btn { justify-content: center; margin-top: 4px; }
@@ -229,14 +233,15 @@ em { font-style: normal; color: var(--accent-lt); }
 .hero__orb--1 {
     width: 600px; height: 600px;
     top: -200px; left: 50%;
-    transform: translateX(-50%);
     background: radial-gradient(circle, #7203bd 0%, transparent 70%);
+    animation: orbFloat 8s ease-in-out infinite;
 }
 .hero__orb--2 {
     width: 400px; height: 400px;
     bottom: -100px; right: -100px;
     background: radial-gradient(circle, #a541ff 0%, transparent 70%);
     opacity: .3;
+    animation: orbDrift 10s ease-in-out infinite;
 }
 
 .hero__grid {
@@ -334,11 +339,7 @@ em { font-style: normal; color: var(--accent-lt); }
     grid-template-columns: 1fr 1fr;
     gap: 72px;
     align-items: center;
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity .7s ease, transform .7s ease;
 }
-.sobre__inner.visible { opacity: 1; transform: translateY(0); }
 
 .sobre__img-wrap {
     position: relative;
@@ -459,11 +460,7 @@ em { font-style: normal; color: var(--accent-lt); }
     grid-template-columns: 1fr 1fr;
     gap: 72px;
     align-items: center;
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity .7s ease, transform .7s ease;
 }
-.historia__inner.visible { opacity: 1; transform: translateY(0); }
 
 .historia__text { color: var(--text-dim); font-size: 1.02rem; margin-bottom: 16px; }
 .historia__text:last-of-type { margin-bottom: 28px; }
@@ -527,11 +524,7 @@ em { font-style: normal; color: var(--accent-lt); }
     position: relative;
     max-width: 620px;
     margin: 0 auto;
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity .7s ease, transform .7s ease;
 }
-.cta-final__inner.visible { opacity: 1; transform: translateY(0); }
 
 .cta-final__title { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; margin-bottom: 16px; }
 .cta-final__desc { color: var(--text-dim); font-size: 1.05rem; margin-bottom: 40px; }
@@ -583,6 +576,38 @@ em { font-style: normal; color: var(--accent-lt); }
 @keyframes pulse {
     0%,100% { opacity: 1; }
     50% { opacity: .4; }
+}
+@keyframes orbFloat {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(-28px); }
+}
+@keyframes orbDrift {
+    0%, 100% { transform: translate(0, 0); }
+    50%       { transform: translate(-22px, -18px); }
+}
+
+/* ════════════════════════════════
+   SCROLL REVEAL
+   ════════════════════════════════ */
+.reveal {
+    opacity: 0;
+    transition: opacity .75s cubic-bezier(.4,0,.2,1), transform .75s cubic-bezier(.4,0,.2,1);
+}
+.reveal--up    { transform: translateY(44px); }
+.reveal--left  { transform: translateX(-52px); }
+.reveal--right { transform: translateX(52px); }
+.reveal--scale { transform: scale(.93) translateY(20px); }
+
+.reveal.visible { opacity: 1; transform: none; }
+
+.reveal--d1 { transition-delay: .14s; }
+.reveal--d2 { transition-delay: .26s; }
+.reveal--d3 { transition-delay: .38s; }
+.reveal--d4 { transition-delay: .50s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal, .card { transition: none !important; opacity: 1 !important; transform: none !important; }
+    .hero__orb--1, .hero__orb--2 { animation: none !important; }
 }
 
 /* ════════════════════════════════

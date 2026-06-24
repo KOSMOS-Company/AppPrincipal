@@ -47,7 +47,10 @@
             <div class="hero__grid"></div>
         </div>
         <div class="hero__inner">
-            
+            <div class="hero__badge">
+                <span class="hero__badge-dot"></span>
+                Plataforma gratuita para estudantes
+            </div>
             <h1 class="hero__title">
                 Organize seus<br>
                 <em>estudos</em> com<br>
@@ -83,11 +86,11 @@
     <section class="sobre" id="sobre">
         <div class="container">
             <div class="sobre__inner">
-                <div class="sobre__img-wrap">
+                <div class="sobre__img-wrap reveal reveal--left">
                     <img src="imagens/imgSobre.png" alt="Estudante usando Kosmos" class="sobre__img">
                     <div class="sobre__img-glow"></div>
                 </div>
-                <div class="sobre__content">
+                <div class="sobre__content reveal reveal--right reveal--d1">
                     <span class="section-tag">Nossos objetivos</span>
                     <h2 class="section-title">Uma plataforma feita <em>de estudante para estudante</em></h2>
                     <p class="sobre__text">
@@ -104,7 +107,7 @@
     <!-- ───── RECURSOS ───── -->
     <section class="recursos" id="recursos">
         <div class="container">
-            <div class="recursos__header">
+            <div class="recursos__header reveal reveal--up">
                 <h2 class="section-title">Por que nos escolher?</h2>
                 <p class="recursos__subtitle">Tudo que você precisa para estudar de forma organizada, em um só lugar.</p>
             </div>
@@ -225,7 +228,7 @@
     <section class="historia" id="historia">
         <div class="container">
             <div class="historia__inner">
-                <div class="historia__content">
+                <div class="historia__content reveal reveal--left">
                     <span class="section-tag">Nossa história</span>
                     <h2 class="section-title">Por que criamos a Kosmos?</h2>
                     <p class="historia__text">
@@ -240,7 +243,7 @@
                         <div class="historia__badge"> Técnico em T.I</div>
                     </div>
                 </div>
-                <div class="historia__img-wrap">
+                <div class="historia__img-wrap reveal reveal--right reveal--d1">
                     <img src="imagens/imgAmigos.png" alt="Fundadores da Kosmos" class="historia__img">
                     <div class="historia__img-glow"></div>
                 </div>
@@ -252,7 +255,7 @@
     <section class="cta-final">
         <div class="cta-final__orb"></div>
         <div class="container">
-            <div class="cta-final__inner">
+            <div class="cta-final__inner reveal reveal--scale">
                 <h2 class="cta-final__title">Pronto para organizar<br>seus estudos?</h2>
                 <p class="cta-final__desc">Junte-se à Kosmos e comece a estudar de forma mais organizada hoje mesmo.</p>
                 <div class="cta-final__actions">
@@ -320,7 +323,7 @@
                 if (entry.isIntersecting) entry.target.classList.add('visible');
             });
         }, { threshold: 0.1 });
-        document.querySelectorAll('.card, .sobre__inner, .historia__inner, .cta-final__inner').forEach(el => observer.observe(el));
+        document.querySelectorAll('.card, .reveal').forEach(el => observer.observe(el));
 
         document.querySelectorAll('a[href^="#"]').forEach(a => {
             a.addEventListener('click', e => {

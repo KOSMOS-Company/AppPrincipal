@@ -95,9 +95,15 @@
                     </button>
                 </form>
 
-                <div class="form-card__links">
-                    <a href="../inicio/index.html" class="form-card__link">← Voltar para início</a>
-                    <a href="../cadastro/index.html" class="form-card__link form-card__link--accent">Criar conta →</a>
+                <div class="form-card__footer">
+                    <p class="form-card__signup">
+                        Ainda não tem uma conta?
+                        <a href="../cadastro/index.html" class="form-card__signup-link">Criar conta</a>
+                    </p>
+                    <a href="../inicio/index.html" class="form-card__back">
+                        <svg viewBox="0 0 20 20" fill="none" width="15" height="15"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Voltar para o início
+                    </a>
                 </div>
             </div>
         </div>
@@ -114,6 +120,7 @@
         document.querySelector('.form').addEventListener('submit', async function (e) {
             e.preventDefault();
             const btn   = this.querySelector('button[type="submit"]');
+            const btnHtml = btn.innerHTML;
             const email = document.getElementById('email').value.trim();
             const senha = document.getElementById('senha').value.trim();
             document.querySelector('.msg-feedback')?.remove();
@@ -136,8 +143,8 @@
             } catch (err) {
                 mostrarMsg('Nao foi possivel conectar ao servidor. Verifique se o XAMPP esta rodando.', 'erro');
             } finally {
-                btn.disabled    = false;
-                btn.textContent = 'Entrar';
+                btn.disabled  = false;
+                btn.innerHTML = btnHtml;
             }
         });
 
