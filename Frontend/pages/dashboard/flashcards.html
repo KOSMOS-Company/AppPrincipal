@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kosmos — Flashcards</title>
+    <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/flashcards.css">
+    <link rel="stylesheet" href="../shared/mouse-tracker.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="bg">
+        <div class="bg__orb bg__orb--1"></div>
+        <div class="bg__orb bg__orb--2"></div>
+        <div class="bg__grid"></div>
+    </div>
+
+    <div class="contGeral">
+
+        <aside class="contLateral">
+            <div class="contLogo">
+                <a href="../inicio/index.html" class="logo__text">Kosmos</a>
+            </div>
+            <nav class="botoesL">
+                <a href="index.html">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Início
+                </a>
+                <a href="resumos.html">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Resumos
+                </a>
+                <a href="flashcards.html">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Flashcards
+                </a>
+                <a href="exercicios.html">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Exercícios
+                </a>
+                <a href="pomodoro.html">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Pomodoro
+                </a>
+            </nav>
+            <div class="contSequencia">
+                <div class="linhaCima">Sequência</div>
+                <div class="linhaBaixo">6 dias</div>
+                <progress id="sequencia" value="70" max="100"></progress>
+            </div>
+        </aside>
+
+        <main class="contMeio">
+
+            <!-- VISÃO: LISTA DE DECKS -->
+            <section id="viewDecks">
+                <header class="contCabeca">
+                    <div class="contCabeca__texto">
+                        <h1>Seus <span class="h-nome">Flashcards</span></h1>
+                        <p>Crie e revise seus baralhos de cartões.</p>
+                    </div>
+                    <button class="dash-btn dash-btn--primary" id="btnNovoDeck">
+                        <svg viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Novo deck
+                    </button>
+                </header>
+                <div class="decks-grid" id="decksGrid"></div>
+            </section>
+
+            <!-- VISÃO: MODO DE ESTUDO -->
+            <section id="viewEstudo" hidden>
+                <header class="contCabeca">
+                    <div class="contCabeca__texto">
+                        <h1 id="estudoTitulo">Deck</h1>
+                        <p id="estudoProgresso">Cartão 1 de 1</p>
+                    </div>
+                    <button class="dash-btn dash-btn--outline" id="btnVoltar">← Voltar aos decks</button>
+                </header>
+
+                <div class="estudo-area">
+                    <div class="flashcard" id="flashcard">
+                        <div class="flashcard__inner">
+                            <div class="flashcard__face flashcard__face--frente">
+                                <span class="flashcard__hint">Pergunta</span>
+                                <p id="cardFrente">—</p>
+                                <span class="flashcard__virar">Clique para ver a resposta</span>
+                            </div>
+                            <div class="flashcard__face flashcard__face--verso">
+                                <span class="flashcard__hint">Resposta</span>
+                                <p id="cardVerso">—</p>
+                                <span class="flashcard__virar">Clique para voltar</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="estudo-nav">
+                        <button class="dash-btn dash-btn--ghost" id="btnAnterior">← Anterior</button>
+                        <div class="estudo-progresso">
+                            <div class="estudo-progresso__bar" id="barEstudo"></div>
+                        </div>
+                        <button class="dash-btn dash-btn--ghost" id="btnProximo">Próximo →</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal: novo deck -->
+    <div class="modal" id="modal">
+        <div class="modal__box">
+            <div class="modal__head">
+                <h3>Novo deck</h3>
+                <button class="modal__close" id="fechar" aria-label="Fechar">&times;</button>
+            </div>
+            <form class="modal__form" id="formDeck">
+                <div class="campo">
+                    <label for="nomeDeck">Nome do deck</label>
+                    <input id="nomeDeck" type="text" placeholder="Ex: Biologia — Genética" required>
+                </div>
+                <div class="campo">
+                    <label for="materiaDeck">Matéria</label>
+                    <select id="materiaDeck" required>
+                        <option value="Matemática">Matemática</option>
+                        <option value="Física">Física</option>
+                        <option value="Química">Química</option>
+                        <option value="Biologia">Biologia</option>
+                        <option value="História">História</option>
+                        <option value="Português">Português</option>
+                    </select>
+                </div>
+                <div class="modal__actions">
+                    <button type="button" class="dash-btn dash-btn--outline" id="cancelar">Cancelar</button>
+                    <button type="submit" class="dash-btn dash-btn--primary">Criar deck</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="./js/dashboard.js"></script>
+    <script src="./js/flashcards.js"></script>
+    <script src="../shared/mouse-tracker.js"></script>
+</body>
+</html>

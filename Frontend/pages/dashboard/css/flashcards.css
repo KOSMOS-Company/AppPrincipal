@@ -1,0 +1,119 @@
+/* ==== FLASHCARDS ==== */
+
+/* Grade de decks */
+.decks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.deck-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: var(--transition);
+}
+.deck-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(165,65,255,.4);
+    box-shadow: 0 20px 50px rgba(0,0,0,.45), 0 0 30px rgba(165,65,255,.1);
+}
+.deck-card__nome { font-family: "Syne", sans-serif; font-size: 1.2rem; font-weight: 700; }
+.deck-card__qtd { font-size: .85rem; color: var(--text-muted); }
+.deck-card__qtd strong { color: var(--accent-lt); font-weight: 700; }
+.deck-card .dash-btn { margin-top: auto; justify-content: center; }
+
+/* Área de estudo */
+.estudo-area {
+    max-width: 620px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Carta com flip 3D */
+.flashcard {
+    perspective: 1600px;
+    cursor: pointer;
+    margin-bottom: 28px;
+}
+.flashcard__inner {
+    position: relative;
+    width: 100%;
+    min-height: 320px;
+    transition: transform .6s cubic-bezier(.4,0,.2,1);
+    transform-style: preserve-3d;
+}
+.flashcard.virada .flashcard__inner { transform: rotateY(180deg); }
+
+.flashcard__face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 18px;
+}
+.flashcard__face--frente {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #1a0230 100%);
+}
+.flashcard__face--verso {
+    background: linear-gradient(135deg, #1e0338 0%, var(--purple-dk) 100%);
+    border-color: rgba(165,65,255,.4);
+    transform: rotateY(180deg);
+}
+.flashcard__face p {
+    font-family: "Syne", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+.flashcard__hint {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+.flashcard__virar {
+    margin-top: auto;
+    font-size: .8rem;
+    color: var(--text-muted);
+}
+
+/* Navegação do estudo */
+.estudo-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.estudo-progresso {
+    flex: 1;
+    height: 8px;
+    background: var(--purple-dk);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.estudo-progresso__bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--purple-md), var(--accent));
+    border-radius: 10px;
+    transition: width .35s ease;
+}
+
+@media (max-width: 480px) {
+    .flashcard__face { padding: 28px; }
+    .flashcard__face p { font-size: 1.2rem; }
+    .estudo-nav .dash-btn { padding: 10px 14px; font-size: .85rem; }
+}

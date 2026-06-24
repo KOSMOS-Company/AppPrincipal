@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kosmos — Dashboard</title>
+    <title>Kosmos — Pomodoro</title>
     <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/pomodoro.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,24 +13,20 @@
 </head>
 <body>
 
-    <!-- Background Efeitos -->
     <div class="bg">
         <div class="bg__orb bg__orb--1"></div>
         <div class="bg__orb bg__orb--2"></div>
         <div class="bg__grid"></div>
     </div>
 
-    <!-- Layout Container -->
     <div class="contGeral">
 
-        <!-- Sidebar (Lateral) -->
         <aside class="contLateral">
             <div class="contLogo">
                 <a href="../inicio/index.html" class="logo__text">Kosmos</a>
             </div>
-            
             <nav class="botoesL">
-                <a href="index.html" class="active">
+                <a href="index.html">
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Início
                 </a>
@@ -50,61 +47,57 @@
                     Pomodoro
                 </a>
             </nav>
-                
             <div class="contSequencia">
-                <div class="linhaCima"> 
-                    Sequência
-                </div>
-                <div class="linhaBaixo"> 
-                    6 dias
-                </div>
+                <div class="linhaCima">Sequência</div>
+                <div class="linhaBaixo">6 dias</div>
                 <progress id="sequencia" value="70" max="100"></progress>
             </div>
         </aside>
 
-        <!-- Main Content (Meio) -->
         <main class="contMeio">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <h1>Bem-vindo, <span class="h-nome" data-usuario>Estudante</span>!</h1>
-                    <p>Veja seu resumo semanal e organize seu fluxo de estudos.</p>
+                    <h1>Método <span class="h-nome">Pomodoro</span></h1>
+                    <p>Foque por blocos de tempo e descanse entre eles.</p>
                 </div>
             </header>
 
-            <section class="dashGeral">
-                <!-- Cards Superiores -->
-                <div class="dashCima">
-                    <div class="menosEmais">
-                        <div class="textoDash">
-                            <h2>Matéria menos estudada:</h2>
-                        </div>
-                        <div class="dashInfo" style="color: #f87171;">Física</div>
-                    </div>
-                    <div class="menosEmais">
-                        <div class="textoDash">
-                            <h2>Matéria mais estudada:</h2>
-                        </div>
-                        <div class="dashInfo" style="color: #34d399;">Matemática</div>
+            <div class="pomo">
+                <!-- Modos -->
+                <div class="pomo__modos">
+                    <button class="pomo-modo active" data-modo="foco"   data-min="25">Foco</button>
+                    <button class="pomo-modo"        data-modo="curta"  data-min="5">Pausa curta</button>
+                    <button class="pomo-modo"        data-modo="longa"  data-min="15">Pausa longa</button>
+                </div>
+
+                <!-- Anel + tempo -->
+                <div class="pomo__timer">
+                    <svg class="pomo__ring" viewBox="0 0 280 280">
+                        <circle class="pomo__ring-bg"  cx="140" cy="140" r="125"/>
+                        <circle class="pomo__ring-fg"  cx="140" cy="140" r="125" id="anel"/>
+                    </svg>
+                    <div class="pomo__centro">
+                        <div class="pomo__tempo" id="tempo">25:00</div>
+                        <div class="pomo__estado" id="estado">Hora de focar</div>
                     </div>
                 </div>
 
-                <!-- Gráfico Inferior -->
-                <div class="dashBaixo">
-                    <div class="grafico">
-                        <div class="textoDash">
-                            <h2>Estudo Semanal:</h2>
-                        </div>
-                        <div style="display:flex; justify-content:center; align-items:center; height:70%; color:var(--text-muted); border: 1px dashed var(--border); border-radius: var(--radius-sm); margin-top:20px;">
-                            Área do Gráfico (Aqui vai o canvas)
-                        </div>
-                    </div>
+                <!-- Controles -->
+                <div class="pomo__controles">
+                    <button class="dash-btn dash-btn--primary pomo__play" id="btnPlay">Iniciar</button>
+                    <button class="dash-btn dash-btn--outline" id="btnReset">Reiniciar</button>
                 </div>
-            </section>
+
+                <!-- Ciclos -->
+                <div class="pomo__ciclos">
+                    Ciclos de foco concluídos: <strong id="ciclos">0</strong>
+                </div>
+            </div>
         </main>
-
     </div>
 
     <script src="./js/dashboard.js"></script>
+    <script src="./js/pomodoro.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
 </body>
 </html>

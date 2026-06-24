@@ -225,6 +225,168 @@ progress::-webkit-progress-value {
     height: 300px;
 }
 
+/* ============================================================
+   COMPONENTES COMPARTILHADOS (usados nas abas)
+   ============================================================ */
+
+/* Cabeçalho de página com ação à direita */
+.contCabeca {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+.contCabeca p { margin-bottom: 0; }
+
+/* Botões */
+.dash-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "DM Sans", sans-serif;
+    font-size: .92rem;
+    font-weight: 600;
+    padding: 11px 20px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+.dash-btn svg { width: 18px; height: 18px; }
+.dash-btn--primary { background: var(--accent); color: #fff; }
+.dash-btn--primary:hover { background: var(--accent-lt); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(165,65,255,.35); }
+.dash-btn--ghost { background: rgba(165,65,255,.1); color: var(--accent-lt); border-color: rgba(165,65,255,.3); }
+.dash-btn--ghost:hover { background: rgba(165,65,255,.18); border-color: var(--accent); }
+.dash-btn--outline { background: transparent; color: var(--text-dim); border-color: rgba(255,255,255,.15); }
+.dash-btn--outline:hover { border-color: rgba(255,255,255,.4); color: #fff; }
+.dash-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Painel/cartão genérico */
+.painel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    backdrop-filter: blur(10px);
+}
+
+/* Chips de filtro */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+.chip {
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.1);
+    padding: 8px 16px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+.chip:hover { color: #fff; border-color: rgba(165,65,255,.4); }
+.chip.active { background: rgba(165,65,255,.15); color: var(--accent-lt); border-color: rgba(165,65,255,.4); }
+
+/* Tag de matéria */
+.materia-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(165,65,255,.1);
+    border: 1px solid rgba(165,65,255,.22);
+    padding: 4px 10px;
+    border-radius: 100px;
+}
+
+/* Estado vazio */
+.vazio {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+}
+.vazio svg { width: 48px; height: 48px; opacity: .5; margin-bottom: 16px; }
+.vazio h3 { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 6px; }
+.vazio p { font-size: .92rem; }
+
+/* Campos de formulário (reuso) */
+.campo { display: flex; flex-direction: column; gap: 7px; }
+.campo label { font-size: .85rem; font-weight: 500; color: var(--text-dim); }
+.campo input, .campo select, .campo textarea {
+    width: 100%;
+    padding: 11px 14px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: "DM Sans", sans-serif;
+    font-size: .95rem;
+    outline: none;
+    transition: var(--transition);
+}
+.campo textarea { resize: vertical; min-height: 90px; }
+.campo input:focus, .campo select:focus, .campo textarea:focus {
+    border-color: var(--accent);
+    background: rgba(165,65,255,.08);
+    box-shadow: 0 0 0 3px rgba(165,65,255,.15);
+}
+.campo select option { background: var(--bg-nav); }
+
+/* Entrada animada dos cartões */
+@keyframes dashFade {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.anim-in { animation: dashFade .5s ease both; }
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(5, 0, 12, .7);
+    backdrop-filter: blur(6px);
+}
+.modal.open { display: flex; animation: dashFade .25s ease both; }
+.modal__box {
+    width: 100%;
+    max-width: 440px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 60px rgba(165,65,255,.12);
+}
+.modal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+.modal__head h3 { font-size: 1.3rem; font-weight: 700; }
+.modal__close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.modal__close:hover { color: #fff; }
+.modal__form { display: flex; flex-direction: column; gap: 16px; }
+.modal__actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
 
 /* ==== RESPONSIVIDADE ==== */
 @media (max-width: 1024px) {
@@ -237,52 +399,64 @@ progress::-webkit-progress-value {
     .contGeral {
         flex-direction: column;
     }
-    
+
+    /* Topo: apenas o logo, centralizado */
     .contLateral {
         width: 100%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        padding: 20px;
-        flex-direction: column;
+        padding: 14px 20px;
+        background: rgba(13,1,24,.6);
+        backdrop-filter: none;        /* libera o position:fixed da barra p/ ancorar na viewport */
+        -webkit-backdrop-filter: none;
     }
-    
-    .contLogo {
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    
+    .contLogo { margin-bottom: 0; text-align: center; }
+
+    /* Esconde o widget de sequência no mobile */
+    .contSequencia { display: none; }
+
+    /* Nav vira barra inferior fixa (estilo Instagram, só ícones) */
     .botoesL {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 100;
         flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 10px;
-        gap: 15px;
+        justify-content: space-around;
+        align-items: center;
+        gap: 0;
+        flex-grow: 0;
+        padding: 10px 6px calc(10px + env(safe-area-inset-bottom));
+        background: rgba(13,1,24,.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border);
     }
-    
-    /* Remove barra de scroll visivel no mobile */
-    .botoesL::-webkit-scrollbar {
-        height: 4px;
-    }
-    .botoesL::-webkit-scrollbar-thumb {
-        background: var(--purple-md);
-    }
-    
     .botoesL a {
-        padding: 10px 15px;
-        white-space: nowrap;
+        font-size: 0;                 /* esconde o rótulo, mantém o ícone */
+        flex-direction: column;
+        gap: 0;
+        padding: 8px 14px;
+        border: none !important;
+        background: none !important;
+        color: var(--text-muted);
     }
-    
-    .contSequencia {
-        margin-top: 20px;
-    }
-    
+    .botoesL a .nav-icon { width: 25px; height: 25px; opacity: .65; }
+    .botoesL a:hover .nav-icon { opacity: 1; }
+    .botoesL a.active { color: var(--accent-lt); }
+    .botoesL a.active .nav-icon { opacity: 1; }
+
+    /* Espaço para o conteúdo não ficar atrás da barra inferior */
     .contMeio {
-        padding: 24px 20px;
+        padding: 24px 20px calc(70px + env(safe-area-inset-bottom));
     }
-    
+
     .contCabeca h1 {
         font-size: 2rem;
     }
-    
+
     .menosEmais, .grafico {
         padding: 20px;
     }

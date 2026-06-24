@@ -1,0 +1,91 @@
+/* ==== POMODORO ==== */
+.pomo {
+    max-width: 480px;
+    margin: 20px auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+}
+
+/* Modos */
+.pomo__modos {
+    display: flex;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px;
+}
+.pomo-modo {
+    font-family: "DM Sans", sans-serif;
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+.pomo-modo:hover { color: #fff; }
+.pomo-modo.active { background: rgba(165,65,255,.18); color: var(--accent-lt); }
+
+/* Anel */
+.pomo__timer {
+    position: relative;
+    width: 280px;
+    height: 280px;
+}
+.pomo__ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+.pomo__ring-bg {
+    fill: none;
+    stroke: var(--purple-dk);
+    stroke-width: 12;
+}
+.pomo__ring-fg {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-dasharray: 785.4;       /* 2π·125 */
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+}
+
+.pomo__centro {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.pomo__tempo {
+    font-family: "Syne", sans-serif;
+    font-size: 3.6rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+}
+.pomo__estado { font-size: .9rem; color: var(--text-muted); }
+
+/* Estado de pausa muda a cor do anel */
+.pomo--pausa .pomo__ring-fg { stroke: #34d399; }
+.pomo--pausa .pomo-modo.active { background: rgba(52,211,153,.18); color: #34d399; }
+
+/* Controles */
+.pomo__controles { display: flex; gap: 12px; }
+.pomo__play { min-width: 130px; justify-content: center; }
+
+.pomo__ciclos { font-size: .92rem; color: var(--text-dim); }
+.pomo__ciclos strong { color: var(--accent-lt); font-family: "Syne", sans-serif; }
+
+@media (max-width: 480px) {
+    .pomo__timer { width: 240px; height: 240px; }
+    .pomo__tempo { font-size: 3rem; }
+    .pomo__modos { flex-wrap: wrap; justify-content: center; }
+}
