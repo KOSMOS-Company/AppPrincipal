@@ -1,0 +1,34 @@
+/* Termos de Uso — estilos (baseado na identidade visual) */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+:root{
+    --black:#000;
+    --bg-deep:#0d0118;
+    --accent:#a541ff;
+    --accent-lt:#c97cff;
+    --text:#fff;
+    --text-dim:#b8a8cc;
+    --radius-md:20px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);min-height:100vh}
+.bg{position:fixed;inset:0;pointer-events:none;z-index:0}
+.bg__orb{position:absolute;border-radius:50%;filter:blur(90px)}
+.bg__orb--1{width:600px;height:600px;top:-150px;left:-100px;background:radial-gradient(circle,#7203bd 0%,transparent 70%);opacity:.45}
+.bg__orb--2{width:400px;height:400px;bottom:-120px;right:-100px;background:radial-gradient(circle,#a541ff 0%,transparent 70%);opacity:.2}
+.bg__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(165,65,255,.04) 1px, transparent 1px),linear-gradient(90deg, rgba(165,65,255,.04) 1px, transparent 1px);background-size:48px 48px}
+
+.terms-container{position:relative;z-index:1;max-width:920px;margin:80px auto;padding:40px}
+.terms-card{background:rgba(19,2,32,0.6);border:1px solid rgba(165,65,255,.12);border-radius:var(--radius-md);padding:28px}
+.section-tag{display:inline-flex;padding:6px 12px;background:rgba(165,65,255,.08);color:var(--accent-lt);border-radius:100px;font-weight:600;font-size:.86rem}
+.section-title{font-family:'Syne',sans-serif;font-size:1.8rem;margin:14px 0}
+.terms-meta{color:var(--text-dim);margin-bottom:16px}
+.terms-card h3{font-size:1.02rem;margin-top:12px;color:var(--accent-lt)}
+.terms-card p{color:var(--text-dim);margin-top:8px;line-height:1.5}
+.terms-footer{margin-top:18px;color:var(--text-dim)}
+.terms-footer a{color:var(--accent)}
+
+.footer-terms{max-width:920px;margin:40px auto 60px;color:var(--text-dim);text-align:center}
+
+@media(max-width:720px){.terms-container{margin:60px 16px;padding:20px}.section-title{font-size:1.4rem}}
