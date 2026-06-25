@@ -4,7 +4,9 @@
    O "porteiro" (redirecionar se não logado) já é feito por dashboard.js.
    ============================================================ */
 
-const API = "../../../Backend/php";
+// Obs.: dashboard.js já declara "API" no escopo global; usamos outro nome aqui
+// para não colidir (os dois scripts são carregados na mesma página).
+const BACKEND = "../../../Backend/php";
 
 // Elementos
 const avatar     = document.getElementById("contaAvatar");
@@ -24,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ---------- Carregar dados da conta ---------- */
 async function carregarDados() {
     try {
-        const resp = await fetch(`${API}/conta_dados.php`);
+        const resp = await fetch(`${BACKEND}/conta_dados.php`);
         if (!resp.ok) return; // sem sessão: dashboard.js já redireciona
         const json = await resp.json();
         if (!json.ok) return;
@@ -60,7 +62,7 @@ async function salvarPerfil(e) {
 
     travar(btn, true, "Salvando…");
     try {
-        const resp = await fetch(`${API}/conta_perfil.php`, { method: "POST", body: dados });
+        const resp = await fetch(`${BACKEND}/conta_perfil.php`, { method: "POST", body: dados });
         const json = await resp.json();
         msg("msgPerfil", json.msg, json.ok ? "sucesso" : "erro");
 
@@ -97,7 +99,7 @@ async function trocarSenha(e) {
 
     travar(btn, true, "Trocando…");
     try {
-        const resp = await fetch(`${API}/conta_senha.php`, { method: "POST", body: dados });
+        const resp = await fetch(`${BACKEND}/conta_senha.php`, { method: "POST", body: dados });
         const json = await resp.json();
         msg("msgSenha", json.msg, json.ok ? "sucesso" : "erro");
         if (json.ok) e.target.reset();
@@ -111,7 +113,7 @@ async function trocarSenha(e) {
 /* ---------- Sair (logout) ---------- */
 async function sair() {
     try {
-        await fetch(`${API}/logout.php`);
+        await fetch(`${BACKEND}/logout.php`);
     } catch (err) {
         /* mesmo se falhar, vamos para o login */
     }

@@ -31,6 +31,9 @@ const BANCO = {
 
 const LETRAS = ["A", "B", "C", "D"];
 
+// Caminho do backend (dashboard.js já usa "API"; usamos outro nome p/ não colidir)
+const BACKEND = "../../../Backend/php";
+
 let questoesAtuais = [];   // [{ ...questao, escolha: null }]
 let corrigido = false;
 
@@ -51,16 +54,46 @@ function embaralhar(arr) {
     return a;
 }
 
-function gerar() {
-    const materia = document.getElementById("gMateria").value;
-    const qtd     = +document.getElementById("gQtd").value;
+async function gerar() {
+    const materia     = document.getElementById("gMateria").value;
+    const dificuldade = document.getElementById("gDificuldade").value;
+    const qtd         = +document.getElementById("gQtd").value;
 
-    questoesAtuais = embaralhar(BANCO[materia])
-        .slice(0, qtd)
-        .map((q) => ({ ...q, escolha: null }));
-    corrigido = false;
+    // ----- Estado de carregamento -----
+    btnGerar.disabled = true;
+    const htmlBtn = btnGerar.innerHTML;
+    btnGerar.textContent = "Gerando…";
+    cont.innerHTML = "";
+    rodape.hidden = true;
+    vazio.hidden = false;
+    vazio.querySelector("h3").textContent = "Gerando questões com IA…";
+    vazio.querySelector("p").textContent  = "Isso pode levar alguns segundos.";
 
-    render();
+    try {
+        const dados = new FormData();
+        dados.append("materia", materia);
+        dados.append("dificuldade", dificuldade);
+        dados.append("qtd", String(qtd));
+
+        const resp = await fetch(`${BACKEND}/gerar_exercicios.php`, { method: "POST", body: dados });
+        const json = await resp.json();
+
+        if (!json.ok || !Array.isArray(json.questoes) || json.questoes.length === 0) {
+            throw new Error(json.msg || "Não foi possível gerar as questões.");
+        }
+
+        questoesAtuais = json.questoes.map((q) => ({ ...q, escolha: null }));
+        corrigido = false;
+        render();
+    } catch (err) {
+        vazio.hidden = false;
+        rodape.hidden = true;
+        vazio.querySelector("h3").textContent = "Ops, algo deu errado";
+        vazio.querySelector("p").textContent  = err.message;
+    } finally {
+        btnGerar.disabled = false;
+        btnGerar.innerHTML = htmlBtn;
+    }
 }
 
 function render() {
