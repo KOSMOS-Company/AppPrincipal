@@ -10,6 +10,7 @@ const API = "../../../Backend/php";
 document.addEventListener("DOMContentLoaded", () => {
     marcarLinkAtivo();
     verificarSessao();
+    ativarTransicoes();
 });
 
 /* Marca o link ativo da sidebar com base no arquivo atual */
@@ -46,4 +47,22 @@ async function verificarSessao() {
         // Backend fora do ar (ex.: abriu sem XAMPP). Volta ao login.
         window.location.replace("../login/index.html");
     }
+}
+
+/* Transição suave ao trocar de aba: faz o conteúdo sair (fade-out)
+   e só então navega. A entrada (fade-in) é feita por CSS em .contMeio. */
+function ativarTransicoes() {
+    document.querySelectorAll(".botoesL a").forEach((a) => {
+        a.addEventListener("click", (e) => {
+            const href = a.getAttribute("href");
+            if (!href || href.startsWith("#")) return;
+
+            const destino = new URL(href, location.href);
+            if (destino.pathname === location.pathname) return; // já está nesta aba
+
+            e.preventDefault();
+            document.body.classList.add("saindo");
+            setTimeout(() => { window.location.href = href; }, 260);
+        });
+    });
 }

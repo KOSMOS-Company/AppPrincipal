@@ -6,11 +6,27 @@
     <title>Kosmos — Dashboard</title>
     <link rel="stylesheet" href="./css/dashboard.css">
     <link rel="stylesheet" href="./css/cursor.css">
+    <link rel="stylesheet" href="./css/intro.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <script>
+        // Mostra o splash imediatamente (sem flash) se o usuário acabou de logar
+        if (sessionStorage.getItem("kosmos_intro")) {
+            document.documentElement.classList.add("com-intro");
+        }
+    </script>
 </head>
 <body>
+
+    <!-- Splash de boas-vindas (toca uma vez após o login) -->
+    <div class="intro" id="intro" aria-hidden="true">
+        <div class="intro__glow"></div>
+        <div class="intro__conteudo">
+            <h1 class="intro__nome">Kosmos</h1>
+            <p class="intro__tag">Estudar nunca foi difícil.</p>
+        </div>
+    </div>
 
     <!-- Background Efeitos -->
     <div class="bg">
@@ -110,5 +126,6 @@
 
     <script src="./js/dashboard.js"></script>
     <script src="./js/cursor.js"></script>
+    <script src="./js/intro.js"></script>
 </body>
 </html>

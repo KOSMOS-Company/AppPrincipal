@@ -138,6 +138,7 @@
                 mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
                 if (json.ok) {
                     sessionStorage.setItem('kosmos_usuario', json.nome);
+                    sessionStorage.setItem('kosmos_intro', '1'); // dispara o splash no dashboard
                     setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 1200);
                 }
             } catch (err) {

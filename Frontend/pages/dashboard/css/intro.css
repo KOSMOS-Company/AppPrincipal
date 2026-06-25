@@ -1,0 +1,90 @@
+/* ============================================================
+   KOSMOS — intro.css
+   Splash de boas-vindas que toca uma vez logo após o login.
+   ============================================================ */
+
+.intro {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;                 /* só aparece quando <html> tem .com-intro */
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 40%, #1a0530 0%, #06000c 75%);
+    overflow: hidden;
+    cursor: pointer;               /* clique pula a animação */
+}
+html.com-intro .intro { display: flex; }
+
+/* Brilho roxo atrás da logo */
+.intro__glow {
+    position: absolute;
+    width: 620px;
+    height: 620px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(165, 65, 255, .35), transparent 70%);
+    filter: blur(40px);
+    animation: introGlow 2.6s ease-in-out both;
+}
+
+.intro__conteudo {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.intro__nome {
+    font-family: "Syne", sans-serif;
+    font-size: clamp(3.2rem, 13vw, 6.5rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(165, 65, 255, .55);
+    animation: introLogo 1.1s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+.intro__tag {
+    font-family: "DM Sans", sans-serif;
+    font-size: 1rem;
+    color: var(--text-dim, #b8a8cc);
+    margin-top: 10px;
+    opacity: 0;
+    animation: introSobe .7s ease both .55s;
+}
+
+/* Saída suave: dissolve com leve zoom e desfoque */
+.intro--saindo {
+    opacity: 0;
+    transform: scale(1.06);
+    filter: blur(6px);
+    transition: opacity .9s ease, transform .9s ease, filter .9s ease;
+    pointer-events: none;
+}
+
+@keyframes introLogo {
+    0%   { opacity: 0; transform: scale(.4) translateY(10px); }
+    60%  { opacity: 1; transform: scale(1.08); }
+    100% { opacity: 1; transform: scale(1); }
+}
+@keyframes introSobe {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes introGlow {
+    0%   { opacity: 0; transform: scale(.6); }
+    50%  { opacity: 1; transform: scale(1); }
+    100% { opacity: .7; transform: scale(1.05); }
+}
+
+/* Acessibilidade: sem movimento exagerado */
+@media (prefers-reduced-motion: reduce) {
+    .intro__nome,
+    .intro__tag,
+    .intro__glow {
+        animation-duration: .01ms !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}

@@ -474,3 +474,28 @@ progress::-webkit-progress-value {
     }
 }
 
+/* ============================================================
+   TRANSIÇÃO ENTRE ABAS
+   Conteúdo entra suave ao carregar e sai suave ao navegar.
+   Só o .contMeio anima — a barra lateral fica fixa.
+   ============================================================ */
+.contMeio {
+    animation: paginaEntra .42s cubic-bezier(.2, .7, .2, 1) both;
+}
+@keyframes paginaEntra {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+body.saindo .contMeio {
+    animation: paginaSai .26s ease forwards;
+}
+@keyframes paginaSai {
+    to { opacity: 0; transform: translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .contMeio,
+    body.saindo .contMeio { animation: none; }
+}
+
