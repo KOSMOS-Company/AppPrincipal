@@ -9,6 +9,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 
 require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/sessao.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -36,6 +37,14 @@ try {
         echo json_encode(['ok' => false, 'msg' => 'E-mail ou senha incorretos.']);
         exit;
     }
+
+    // ---------- Login válido: grava a sessão ----------
+    // A partir daqui o SERVIDOR "lembra" quem é este usuário.
+    // O PHP envia um cookie (PHPSESSID) e, nas próximas requisições,
+    // conseguimos recuperar o id sem pedir e-mail/senha de novo.
+    iniciarSessao();
+    $_SESSION['usuario_id']   = $user['id'];
+    $_SESSION['usuario_nome'] = $user['nome'];
 
     echo json_encode([
         'ok'   => true,

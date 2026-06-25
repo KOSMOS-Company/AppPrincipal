@@ -130,7 +130,7 @@
             btn.disabled    = true;
             btn.textContent = 'Aguarde...';
             try {
-                const resposta = await fetch('http://localhost/AppPrincipal-main/AppPrincipal/Backend/php/login.php', {
+                const resposta = await fetch('../../../Backend/php/login.php', {
                     method : 'POST',
                     body   : dados,
                 });

@@ -1,0 +1,122 @@
+/* ============================================================
+   KOSMOS — conta.css
+   Estilos específicos da aba "Conta".
+   Reaproveita .painel, .campo e .dash-btn do dashboard.css.
+   ============================================================ */
+
+.conta {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 720px;
+}
+
+/* Títulos internos dos painéis */
+.painel__titulo {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+.painel__sub {
+    color: var(--text-dim);
+    font-size: .92rem;
+    margin: 4px 0 22px;
+}
+
+/* Topo do perfil: avatar + identificação */
+.conta-perfil__topo {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+}
+.conta-avatar {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Syne", sans-serif;
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--purple-md), var(--accent));
+    box-shadow: 0 8px 24px rgba(165, 65, 255, .35);
+}
+.conta-perfil__info h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+.conta-perfil__info p {
+    color: var(--text-dim);
+    font-size: .95rem;
+}
+.conta-membro {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: .78rem;
+    color: var(--text-muted);
+}
+
+/* Formulários da conta */
+.conta-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.conta-form__acoes {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+/* Mensagem de feedback (sucesso / erro) */
+.msg {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: .875rem;
+    font-weight: 500;
+}
+.msg--sucesso {
+    background: rgba(52, 211, 153, .15);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, .25);
+}
+.msg--erro {
+    background: rgba(239, 68, 68, .15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, .25);
+}
+
+/* Painel de "Sair": botão alinhado à direita */
+.painel--sair {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.painel--sair .painel__sub {
+    margin-bottom: 0;
+}
+
+/* Botão de perigo (sair) */
+.dash-btn--danger {
+    background: rgba(239, 68, 68, .12);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, .3);
+}
+.dash-btn--danger:hover {
+    background: rgba(239, 68, 68, .2);
+    border-color: #f87171;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .conta { max-width: none; }
+}
