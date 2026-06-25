@@ -118,5 +118,25 @@
 }
 
 @media (max-width: 768px) {
-    .conta { max-width: none; }
+    .conta { max-width: none; gap: 18px; }
+
+    /* Painéis mais compactos no celular */
+    .painel { padding: 22px 18px; }
+    .painel__titulo { font-size: 1.15rem; }
+
+    /* Perfil: avatar um pouco menor */
+    .conta-perfil__topo { gap: 14px; }
+    .conta-avatar { width: 54px; height: 54px; font-size: 1.4rem; }
+    .conta-perfil__info h3 { font-size: 1.15rem; }
+
+    /* Botões ocupam a largura toda — melhor para tocar */
+    .conta-form__acoes { margin-top: 8px; }
+    .conta-form__acoes .dash-btn { width: 100%; justify-content: center; }
+
+    /* Painel "Sair" empilhado em vez de lado a lado */
+    .painel--sair {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .painel--sair .dash-btn { width: 100%; justify-content: center; margin-top: 6px; }
 }

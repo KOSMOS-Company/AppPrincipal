@@ -436,14 +436,16 @@ progress::-webkit-progress-value {
     }
     .botoesL a {
         font-size: 0;                 /* esconde o rótulo, mantém o ícone */
+        flex: 1 1 0;                  /* cada item ocupa uma fatia igual da barra */
+        min-width: 0;                 /* permite encolher sem vazar */
         flex-direction: column;
         gap: 0;
-        padding: 8px 14px;
+        padding: 8px 4px;
         border: none !important;
         background: none !important;
         color: var(--text-muted);
     }
-    .botoesL a .nav-icon { width: 25px; height: 25px; opacity: .65; }
+    .botoesL a .nav-icon { width: 24px; height: 24px; opacity: .65; }
     .botoesL a:hover .nav-icon { opacity: 1; }
     .botoesL a.active { color: var(--accent-lt); }
     .botoesL a.active .nav-icon { opacity: 1; }
