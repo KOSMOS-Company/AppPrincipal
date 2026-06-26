@@ -1,0 +1,74 @@
+<!-- ============================================================
+     KOSMOS — HTML do e-mail de redefinição de senha
+     Cole TODO este conteúdo no campo "HTML" do nó Send Email (n8n).
+     Usa tabelas + estilo inline (compatível com Gmail/Outlook).
+     As expressões {{ $json.body.* }} são preenchidas pelo n8n.
+     ============================================================ -->
+<div style="margin:0;padding:0;background-color:#06000c;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#06000c" style="background-color:#06000c;padding:32px 12px;">
+    <tr>
+      <td align="center">
+
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0" bgcolor="#130220" style="width:560px;max-width:560px;background-color:#130220;border:1px solid #2f0a4b;border-radius:20px;overflow:hidden;font-family:'DM Sans',Arial,Helvetica,sans-serif;">
+
+          <!-- Faixa roxa no topo -->
+          <tr>
+            <td bgcolor="#a541ff" style="background-color:#a541ff;background:linear-gradient(90deg,#7203bd,#a541ff,#c97cff);height:4px;line-height:4px;font-size:0;">&nbsp;</td>
+          </tr>
+
+          <!-- Conteúdo -->
+          <tr>
+            <td style="padding:40px 40px 28px 40px;">
+
+              <!-- Logo -->
+              <p style="margin:0 0 28px 0;font-family:'Syne',Arial,sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;color:#ffffff;">Kosmos</p>
+
+              <h1 style="margin:0 0 12px 0;font-family:'Syne',Arial,sans-serif;font-size:26px;font-weight:700;color:#ffffff;">Redefinir senha</h1>
+
+              <p style="margin:0 0 26px 0;font-size:15px;line-height:1.6;color:#b8a8cc;">
+                Olá, {{ $json.body.nome }}! Recebemos um pedido para redefinir a senha da sua conta na Kosmos. Clique no botão abaixo para criar uma nova senha.
+              </p>
+
+              <!-- Botão -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 28px 0;">
+                <tr>
+                  <td align="center" bgcolor="#a541ff" style="border-radius:12px;background-color:#a541ff;">
+                    <a href="{{ $json.body.link }}" target="_blank" style="display:inline-block;padding:14px 34px;font-family:'DM Sans',Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:12px;">
+                      Criar nova senha
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 6px 0;font-size:13px;line-height:1.6;color:#6a5880;">
+                Ou copie e cole este link no navegador:
+              </p>
+              <p style="margin:0 0 26px 0;font-size:13px;line-height:1.5;color:#c97cff;word-break:break-all;">
+                {{ $json.body.link }}
+              </p>
+
+              <!-- Divisória -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr><td style="border-top:1px solid #2a0a45;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>
+              </table>
+
+              <p style="margin:20px 0 0 0;font-size:13px;line-height:1.6;color:#6a5880;">
+                Este link expira em <strong style="color:#b8a8cc;">1 hora</strong>. Se você não pediu para redefinir a senha, pode ignorar este e-mail com segurança.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Rodapé -->
+          <tr>
+            <td bgcolor="#0d0118" style="padding:20px 40px 30px 40px;background-color:#0d0118;">
+              <p style="margin:0;font-size:12px;color:#6a5880;">© 2026 Kosmos &middot; Estudar nunca foi difícil.</p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</div>
