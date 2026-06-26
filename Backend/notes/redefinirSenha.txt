@@ -1,0 +1,67 @@
+Visão geral do fluxo
+
+ ┌─ FASE 1: PEDIR O RESET ──────────────────────────────────────┐
+ │                                                              │
+ │  Login → "Esqueceu a senha?" → digita e-mail → Enviar       │
+ │     │                                                        │
+ │     ▼                                                        │
+ │  senha_esqueci.php  ──(servidor→servidor, token secreto)──►  n8n
+ │     │ gera token, salva o HASH + validade no banco            │
+ │                                                          n8n envia
+ │                                                          o e-mail 📧
+ └──────────────────────────────────────────────────────────────┘
+                          │ (o e-mail tem um link com o token)
+                          ▼
+ ┌─ FASE 2: REDEFINIR ──────────────────────────────────────────┐
+ │  usuário clica no link → redefinir.html?token=XYZ            │
+ │     │ digita a nova senha → Redefinir                        │
+ │     ▼                                                        │
+ │  senha_resetar.php → confere o token → grava a nova senha    │
+ │     │ invalida o token (uso único)                          │
+ │     ▼                                                        │
+ │  volta pro login → entra com a senha nova ✅                 │
+ └──────────────────────────────────────────────────────────────┘
+FASE 1 — Pedir o reset
+1. No login, o link "Esqueceu a senha?" abre um modal. O usuário digita o e-mail e clica em "Enviar link". O JavaScript faz um POST para o senha_esqueci.php.
+
+2. O senha_esqueci.php faz 4 coisas:
+
+Valida o formato do e-mail.
+Procura o usuário por esse e-mail no banco.
+Se achar, gera um token aleatório e guarda no banco — mas atenção a um detalhe importante:
+O token "puro" (ex.: a3f9...) vai no link do e-mail.
+No banco, guardamos só o hash (SHA-256) desse token + a validade (agora + 1 hora).
+Chama o n8n (servidor → servidor, com o token secreto no header) mandando { email, nome, link }.
+3. O n8n recebe no Webhook e o nó Send Email dispara o e-mail com o link de redefinição.
+
+🔑 Repare: a resposta pro navegador é sempre genérica ("se o e-mail estiver cadastrado, enviamos…"). Isso é de propósito (explico no fim).
+
+FASE 2 — Redefinir a senha
+4. O usuário clica no link do e-mail e cai na página redefinir.html. O JavaScript dela lê o token da URL (?token=...).
+
+5. O usuário digita a nova senha (e confirma). O JS valida se as duas coincidem e o tamanho mínimo, e faz um POST para o senha_resetar.php com { token, senha_nova }.
+
+6. O senha_resetar.php confere e grava:
+
+Pega o token recebido e calcula o hash (SHA-256) dele.
+Procura no banco um usuário cujo reset_token seja igual a esse hash E cujo reset_expira ainda não passou.
+Se achar: cria o hash bcrypt da nova senha, salva, e zera o reset_token/reset_expira (assim o link não funciona duas vezes).
+7. Pronto — o usuário volta pro login e entra com a senha nova.
+
+🔒 As decisões de segurança (o "porquê")
+Decisão	Por quê
+Guardar o hash do token (não o token puro)	Se o banco vazar, ninguém consegue redefinir senhas — o valor salvo é só uma "impressão digital". O token de verdade só existe no e-mail. (Mesma lógica das senhas.)
+Validade de 1 hora	Reduz a janela de risco se o e-mail for esquecido aberto ou interceptado.
+Uso único (zera após usar)	O link não pode ser reaproveitado.
+Resposta sempre genérica	Impede que alguém descubra quais e-mails têm conta ficando testando endereços.
+PHP → n8n (e não o navegador → n8n)	A URL do n8n e o token secreto nunca chegam ao cliente; ninguém consegue abusar do seu webhook.
+🗂️ Mapa dos arquivos
+Arquivo	Papel
+login/index.html	Modal "Esqueceu a senha?" (pede o e-mail)
+senha_esqueci.php	Gera o token, salva o hash, chama o n8n
+n8n (Webhook → Send Email)	Envia o e-mail com o link
+login/redefinir.html	Página onde o usuário cria a nova senha
+senha_resetar.php	Valida o token e grava a nova senha
+Banco (usuarios)	Colunas reset_token (hash) e reset_expira (validade)
+Essa mesma arquitetura (PHP gera/valida + n8n envia o e-mail) serve pra qualquer e-mail futuro: boas-vindas no cadastro, lembrete de estudo, etc.
+

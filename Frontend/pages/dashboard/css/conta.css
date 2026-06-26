@@ -87,6 +87,7 @@
     width: 14px;
     height: 14px;
     flex-shrink: 0;
+    display: block;        /* remove o "gap" de baseline do SVG inline */
 }
 
 /* Formulários da conta */

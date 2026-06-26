@@ -52,7 +52,7 @@ function configurarProvedor(temGoogle) {
     if (!el) return;
     el.innerHTML = temGoogle
         ? ICONE_GOOGLE + "Google"
-        : ICONE_EMAIL + "E-mail e senha";
+        : ICONE_EMAIL + "Email e senha";
 }
 
 /* Ajusta o painel de senha conforme a conta tenha ou não senha.
@@ -75,7 +75,7 @@ function configurarSenha(possui) {
         campoAtual.hidden = true;
         inputAtual.disabled = true;
         titulo.textContent = "Criar senha";
-        sub.textContent = "Sua conta usa login do Google. Crie uma senha para também poder entrar com e-mail e senha.";
+        sub.textContent = "Sua conta usa login do Google. Crie uma senha para também poder entrar com email e senha.";
         btn.textContent = "Criar senha";
     }
 }

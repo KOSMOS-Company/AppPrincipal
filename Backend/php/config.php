@@ -20,3 +20,10 @@ define('N8N_TOKEN_VALOR',  'YwNbC9T0N2wJcaFoxh4iNZr1DnLh9y2W');
 // Client ID do Google Cloud Console (OAuth 2.0 → Web application).
 // Use o MESMO valor no data-client_id dos botões em login/cadastro.
 define('GOOGLE_CLIENT_ID', '848162979346-58d2pq44nmhbrabsnhl6i1o1j2pnm7mu.apps.googleusercontent.com');
+
+// ---------- Recuperação de senha ----------
+// URL base do frontend (para montar o link do e-mail de redefinição).
+define('APP_URL', 'http://localhost/kosmos/AppPrincipal/Frontend/pages');
+
+// Webhook do n8n que ENVIA o e-mail de redefinição (usa o mesmo Header Auth do n8n acima).
+define('N8N_RESET_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/reset-senha');

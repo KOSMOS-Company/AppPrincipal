@@ -35,6 +35,8 @@ CREATE TABLE `usuarios` (
   `email` varchar(180) NOT NULL,
   `senha_hash` varchar(255) DEFAULT NULL,
   `google_id` varchar(64) DEFAULT NULL,
+  `reset_token` varchar(64) DEFAULT NULL,
+  `reset_expira` datetime DEFAULT NULL,
   `criado_em` datetime NOT NULL DEFAULT current_timestamp(),
   `ultimo_acesso` date DEFAULT NULL,
   `sequencia` int(10) UNSIGNED NOT NULL DEFAULT 0

@@ -9,19 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-    <style>
-        /* Modal "Esqueceu a senha?" */
-        .kmodal { position: fixed; inset: 0; z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(5,0,12,.7); backdrop-filter: blur(6px); }
-        .kmodal.open { display: flex; }
-        .kmodal__box { position: relative; width: 100%; max-width: 400px; background: #130220; border: 1px solid rgba(165,65,255,.2); border-radius: 20px; padding: 28px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
-        .kmodal__close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #6a5880; font-size: 1.7rem; line-height: 1; cursor: pointer; }
-        .kmodal__close:hover { color: #fff; }
-        .kmodal__title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
-        .kmodal__sub { color: #b8a8cc; font-size: .9rem; margin-bottom: 18px; }
-        .kmodal__input { width: 100%; padding: 11px 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: .95rem; outline: none; margin-bottom: 14px; }
-        .kmodal__input:focus { border-color: #a541ff; box-shadow: 0 0 0 3px rgba(165,65,255,.15); }
-        .kmodal__msg { padding: 9px 12px; border-radius: 8px; font-size: .85rem; margin-bottom: 12px; }
-    </style>
 </head>
 <body>
 
@@ -100,7 +87,7 @@
                     <div class="field">
                         <div class="field__label-row">
                             <label class="field__label" for="senha">Senha</label>
-                            <a href="#" class="field__link" id="linkEsqueci">Esqueceu a senha?</a>
+                            <a href="#" class="field__link">Esqueceu a senha?</a>
                         </div>
                         <div class="field__wrap">
                             <svg class="field__ico" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -130,20 +117,6 @@
             </div>
         </div>
 
-    </div>
-
-    <!-- Modal: Esqueceu a senha -->
-    <div class="kmodal" id="modalEsqueci">
-        <div class="kmodal__box">
-            <button class="kmodal__close" id="fecharEsqueci" aria-label="Fechar">&times;</button>
-            <h3 class="kmodal__title">Esqueceu a senha?</h3>
-            <p class="kmodal__sub">Informe seu e-mail e enviaremos um link para redefinir.</p>
-            <form id="formEsqueci" novalidate>
-                <input type="email" id="emailEsqueci" class="kmodal__input" placeholder="seu@email.com" autocomplete="email" required>
-                <div class="kmodal__msg" id="msgEsqueci" hidden></div>
-                <button type="submit" class="btn-submit" id="btnEsqueci">Enviar link</button>
-            </form>
-        </div>
     </div>
 
     <script>
@@ -211,38 +184,6 @@
                 mostrarMsg('Não foi possível conectar ao servidor.', 'erro');
             }
         }
-
-        /* --- Modal "Esqueceu a senha?" --- */
-        const modalEsqueci = document.getElementById('modalEsqueci');
-        document.getElementById('linkEsqueci').addEventListener('click', (e) => {
-            e.preventDefault();
-            modalEsqueci.classList.add('open');
-        });
-        document.getElementById('fecharEsqueci').addEventListener('click', () => modalEsqueci.classList.remove('open'));
-        modalEsqueci.addEventListener('click', (e) => { if (e.target === modalEsqueci) modalEsqueci.classList.remove('open'); });
-
-        document.getElementById('formEsqueci').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const btn   = document.getElementById('btnEsqueci');
-            const email = document.getElementById('emailEsqueci').value.trim();
-            const msgEl = document.getElementById('msgEsqueci');
-            btn.disabled = true; btn.textContent = 'Enviando...';
-            try {
-                const dados = new FormData();
-                dados.append('email', email);
-                const resp = await fetch('../../../Backend/php/senha_esqueci.php', { method: 'POST', body: dados });
-                const json = await resp.json();
-                msgEl.hidden = false;
-                msgEl.textContent = json.msg;
-                msgEl.style.cssText = 'padding:9px 12px;border-radius:8px;font-size:.85rem;margin-bottom:12px;background:' + (json.ok ? 'rgba(52,211,153,.15)' : 'rgba(239,68,68,.15)') + ';color:' + (json.ok ? '#34d399' : '#f87171') + ';';
-            } catch (err) {
-                msgEl.hidden = false;
-                msgEl.textContent = 'Não foi possível conectar ao servidor.';
-                msgEl.style.cssText = 'padding:9px 12px;border-radius:8px;font-size:.85rem;margin-bottom:12px;background:rgba(239,68,68,.15);color:#f87171;';
-            } finally {
-                btn.disabled = false; btn.textContent = 'Enviar link';
-            }
-        });
     </script>
     <script src="https://accounts.google.com/gsi/client" async></script>
     <script src="../shared/mouse-tracker.js"></script>
