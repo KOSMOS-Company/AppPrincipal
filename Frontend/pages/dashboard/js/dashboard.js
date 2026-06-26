@@ -11,7 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
     marcarLinkAtivo();
     verificarSessao();
     ativarTransicoes();
+    posicionarSequencia();
 });
+window.addEventListener("resize", posicionarSequencia);
 
 /* Marca o link ativo da sidebar com base no arquivo atual */
 function marcarLinkAtivo() {
@@ -51,12 +53,30 @@ async function verificarSessao() {
     }
 }
 
-/* Atualiza o widget "Sequência" da barra lateral com os dias reais */
+/* Atualiza o widget "Sequência" com os dias reais */
 function atualizarSequencia(dias) {
     const linha = document.querySelector(".contSequencia .linhaBaixo");
     if (linha) linha.textContent = dias + (dias === 1 ? " dia" : " dias");
     const prog = document.getElementById("sequencia");
     if (prog) prog.value = Math.min(dias, 7) / 7 * 100;
+}
+
+/* No mobile, move o card de Sequência para dentro do conteúdo (após o
+   cabeçalho "Bem-vindo"); no desktop, mantém na barra lateral.
+   Só existe na index, então em outras páginas não faz nada. */
+function posicionarSequencia() {
+    const seq = document.querySelector(".contSequencia");
+    if (!seq) return;
+    const aside  = document.querySelector(".contLateral");
+    const main   = document.querySelector(".contMeio");
+    const header = main && main.querySelector(".contCabeca");
+    const mobile = window.matchMedia("(max-width: 768px)").matches;
+
+    if (mobile && header && seq.parentElement !== main) {
+        header.insertAdjacentElement("afterend", seq);   // logo após o "Bem-vindo"
+    } else if (!mobile && aside && seq.parentElement !== aside) {
+        aside.appendChild(seq);                            // volta para a barra lateral
+    }
 }
 
 /* Transição suave ao trocar de aba: faz o conteúdo sair (fade-out)

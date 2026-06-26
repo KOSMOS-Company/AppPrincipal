@@ -16,35 +16,40 @@
             <td bgcolor="#a541ff" style="background-color:#a541ff;background:linear-gradient(90deg,#7203bd,#a541ff,#c97cff);height:4px;line-height:4px;font-size:0;">&nbsp;</td>
           </tr>
 
+          <!-- Cabeçalho (logo centralizada) -->
+          <tr>
+            <td align="center" style="padding:46px 40px 0 40px;text-align:center;">
+              <p style="margin:0;font-family:'Syne',Arial,sans-serif;font-size:34px;font-weight:800;letter-spacing:-1px;color:#ffffff;text-align:center;">Kosmos</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:16px auto 0 auto;">
+                <tr><td bgcolor="#a541ff" style="background-color:#a541ff;width:48px;height:3px;line-height:3px;font-size:0;border-radius:3px;">&nbsp;</td></tr>
+              </table>
+            </td>
+          </tr>
+
           <!-- Conteúdo -->
           <tr>
-            <td style="padding:40px 40px 28px 40px;">
+            <td align="center" style="padding:30px 44px 32px 44px;text-align:center;">
 
-              <!-- Logo -->
-              <p style="margin:0 0 28px 0;font-family:'Syne',Arial,sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;color:#ffffff;">Kosmos</p>
+              <h1 style="margin:0 0 12px 0;font-family:'Syne',Arial,sans-serif;font-size:26px;font-weight:700;color:#ffffff;text-align:center;">Redefinir senha</h1>
 
-              <h1 style="margin:0 0 12px 0;font-family:'Syne',Arial,sans-serif;font-size:26px;font-weight:700;color:#ffffff;">Redefinir senha</h1>
-
-              <p style="margin:0 0 26px 0;font-size:15px;line-height:1.6;color:#b8a8cc;">
+              <p style="margin:0 0 28px 0;font-size:15px;line-height:1.6;color:#b8a8cc;text-align:center;">
                 Olá, {{ $json.body.nome }}! Recebemos um pedido para redefinir a senha da sua conta na Kosmos. Clique no botão abaixo para criar uma nova senha.
               </p>
 
               <!-- Botão -->
-              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 28px 0;">
+              <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 24px auto;">
                 <tr>
                   <td align="center" bgcolor="#a541ff" style="border-radius:12px;background-color:#a541ff;">
-                    <a href="{{ $json.body.link }}" target="_blank" style="display:inline-block;padding:14px 34px;font-family:'DM Sans',Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:12px;">
+                    <a href="{{ $json.body.link }}" target="_blank" style="display:inline-block;padding:15px 38px;font-family:'DM Sans',Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:12px;">
                       Criar nova senha
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <p style="margin:0 0 6px 0;font-size:13px;line-height:1.6;color:#6a5880;">
-                Ou copie e cole este link no navegador:
-              </p>
-              <p style="margin:0 0 26px 0;font-size:13px;line-height:1.5;color:#c97cff;word-break:break-all;">
-                {{ $json.body.link }}
+              <p style="margin:0 0 28px 0;font-size:13px;line-height:1.6;color:#6a5880;text-align:center;">
+                O botão não funcionou?
+                <a href="{{ $json.body.link }}" target="_blank" style="color:#c97cff;text-decoration:underline;font-weight:600;">Clique aqui</a>.
               </p>
 
               <!-- Divisória -->
@@ -52,7 +57,7 @@
                 <tr><td style="border-top:1px solid #2a0a45;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>
               </table>
 
-              <p style="margin:20px 0 0 0;font-size:13px;line-height:1.6;color:#6a5880;">
+              <p style="margin:20px 0 0 0;font-size:13px;line-height:1.6;color:#6a5880;text-align:center;">
                 Este link expira em <strong style="color:#b8a8cc;">1 hora</strong>. Se você não pediu para redefinir a senha, pode ignorar este e-mail com segurança.
               </p>
 
@@ -61,8 +66,10 @@
 
           <!-- Rodapé -->
           <tr>
-            <td bgcolor="#0d0118" style="padding:20px 40px 30px 40px;background-color:#0d0118;">
-              <p style="margin:0;font-size:12px;color:#6a5880;">© 2026 Kosmos &middot; Estudar nunca foi difícil.</p>
+            <td align="center" bgcolor="#0d0118" style="padding:28px 40px 32px 40px;background-color:#0d0118;text-align:center;">
+              <p style="margin:0 0 8px 0;font-family:'Syne',Arial,sans-serif;font-size:16px;font-weight:700;color:#c97cff;">Kosmos</p>
+              <p style="margin:0 0 4px 0;font-size:12px;line-height:1.5;color:#6a5880;">&copy; 2026 Kosmos &middot; Todos os direitos reservados.</p>
+              <p style="margin:0;font-size:12px;font-style:italic;color:#5a4a70;">Estudar nunca foi difícil.</p>
             </td>
           </tr>
 

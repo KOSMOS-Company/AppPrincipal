@@ -415,8 +415,15 @@ progress::-webkit-progress-value {
     }
     .contLogo { margin-bottom: 0; text-align: center; }
 
-    /* Esconde o widget de sequência no mobile */
-    .contSequencia { display: none; }
+    /* Sequência no mobile: escondida no topo; exibida dentro do conteúdo
+       (o dashboard.js move o card para depois do "Bem-vindo") */
+    .contLateral .contSequencia { display: none; }
+    .contMeio .contSequencia {
+        display: block;
+        width: 100%;
+        margin: 0 0 24px 0;
+        padding: 16px 18px;
+    }
 
     /* Nav vira barra inferior fixa (estilo Instagram, só ícones) */
     .botoesL {
