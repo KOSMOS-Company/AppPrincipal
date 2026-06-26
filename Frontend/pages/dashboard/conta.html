@@ -102,11 +102,11 @@
 
                 <!-- ===== Senha ===== -->
                 <section class="painel">
-                    <h2 class="painel__titulo">Trocar senha</h2>
-                    <p class="painel__sub">Por segurança, confirme sua senha atual antes de definir uma nova.</p>
+                    <h2 class="painel__titulo" id="senhaTitulo">Trocar senha</h2>
+                    <p class="painel__sub" id="senhaSub">Por segurança, confirme sua senha atual antes de definir uma nova.</p>
 
                     <form class="conta-form" id="formSenha" novalidate>
-                        <div class="campo">
+                        <div class="campo" id="campoSenhaAtual">
                             <label for="senhaAtual">Senha atual</label>
                             <input id="senhaAtual" name="senha_atual" type="password" autocomplete="current-password" placeholder="••••••••">
                         </div>
@@ -120,9 +120,17 @@
                         </div>
                         <div class="msg" id="msgSenha" hidden></div>
                         <div class="conta-form__acoes">
-                            <button type="submit" class="dash-btn dash-btn--primary">Trocar senha</button>
+                            <button type="submit" class="dash-btn dash-btn--primary" id="btnSenha">Trocar senha</button>
                         </div>
                     </form>
+                </section>
+
+                <!-- ===== Método de acesso (minimalista) ===== -->
+                <section class="painel conta-acesso">
+                    <div class="conta-acesso__linha">
+                        <span class="conta-acesso__rotulo">Método de acesso</span>
+                        <span class="conta-acesso__valor" id="contaProvedor">—</span>
+                    </div>
                 </section>
 
                 <!-- ===== Sessão / Sair ===== -->

@@ -43,10 +43,20 @@ async function verificarSessao() {
         document.querySelectorAll("[data-usuario]").forEach((el) => {
             el.textContent = json.nome;
         });
+
+        atualizarSequencia(json.sequencia ?? 0);
     } catch (err) {
         // Backend fora do ar (ex.: abriu sem XAMPP). Volta ao login.
         window.location.replace("../login/index.html");
     }
+}
+
+/* Atualiza o widget "Sequência" da barra lateral com os dias reais */
+function atualizarSequencia(dias) {
+    const linha = document.querySelector(".contSequencia .linhaBaixo");
+    if (linha) linha.textContent = dias + (dias === 1 ? " dia" : " dias");
+    const prog = document.getElementById("sequencia");
+    if (prog) prog.value = Math.min(dias, 7) / 7 * 100;
 }
 
 /* Transição suave ao trocar de aba: faz o conteúdo sair (fade-out)

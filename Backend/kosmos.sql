@@ -33,8 +33,11 @@ CREATE TABLE `usuarios` (
   `id` int(10) UNSIGNED NOT NULL,
   `nome` varchar(120) NOT NULL,
   `email` varchar(180) NOT NULL,
-  `senha_hash` varchar(255) NOT NULL,
-  `criado_em` datetime NOT NULL DEFAULT current_timestamp()
+  `senha_hash` varchar(255) DEFAULT NULL,
+  `google_id` varchar(64) DEFAULT NULL,
+  `criado_em` datetime NOT NULL DEFAULT current_timestamp(),
+  `ultimo_acesso` date DEFAULT NULL,
+  `sequencia` int(10) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

@@ -63,6 +63,32 @@
     color: var(--text-muted);
 }
 
+/* Método de acesso — linha minimalista na última seção */
+.conta-acesso__linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.conta-acesso__rotulo {
+    font-size: .9rem;
+    color: var(--text-dim);
+}
+.conta-acesso__valor {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .9rem;
+    font-weight: 500;
+    color: var(--text);
+}
+.conta-acesso__valor svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
 /* Formulários da conta */
 .conta-form {
     display: flex;

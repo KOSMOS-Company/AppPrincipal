@@ -16,6 +16,8 @@ const elMembro   = document.getElementById("contaMembro");
 const inputNome  = document.getElementById("nome");
 const inputEmail = document.getElementById("email");
 
+let temSenha = true;   // false = conta só do Google (modo "criar senha")
+
 document.addEventListener("DOMContentLoaded", () => {
     carregarDados();
     document.getElementById("formPerfil").addEventListener("submit", salvarPerfil);
@@ -33,8 +35,48 @@ async function carregarDados() {
 
         preencher(json.nome, json.email);
         elMembro.textContent = "Membro desde " + formatarData(json.criado_em);
+        configurarSenha(json.tem_senha);
+        configurarProvedor(json.tem_google);
     } catch (err) {
         // backend fora do ar — dashboard.js trata o redirecionamento
+    }
+}
+
+/* Ícones para a etiqueta de método de acesso */
+const ICONE_GOOGLE = '<svg width="14" height="14" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.3 2.9l5.7-5.7C33.5 6.2 28.1 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.5-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c2.8 0 5.4 1.1 7.3 2.9l5.7-5.7C33.5 6.2 28.1 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35 26.7 36 24 36c-5.3 0-9.6-2.6-11.3-7l-6.5 5C9.6 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2C39.9 35.6 44 30.4 44 24c0-1.3-.1-2.5-.4-3.5z"/></svg>';
+const ICONE_EMAIL  = '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4" width="15" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 5l7 5 7-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+/* Mostra a etiqueta dizendo como o usuário acessa a conta */
+function configurarProvedor(temGoogle) {
+    const el = document.getElementById("contaProvedor");
+    if (!el) return;
+    el.innerHTML = temGoogle
+        ? ICONE_GOOGLE + "Google"
+        : ICONE_EMAIL + "E-mail e senha";
+}
+
+/* Ajusta o painel de senha conforme a conta tenha ou não senha.
+   Contas criadas via Google não têm senha → modo "Criar senha". */
+function configurarSenha(possui) {
+    temSenha = possui !== false;
+    const campoAtual = document.getElementById("campoSenhaAtual");
+    const titulo     = document.getElementById("senhaTitulo");
+    const sub        = document.getElementById("senhaSub");
+    const btn        = document.getElementById("btnSenha");
+    const inputAtual = document.getElementById("senhaAtual");
+
+    if (temSenha) {
+        campoAtual.hidden = false;
+        inputAtual.disabled = false;
+        titulo.textContent = "Trocar senha";
+        sub.textContent = "Por segurança, confirme sua senha atual antes de definir uma nova.";
+        btn.textContent = "Trocar senha";
+    } else {
+        campoAtual.hidden = true;
+        inputAtual.disabled = true;
+        titulo.textContent = "Criar senha";
+        sub.textContent = "Sua conta usa login do Google. Crie uma senha para também poder entrar com e-mail e senha.";
+        btn.textContent = "Criar senha";
     }
 }
 
@@ -94,19 +136,27 @@ async function trocarSenha(e) {
     }
 
     const dados = new FormData();
-    dados.append("senha_atual", document.getElementById("senhaAtual").value);
+    if (temSenha) {
+        dados.append("senha_atual", document.getElementById("senhaAtual").value);
+    }
     dados.append("senha_nova", nova);
 
-    travar(btn, true, "Trocando…");
+    travar(btn, true, temSenha ? "Trocando…" : "Criando…");
     try {
         const resp = await fetch(`${BACKEND}/conta_senha.php`, { method: "POST", body: dados });
         const json = await resp.json();
         msg("msgSenha", json.msg, json.ok ? "sucesso" : "erro");
-        if (json.ok) e.target.reset();
+        if (json.ok) {
+            e.target.reset();
+            // Agora a conta tem senha: volta para o modo "Trocar senha"
+            configurarSenha(true);
+        }
     } catch (err) {
         msg("msgSenha", "Não foi possível conectar ao servidor.", "erro");
     } finally {
-        travar(btn, false, "Trocar senha");
+        // usa o estado atual (configurarSenha pode ter mudado após o sucesso)
+        btn.disabled = false;
+        btn.textContent = temSenha ? "Trocar senha" : "Criar senha";
     }
 }
 

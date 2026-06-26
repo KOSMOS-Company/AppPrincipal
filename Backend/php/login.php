@@ -46,6 +46,9 @@ try {
     $_SESSION['usuario_id']   = $user['id'];
     $_SESSION['usuario_nome'] = $user['nome'];
 
+    // Atualiza a sequência de dias de acesso
+    registrarAcesso($pdo, (int) $user['id']);
+
     echo json_encode([
         'ok'   => true,
         'msg'  => 'Login realizado!',

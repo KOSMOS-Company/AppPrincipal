@@ -21,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $atual = trim($_POST['senha_atual'] ?? '');
 $nova  = trim($_POST['senha_nova']  ?? '');
 
-if ($atual === '' || $nova === '') {
-    echo json_encode(['ok' => false, 'msg' => 'Preencha a senha atual e a nova senha.']);
+if ($nova === '') {
+    echo json_encode(['ok' => false, 'msg' => 'Informe a nova senha.']);
     exit;
 }
 if (mb_strlen($nova) < 8) {
@@ -36,25 +36,42 @@ try {
     $stmt->execute([$usuario['id']]);
     $row = $stmt->fetch();
 
-    // Confere a senha atual antes de permitir a troca
-    if (!$row || !password_verify($atual, $row['senha_hash'])) {
-        http_response_code(422);
-        echo json_encode(['ok' => false, 'msg' => 'A senha atual está incorreta.']);
+    if (!$row) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'msg' => 'Usuário não encontrado.']);
         exit;
     }
 
-    // Evita "trocar" pela mesma senha
-    if (password_verify($nova, $row['senha_hash'])) {
-        echo json_encode(['ok' => false, 'msg' => 'A nova senha deve ser diferente da atual.']);
-        exit;
+    $temSenha = !empty($row['senha_hash']);
+
+    if ($temSenha) {
+        // Conta com senha: precisa confirmar a senha atual
+        if ($atual === '') {
+            echo json_encode(['ok' => false, 'msg' => 'Informe a senha atual.']);
+            exit;
+        }
+        if (!password_verify($atual, $row['senha_hash'])) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'msg' => 'A senha atual está incorreta.']);
+            exit;
+        }
+        if (password_verify($nova, $row['senha_hash'])) {
+            echo json_encode(['ok' => false, 'msg' => 'A nova senha deve ser diferente da atual.']);
+            exit;
+        }
     }
+    // Conta só do Google (sem senha): cria a senha sem pedir a atual
 
     $novoHash = password_hash($nova, PASSWORD_BCRYPT, ['cost' => 12]);
     $upd = $pdo->prepare('UPDATE usuarios SET senha_hash = ? WHERE id = ?');
     $upd->execute([$novoHash, $usuario['id']]);
 
-    echo json_encode(['ok' => true, 'msg' => 'Senha alterada com sucesso!']);
+    $msg = $temSenha
+        ? 'Senha alterada com sucesso!'
+        : 'Senha criada! Agora você também pode entrar com e-mail e senha.';
+
+    echo json_encode(['ok' => true, 'msg' => $msg]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'msg' => 'Não foi possível alterar a senha.']);
+    echo json_encode(['ok' => false, 'msg' => 'Não foi possível salvar a senha.']);
 }

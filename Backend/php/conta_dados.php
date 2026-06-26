@@ -15,7 +15,7 @@ $usuario = exigirLogin();
 
 try {
     $pdo  = conectar();
-    $stmt = $pdo->prepare('SELECT nome, email, criado_em FROM usuarios WHERE id = ? LIMIT 1');
+    $stmt = $pdo->prepare('SELECT nome, email, criado_em, senha_hash, google_id FROM usuarios WHERE id = ? LIMIT 1');
     $stmt->execute([$usuario['id']]);
     $dados = $stmt->fetch();
 
@@ -26,10 +26,12 @@ try {
     }
 
     echo json_encode([
-        'ok'        => true,
-        'nome'      => $dados['nome'],
-        'email'     => $dados['email'],
-        'criado_em' => $dados['criado_em'],
+        'ok'         => true,
+        'nome'       => $dados['nome'],
+        'email'      => $dados['email'],
+        'criado_em'  => $dados['criado_em'],
+        'tem_senha'  => !empty($dados['senha_hash']),  // false = conta só do Google
+        'tem_google' => !empty($dados['google_id']),   // true = vinculada ao Google
     ]);
 } catch (PDOException $e) {
     http_response_code(500);

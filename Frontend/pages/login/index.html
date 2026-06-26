@@ -57,11 +57,20 @@
                     <p class="form-card__sub">Faça login para continuar seus estudos.</p>
                 </div>
 
-                <!-- Google -->
-                <button class="btn-google" type="button">
-                    <img src="../cadastro/imagens/google.png" alt="Google" class="btn-google__icon">
-                    Entrar com o Google
-                </button>
+                <!-- Google Identity Services -->
+                <div id="g_id_onload"
+                     data-client_id="848162979346-58d2pq44nmhbrabsnhl6i1o1j2pnm7mu.apps.googleusercontent.com"
+                     data-callback="onGoogleLogin"
+                     data-auto_prompt="false"></div>
+                <div class="google-btn-wrap" style="display:flex;justify-content:center;">
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-theme="filled_black"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-shape="pill"
+                         data-logo_alignment="left"></div>
+                </div>
 
                 <div class="divider"><span>ou</span></div>
 
@@ -156,7 +165,27 @@
             div.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:8px;font-size:0.875rem;font-weight:500;background:' + (tipo==='sucesso'?'rgba(52,211,153,0.15)':'rgba(239,68,68,0.15)') + ';color:' + (tipo==='sucesso'?'#34d399':'#f87171') + ';border:1px solid ' + (tipo==='sucesso'?'#34d39940':'#f8717140');
             document.querySelector('.form').after(div);
         }
+
+        /* --- Login com Google --- */
+        async function onGoogleLogin(response) {
+            document.querySelector('.msg-feedback')?.remove();
+            try {
+                const dados = new FormData();
+                dados.append('credential', response.credential);
+                const resposta = await fetch('../../../Backend/php/login_google.php', { method: 'POST', body: dados });
+                const json = await resposta.json();
+                mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
+                if (json.ok) {
+                    sessionStorage.setItem('kosmos_usuario', json.nome);
+                    sessionStorage.setItem('kosmos_intro', '1');
+                    setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 1000);
+                }
+            } catch (err) {
+                mostrarMsg('Não foi possível conectar ao servidor.', 'erro');
+            }
+        }
     </script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
     <script src="../shared/mouse-tracker.js"></script>
 </body>
 </html>

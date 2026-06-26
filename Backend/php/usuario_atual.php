@@ -8,6 +8,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 
 $usuario = usuarioLogado();
@@ -18,8 +19,18 @@ if ($usuario === null) {
     exit;
 }
 
+// Registra o acesso de hoje e pega a sequência atual de dias
+$sequencia = 0;
+try {
+    $pdo = conectar();
+    $sequencia = registrarAcesso($pdo, (int) $usuario['id']);
+} catch (PDOException $e) {
+    $sequencia = 0;
+}
+
 echo json_encode([
-    'ok'   => true,
-    'id'   => $usuario['id'],
-    'nome' => $usuario['nome'],
+    'ok'        => true,
+    'id'        => $usuario['id'],
+    'nome'      => $usuario['nome'],
+    'sequencia' => $sequencia,
 ]);
