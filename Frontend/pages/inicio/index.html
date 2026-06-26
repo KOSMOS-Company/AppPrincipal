@@ -45,12 +45,9 @@
             <div class="hero__orb hero__orb--1"></div>
             <div class="hero__orb hero__orb--2"></div>
             <div class="hero__grid"></div>
+            <canvas class="hero__space" id="heroSpace"></canvas>
         </div>
         <div class="hero__inner">
-            <div class="hero__badge">
-                <span class="hero__badge-dot"></span>
-                Plataforma gratuita para estudantes
-            </div>
             <h1 class="hero__title">
                 Organize seus<br>
                 <em>estudos</em> com<br>
@@ -272,15 +269,6 @@
             <div class="footer__inner">
                 <div class="footer__brand">
                     <a href="#" class="logo">
-                        <svg class="logo__icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18 6C18 6 11 8 5 8V28C11 28 18 26 18 26C18 26 25 28 31 28V8C25 8 18 6 18 6Z" stroke="#a541ff" stroke-width="2" stroke-linejoin="round" fill="rgba(165,65,255,0.12)"/>
-                            <line x1="18" y1="6" x2="18" y2="26" stroke="#a541ff" stroke-width="2"/>
-                            <path d="M9 13 L13 13" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M9 17 L13 17" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M23 13 L27 13" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M23 17 L27 17" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
-                            <circle cx="27" cy="7" r="3" fill="#a541ff"/>
-                        </svg>
                         <span class="logo__text">Kosmos</span>
                     </a>
                     <p class="footer__tagline">Estudar nunca foi difícil.</p>
@@ -332,6 +320,7 @@
             });
         });
     </script>
+    <script src="./js/space.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
 </body>
 </html>

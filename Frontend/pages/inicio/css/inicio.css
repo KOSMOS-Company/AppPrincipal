@@ -253,6 +253,16 @@ em { font-style: normal; color: var(--accent-lt); }
     mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, #000 40%, transparent 100%);
 }
 
+/* Campo de estrelas interativo (canvas) */
+.hero__space {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+}
+
 .hero__inner {
     position: relative;
     max-width: 760px;
