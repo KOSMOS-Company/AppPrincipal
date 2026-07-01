@@ -21,6 +21,7 @@
                 <a href="#sobre" class="nav__link">Sobre</a>
                 <a href="#recursos" class="nav__link">Recursos</a>
                 <a href="#historia" class="nav__link">Nossa História</a>
+                <a href="#faq" class="nav__link">FAQ</a>
             </nav>
             <div class="header__actions">
                 <a href="../login/index.html" class="btn btn--ghost">Entrar</a>
@@ -34,6 +35,7 @@
             <a href="#sobre" class="mobile-nav__link">Sobre</a>
             <a href="#recursos" class="mobile-nav__link">Recursos</a>
             <a href="#historia" class="mobile-nav__link">Nossa História</a>
+            <a href="#faq" class="mobile-nav__link">FAQ</a>
             <a href="../login/index.html" class="btn btn--ghost">Entrar</a>
             <a href="../cadastro/index.html" class="btn btn--primary">Cadastre-se</a>
         </div>
@@ -248,6 +250,61 @@
         </div>
     </section>
 
+    <!-- ───── FAQ ───── -->
+    <section class="faq" id="faq">
+        <div class="container faq__inner">
+            <div class="recursos__header reveal reveal--up">
+                <span class="section-tag">Dúvidas</span>
+                <h2 class="section-title">Perguntas <em>frequentes</em></h2>
+                <p class="recursos__subtitle">Tudo o que você precisa saber antes de começar.</p>
+            </div>
+            <div class="faq__lista reveal reveal--up reveal--d1">
+                <div class="faq__item">
+                    <button class="faq__pergunta" type="button">
+                        A Kosmos é realmente gratuita?
+                        <svg class="faq__icone" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="faq__resposta"><p>Sim! A Kosmos é 100% gratuita para todos os estudantes. Sem mensalidade e sem pegadinhas.</p></div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__pergunta" type="button">
+                        Preciso instalar algum programa?
+                        <svg class="faq__icone" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="faq__resposta"><p>Não. A Kosmos funciona direto no navegador, em qualquer dispositivo — basta criar sua conta e começar.</p></div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__pergunta" type="button">
+                        Para quem a Kosmos foi feita?
+                        <svg class="faq__icone" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="faq__resposta"><p>Para estudantes do ensino médio e vestibulandos que querem organizar a rotina de estudos — do dia a dia até a reta final do vestibular.</p></div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__pergunta" type="button">
+                        Como funcionam os exercícios com IA?
+                        <svg class="faq__icone" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="faq__resposta"><p>Você escolhe a matéria, a dificuldade e a quantidade, e a inteligência artificial gera questões personalizadas para você praticar na hora.</p></div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__pergunta" type="button">
+                        Posso entrar com a minha conta Google?
+                        <svg class="faq__icone" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="faq__resposta"><p>Sim! Você pode criar sua conta e entrar com o Google em um clique, ou usar e-mail e senha tradicionais.</p></div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__pergunta" type="button">
+                        Meu progresso fica salvo?
+                        <svg class="faq__icone" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="faq__resposta"><p>Sim! Tudo fica salvo na sua conta, então você continua de onde parou sempre que voltar.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ───── CTA FINAL ───── -->
     <section class="cta-final">
         <div class="cta-final__orb"></div>
@@ -317,6 +374,15 @@
             a.addEventListener('click', e => {
                 const target = document.querySelector(a.getAttribute('href'));
                 if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+            });
+        });
+
+        /* --- FAQ: accordion --- */
+        document.querySelectorAll('.faq__item').forEach(item => {
+            item.querySelector('.faq__pergunta').addEventListener('click', () => {
+                const aberto = item.classList.contains('aberto');
+                document.querySelectorAll('.faq__item.aberto').forEach(o => o.classList.remove('aberto'));
+                if (!aberto) item.classList.add('aberto');
             });
         });
 
