@@ -15,6 +15,8 @@
     let w = 0, h = 0, estrelas = [];
     let alvoX = 0, alvoY = 0, mx = 0, my = 0;   // parallax (mouse normalizado)
     let curX = -999, curY = -999;               // cursor em px (para as linhas)
+    let meteoros = [];                           // estrelas cadentes
+    let cooldownMeteoro = 90;                    // frames até a próxima
 
     function criarEstrelas() {
         const qtd = Math.min(170, Math.round((w * h) / 9000));
@@ -28,6 +30,22 @@
                 roxa: Math.random() < 0.35,      // algumas em roxo
             });
         }
+    }
+
+    function criarMeteoro() {
+        const speed = 7 + Math.random() * 5;
+        const ang = (Math.PI / 180) * (18 + Math.random() * 16);   // 18°–34° de inclinação
+        const dir = Math.random() < 0.5 ? 1 : -1;                   // direita ou esquerda
+        const startX = dir === 1
+            ? Math.random() * w * 0.5
+            : w * 0.5 + Math.random() * w * 0.5;
+        return {
+            x: startX,
+            y: -20,
+            vx: Math.cos(ang) * speed * dir,
+            vy: Math.sin(ang) * speed,
+            len: 140 + Math.random() * 120,   // comprimento do rastro
+        };
     }
 
     function redimensionar() {
@@ -81,6 +99,42 @@
                 ? "rgba(197,124,255," + alpha + ")"
                 : "rgba(235,225,255," + alpha + ")";
             ctx.fill();
+        }
+
+        // --- estrelas cadentes ---
+        cooldownMeteoro--;
+        if (cooldownMeteoro <= 0 && meteoros.length < 2) {
+            meteoros.push(criarMeteoro());
+            cooldownMeteoro = 150 + Math.floor(Math.random() * 240);   // ~2,5s a 6,5s
+        }
+        for (let i = meteoros.length - 1; i >= 0; i--) {
+            const m = meteoros[i];
+            m.x += m.vx;
+            m.y += m.vy;
+
+            const mag = Math.hypot(m.vx, m.vy) || 1;
+            const tx = m.x - (m.vx / mag) * m.len;
+            const ty = m.y - (m.vy / mag) * m.len;
+
+            const g = ctx.createLinearGradient(m.x, m.y, tx, ty);
+            g.addColorStop(0, "rgba(255,255,255,0.9)");
+            g.addColorStop(0.35, "rgba(197,124,255,0.45)");
+            g.addColorStop(1, "rgba(197,124,255,0)");
+            ctx.strokeStyle = g;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(m.x, m.y);
+            ctx.lineTo(tx, ty);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, 1.6, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255,255,255,0.95)";
+            ctx.fill();
+
+            if (m.y - m.len > h || m.x < -m.len || m.x > w + m.len) {
+                meteoros.splice(i, 1);
+            }
         }
 
         requestAnimationFrame(desenhar);
