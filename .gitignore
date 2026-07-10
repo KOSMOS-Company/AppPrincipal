@@ -1,0 +1,15 @@
+# ============================================================
+#  KOSMOS — .gitignore
+# ============================================================
+
+# Segredos / configuração de ambiente
+Backend/php/config.php
+Backend/php/conexao.php
+
+# Backups
+*.bak
+
+# Lixo de SO / editor
+Thumbs.db
+.DS_Store
+.vscode/
