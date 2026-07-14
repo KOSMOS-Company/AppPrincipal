@@ -34,9 +34,6 @@
 </head>
 <body>
 
-    <!-- Barra de progresso de scroll -->
-    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
-
     <!--  HEADER  -->
     <header class="header" id="header">
         <div class="header__inner">
@@ -45,7 +42,6 @@
             <nav class="nav" id="nav">
                 <a href="#sobre" class="nav__link">Sobre</a>
                 <a href="#recursos" class="nav__link">Recursos</a>
-                <a href="#demo" class="nav__link">Experimente</a>
                 <a href="#historia" class="nav__link">Nossa História</a>
                 <a href="#faq" class="nav__link">FAQ</a>
             </nav>
@@ -60,7 +56,6 @@
         <div class="mobile-nav" id="mobileNav">
             <a href="#sobre" class="mobile-nav__link">Sobre</a>
             <a href="#recursos" class="mobile-nav__link">Recursos</a>
-            <a href="#demo" class="mobile-nav__link">Experimente</a>
             <a href="#historia" class="mobile-nav__link">Nossa História</a>
             <a href="#faq" class="mobile-nav__link">FAQ</a>
             <a href="../login/index.html" class="btn btn--ghost">Entrar</a>
@@ -78,28 +73,25 @@
         </div>
         <div class="hero__inner">
             <h1 class="hero__title">
-                Organize seus 
-                <span class="hero__rotator"><span id="rotatorWord">estudos</span><span class="hero__caret" aria-hidden="true"></span></span> com<br>
+                Organize seus<br>
+                <em>estudos</em> com<br>
                 <span class="hero__title-highlight">facilidade.</span>
             </h1>
             <p class="hero__desc">
                 A Kosmos é uma plataforma completa para você, estudante, organizar e potencializar seus estudos — do dia a dia ao vestibular.
             </p>
             <div class="hero__cta">
-                <a href="../cadastro/index.html" class="btn btn--primary btn--lg btn--magnetic">
-                    Comece agora
-                    <svg class="btn__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </a>
-                <a href="#demo" class="btn btn--outline btn--lg btn--magnetic">Experimente grátis</a>
+                <a href="../cadastro/index.html" class="btn btn--primary btn--lg">Começe agora</a>
+                <a href="#recursos" class="btn btn--outline btn--lg">Ver recursos</a>
             </div>
             <div class="hero__stats">
                 <div class="hero__stat">
-                    <strong data-count="6">0</strong>
+                    <strong>6</strong>
                     <span>Ferramentas</span>
                 </div>
                 <div class="hero__stat-divider"></div>
                 <div class="hero__stat">
-                    <strong><span data-count="100">0</span>%</strong>
+                    <strong>100%</strong>
                     <span>Gratuito</span>
                 </div>
                 <div class="hero__stat-divider"></div>
@@ -109,38 +101,13 @@
                 </div>
             </div>
         </div>
-        <a href="#sobre" class="hero__scroll" aria-label="Rolar para a próxima seção">
-            <span class="hero__scroll-mouse"><span class="hero__scroll-wheel"></span></span>
-        </a>
     </section>
-
-    <!-- ───── MARQUEE (faixa animada) ───── -->
-    <div class="marquee" aria-hidden="true">
-        <div class="marquee__track">
-            <div class="marquee__group">
-                <span>Resumos</span><span class="marquee__star">✦</span>
-                <span>FlashCards</span><span class="marquee__star">✦</span>
-                <span>Pomodoro</span><span class="marquee__star">✦</span>
-                <span>Exercícios com IA</span><span class="marquee__star">✦</span>
-                <span>Dashboard</span><span class="marquee__star">✦</span>
-                <span>Sequência de estudos</span><span class="marquee__star">✦</span>
-            </div>
-            <div class="marquee__group">
-                <span>Resumos</span><span class="marquee__star">✦</span>
-                <span>FlashCards</span><span class="marquee__star">✦</span>
-                <span>Pomodoro</span><span class="marquee__star">✦</span>
-                <span>Exercícios com IA</span><span class="marquee__star">✦</span>
-                <span>Dashboard</span><span class="marquee__star">✦</span>
-                <span>Sequência de estudos</span><span class="marquee__star">✦</span>
-            </div>
-        </div>
-    </div>
 
     <!-- ───── SOBRE ───── -->
     <section class="sobre" id="sobre">
         <div class="container">
             <div class="sobre__inner">
-                <div class="sobre__img-wrap reveal reveal--left tilt">
+                <div class="sobre__img-wrap reveal reveal--left">
                     <img src="imagens/imgSobre.png" alt="Estudante usando Kosmos" class="sobre__img">
                     <div class="sobre__img-glow"></div>
                 </div>
@@ -278,93 +245,6 @@
         </div>
     </section>
 
-    <!-- ───── DEMO INTERATIVA ───── -->
-    <section class="demo" id="demo">
-        <div class="demo__orb" aria-hidden="true"></div>
-        <div class="container">
-            <div class="recursos__header reveal reveal--up">
-                <span class="section-tag">Interativo</span>
-                <h2 class="section-title">Experimente <em>agora mesmo</em></h2>
-                <p class="recursos__subtitle">Sem cadastro e sem espera — brinque com uma prévia real das nossas ferramentas.</p>
-            </div>
-
-            <div class="demo__grid">
-
-                <!-- Demo: FlashCard -->
-                <div class="demo__panel reveal reveal--up">
-                    <div class="demo__panel-head">
-                        <h3 class="demo__panel-title">FlashCards</h3>
-                        <span class="card__tag">Memorização</span>
-                    </div>
-                    <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Virar flashcard">
-                        <div class="flashcard__inner">
-                            <div class="flashcard__face flashcard__face--front">
-                                <span class="flashcard__label">Pergunta</span>
-                                <p id="fcFront">O que é fotossíntese?</p>
-                                <span class="flashcard__hint">clique para virar ↻</span>
-                            </div>
-                            <div class="flashcard__face flashcard__face--back">
-                                <span class="flashcard__label">Resposta</span>
-                                <p id="fcBack">Processo em que as plantas convertem luz solar em energia, liberando oxigênio.</p>
-                                <span class="flashcard__hint">clique para voltar ↻</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn btn--ghost demo__action" id="fcNext" type="button">
-                        Próximo card
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </button>
-                </div>
-
-                <!-- Demo: Pomodoro -->
-                <div class="demo__panel reveal reveal--up reveal--d1">
-                    <div class="demo__panel-head">
-                        <h3 class="demo__panel-title">Pomodoro</h3>
-                        <span class="card__tag">Produtividade</span>
-                    </div>
-                    <div class="pomo">
-                        <div class="pomo__circle">
-                            <svg class="pomo__ring" viewBox="0 0 120 120">
-                                <circle class="pomo__ring-bg" cx="60" cy="60" r="52"/>
-                                <circle class="pomo__ring-fill" id="pomoRing" cx="60" cy="60" r="52" pathLength="100"/>
-                            </svg>
-                            <div class="pomo__center">
-                                <span class="pomo__time" id="pomoTime">25:00</span>
-                                <span class="pomo__state" id="pomoState">foco</span>
-                            </div>
-                        </div>
-                        <div class="pomo__controls">
-                            <button class="btn btn--primary demo__action" id="pomoToggle" type="button">Iniciar</button>
-                            <button class="btn btn--ghost demo__action" id="pomoReset" type="button">Reiniciar</button>
-                        </div>
-                        <p class="demo__note">Demonstração acelerada: 1 segundo = 1 minuto.</p>
-                    </div>
-                </div>
-
-                <!-- Demo: Quiz IA -->
-                <div class="demo__panel reveal reveal--up reveal--d2">
-                    <div class="demo__panel-head">
-                        <h3 class="demo__panel-title">Exercícios com IA</h3>
-                        <span class="card__tag">Prática</span>
-                    </div>
-                    <div class="quiz">
-                        <span class="quiz__materia" id="quizMateria">Matemática</span>
-                        <p class="quiz__pergunta" id="quizPergunta">Qual é o valor de x em 2x + 6 = 14?</p>
-                        <div class="quiz__opcoes" id="quizOpcoes"></div>
-                        <p class="quiz__feedback" id="quizFeedback" aria-live="polite"></p>
-                    </div>
-                    <button class="btn btn--ghost demo__action" id="quizNext" type="button" disabled>
-                        Outra pergunta
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </button>
-                </div>
-
-            </div>
-
-            <p class="demo__cta reveal reveal--up">Gostou? <a href="../cadastro/index.html">Crie sua conta grátis</a> e tenha tudo isso de verdade.</p>
-        </div>
-    </section>
-
     <!-- ───── HISTORIA ───── -->
     <section class="historia" id="historia">
         <div class="container">
@@ -384,7 +264,7 @@
                         <div class="historia__badge"> Técnico em T.I</div>
                     </div>
                 </div>
-                <div class="historia__img-wrap reveal reveal--right reveal--d1 tilt">
+                <div class="historia__img-wrap reveal reveal--right reveal--d1">
                     <img src="imagens/imgAmigos.png" alt="Fundadores da Kosmos" class="historia__img">
                     <div class="historia__img-glow"></div>
                 </div>
@@ -451,14 +331,12 @@
     <section class="cta-final">
         <div class="cta-final__orb"></div>
         <div class="container">
-            <div class="cta-final__box reveal reveal--scale">
-                <div class="cta-final__inner">
-                    <h2 class="cta-final__title">Pronto para organizar<br>seus estudos?</h2>
-                    <p class="cta-final__desc">Junte-se à Kosmos e comece a estudar de forma mais organizada hoje mesmo.</p>
-                    <div class="cta-final__actions">
-                        <a href="../cadastro/index.html" class="btn btn--primary btn--lg btn--magnetic">Criar conta grátis</a>
-                        <a href="../login/index.html" class="btn btn--ghost btn--lg btn--magnetic">Já tenho conta</a>
-                    </div>
+            <div class="cta-final__inner reveal reveal--scale">
+                <h2 class="cta-final__title">Pronto para organizar<br>seus estudos?</h2>
+                <p class="cta-final__desc">Junte-se à Kosmos e comece a estudar de forma mais organizada hoje mesmo.</p>
+                <div class="cta-final__actions">
+                    <a href="../cadastro/index.html" class="btn btn--primary btn--lg">Criar conta grátis</a>
+                    <a href="../login/index.html" class="btn btn--ghost btn--lg">Já tenho conta</a>
                 </div>
             </div>
         </div>
@@ -477,7 +355,6 @@
                 <div class="footer__links">
                     <a href="#sobre">Sobre</a>
                     <a href="#recursos">Recursos</a>
-                    <a href="#demo">Experimente</a>
                     <a href="#historia">Nossa história</a>
                     <a href="../login/index.html">Entrar</a>
                 </div>
@@ -488,12 +365,76 @@
         </div>
     </footer>
 
-    <!-- Botão voltar ao topo -->
-    <button class="back-top" id="backTop" type="button" aria-label="Voltar ao topo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
+    <script>
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('header--scrolled', window.scrollY > 20);
+        });
 
-    <script src="./js/inicio.js"></script>
+        const hamburger = document.getElementById('hamburger');
+        const mobileNav = document.getElementById('mobileNav');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileNav.classList.toggle('open');
+        });
+
+        document.querySelectorAll('.mobile-nav__link, .mobile-nav .btn').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                mobileNav.classList.remove('open');
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.card, .reveal').forEach(el => observer.observe(el));
+
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+            });
+        });
+
+        /* --- FAQ: accordion --- */
+        document.querySelectorAll('.faq__item').forEach(item => {
+            item.querySelector('.faq__pergunta').addEventListener('click', () => {
+                const aberto = item.classList.contains('aberto');
+                document.querySelectorAll('.faq__item.aberto').forEach(o => o.classList.remove('aberto'));
+                if (!aberto) item.classList.add('aberto');
+            });
+        });
+
+        /* --- Cards de recursos: brilho + inclinação 3D seguindo o mouse --- */
+        (function () {
+            const interativo = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+                && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!interativo) return;
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const r = card.getBoundingClientRect();
+                    const x = e.clientX - r.left;
+                    const y = e.clientY - r.top;
+                    // posição do brilho
+                    card.style.setProperty('--mx', x + 'px');
+                    card.style.setProperty('--my', y + 'px');
+                    // inclinação (graus)
+                    const rx = (0.5 - y / r.height) * 8;
+                    const ry = (x / r.width - 0.5) * 8;
+                    card.style.transition = 'transform .08s ease-out';
+                    card.style.transform = 'perspective(800px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) translateY(-6px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transition = '';
+                    card.style.transform = '';
+                });
+            });
+        })();
+    </script>
     <script src="./js/space.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
 </body>
