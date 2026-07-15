@@ -106,21 +106,6 @@
     }
 
     /* ────────────────────────────────
-       Botões magnéticos (seguem levemente o cursor)
-       ──────────────────────────────── */
-    if (ponteiroFino && !reduzMovimento) {
-        document.querySelectorAll('.btn--magnetic').forEach(btn => {
-            btn.addEventListener('mousemove', e => {
-                const r = btn.getBoundingClientRect();
-                const x = (e.clientX - r.left - r.width / 2) * 0.22;
-                const y = (e.clientY - r.top - r.height / 2) * 0.32;
-                btn.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-            });
-            btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
-        });
-    }
-
-    /* ────────────────────────────────
        Hero: palavra rotativa (máquina de escrever)
        ──────────────────────────────── */
     (function () {
