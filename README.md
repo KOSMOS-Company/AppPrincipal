@@ -21,20 +21,23 @@ Identidade visual: tema escuro "cósmico" roxo, fontes Syne (títulos) + DM Sans
 ## 📁 Estrutura do projeto
 
 ```
-AppPrincipal/
-├── Backend/
-│   ├── kosmos.sql          # dump do banco (estrutura da tabela "usuarios")
-│   ├── notes/              # anotações de desenvolvimento
-│   └── php/                # endpoints PHP (login, cadastro, sessão, conta, etc.)
-│       ├── conexao.php     # conexão com o banco  (NÃO versionado — ver .example)
-│       └── config.php      # segredos/integrações  (NÃO versionado — ver .example)
-└── Frontend/
-    └── pages/
-        ├── inicio/         # landing page (ponto de entrada)
-        ├── login/          # login + redefinição de senha
-        ├── cadastro/       # cadastro + termos
-        ├── dashboard/      # área logada (resumos, flashcards, exercícios, pomodoro, conta)
-        └── shared/         # recursos comuns (favicon, cursor animado)
+KOSMOS/
+├── .htaccess               # config do Apache (ErrorDocument 404 → página de erro personalizada)
+└── AppPrincipal/
+    ├── Backend/
+    │   ├── kosmos.sql          # dump do banco (estrutura da tabela "usuarios")
+    │   ├── notes/              # anotações de desenvolvimento
+    │   └── php/                # endpoints PHP (login, cadastro, sessão, conta, etc.)
+    │       ├── conexao.php     # conexão com o banco  (NÃO versionado — ver .example)
+    │       └── config.php      # segredos/integrações  (NÃO versionado — ver .example)
+    └── Frontend/
+        └── pages/
+            ├── 404.html        # página de erro 404 personalizada (usada pelo .htaccess)
+            ├── inicio/         # landing page (ponto de entrada)
+            ├── login/          # login + redefinição de senha
+            ├── cadastro/       # cadastro + termos de uso + política de privacidade
+            ├── dashboard/      # área logada (resumos, flashcards, exercícios, pomodoro, conta)
+            └── shared/         # recursos comuns (favicon, imagem de compartilhamento, cursor animado)
 ```
 
 Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagens/`.
@@ -84,6 +87,14 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
 | Flashcards / Resumos / Exercícios | 🟡 UI pronta, sem persistência |
 | Estatísticas / gráfico da dashboard | 🟡 Dados mockados |
 | Exercícios com IA (n8n + Groq) | 🟡 Em integração |
+
+---
+
+## ⚠️ Problemas conhecidos (a resolver)
+
+- **Fuso horário do PHP × MySQL divergem.** No XAMPP, o PHP roda em `Europe/Berlin` e o MySQL em `America/Sao_Paulo` (`@@system_time_zone`), então `new DateTime('today')` (PHP) e `CURDATE()` (MySQL) podem cair em **dias diferentes**. Isso já causou um bug na **sequência de dias (streak)**, que somava +1 a cada recarga; foi **contornado** fazendo o cálculo 100% no MySQL em `Backend/php/sessao.php`. **Mas a causa raiz continua:** qualquer nova funcionalidade que misture datas do PHP e do MySQL pode quebrar.
+  - **A resolver:** padronizar o fuso — ex.: `date_default_timezone_set('America/Sao_Paulo')` num bootstrap do PHP **e** `SET time_zone = '-03:00'` (ou `America/Sao_Paulo`) na conexão MySQL.
+  - *Obs.: os valores de `usuarios.sequencia` que haviam inflado por causa desse bug já foram resetados (2026-07-15).*
 
 ---
 

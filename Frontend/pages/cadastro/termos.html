@@ -7,12 +7,17 @@
     <title>Kosmos — Termos de Uso</title>
     <link rel="stylesheet" href="./css/termos.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
+    <link rel="stylesheet" href="../shared/cursor.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 </head>
 <body>
 
+    <!-- Barra de progresso de scroll -->
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+    <!-- Fundo animado -->
     <div class="bg">
         <div class="bg__orb bg__orb--1"></div>
         <div class="bg__orb bg__orb--2"></div>
@@ -29,64 +34,89 @@
 
         <main class="terms-container">
             <div class="terms-card">
-                <span class="section-tag">Termos</span>
-                <h1 class="section-title">Termos de Uso</h1>
-                <p class="terms-meta">Última atualização: 24 de junho de 2026</p>
-                <p class="terms-intro">
+                <span class="section-tag reveal">Termos</span>
+                <h1 class="section-title reveal reveal--d1">Termos de Uso</h1>
+                <p class="terms-meta reveal reveal--d1">Última atualização: 24 de junho de 2026</p>
+                <p class="terms-intro reveal reveal--d2">
                     Estes termos explicam como a Kosmos funciona, quais são seus direitos ao usar a plataforma e quais responsabilidades você assume ao criar e armazenar conteúdo.
                 </p>
 
-                <div class="terms-callout">
+                <div class="terms-callout reveal reveal--d2">
                     <strong>Resumo rápido:</strong>
                     <span>Use a plataforma com responsabilidade, proteja seus dados de acesso e respeite o conteúdo de outros usuários.</span>
                 </div>
 
-                <section class="terms-section">
+                <!-- Cartões de destaque -->
+                <div class="priv-highlights">
+                    <div class="priv-highlight reveal">
+                        <div class="priv-highlight__icon">
+                            <svg viewBox="0 0 24 24" fill="none" width="24" height="24"><path d="M9 11V7a3 3 0 0 1 6 0v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="5" y="11" width="14" height="9" rx="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor"/></svg>
+                        </div>
+                        <h3>Conta segura</h3>
+                        <p>Mantenha sua senha em sigilo e o acesso protegido em qualquer dispositivo.</p>
+                    </div>
+                    <div class="priv-highlight reveal reveal--d1">
+                        <div class="priv-highlight__icon">
+                            <svg viewBox="0 0 24 24" fill="none" width="24" height="24"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <h3>Uso responsável</h3>
+                        <p>Respeite a lei, os outros usuários e o bom funcionamento da plataforma.</p>
+                    </div>
+                    <div class="priv-highlight reveal reveal--d2">
+                        <div class="priv-highlight__icon">
+                            <svg viewBox="0 0 24 24" fill="none" width="24" height="24"><rect x="6" y="3" width="12" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M9 7h6M9 11h6M9 15h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        </div>
+                        <h3>Seu conteúdo</h3>
+                        <p>O material que você cria continua seu — você é responsável por ele.</p>
+                    </div>
+                </div>
+
+                <section class="terms-section reveal">
                     <h3>1. Aceitação</h3>
                     <p>Ao acessar, criar conta ou usar qualquer recurso da Kosmos, você concorda com estes Termos de Uso e com eventuais atualizações publicadas nesta página.</p>
                 </section>
 
-                <section class="terms-section">
+                <section class="terms-section reveal">
                     <h3>2. Cadastro e segurança da conta</h3>
                     <p>Você é responsável por informar dados verdadeiros, manter sua senha em sigilo e encerrar o acesso quando estiver usando um dispositivo compartilhado. Se notar qualquer uso indevido da conta, avise imediatamente a equipe da Kosmos.</p>
                 </section>
 
-                <section class="terms-section">
+                <section class="terms-section reveal">
                     <h3>3. Uso permitido</h3>
                     <p>O uso da plataforma deve respeitar a legislação vigente, estes termos e a boa convivência entre usuários. Não é permitido tentar invadir sistemas, automatizar acessos indevidos, distribuir malware ou explorar falhas de funcionamento.</p>
                 </section>
 
-                <section class="terms-section">
+                <section class="terms-section reveal">
                     <h3>4. Conteúdo do usuário</h3>
                     <p>Você continua sendo o responsável pelo material que envia, salva ou compartilha na plataforma, incluindo resumos, imagens, textos e anotações. A Kosmos pode remover conteúdos que violem estes termos, direitos de terceiros ou normas legais aplicáveis.</p>
                 </section>
 
-                <section class="terms-section">
+                <section class="terms-section reveal">
                     <h3>5. Privacidade e dados</h3>
-                    <p>Coletamos apenas as informações necessárias para autenticação, organização de estudos e melhoria da experiência. Sempre que possível, os dados são tratados de forma segura. Para detalhes completos, consulte também a Política de Privacidade quando ela estiver disponível.</p>
+                    <p>Coletamos apenas as informações necessárias para autenticação, organização de estudos e melhoria da experiência. Sempre que possível, os dados são tratados de forma segura. Para detalhes completos, consulte também a <a href="politica.html" style="color:#c97cff">Política de Privacidade</a>.</p>
                 </section>
 
-                <section class="terms-section">
+                <section class="terms-section reveal">
                     <h3>6. Propriedade intelectual</h3>
                     <p>O visual da plataforma, os textos institucionais, os ícones e os elementos de marca pertencem à Kosmos ou a seus licenciadores. É proibido copiar, redistribuir ou usar esses elementos fora do contexto permitido sem autorização.</p>
                 </section>
 
-                <section class="terms-section">
+                <section class="terms-section reveal">
                     <h3>7. Disponibilidade do serviço</h3>
                     <p>Nos esforçamos para manter a plataforma disponível, mas interrupções podem acontecer por manutenção, ajustes técnicos ou falhas externas. Quando isso ocorrer, podemos suspender recursos temporariamente para corrigir o problema.</p>
                 </section>
 
-                <section class="terms-section">
+                <section class="terms-section reveal">
                     <h3>8. Alterações destes termos</h3>
                     <p>Podemos atualizar estes Termos de Uso a qualquer momento. Quando as mudanças forem relevantes, a versão mais recente será destacada nesta página para que você revise antes de continuar usando a plataforma.</p>
                 </section>
 
-                <section class="terms-section">
+                <section class="terms-section reveal">
                     <h3>9. Contato</h3>
-                    <p>Se você tiver dúvidas sobre estes termos, quiser relatar uso indevido ou solicitar esclarecimentos sobre a conta, use o canal de contato do projeto ou a área responsável pela manutenção da Kosmos.</p>
+                    <p>Se você tiver dúvidas sobre estes termos, quiser relatar uso indevido ou solicitar esclarecimentos sobre a conta, fale com a equipe da Kosmos pelo e-mail <a href="mailto:tccinfo3bemlt@gmail.com" class="priv-link">tccinfo3bemlt@gmail.com</a>.</p>
                 </section>
 
-                <div class="terms-footer">
+                <div class="terms-footer reveal">
                     <span class="terms-footer__label">Voltar para</span>
                     <a href="index.html" class="terms-footer__link">Cadastro</a>
                     <span class="terms-footer__separator">ou</span>
@@ -100,6 +130,35 @@
         </footer>
     </div>
 
+    <script>
+        /* Barra de progresso de scroll */
+        (function () {
+            const barra = document.getElementById('scrollProgress');
+            if (barra) {
+                window.addEventListener('scroll', () => {
+                    const total = document.documentElement.scrollHeight - window.innerHeight;
+                    barra.style.width = (total > 0 ? (window.scrollY / total) * 100 : 0) + '%';
+                }, { passive: true });
+            }
+
+            /* Reveal ao rolar */
+            const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (semMovimento) {
+                document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+                return;
+            }
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+            document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+        })();
+    </script>
     <script src="../shared/mouse-tracker.js"></script>
+    <script src="../shared/cursor.js"></script>
 </body>
 </html>

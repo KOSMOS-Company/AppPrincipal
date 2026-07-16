@@ -4,58 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Crie sua conta gratuita na Kosmos e comece a organizar seus estudos.">
+    <meta name="theme-color" content="#0d0118">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Cadastro</title>
     <link rel="stylesheet" href="./css/cadastro.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
+    <link rel="stylesheet" href="../shared/cursor.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 </head>
 <body>
- 
+
     <!-- Background -->
     <div class="bg">
         <div class="bg__orb bg__orb--1"></div>
         <div class="bg__orb bg__orb--2"></div>
         <div class="bg__grid"></div>
+        <canvas class="bg__space" id="heroSpace"></canvas>
     </div>
- 
+
     <!-- Layout -->
     <div class="page">
- 
-        <!-- Right panel— Form first on desktop right s[] -->
-        <div class="panel panel--form">
+
+        <!-- Form centralizado -->
+        <div class="auth">
+            <a href="../inicio/index.html" class="logo auth__logo">
+                <span class="logo__text">Kosmos</span>
+            </a>
+            <div class="form-shell">
             <div class="form-card">
+
+                <!-- Mascote: planetinha que segue o cursor e tapa os olhos na senha -->
+                <div class="mascote" id="mascote" aria-hidden="true">
+                    <svg class="mascote__svg" viewBox="0 0 140 112">
+                        <defs>
+                            <radialGradient id="mascoteCorpo" cx="38%" cy="32%" r="80%">
+                                <stop offset="0%" stop-color="#5b1a8f"/>
+                                <stop offset="100%" stop-color="#2a0745"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- anel (parte de trás) -->
+                        <path d="M12 58 A58 16 0 0 1 128 58" fill="none" stroke="rgba(165,65,255,.45)" stroke-width="4" stroke-linecap="round"/>
+                        <!-- corpo -->
+                        <circle cx="70" cy="56" r="34" fill="url(#mascoteCorpo)" stroke="rgba(165,65,255,.35)" stroke-width="1.5"/>
+                        <!-- crateras -->
+                        <circle cx="50" cy="42" r="5" fill="rgba(255,255,255,.07)"/>
+                        <circle cx="90" cy="70" r="4" fill="rgba(255,255,255,.06)"/>
+                        <circle cx="56" cy="74" r="2.6" fill="rgba(255,255,255,.06)"/>
+                        <!-- olhos -->
+                        <g class="mascote__olho">
+                            <circle cx="59" cy="52" r="7.2" fill="#fff"/>
+                            <circle class="mascote__pupila" cx="59" cy="52" r="3.3" fill="#12011f"/>
+                            <rect class="mascote__palpebra" x="51" y="44.4" width="16" height="15.2" rx="7.6" fill="#3c1160"/>
+                        </g>
+                        <g class="mascote__olho">
+                            <circle cx="82" cy="52" r="7.2" fill="#fff"/>
+                            <circle class="mascote__pupila" cx="82" cy="52" r="3.3" fill="#12011f"/>
+                            <rect class="mascote__palpebra" x="74" y="44.4" width="16" height="15.2" rx="7.6" fill="#3c1160"/>
+                        </g>
+                        <!-- sorriso -->
+                        <path class="mascote__boca" d="M63 68 Q70.5 74 78 68" fill="none" stroke="#c97cff" stroke-width="2.2" stroke-linecap="round"/>
+                        <!-- anel (parte da frente) -->
+                        <path d="M12 58 A58 16 0 0 0 128 58" fill="none" stroke="#a541ff" stroke-width="4" stroke-linecap="round"/>
+                        <!-- estrelinha -->
+                        <path class="mascote__estrela" d="M118 22 l2.2 4.6 4.8 .7 -3.5 3.4 .8 4.8 -4.3-2.3 -4.3 2.3 .8-4.8 -3.5-3.4 4.8-.7z" fill="#c97cff"/>
+                    </svg>
+                </div>
+
                 <div class="form-card__header">
-                    <a href="../inicio/index.html" class="logo logo--mobile">
-                        <svg class="logo__icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6C18 6 11 8 5 8V28C11 28 18 26 18 26C18 26 25 28 31 28V8C25 8 18 6 18 6Z" stroke="#a541ff" stroke-width="2" stroke-linejoin="round" fill="rgba(165,65,255,0.12)"/><line x1="18" y1="6" x2="18" y2="26" stroke="#a541ff" stroke-width="2"/><path d="M9 13 L13 13" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/><path d="M9 17 L13 17" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/><path d="M23 13 L27 13" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/><path d="M23 17 L27 17" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/><circle cx="27" cy="7" r="3" fill="#a541ff"/></svg>
-                        <span class="logo__text">Kosmos</span>
-                    </a>
                     <h2 class="form-card__title">Comece a usar a Kosmos</h2>
                     <p class="form-card__sub">Cadastre-se e estude de forma organizada.</p>
                 </div>
- 
-                
+
+                <!-- Progresso do cadastro (visual) -->
+                <div class="cad-progresso" aria-hidden="true">
+                    <div class="cad-progresso__track">
+                        <div class="cad-progresso__fill" id="cadFill"></div>
+                        <span class="cad-progresso__rocket" id="cadRocket">🚀</span>
+                    </div>
+                    <span class="cad-progresso__label" id="cadLabel">0 de 3 campos preenchidos</span>
+                </div>
+
                 <!-- Form -->
                 <form class="form" novalidate>
-                    <div class="field">
+                    <div class="field" id="fieldNome">
                         <label class="field__label" for="nome">Nome Completo</label>
                         <div class="field__wrap">
                             <svg class="field__ico" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                             <input id="nome" type="text" class="field__input" placeholder="Seu nome completo" autocomplete="name">
+                            <svg class="field__check" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.2" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M6.5 10.4l2.4 2.4 4.6-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </div>
                     </div>
-                    
-                    <div class="field">
+
+                    <div class="field" id="fieldEmail">
                         <label class="field__label" for="email">E-mail</label>
                         <div class="field__wrap">
                             <svg class="field__ico" viewBox="0 0 20 20" fill="none"><path d="M2.5 5.5A1.5 1.5 0 014 4h12a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5v-9z" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 5.5l7.5 5.25L17.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                             <input id="email" type="email" class="field__input" placeholder="seu@email.com" autocomplete="email">
+                            <svg class="field__check" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.2" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M6.5 10.4l2.4 2.4 4.6-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </div>
                     </div>
-                    
-                    <div class="field">
+
+                    <div class="field" id="fieldSenha">
                         <label class="field__label" for="senha">Senha</label>
                         <div class="field__wrap">
                             <svg class="field__ico" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -64,10 +115,21 @@
                                 <svg viewBox="0 0 20 20" fill="none"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
                             </button>
                         </div>
+                        <span class="field__caps" id="capsAviso" hidden>⇪ Caps Lock ativado</span>
+
+                        <!-- Medidor de força da senha (visual) -->
+                        <div class="senha-extra" id="senhaExtra" hidden>
+                            <div class="senha-barra"><span class="senha-barra__fill" id="senhaBarraFill"></span></div>
+                            <div class="senha-reqs">
+                                <span class="senha-req" id="reqLen">8+ caracteres</span>
+                                <span class="senha-req" id="reqLetra">letras</span>
+                                <span class="senha-req" id="reqNum">números</span>
+                            </div>
+                        </div>
                     </div>
-                    
+
                     <div class="divider"><span>preencha os dados ou</span></div>
-                    
+
                     <!-- Google Identity Services -->
                     <div id="g_id_onload"
                          data-client_id="848162979346-58d2pq44nmhbrabsnhl6i1o1j2pnm7mu.apps.googleusercontent.com"
@@ -82,40 +144,29 @@
                              data-shape="pill"
                              data-logo_alignment="left"></div>
                     </div>
-                    
+
                     <button type="submit" class="btn-submit">
                         Criar minha conta
                         <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M4 10h12M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </button>
                 </form>
-                
+
 
                 <div class="form-card__links">
                     <a href="../inicio/index.html" class="form-card__link">← Voltar para início</a>
                     <a href="../login/index.html" class="form-card__link form-card__link--accent">Já tenho conta →</a>
                 </div>
-                
+
                 <p class="form-card__terms">
-                    Ao criar uma conta, você concorda com os <a href="termos.html">Termos de Uso</a> e a <a href="#">Política de Privacidade</a> da Kosmos.
+                    Ao criar uma conta, você concorda com os <a href="termos.html">Termos de Uso</a> e a <a href="politica.html">Política de Privacidade</a> da Kosmos.
                 </p>
             </div>
-        </div>
- 
-        <!-- Left info panel -->
-        <div class="panel panel--info">
-            <a href="../inicio/index.html" class="logo">
-                <span class="logo__text">Kosmos</span>
-            </a>
-            <div class="panel__content">
-                <div class="panel__tag">Junte-se à Kosmos</div>
-                <h1 class="panel__title">Seja muito bem-vindo<br>à nossa <em>plataforma!</em></h1>
-                <p class="panel__desc">Ficamos felizes com sua vontade de aprender. Complete os dados ao lado e comece sua jornada.</p>
             </div>
-            <p class="panel__footer">© 2026 Kosmos. Todos os direitos reservados.</p>
+            <p class="auth__footer">© 2026 Kosmos. Todos os direitos reservados.</p>
         </div>
- 
+
     </div>
- 
+
     <script>
         /* --- Mostrar/ocultar senha --- */
         function togglePwd(btn) {
@@ -123,37 +174,38 @@
             input.type = input.type === 'password' ? 'text' : 'password';
             btn.style.opacity = input.type === 'text' ? '1' : '0.5';
         }
- 
+
         /* --- Envio do formulário para o backend PHP --- */
         document.querySelector('.form').addEventListener('submit', async function (e) {
             e.preventDefault();
- 
+
             const btn    = this.querySelector('.btn-submit');
+            const btnHtml = btn.innerHTML;
             const nome   = document.getElementById('nome').value.trim();
             const email  = document.getElementById('email').value.trim();
             const senha  = document.getElementById('senha').value.trim();
- 
+
             // Remove mensagem anterior
             document.querySelector('.msg-feedback')?.remove();
- 
+
             // Monta os dados do formulário
             const dados = new FormData();
             dados.append('nome',  nome);
             dados.append('email', email);
             dados.append('senha', senha);
- 
+
             btn.disabled    = true;
             btn.textContent = 'Aguarde…';
- 
+
             try {
                 const resposta = await fetch('../../../Backend/php/cadastro.php', {
                     method : 'POST',
                     body   : dados,
                 });
- 
+
                 const json = await resposta.json();
                 mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
- 
+
                 if (json.ok) {
                     this.reset();
                     setTimeout(() => {
@@ -163,11 +215,11 @@
             } catch (err) {
                 mostrarMsg('Não foi possível conectar ao servidor. Verifique se o XAMPP está rodando.', 'erro');
             } finally {
-                btn.disabled    = false;
-                btn.textContent = 'Criar minha conta';
+                btn.disabled  = false;
+                btn.innerHTML = btnHtml;
             }
         });
- 
+
         /* --- Exibe mensagem de feedback --- */
         function mostrarMsg(texto, tipo) {
             const div = document.createElement('div');
@@ -204,9 +256,119 @@
                 mostrarMsg('Não foi possível conectar ao servidor.', 'erro');
             }
         }
+
+        /* ═══ Interações visuais (não alteram a lógica do formulário) ═══ */
+
+        /* --- Mascote: olhos seguem o cursor / fecham na senha --- */
+        (function () {
+            const mascote = document.getElementById('mascote');
+            if (!mascote) return;
+            const reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const ponteiroFino = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            const pupilas = mascote.querySelectorAll('.mascote__pupila');
+            const senhaInput = document.getElementById('senha');
+
+            if (ponteiroFino && !reduzMovimento) {
+                document.addEventListener('mousemove', (e) => {
+                    if (mascote.classList.contains('mascote--fechado')) return;
+                    const r = mascote.getBoundingClientRect();
+                    const dx = e.clientX - (r.left + r.width / 2);
+                    const dy = e.clientY - (r.top + r.height / 2);
+                    const ang = Math.atan2(dy, dx);
+                    const dist = Math.min(2.8, Math.hypot(dx, dy) / 40);
+                    const tx = Math.cos(ang) * dist;
+                    const ty = Math.sin(ang) * dist;
+                    pupilas.forEach(p => { p.style.transform = 'translate(' + tx + 'px,' + ty + 'px)'; });
+                }, { passive: true });
+            }
+
+            senhaInput.addEventListener('focus', () => mascote.classList.add('mascote--fechado'));
+            senhaInput.addEventListener('blur', () => mascote.classList.remove('mascote--fechado'));
+
+            if (!reduzMovimento) {
+                setInterval(() => {
+                    if (mascote.classList.contains('mascote--fechado')) return;
+                    mascote.classList.add('mascote--pisca');
+                    setTimeout(() => mascote.classList.remove('mascote--pisca'), 180);
+                }, 4200);
+            }
+        })();
+
+        /* --- Validação visual + progresso do cadastro --- */
+        (function () {
+            const nome  = document.getElementById('nome');
+            const email = document.getElementById('email');
+            const senha = document.getElementById('senha');
+            const fNome  = document.getElementById('fieldNome');
+            const fEmail = document.getElementById('fieldEmail');
+            const fSenha = document.getElementById('fieldSenha');
+            const fill   = document.getElementById('cadFill');
+            const rocket = document.getElementById('cadRocket');
+            const label  = document.getElementById('cadLabel');
+
+            const extra    = document.getElementById('senhaExtra');
+            const barra    = document.getElementById('senhaBarraFill');
+            const reqLen   = document.getElementById('reqLen');
+            const reqLetra = document.getElementById('reqLetra');
+            const reqNum   = document.getElementById('reqNum');
+
+            function nomeOk()  { return nome.value.trim().length >= 3; }
+            function emailOk() { return email.value.trim() !== '' && email.checkValidity(); }
+            function senhaOk() { return senha.value.length >= 8; }
+
+            function atualizaProgresso() {
+                fNome.classList.toggle('field--ok', nomeOk());
+                fEmail.classList.toggle('field--ok', emailOk());
+                fSenha.classList.toggle('field--ok', senhaOk());
+
+                const validos = [nomeOk(), emailOk(), senhaOk()].filter(Boolean).length;
+                const pct = (validos / 3) * 100;
+                fill.style.width = pct + '%';
+                rocket.style.left = pct + '%';
+                label.textContent = validos === 3
+                    ? 'Tudo pronto para decolar!'
+                    : validos + ' de 3 campos preenchidos';
+            }
+
+            function atualizaSenha() {
+                const v = senha.value;
+                extra.hidden = v.length === 0;
+
+                const temLen   = v.length >= 8;
+                const temLetra = /[a-zA-ZÀ-ÿ]/.test(v);
+                const temNum   = /[0-9]/.test(v);
+                reqLen.classList.toggle('ok', temLen);
+                reqLetra.classList.toggle('ok', temLetra);
+                reqNum.classList.toggle('ok', temNum);
+
+                const pontos = [temLen, temLetra, temNum].filter(Boolean).length;
+                const cores  = ['#f87171', '#f87171', '#fbbf24', '#34d399'];
+                barra.style.width = (pontos / 3) * 100 + '%';
+                barra.style.background = cores[pontos];
+            }
+
+            nome.addEventListener('input', atualizaProgresso);
+            email.addEventListener('input', atualizaProgresso);
+            senha.addEventListener('input', () => { atualizaSenha(); atualizaProgresso(); });
+        })();
+
+        /* --- Aviso de Caps Lock na senha --- */
+        (function () {
+            const senha = document.getElementById('senha');
+            const aviso = document.getElementById('capsAviso');
+            function checa(e) {
+                if (typeof e.getModifierState === 'function') {
+                    aviso.hidden = !e.getModifierState('CapsLock');
+                }
+            }
+            senha.addEventListener('keydown', checa);
+            senha.addEventListener('keyup', checa);
+            senha.addEventListener('blur', () => { aviso.hidden = true; });
+        })();
     </script>
     <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="../inicio/js/space.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
+    <script src="../shared/cursor.js"></script>
 </body>
 </html>
- 

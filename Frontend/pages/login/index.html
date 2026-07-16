@@ -4,26 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Entre na sua conta Kosmos para continuar organizando seus estudos.">
+    <meta name="theme-color" content="#0d0118">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Entrar</title>
     <link rel="stylesheet" href="./css/login.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
+    <link rel="stylesheet" href="../shared/cursor.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-    <style>
-        /* Modal "Esqueceu a senha?" */
-        .kmodal { position: fixed; inset: 0; z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(5,0,12,.7); backdrop-filter: blur(6px); }
-        .kmodal.open { display: flex; }
-        .kmodal__box { position: relative; width: 100%; max-width: 400px; background: #130220; border: 1px solid rgba(165,65,255,.2); border-radius: 20px; padding: 28px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
-        .kmodal__close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #6a5880; font-size: 1.7rem; line-height: 1; cursor: pointer; }
-        .kmodal__close:hover { color: #fff; }
-        .kmodal__title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
-        .kmodal__sub { color: #b8a8cc; font-size: .9rem; margin-bottom: 18px; }
-        .kmodal__input { width: 100%; padding: 11px 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: .95rem; outline: none; margin-bottom: 14px; }
-        .kmodal__input:focus { border-color: #a541ff; box-shadow: 0 0 0 3px rgba(165,65,255,.15); }
-        .kmodal__msg { padding: 9px 12px; border-radius: 8px; font-size: .85rem; margin-bottom: 12px; }
-    </style>
 </head>
 <body>
 
@@ -32,57 +21,74 @@
         <div class="bg__orb bg__orb--1"></div>
         <div class="bg__orb bg__orb--2"></div>
         <div class="bg__grid"></div>
+        <canvas class="bg__space" id="heroSpace"></canvas>
     </div>
 
     <!-- Layout -->
     <div class="page">
 
-        <!-- Left panel -->
-        <div class="panel panel--left">
-            <a href="../inicio/index.html" class="logo">
+        <!-- Form centralizado -->
+        <div class="auth">
+            <a href="../inicio/index.html" class="logo auth__logo">
                 <span class="logo__text">Kosmos</span>
             </a>
-            <div class="panel__content">
-                <div class="panel__tag">Bem-vindo de volta</div>
-                <h1 class="panel__title">Como é bom<br>te ver <em>de volta!</em></h1>
-                <p class="panel__desc">Preencha os dados para continuarmos de onde paramos!</p>
-                <div class="panel__features">
-                    <div class="panel__feature">
-                        <span class="panel__feature-icon">✦</span>
-                        <span>Acesso completo à plataforma</span>
-                    </div>
-                    <div class="panel__feature">
-                        <span class="panel__feature-icon">✦</span>
-                        <span>Seu progresso sempre salvo</span>
-                    </div>
-                    <div class="panel__feature">
-                        <span class="panel__feature-icon">✦</span>
-                        <span>Exercícios com IA esperando por você</span>
-                    </div>
-                </div>
-            </div>
-            <p class="panel__footer">© 2026 Kosmos. Todos os direitos reservados.</p>
-        </div>
-
-        <!-- Right panel — Form -->
-        <div class="panel panel--right">
+            <div class="form-shell">
             <div class="form-card">
+
+                <!-- Mascote: planetinha que segue o cursor e tapa os olhos na senha -->
+                <div class="mascote" id="mascote" aria-hidden="true">
+                    <svg class="mascote__svg" viewBox="0 0 140 112">
+                        <defs>
+                            <radialGradient id="mascoteCorpo" cx="38%" cy="32%" r="80%">
+                                <stop offset="0%" stop-color="#5b1a8f"/>
+                                <stop offset="100%" stop-color="#2a0745"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- anel (parte de trás) -->
+                        <path d="M12 58 A58 16 0 0 1 128 58" fill="none" stroke="rgba(165,65,255,.45)" stroke-width="4" stroke-linecap="round"/>
+                        <!-- corpo -->
+                        <circle cx="70" cy="56" r="34" fill="url(#mascoteCorpo)" stroke="rgba(165,65,255,.35)" stroke-width="1.5"/>
+                        <!-- crateras -->
+                        <circle cx="50" cy="42" r="5" fill="rgba(255,255,255,.07)"/>
+                        <circle cx="90" cy="70" r="4" fill="rgba(255,255,255,.06)"/>
+                        <circle cx="56" cy="74" r="2.6" fill="rgba(255,255,255,.06)"/>
+                        <!-- olhos -->
+                        <g class="mascote__olho">
+                            <circle cx="59" cy="52" r="7.2" fill="#fff"/>
+                            <circle class="mascote__pupila" cx="59" cy="52" r="3.3" fill="#12011f"/>
+                            <rect class="mascote__palpebra" x="51" y="44.4" width="16" height="15.2" rx="7.6" fill="#3c1160"/>
+                        </g>
+                        <g class="mascote__olho">
+                            <circle cx="82" cy="52" r="7.2" fill="#fff"/>
+                            <circle class="mascote__pupila" cx="82" cy="52" r="3.3" fill="#12011f"/>
+                            <rect class="mascote__palpebra" x="74" y="44.4" width="16" height="15.2" rx="7.6" fill="#3c1160"/>
+                        </g>
+                        <!-- sorriso -->
+                        <path class="mascote__boca" d="M63 68 Q70.5 74 78 68" fill="none" stroke="#c97cff" stroke-width="2.2" stroke-linecap="round"/>
+                        <!-- anel (parte da frente) -->
+                        <path d="M12 58 A58 16 0 0 0 128 58" fill="none" stroke="#a541ff" stroke-width="4" stroke-linecap="round"/>
+                        <!-- estrelinha -->
+                        <path class="mascote__estrela" d="M118 22 l2.2 4.6 4.8 .7 -3.5 3.4 .8 4.8 -4.3-2.3 -4.3 2.3 .8-4.8 -3.5-3.4 4.8-.7z" fill="#c97cff"/>
+                    </svg>
+                </div>
+
                 <div class="form-card__header">
                     <h2 class="form-card__title">Entre na sua conta</h2>
                     <p class="form-card__sub">Faça login para continuar seus estudos.</p>
                 </div>
-                
+
                 <!-- Form -->
                 <form class="form" novalidate>
-                    <div class="field">
+                    <div class="field" id="fieldEmail">
                         <label class="field__label" for="email">E-mail</label>
                         <div class="field__wrap">
                             <svg class="field__ico" viewBox="0 0 20 20" fill="none"><path d="M2.5 5.5A1.5 1.5 0 014 4h12a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5v-9z" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 5.5l7.5 5.25L17.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                             <input id="email" type="email" class="field__input" placeholder="seu@email.com" autocomplete="email">
+                            <svg class="field__check" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.2" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M6.5 10.4l2.4 2.4 4.6-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </div>
                     </div>
-                    
-                    <div class="field">
+
+                    <div class="field" id="fieldSenha">
                         <div class="field__label-row">
                             <label class="field__label" for="senha">Senha</label>
                             <a href="#" class="field__link" id="linkEsqueci">Esqueceu a senha?</a>
@@ -94,8 +100,9 @@
                                 <svg viewBox="0 0 20 20" fill="none" class="ico-eye"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
                             </button>
                         </div>
+                        <span class="field__caps" id="capsAviso" hidden>⇪ Caps Lock ativado</span>
                     </div>
-                    
+
                     <div class="divider"><span>ou</span></div>
                                     <!-- Google Identity Services -->
                                     <div id="g_id_onload"
@@ -111,8 +118,8 @@
                                              data-shape="pill"
                                              data-logo_alignment="left"></div>
                                     </div>
-                    
-                    
+
+
                     <button type="submit" class="btn-submit">
                         Entrar na conta
                         <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M4 10h12M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -130,6 +137,8 @@
                     </a>
                 </div>
             </div>
+            </div>
+            <p class="auth__footer">© 2026 Kosmos. Todos os direitos reservados.</p>
         </div>
 
     </div>
@@ -245,8 +254,73 @@
                 btn.disabled = false; btn.textContent = 'Enviar link';
             }
         });
+
+        /* ═══ Interações visuais (não alteram a lógica do formulário) ═══ */
+
+        /* --- Mascote: olhos seguem o cursor / fecham na senha --- */
+        (function () {
+            const mascote = document.getElementById('mascote');
+            if (!mascote) return;
+            const reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const ponteiroFino = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            const pupilas = mascote.querySelectorAll('.mascote__pupila');
+            const senhaInput = document.getElementById('senha');
+
+            // olhos seguem o cursor
+            if (ponteiroFino && !reduzMovimento) {
+                document.addEventListener('mousemove', (e) => {
+                    if (mascote.classList.contains('mascote--fechado')) return;
+                    const r = mascote.getBoundingClientRect();
+                    const dx = e.clientX - (r.left + r.width / 2);
+                    const dy = e.clientY - (r.top + r.height / 2);
+                    const ang = Math.atan2(dy, dx);
+                    const dist = Math.min(2.8, Math.hypot(dx, dy) / 40);
+                    const tx = Math.cos(ang) * dist;
+                    const ty = Math.sin(ang) * dist;
+                    pupilas.forEach(p => { p.style.transform = 'translate(' + tx + 'px,' + ty + 'px)'; });
+                }, { passive: true });
+            }
+
+            // tapa os olhos enquanto digita a senha
+            senhaInput.addEventListener('focus', () => mascote.classList.add('mascote--fechado'));
+            senhaInput.addEventListener('blur', () => mascote.classList.remove('mascote--fechado'));
+
+            // piscadinha de vez em quando
+            if (!reduzMovimento) {
+                setInterval(() => {
+                    if (mascote.classList.contains('mascote--fechado')) return;
+                    mascote.classList.add('mascote--pisca');
+                    setTimeout(() => mascote.classList.remove('mascote--pisca'), 180);
+                }, 4200);
+            }
+        })();
+
+        /* --- Check visual de e-mail válido --- */
+        (function () {
+            const email = document.getElementById('email');
+            const field = document.getElementById('fieldEmail');
+            email.addEventListener('input', () => {
+                field.classList.toggle('field--ok', email.value.trim() !== '' && email.checkValidity());
+            });
+        })();
+
+        /* --- Aviso de Caps Lock na senha --- */
+        (function () {
+            const senha = document.getElementById('senha');
+            const aviso = document.getElementById('capsAviso');
+            function checa(e) {
+                if (typeof e.getModifierState === 'function') {
+                    aviso.hidden = !e.getModifierState('CapsLock');
+                }
+            }
+            senha.addEventListener('keydown', checa);
+            senha.addEventListener('keyup', checa);
+            senha.addEventListener('blur', () => { aviso.hidden = true; });
+        })();
     </script>
     <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="../inicio/js/space.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
+    <script src="../shared/cursor.js"></script>
 </body>
 </html>
