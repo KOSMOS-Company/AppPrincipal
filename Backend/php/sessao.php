@@ -38,34 +38,30 @@ function usuarioLogado(): ?array {
  * Devolve a sequência atual (em dias). Idempotente no mesmo dia.
  */
 function registrarAcesso(PDO $pdo, int $usuarioId): int {
-    $stmt = $pdo->prepare('SELECT ultimo_acesso, sequencia FROM usuarios WHERE id = ? LIMIT 1');
+    // IMPORTANTE: toda a lógica usa o MESMO relógio — o do MySQL, via CURDATE().
+    // Antes, o código comparava com o "hoje" do PHP (new DateTime('today')) mas
+    // gravava com CURDATE() do MySQL. Quando os fusos do PHP e do MySQL diferiam
+    // (ex.: PHP em Europe/Berlin e MySQL em America/Sao_Paulo), a diferença dava
+    // sempre "1 dia" e a sequência somava +1 a CADA acesso/recarga da página.
+    //
+    // Agora é um único UPDATE atômico, contando dias de calendário reais:
+    //   mesmo dia            -> mantém (idempotente: recarregar não muda nada)
+    //   dia seguinte         -> +1
+    //   pulou dia / 1º acesso-> reinicia em 1
+    $sql = 'UPDATE usuarios
+               SET sequencia = CASE
+                       WHEN ultimo_acesso = CURDATE()                  THEN GREATEST(sequencia, 1)
+                       WHEN ultimo_acesso = CURDATE() - INTERVAL 1 DAY THEN sequencia + 1
+                       ELSE 1
+                   END,
+                   ultimo_acesso = CURDATE()
+             WHERE id = ?';
+    $pdo->prepare($sql)->execute([$usuarioId]);
+
+    $stmt = $pdo->prepare('SELECT sequencia FROM usuarios WHERE id = ? LIMIT 1');
     $stmt->execute([$usuarioId]);
-    $u = $stmt->fetch();
-    if (!$u) {
-        return 0;
-    }
-
-    $hoje = new DateTime('today');
-    $seq  = (int) ($u['sequencia'] ?? 0);
-
-    if (empty($u['ultimo_acesso'])) {
-        $seq = 1;                         // primeiro acesso registrado
-    } else {
-        $ultimo  = new DateTime($u['ultimo_acesso']);
-        $difDias = (int) $ultimo->diff($hoje)->format('%r%a'); // com sinal
-
-        if ($difDias === 0) {
-            $seq = max($seq, 1);          // já acessou hoje: mantém
-        } elseif ($difDias === 1) {
-            $seq = $seq + 1;              // acessou ontem: soma 1
-        } else {
-            $seq = 1;                     // quebrou a sequência: reinicia
-        }
-    }
-
-    $upd = $pdo->prepare('UPDATE usuarios SET ultimo_acesso = CURDATE(), sequencia = ? WHERE id = ?');
-    $upd->execute([$seq, $usuarioId]);
-    return $seq;
+    $row = $stmt->fetch();
+    return $row ? (int) $row['sequencia'] : 0;
 }
 
 /**

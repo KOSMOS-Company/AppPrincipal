@@ -1,0 +1,66 @@
+/* ═══════════════════════════════════════════════════════
+   KOSMOS — cursor.css  (páginas públicas)
+   Ponto sólido (segue na hora) + anel que persegue com atraso.
+   Estilo ALINHADO ao cursor do dashboard (dashboard/css/cursor.css)
+   para o site inteiro ter o mesmo cursor. Ativado via classe
+   .kcursor no <html> (o cursor.js só adiciona em ponteiro fino,
+   sem prefers-reduced-motion).
+   ═══════════════════════════════════════════════════════ */
+
+/* Esconde a setinha nativa quando o cursor custom está ativo.
+   Mantém o I-beam em campos de texto (usabilidade dos formulários). */
+.kcursor, .kcursor * { cursor: none !important; }
+.kcursor input,
+.kcursor textarea,
+.kcursor [contenteditable="true"] { cursor: text !important; }
+
+.kcursor-dot,
+.kcursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 9999;
+    pointer-events: none;
+    border-radius: 50%;
+    will-change: transform;
+}
+
+/* Ponto central — acompanha o mouse na hora */
+.kcursor-dot {
+    width: 6px; height: 6px;
+    margin: -3px 0 0 -3px;
+    background: #c97cff;
+    transition: opacity .3s ease;
+}
+
+/* Anel externo — persegue com atraso (lerp no JS) */
+.kcursor-ring {
+    width: 34px; height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 1.5px solid rgba(165,65,255,.6);
+    transition: width .25s ease, height .25s ease, margin .25s ease,
+                background-color .25s ease, border-color .25s ease, opacity .3s ease;
+}
+
+/* Sobre elementos clicáveis: anel cresce e "acende" */
+.kcursor--hover .kcursor-ring {
+    width: 54px; height: 54px;
+    margin: -27px 0 0 -27px;
+    background: rgba(165,65,255,.12);
+    border-color: rgba(201,124,255,.9);
+}
+
+/* Clique: anel encolhe (feedback) */
+.kcursor--down .kcursor-ring {
+    width: 24px; height: 24px;
+    margin: -12px 0 0 -12px;
+}
+
+/* Some quando o mouse sai da janela */
+.kcursor--out .kcursor-dot,
+.kcursor--out .kcursor-ring { opacity: 0; }
+
+/* Toque / telas pequenas / movimento reduzido: nada de cursor custom */
+@media (max-width: 768px), (pointer: coarse) {
+    .kcursor-dot, .kcursor-ring { display: none; }
+    .kcursor, .kcursor * { cursor: auto !important; }
+}

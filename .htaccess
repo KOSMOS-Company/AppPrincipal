@@ -1,0 +1,12 @@
+# ============================================================
+#  KOSMOS — configuração do Apache (raiz do app: AppPrincipal/)
+# ============================================================
+# Página de erro 404 personalizada (com a identidade do projeto).
+#
+# No XAMPP local o app é servido em /KOSMOS/AppPrincipal/, então o caminho
+# abaixo é absoluto a partir da raiz do servidor:
+ErrorDocument 404 /KOSMOS/AppPrincipal/Frontend/pages/404.html
+#
+# Ao publicar num domínio onde AppPrincipal/ (ou Frontend/) for a raiz do site,
+# ajuste para o caminho correspondente, por exemplo:
+#   ErrorDocument 404 /Frontend/pages/404.html
