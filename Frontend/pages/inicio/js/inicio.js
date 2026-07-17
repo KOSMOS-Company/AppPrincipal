@@ -267,7 +267,7 @@
             if (restante === 0) {
                 parar();
                 btnToggle.textContent = 'Iniciar';
-                estado.textContent = 'concluído! 🎉';
+                estado.textContent = 'concluído!';
             }
         }
 
