@@ -377,3 +377,157 @@
     })();
 
 })();
+
+/* ============================================================
+   KOSMOS — V3 SCROLLYTELLING (estilo Elementor)
+   Engine de scroll: pinned sections (recursos em esteira
+   horizontal + demo em passos), parallax sutil e títulos
+   com split de palavras. Desliga em prefers-reduced-motion;
+   pins só em desktop (≥1025px) — mobile mantém o layout normal.
+   ============================================================ */
+(function () {
+    'use strict';
+
+    const reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduzMovimento) return;   // sem scrollytelling — tudo fica no layout padrão
+
+    document.documentElement.classList.add('scrolly');   // liga o CSS do V3
+
+    const mqDesktop = window.matchMedia('(min-width: 1025px)');
+    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+    /* ── Split de palavras nos títulos de seção ── */
+    const obsTitulos = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.35 });
+
+    document.querySelectorAll('.section-title').forEach(titulo => {
+        const walker = document.createTreeWalker(titulo, NodeFilter.SHOW_TEXT);
+        const textos = [];
+        while (walker.nextNode()) textos.push(walker.currentNode);
+        let wi = 0;
+        textos.forEach(no => {
+            const partes = no.textContent.split(/(\s+)/);
+            const frag = document.createDocumentFragment();
+            partes.forEach(p => {
+                if (!p) return;
+                if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+                const s = document.createElement('span');
+                s.className = 'palavra';
+                s.style.setProperty('--wi', wi++);
+                s.textContent = p;
+                frag.appendChild(s);
+            });
+            no.parentNode.replaceChild(frag, no);
+        });
+        obsTitulos.observe(titulo);
+    });
+
+    /* ── Utilitários de progresso ── */
+    // 0..1 conforme a seção pinada é "consumida" pelo scroll
+    function progressoPin(el) {
+        const r = el.getBoundingClientRect();
+        const total = el.offsetHeight - window.innerHeight;
+        return total > 0 ? clamp(-r.top / total, 0, 1) : 0;
+    }
+    // -1..1 conforme o elemento cruza o centro da viewport
+    function posViewport(el) {
+        const r = el.getBoundingClientRect();
+        const meio = r.top + r.height / 2 - window.innerHeight / 2;
+        return clamp(meio / ((window.innerHeight + r.height) / 2), -1, 1);
+    }
+
+    const tarefas = [];
+
+    /* ── Hero: saída em camadas ── */
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        tarefas.push(() => {
+            const p = clamp(window.scrollY / (hero.offsetHeight * 0.85), 0, 1);
+            hero.style.setProperty('--hp', p.toFixed(4));
+        });
+    }
+
+    /* ── Parallax sutil (viewport-centrado) ── */
+    [
+        ['.sobre__img', '.sobre'],
+        ['.historia__img', '.historia'],
+        ['.demo__orb', '.demo__vista'],
+        ['.cta-final__orb', '.cta-final'],
+        ['.marquee', '.marquee'],
+    ].forEach(([alvoSel, refSel]) => {
+        const alvo = document.querySelector(alvoSel);
+        const ref = document.querySelector(refSel);
+        if (!alvo || !ref) return;
+        tarefas.push(() => {
+            alvo.style.setProperty('--pv', posViewport(ref).toFixed(4));
+        });
+    });
+
+    /* ── RECURSOS: esteira horizontal pinada ── */
+    const recPin = document.getElementById('recursosPin');
+    const recTrack = document.getElementById('recursosTrack');
+    const recBarra = document.getElementById('recursosBarra');
+    const recGhost = document.querySelector('.recursos .ghost');
+    if (recPin && recTrack) {
+        const vista = recPin.querySelector('.recursos__vista');
+        tarefas.push(() => {
+            if (!mqDesktop.matches) {
+                recTrack.style.transform = '';
+                return;
+            }
+            const p = progressoPin(recPin);
+            const desloc = Math.max(0, recTrack.scrollWidth - vista.clientWidth);
+            recTrack.style.transform = 'translate3d(' + (-p * desloc).toFixed(1) + 'px, 0, 0)';
+            if (recBarra) recBarra.style.width = (p * 100).toFixed(2) + '%';
+            if (recGhost) recGhost.style.setProperty('--gp', p.toFixed(4));
+        });
+    }
+
+    /* ── DEMO: scrollytelling em 3 passos ── */
+    const demoPin = document.getElementById('demoPin');
+    const passos = Array.from(document.querySelectorAll('.demo__passo'));
+    const paineis = Array.from(document.querySelectorAll('.demo__stage .demo__panel'));
+    const trilho = document.getElementById('demoTrilho');
+    const demoGhost = document.querySelector('.ghost--demo');
+    if (demoPin && paineis.length === 3) {
+        let ativoAtual = 0;
+        function ativar(idx) {
+            if (idx === ativoAtual) return;
+            ativoAtual = idx;
+            passos.forEach((p, i) => p.classList.toggle('demo__passo--ativo', i === idx));
+            paineis.forEach((p, i) => p.classList.toggle('demo__panel--ativa', i === idx));
+        }
+        tarefas.push(() => {
+            if (!mqDesktop.matches) return;
+            const p = progressoPin(demoPin);
+            ativar(p < 1 / 3 ? 0 : p < 2 / 3 ? 1 : 2);
+            if (trilho) trilho.style.height = (p * 100).toFixed(2) + '%';
+            if (demoGhost) demoGhost.style.setProperty('--gp', p.toFixed(4));
+        });
+
+        // clicar num passo rola até o trecho correspondente do pin
+        passos.forEach((passo, i) => {
+            passo.addEventListener('click', () => {
+                const topo = demoPin.getBoundingClientRect().top + window.scrollY;
+                const total = demoPin.offsetHeight - window.innerHeight;
+                const alvo = topo + total * ((i + 0.5) / 3);
+                window.scrollTo({ top: alvo, behavior: 'smooth' });
+            });
+        });
+    }
+
+    /* ── Loop contínuo (rAF): recalcula só quando o scroll/viewport
+       mudou — mais confiável que escutar o evento de scroll ── */
+    let ultimoY = -1, ultimoW = -1, ultimoH = -1;
+    function loop() {
+        if (window.scrollY !== ultimoY || window.innerWidth !== ultimoW || window.innerHeight !== ultimoH) {
+            ultimoY = window.scrollY;
+            ultimoW = window.innerWidth;
+            ultimoH = window.innerHeight;
+            tarefas.forEach(fn => fn());
+        }
+        requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+})();
