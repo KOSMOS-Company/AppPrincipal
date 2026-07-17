@@ -45,6 +45,7 @@ html.com-intro .intro { display: flex; }
     flex-direction: column;
     align-items: center;
     text-align: center;
+    pointer-events: none;          /* cliques atravessam → supernova no céu */
 }
 
 /* ---- Wordmark letra a letra ---- */
@@ -92,14 +93,29 @@ html.com-intro .intro { display: flex; }
     animation: introAnel 1s ease-out both .75s;
 }
 
+/* Olhinhos do planeta: piscam sozinhos; as pupilas seguem o cursor (JS) */
+.intro__olhos {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: introPisca 4.4s ease-in-out infinite 1.6s;
+}
+#introPupilas { transition: transform .12s ease-out; }
+
 /* ---- Textos de apoio ---- */
 .intro__tag {
     font-family: "DM Sans", sans-serif;
     font-size: 1rem;
     color: var(--text-dim, #b8a8cc);
     margin-top: 14px;
+    min-height: 1.5em;             /* reserva a linha (texto chega digitado) */
     opacity: 0;
-    animation: introSobe .7s ease both 1.15s;
+    animation: introSobe .7s ease both 1.05s;
+}
+/* Caret do typewriter (enquanto digita) */
+.intro__tag--digitando::after {
+    content: "|";
+    color: var(--accent-lt, #c97cff);
+    animation: introCaret .8s steps(1) infinite;
 }
 
 .intro__ola {
@@ -115,18 +131,62 @@ html.com-intro .intro { display: flex; }
 }
 .intro__ola--on { opacity: 1; transform: none; }
 
+/* Dica de interação (o céu responde ao toque/clique) */
+.intro__dica {
+    position: absolute;
+    bottom: 82px;
+    left: 50%;
+    font-family: "DM Sans", sans-serif;
+    font-size: .74rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-muted, #6a5880);
+    opacity: 0;
+    animation: introSobe .8s ease both 2.2s, introDica 3s ease-in-out infinite 3s;
+    pointer-events: none;
+}
+.intro__dica { --tx: -50%; }       /* mantém o centering durante o introSobe */
+
+/* Botão de pular com barra de progresso do tempo restante */
 .intro__pular {
     position: absolute;
     bottom: 26px;
     left: 50%;
     transform: translateX(-50%);
+    overflow: hidden;
+    padding: 9px 22px 11px;
+    border: 1px solid rgba(165, 65, 255, .4);
+    border-radius: 999px;
+    background: rgba(19, 2, 32, .55);
+    backdrop-filter: blur(8px);
     font-family: "DM Sans", sans-serif;
     font-size: .78rem;
     letter-spacing: .08em;
     text-transform: uppercase;
-    color: var(--text-muted, #6a5880);
+    color: var(--text-dim, #b8a8cc);
+    cursor: pointer;
     opacity: 0;
-    animation: introSobe .8s ease both 1.8s;
+    animation: introSobe .8s ease both 1.6s;
+    transition: color .25s ease, border-color .25s ease, background .25s ease;
+}
+.intro__pular { --tx: -50%; }
+.intro__pular:hover,
+.intro__pular:focus-visible {
+    color: #fff;
+    border-color: var(--accent, #a541ff);
+    background: rgba(165, 65, 255, .18);
+}
+.intro__pular-barra {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--accent, #a541ff), var(--accent-lt, #c97cff));
+    transform: scaleX(0);
+    transform-origin: left;
+    /* duração = tempo da intro, setada pelo intro.js */
+    animation: introBarra linear forwards;
 }
 
 /* ---- Saída: hyperspace (logo estica + dissolve com zoom/blur) ---- */
@@ -161,7 +221,22 @@ html.intro-saida .bg {
     from { opacity: 0; transform: translate(var(--tx, 0), 14px); }
     to   { opacity: 1; transform: translate(var(--tx, 0), 0); }
 }
-.intro__pular { --tx: -50%; }      /* mantém o centering durante o introSobe */
+@keyframes introPisca {
+    0%, 92%, 100% { transform: scaleY(1); }
+    95%           { transform: scaleY(.08); }
+}
+@keyframes introCaret {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0; }
+}
+@keyframes introBarra {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+@keyframes introDica {
+    0%, 100% { opacity: .5; }
+    50%      { opacity: 1; }
+}
 @keyframes introGlow {
     0%   { opacity: 0; transform: scale(.6); }
     50%  { opacity: 1; transform: scale(1); }
@@ -176,7 +251,6 @@ html.intro-saida .bg {
 @media (prefers-reduced-motion: reduce) {
     .intro__letra,
     .intro__tag,
-    .intro__pular,
     .intro__glow,
     .intro__anel {
         animation-duration: .01ms !important;
@@ -185,6 +259,14 @@ html.intro-saida .bg {
         transform: none !important;
         filter: none !important;
     }
+    .intro__dica { display: none; }
+    .intro__pular {
+        animation-duration: .01ms !important;
+        animation-delay: 0s !important;
+        opacity: 1 !important;
+    }
+    .intro__olhos { animation: none; }
+    .intro__pular-barra { animation-timing-function: linear !important; }
     .intro__ola { transition: none; }
     .intro--saindo {
         transform: none;
