@@ -1278,8 +1278,12 @@ em { font-style: normal; color: var(--accent-lt); }
    no layout normal acima.
    ============================================================ */
 
-/* ── Palavra-fantasma gigante ao fundo (parallax) ── */
+/* ── Palavra-fantasma gigante ao fundo (parallax) ──
+   display:none por padrão: fora do modo pin as vistas não são
+   sticky (positioned), e o absoluto ancoraria na página inteira,
+   vazando por cima do hero/footer no mobile. Liga só no pin. */
 .ghost {
+    display: none;
     position: absolute;
     top: 4vh;
     left: 50%;
@@ -1342,10 +1346,14 @@ html.scrolly .sobre__img     { transform: translateY(calc(var(--pv, 0) * -26px))
 html.scrolly .historia__img  { transform: translateY(calc(var(--pv, 0) * -26px)); }
 html.scrolly .demo__orb      { transform: translateY(calc(var(--pv, 0) * 60px)); }
 html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 70px)); }
-html.scrolly .marquee {
-    width: calc(100% + 160px);
-    margin-left: -80px;
-    transform: translateX(calc(var(--pv, 0) * 70px));
+/* deriva do marquee só no desktop: o alargamento (+160px) causava
+   deslocamento horizontal em telas menores */
+@media (min-width: 1025px) {
+    html.scrolly .marquee {
+        width: calc(100% + 160px);
+        margin-left: -80px;
+        transform: translateX(calc(var(--pv, 0) * 70px));
+    }
 }
 
 /* ── Barra de progresso da esteira de recursos ── */
@@ -1373,6 +1381,10 @@ html.scrolly .marquee {
    MODO PIN — só desktop e sem reduced-motion
    ============================================================ */
 @media (min-width: 1025px) and (prefers-reduced-motion: no-preference) {
+
+    /* ghost words existem só aqui (as vistas sticky são o ancestral
+       posicionado que as ancora dentro da própria seção) */
+    html.scrolly .ghost { display: block; }
 
     /* ---------- RECURSOS: esteira horizontal pinada ---------- */
     html.scrolly .recursos { padding: 0; }
