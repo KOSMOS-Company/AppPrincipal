@@ -7,6 +7,8 @@
 // ============================================================
 
 header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
 
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
@@ -21,6 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $token = $_POST['credential'] ?? '';
 if ($token === '') {
     echo json_encode(['ok' => false, 'msg' => 'Token do Google ausente.']);
+    exit;
+}
+
+if (!extension_loaded('curl')) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'msg' => 'Extensão curl não está habilitada no PHP.']);
     exit;
 }
 
