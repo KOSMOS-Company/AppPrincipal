@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./css/dashboard.css">
     <link rel="stylesheet" href="./css/flashcards.css">
     <link rel="stylesheet" href="./css/cursor.css">
+    <link rel="stylesheet" href="../shared/logo.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -23,14 +24,20 @@
     <div class="contGeral">
 
         <aside class="contLateral">
-            <div class="contLogo">
-                <h1 class="logo__text">Kosmos</h1>
-            </div>
-            <nav class="botoesL">
+            <a class="contLogo" href="index.html">
+                <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
+            </a>
+
+            <nav class="botoesL" aria-label="Navegação principal">
+                <!-- marcador que desliza entre os itens (posicionado pelo dashboard.js) -->
+                <span class="nav__marca" aria-hidden="true"></span>
+
                 <a href="index.html">
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Início
                 </a>
+
+                <span class="nav__grupo">Estudar</span>
                 <a href="resumos.html">
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     Resumos
@@ -43,15 +50,33 @@
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     Exercícios
                 </a>
+
+                <span class="nav__grupo">Foco</span>
                 <a href="pomodoro.html">
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Pomodoro
                 </a>
+
+                <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile -->
                 <a href="conta.html">
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     Conta
                 </a>
             </nav>
+
+            <div class="contUsuario">
+                <a class="usuario" href="conta.html">
+                    <span class="usuario__avatar" data-usuario-inicial aria-hidden="true">E</span>
+                    <span class="usuario__info">
+                        <strong data-usuario>Estudante</strong>
+                        <span>Ver conta</span>
+                    </span>
+                </a>
+                <button class="usuario__sair" type="button"
+                        title="Sair da conta" aria-label="Sair da conta">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5 H18 a1 1 0 0 1 1 1 V18 a1 1 0 0 1 -1 1 H15 M10 8 L6 12 L10 16 M6 12 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
         </aside>
 
         <main class="contMeio">
@@ -60,7 +85,8 @@
             <section id="viewDecks">
                 <header class="contCabeca">
                     <div class="contCabeca__texto">
-                        <h1>Seus <span class="h-nome">Flashcards</span></h1>
+                        <span class="section-tag">Revisão</span>
+                    <h1>Seus <span class="h-nome">Flashcards</span></h1>
                         <p>Crie e revise seus baralhos de cartões.</p>
                     </div>
                     <button class="dash-btn dash-btn--primary" id="btnNovoDeck">

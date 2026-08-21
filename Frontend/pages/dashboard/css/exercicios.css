@@ -21,10 +21,11 @@
 .questoes { display: flex; flex-direction: column; gap: 18px; }
 
 .questao {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 24px;
+    position: relative;
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-lg);
+    padding: 26px;
 }
 .questao__num {
     font-size: .75rem;

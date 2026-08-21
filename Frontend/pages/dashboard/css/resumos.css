@@ -6,9 +6,10 @@
 }
 
 .resumo-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    position: relative;
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-lg);
     overflow: hidden;
     cursor: pointer;
     transition: var(--transition);
@@ -22,6 +23,8 @@
 }
 
 .resumo-card__thumb {
+    position: relative;
+    z-index: 1;
     height: 120px;
     display: flex;
     align-items: center;
@@ -29,7 +32,22 @@
     background: linear-gradient(135deg, var(--purple-dk) 0%, #1e0338 100%);
     border-bottom: 1px solid var(--border);
 }
-.resumo-card__thumb svg { width: 44px; height: 44px; color: var(--accent-lt); opacity: .85; }
+.resumo-card__thumb svg { width: 44px; height: 44px; color: var(--accent-lt); opacity: .85; transition: transform var(--transition); }
+.resumo-card:hover .resumo-card__thumb svg { transform: scale(1.08) rotate(-5deg); }
+/* brilho que acompanha o cursor — mesma receita dos cards do Início */
+.resumo-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 0%), rgba(165,65,255,.10), transparent 42%);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+}
+.resumo-card:hover::after { opacity: 1; }
+.resumo-card > * { position: relative; z-index: 1; }
+
 
 .resumo-card__body { padding: 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .resumo-card__title {

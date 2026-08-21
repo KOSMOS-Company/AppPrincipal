@@ -8,6 +8,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/config.php';
@@ -23,6 +24,8 @@ if ($token === '') {
     echo json_encode(['ok' => false, 'msg' => 'Token do Google ausente.']);
     exit;
 }
+
+
 
 // ---------- Verifica o token no Google ----------
 $ch = curl_init('https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($token));

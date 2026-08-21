@@ -8,10 +8,11 @@
 }
 
 .deck-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 24px;
+    position: relative;
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-lg);
+    padding: 26px;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -22,6 +23,20 @@
     border-color: rgba(165,65,255,.4);
     box-shadow: 0 20px 50px rgba(0,0,0,.45), 0 0 30px rgba(165,65,255,.1);
 }
+
+/* brilho que acompanha o cursor — mesma receita dos cards do Início */
+.deck-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 0%), rgba(165,65,255,.10), transparent 42%);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+}
+.deck-card:hover::after { opacity: 1; }
+.deck-card > * { position: relative; z-index: 1; }
 .deck-card__nome { font-family: "Syne", sans-serif; font-size: 1.2rem; font-weight: 700; }
 .deck-card__qtd { font-size: .85rem; color: var(--text-muted); }
 .deck-card__qtd strong { color: var(--accent-lt); font-weight: 700; }
@@ -65,7 +80,8 @@
     gap: 18px;
 }
 .flashcard__face--frente {
-    background: linear-gradient(135deg, var(--bg-card) 0%, #1a0230 100%);
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border-color: rgba(165,65,255,.12);
 }
 .flashcard__face--verso {
     background: linear-gradient(135deg, #1e0338 0%, var(--purple-dk) 100%);

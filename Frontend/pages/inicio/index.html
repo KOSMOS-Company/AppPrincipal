@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="./css/inicio.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
     <link rel="stylesheet" href="../shared/cursor.css">
+    <link rel="stylesheet" href="../shared/logo.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -50,7 +51,7 @@
     <!--  HEADER  -->
     <header class="header" id="header">
         <div class="header__inner">
-            <span class="logo__text">Kosmos</span>
+            <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
 
             <nav class="nav" id="nav">
                 <a href="#sobre" class="nav__link">Sobre</a>
@@ -168,14 +169,19 @@
         </div>
     </section>
 
-    <!-- ───── RECURSOS ───── -->
+    <!-- ───── RECURSOS (pinada: esteira horizontal no desktop) ───── -->
     <section class="recursos" id="recursos">
-        <div class="container">
-            <div class="recursos__header reveal reveal--up">
-                <h2 class="section-title">Por que nos escolher?</h2>
-                <p class="recursos__subtitle">Tudo que você precisa para estudar de forma organizada, em um só lugar.</p>
+      <div class="recursos__pin" id="recursosPin">
+        <div class="recursos__vista">
+            <span class="ghost" aria-hidden="true">Recursos</span>
+            <div class="container">
+                <div class="recursos__header reveal reveal--up">
+                    <h2 class="section-title">Por que nos escolher?</h2>
+                    <p class="recursos__subtitle">Tudo que você precisa para estudar de forma organizada, em um só lugar.</p>
+                </div>
             </div>
-            <div class="recursos__grid">
+            <div class="recursos__esteira">
+            <div class="recursos__grid" id="recursosTrack">
 
                 <!-- Dashboard -->
                 <div class="card card--featured">
@@ -285,23 +291,56 @@
                 </div>
 
             </div>
+            </div>
+            <div class="recursos__barra" aria-hidden="true"><span id="recursosBarra"></span></div>
         </div>
+      </div>
     </section>
 
-    <!-- ───── DEMO INTERATIVA ───── -->
+    <!-- ───── DEMO INTERATIVA (scrollytelling pinado no desktop) ───── -->
     <section class="demo" id="demo">
-        <div class="demo__orb" aria-hidden="true"></div>
-        <div class="container">
-            <div class="recursos__header reveal reveal--up">
-                <span class="section-tag">Interativo</span>
-                <h2 class="section-title">Experimente <em>agora mesmo</em></h2>
-                <p class="recursos__subtitle">Sem cadastro e sem espera — brinque com uma prévia real das nossas ferramentas.</p>
-            </div>
+      <div class="demo__pin" id="demoPin">
+        <div class="demo__vista">
+            <div class="demo__orb" aria-hidden="true"></div>
+            <span class="ghost ghost--demo" aria-hidden="true">Experimente</span>
+            <div class="container demo__scrolly">
 
-            <div class="demo__grid">
+                <div class="demo__passos">
+                    <div class="recursos__header demo__header reveal reveal--up">
+                        <span class="section-tag">Interativo</span>
+                        <h2 class="section-title">Experimente <em>agora mesmo</em></h2>
+                        <p class="recursos__subtitle">Sem cadastro e sem espera — brinque com uma prévia real das nossas ferramentas.</p>
+                    </div>
+                    <ol class="demo__lista" aria-hidden="true">
+                        <li class="demo__passo demo__passo--ativo" data-passo="0">
+                            <span class="demo__passo-num">1</span>
+                            <div>
+                                <h3>Vire flashcards</h3>
+                                <p>Clique no cartão e teste sua memória — pergunta na frente, resposta no verso.</p>
+                            </div>
+                        </li>
+                        <li class="demo__passo" data-passo="1">
+                            <span class="demo__passo-num">2</span>
+                            <div>
+                                <h3>Foque com o Pomodoro</h3>
+                                <p>Dê o play e veja o ciclo de foco correndo (aqui, 1 segundo = 1 minuto).</p>
+                            </div>
+                        </li>
+                        <li class="demo__passo" data-passo="2">
+                            <span class="demo__passo-num">3</span>
+                            <div>
+                                <h3>Pratique com a IA</h3>
+                                <p>Responda uma questão gerada no estilo dos nossos exercícios com IA.</p>
+                            </div>
+                        </li>
+                    </ol>
+                    <div class="demo__trilho" aria-hidden="true"><span id="demoTrilho"></span></div>
+                </div>
+
+                <div class="demo__grid demo__stage" id="demoStage">
 
                 <!-- Demo: FlashCard -->
-                <div class="demo__panel reveal reveal--up">
+                <div class="demo__panel demo__panel--ativa">
                     <div class="demo__panel-head">
                         <h3 class="demo__panel-title">FlashCards</h3>
                         <span class="card__tag">Memorização</span>
@@ -327,7 +366,7 @@
                 </div>
 
                 <!-- Demo: Pomodoro -->
-                <div class="demo__panel reveal reveal--up reveal--d1">
+                <div class="demo__panel">
                     <div class="demo__panel-head">
                         <h3 class="demo__panel-title">Pomodoro</h3>
                         <span class="card__tag">Produtividade</span>
@@ -352,7 +391,7 @@
                 </div>
 
                 <!-- Demo: Quiz IA -->
-                <div class="demo__panel reveal reveal--up reveal--d2">
+                <div class="demo__panel">
                     <div class="demo__panel-head">
                         <h3 class="demo__panel-title">Exercícios com IA</h3>
                         <span class="card__tag">Prática</span>
@@ -369,8 +408,10 @@
                     </button>
                 </div>
 
+                </div>
             </div>
         </div>
+      </div>
     </section>
 
     <!-- ───── HISTORIA ───── -->
@@ -478,7 +519,7 @@
             <div class="footer__inner">
                 <div class="footer__brand">
                     <a href="#" class="logo">
-                        <span class="logo__text">Kosmos</span>
+                        <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
                     </a>
                     <p class="footer__tagline">Estudar nunca foi difícil.</p>
                     <a href="../cadastro/index.html" class="btn btn--primary footer__cta">

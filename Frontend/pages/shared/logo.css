@@ -1,0 +1,69 @@
+/* ============================================================
+   KOSMOS — logo.css (compartilhado)
+   Wordmark padronizada: o primeiro "o" de "Kosmos" vira um
+   planetinha com anel (eco do favicon e da intro).
+   Uso:
+     <span class="logo__text klogo" role="img" aria-label="Kosmos">
+         K<i class="klogo__o"></i>smos</span>
+   Tudo em `em` → escala junto com o font-size de cada página
+   (header 1.35rem, auth 1.7rem, sidebar 1.8rem…), responsivo
+   por natureza. Sem SVG/JS: só CSS (::before planeta, ::after anel).
+   ============================================================ */
+
+.klogo {
+    display: inline-flex;
+    align-items: baseline;
+    white-space: nowrap;
+}
+
+/* O "o"-planeta ocupa o espaço da letra */
+.klogo__o {
+    position: relative;
+    display: inline-block;
+    width: .62em;
+    height: .62em;
+    margin: 0 .03em;
+    transform: translateY(.065em);   /* senta na altura-x da Syne */
+}
+
+/* Planeta (mesmo gradiente do favicon/intro) */
+.klogo__o::before {
+    content: "";
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 32%, #c97cff, #a541ff 55%, #4d1487);
+    box-shadow: 0 0 .3em rgba(165, 65, 255, .45);
+}
+
+/* Anel de Saturno (tilt -22°, igual ao favicon) */
+.klogo__o::after {
+    content: "";
+    position: absolute;
+    left: -30%;
+    right: -30%;
+    top: 30%;
+    bottom: 30%;
+    border: .05em solid #e8d5ff;
+    border-radius: 50%;
+    transform: rotate(-22deg);
+    opacity: .92;
+}
+
+/* Micro-interação: passar o mouse gira o anel (volta completa) */
+.klogo:hover .klogo__o::after,
+a:hover > .klogo .klogo__o::after {
+    animation: klogoAnel .9s cubic-bezier(.4, 0, .2, 1);
+}
+.klogo:hover .klogo__o::before {
+    box-shadow: 0 0 .55em rgba(165, 65, 255, .75);
+}
+
+@keyframes klogoAnel {
+    to { transform: rotate(338deg); }   /* -22° + 360° */
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .klogo:hover .klogo__o::after,
+    a:hover > .klogo .klogo__o::after { animation: none; }
+}
