@@ -11,6 +11,10 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Um display: flex/grid declarado sobrescreve o hidden do navegador
+   (era o caso do rodape de Exercicios, que aparecia sem questoes). */
+[hidden] { display: none !important; }
+
 :root {
     --black:    #000000;
     --bg-deep:  #0d0118;
@@ -286,16 +290,23 @@ progress::-webkit-progress-value {
 }
 
 .contCabeca h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 8px;
+    font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    margin-bottom: 10px;
 }
 .contCabeca p {
     color: var(--text-dim);
     font-size: 1.1rem;
     margin-bottom: 30px;
 }
-.h-nome { color: var(--accent-lt); }
+.h-nome {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-lt) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
 /* O layout da página Início vive no bloco "INÍCIO (index)" no fim do arquivo. */
 
@@ -310,7 +321,7 @@ progress::-webkit-progress-value {
     justify-content: space-between;
     gap: 24px;
     flex-wrap: wrap;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
 }
 .contCabeca p { margin-bottom: 0; }
 
@@ -341,11 +352,11 @@ progress::-webkit-progress-value {
 
 /* Painel/cartão genérico */
 .painel {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    position: relative;
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-lg);
     padding: 28px;
-    backdrop-filter: blur(10px);
 }
 
 /* Chips de filtro */
@@ -369,6 +380,7 @@ progress::-webkit-progress-value {
 .materia-tag {
     display: inline-flex;
     align-items: center;
+    align-self: flex-start;      /* em card flex-column, senao estica a largura toda */
     font-size: .72rem;
     font-weight: 600;
     letter-spacing: .04em;

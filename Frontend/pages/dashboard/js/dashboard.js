@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ativarTransicoes();
     ativarMarcador();
     ativarSair();
+    ativarBrilhoNosCards();
 });
 
 /* Marca o link ativo da sidebar com base no arquivo atual */
@@ -104,6 +105,71 @@ function ativarMarcador() {
 
     mover(ativo());
     window.addEventListener("resize", () => mover(ativo()));
+}
+
+/* ------------------------------------------------------------
+   Brilho que segue o cursor + leve inclinação nos cartões.
+   Mesmo efeito dos .card da landing page, agora em todas as
+   abas. Usa delegação porque resumos.js/flashcards.js criam
+   os cartões depois do carregamento da página.
+   Só com ponteiro fino e se o usuário não pediu menos movimento.
+   ------------------------------------------------------------ */
+function ativarBrilhoNosCards() {
+    const SELETOR = "a.ini-card, .resumo-card, .deck-card";
+    const area = document.querySelector(".contMeio");
+    if (!area) return;
+
+    const ponteiroFino = window.matchMedia("(pointer: fine)").matches;
+    const reduzMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!ponteiroFino || reduzMovimento) return;
+
+    let atual = null;
+    let proximo = null;
+    let agendado = false;
+
+    const limpar = (card) => {
+        if (!card) return;
+        card.style.transition = "";
+        card.style.transform = "";
+    };
+
+    const desenhar = () => {
+        agendado = false;
+        if (!proximo) return;
+        const { card, x, y } = proximo;
+        const r = card.getBoundingClientRect();
+        const px = x - r.left;
+        const py = y - r.top;
+        card.style.setProperty("--mx", px + "px");
+        card.style.setProperty("--my", py + "px");
+
+        const rx = (0.5 - py / r.height) * 8;
+        const ry = (px / r.width - 0.5) * 8;
+        card.style.transition = "transform .08s ease-out";
+        card.style.transform =
+            "perspective(800px) rotateX(" + rx + "deg) rotateY(" + ry + "deg) translateY(-6px)";
+    };
+
+    area.addEventListener("mousemove", (e) => {
+        const card = e.target.closest(SELETOR);
+        if (card !== atual) {
+            limpar(atual);
+            atual = card;
+        }
+        if (!card) { proximo = null; return; }
+
+        proximo = { card, x: e.clientX, y: e.clientY };
+        if (!agendado) {
+            agendado = true;
+            requestAnimationFrame(desenhar);
+        }
+    });
+
+    area.addEventListener("mouseleave", () => {
+        limpar(atual);
+        atual = null;
+        proximo = null;
+    });
 }
 
 /* ------------------------------------------------------------

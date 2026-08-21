@@ -12,8 +12,8 @@
 .pomo__modos {
     display: flex;
     gap: 8px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border: 1px solid rgba(165,65,255,.12);
     border-radius: 100px;
     padding: 6px;
 }

@@ -1,7 +1,7 @@
 /* ============================================================
    KOSMOS — inicio.js  (só a página Início / index.html)
-   Saudação, estatísticas, gráfico da semana, primeiros passos
-   e o tilt/brilho dos cards (mesmo efeito da landing page).
+   Saudação, estatísticas, gráfico da semana e primeiros passos.
+   (O brilho/tilt dos cartões vive no dashboard.js, compartilhado.)
 
    IMPORTANTE — dados: hoje o único número real é a SEQUÊNCIA
    (vem de usuario_atual.php via dashboard.js). Resumos,
@@ -30,7 +30,6 @@
         mostrarDataESaudacao();
         if (!graficoComDados) renderGrafico(null);   // desenha os 7 dias em estado vazio
         iniciarPassos();
-        aplicarTiltNosCards();
     });
 
     /* Recebe o usuário logado (evento disparado pelo dashboard.js
@@ -40,7 +39,7 @@
     });
 
     /* ------------------------------------------------------------
-       Abertura: data de hoje (na pílula) + saudação pelo horário
+       Abertura: data de hoje + saudação pelo horário
        ------------------------------------------------------------ */
     function mostrarDataESaudacao() {
         const agora = new Date();
@@ -244,36 +243,6 @@
         } catch { /* sem storage: vale só nesta visita */ }
     }
 
-    /* ------------------------------------------------------------
-       Tilt 3D + brilho seguindo o cursor nos cards.
-       Mesmo efeito dos .card da landing page (pages/inicio/js/inicio.js):
-       só com ponteiro fino e se o usuário não pediu menos movimento.
-       ------------------------------------------------------------ */
-    function aplicarTiltNosCards() {
-        const ponteiroFino = window.matchMedia("(pointer: fine)").matches;
-        const reduzMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (!ponteiroFino || reduzMovimento) return;
-
-        document.querySelectorAll("a.ini-card").forEach((el) => {
-            el.addEventListener("mousemove", (e) => {
-                const r = el.getBoundingClientRect();
-                const x = e.clientX - r.left;
-                const y = e.clientY - r.top;
-                el.style.setProperty("--mx", x + "px");
-                el.style.setProperty("--my", y + "px");
-
-                const rx = (0.5 - y / r.height) * 8;
-                const ry = (x / r.width - 0.5) * 8;
-                el.style.transition = "transform .08s ease-out";
-                el.style.transform =
-                    `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
-            });
-            el.addEventListener("mouseleave", () => {
-                el.style.transition = "";
-                el.style.transform = "";
-            });
-        });
-    }
 
     /* ------------------------------------------------------------
        Ponte para quando a persistência existir.
