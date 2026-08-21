@@ -1,7 +1,8 @@
 /* ============================================================
    KOSMOS — dashboard.js  (compartilhado por todas as abas)
    Faz o papel de "porteiro": só deixa ver o dashboard quem
-   tiver sessão ativa no backend. Também preenche o nome real.
+   tiver sessão ativa no backend. Também preenche o nome real,
+   move o marcador do menu e cuida do botão de sair.
    ============================================================ */
 
 // Caminho do backend a partir de /Frontend/pages/dashboard/
@@ -11,9 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     marcarLinkAtivo();
     verificarSessao();
     ativarTransicoes();
-    posicionarSequencia();
+    ativarMarcador();
+    ativarSair();
 });
-window.addEventListener("resize", posicionarSequencia);
 
 /* Marca o link ativo da sidebar com base no arquivo atual */
 function marcarLinkAtivo() {
@@ -22,6 +23,11 @@ function marcarLinkAtivo() {
         const alvo = a.getAttribute("href");
         a.classList.toggle("active", alvo === atual);
     });
+
+    // no desktop o link Conta fica oculto: quem indica "você está aqui"
+    // é o cartão do rodapé
+    document.querySelector(".usuario")
+        ?.classList.toggle("ativa", atual === "conta.html");
 }
 
 /* Pergunta ao servidor "quem sou eu?".
@@ -46,37 +52,80 @@ async function verificarSessao() {
             el.textContent = json.nome;
         });
 
-        atualizarSequencia(json.sequencia ?? 0);
+        // Só o primeiro nome (títulos grandes quebram com nome completo)
+        const primeiro = (json.nome || "").trim().split(" ")[0];
+        document.querySelectorAll("[data-usuario-primeiro]").forEach((el) => {
+            el.textContent = primeiro;
+        });
+
+        // Inicial do avatar no rodapé do menu
+        const inicial = (json.nome || "").trim().charAt(0).toUpperCase();
+        document.querySelectorAll("[data-usuario-inicial]").forEach((el) => {
+            el.textContent = inicial || "?";
+        });
+
+        // Avisa os scripts de página (ex.: inicio.js) que o usuário chegou,
+        // para não precisarem repetir o fetch de usuario_atual.php.
+        document.dispatchEvent(new CustomEvent("kosmos:usuario", { detail: json }));
     } catch (err) {
         // Backend fora do ar (ex.: abriu sem XAMPP). Volta ao login.
         window.location.replace("../login/index.html");
     }
 }
 
-/* Atualiza o widget "Sequência" com os dias reais */
-function atualizarSequencia(dias) {
-    const linha = document.querySelector(".contSequencia .linhaBaixo");
-    if (linha) linha.textContent = dias + (dias === 1 ? " dia" : " dias");
-    const prog = document.getElementById("sequencia");
-    if (prog) prog.value = Math.min(dias, 7) / 7 * 100;
+/* ------------------------------------------------------------
+   Marcador do menu: um retângulo que desliza entre os itens.
+   Fica sobre a página atual e acompanha o cursor no hover.
+   No mobile a barra é horizontal e o marcador some (CSS).
+   ------------------------------------------------------------ */
+function ativarMarcador() {
+    const nav = document.querySelector(".botoesL");
+    const marca = nav && nav.querySelector(".nav__marca");
+    if (!nav || !marca) return;
+
+    const noMobile = () => window.matchMedia("(max-width: 768px)").matches;
+
+    const mover = (alvo) => {
+        if (!alvo || noMobile() || !alvo.offsetHeight) {
+            marca.classList.remove("pronta");
+            return;
+        }
+        marca.style.setProperty("--y", alvo.offsetTop + "px");
+        marca.style.setProperty("--h", alvo.offsetHeight + "px");
+        marca.classList.add("pronta");
+    };
+
+    const ativo = () => nav.querySelector("a.active");
+
+    nav.querySelectorAll("a").forEach((a) => {
+        a.addEventListener("mouseenter", () => mover(a));
+    });
+    nav.addEventListener("mouseleave", () => mover(ativo()));
+
+    mover(ativo());
+    window.addEventListener("resize", () => mover(ativo()));
 }
 
-/* No mobile, move o card de Sequência para dentro do conteúdo (após o
-   cabeçalho "Bem-vindo"); no desktop, mantém na barra lateral.
-   Só existe na index, então em outras páginas não faz nada. */
-function posicionarSequencia() {
-    const seq = document.querySelector(".contSequencia");
-    if (!seq) return;
-    const aside  = document.querySelector(".contLateral");
-    const main   = document.querySelector(".contMeio");
-    const header = main && main.querySelector(".contCabeca");
-    const mobile = window.matchMedia("(max-width: 768px)").matches;
+/* ------------------------------------------------------------
+   Sair da conta (botão no rodapé do menu).
+   Mesmo caminho usado pela página Conta.
+   ------------------------------------------------------------ */
+function ativarSair() {
+    // seletor por classe: a página Conta tem o próprio botão com id="btnSair"
+    const botao = document.querySelector(".usuario__sair");
+    if (!botao) return;
 
-    if (mobile && header && seq.parentElement !== main) {
-        header.insertAdjacentElement("afterend", seq);   // logo após o "Bem-vindo"
-    } else if (!mobile && aside && seq.parentElement !== aside) {
-        aside.appendChild(seq);                            // volta para a barra lateral
-    }
+    botao.addEventListener("click", async () => {
+        botao.disabled = true;
+        try {
+            await fetch(`${API}/logout.php`);
+        } catch (err) {
+            /* mesmo se falhar, vamos para o login */
+        }
+        sessionStorage.removeItem("kosmos_usuario");
+        sessionStorage.removeItem("kosmos_intro");
+        window.location.replace("../login/index.html");
+    });
 }
 
 /* Transição suave ao trocar de aba: faz o conteúdo sair (fade-out)

@@ -15,7 +15,7 @@
     --black:    #000000;
     --bg-deep:  #0d0118;
     --bg-nav:   #12011f;
-    --bg-card:  #130220;
+    --bg-card:  #1a0230;
     --purple-dk:#2f0a4b;
     --purple-md:#7203bd;
     --purple:   #8200db;
@@ -23,12 +23,13 @@
     --accent-lt:#c97cff;
     --text:     #ffffff;
     --text-dim: #b8a8cc;
-    --text-muted:#6a5880;
+    --text-muted:#7a6890;
     --border:   rgba(165,65,255,.2);
     --radius-sm: 12px;
     --radius-md: 20px;
-    --radius-lg: 28px;
-    --transition: .22s cubic-bezier(.4,0,.2,1);
+    --radius-lg: 32px;
+    --transition: .25s cubic-bezier(.4,0,.2,1);
+    --shadow-glow: 0 0 60px rgba(165,65,255,.25);
 }
 
 body {
@@ -67,94 +68,201 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
     min-height: 100vh;
 }
 
-/* Menu Lateral */
+/* ============================================================
+   MENU LATERAL
+   Sem painel pesado: fundo integrado ao da página (como a LP,
+   que não usa caixas para navegar), grupos rotulados, e um
+   marcador que DESLIZA entre os itens (segue o cursor e volta
+   para a página atual) em vez de um botão com borda em cada
+   link. O rodapé traz a conta do usuário — antes ficava vazio.
+   ============================================================ */
 .contLateral {
-    width: 280px;
-    background: rgba(19, 2, 32, 0.6);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    width: 236px;
+    height: 100vh;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
-    padding: 30px 20px;
+    padding: 26px 16px 20px;
+    background: linear-gradient(180deg, rgba(30,6,54,.5) 0%, rgba(13,1,24,0) 60%);
+    border-right: 1px solid rgba(165,65,255,.1);
 }
 
 .contLogo {
-    margin-bottom: 40px;
+    display: block;
+    margin: 0 8px 34px;
+    text-decoration: none;
 }
 .logo__text {
     font-family: "Syne", sans-serif;
-    font-size: 1.8rem;
+    font-size: 1.55rem;
     font-weight: 800;
     color: var(--text);
     text-decoration: none;
     letter-spacing: -0.03em;
 }
 
+/* ---- Navegação ---- */
 .botoesL {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 2px;
     flex-grow: 1;
 }
 
+/* rótulo de grupo — mesmo tom dos rótulos de seção do conteúdo */
+.nav__grupo {
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 20px 14px 8px;
+}
+
+/* marcador que desliza (posicionado pelo dashboard.js) */
+.nav__marca {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: var(--h, 44px);
+    transform: translateY(var(--y, 0px));
+    background: rgba(165,65,255,.12);
+    border: 1px solid rgba(165,65,255,.18);
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform .32s cubic-bezier(.4,0,.2,1),
+                height .32s cubic-bezier(.4,0,.2,1),
+                opacity .2s ease;
+}
+.nav__marca.pronta { opacity: 1; }
+/* fiozinho luminoso na borda esquerda do marcador */
+.nav__marca::before {
+    content: "";
+    position: absolute;
+    left: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--accent-lt), var(--purple-md));
+    box-shadow: 0 0 12px rgba(165,65,255,.7);
+}
+
 .botoesL a {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 20px;
+    padding: 12px 14px;
     border-radius: var(--radius-sm);
     text-decoration: none;
     color: var(--text-dim);
+    font-size: .95rem;
     font-weight: 500;
-    transition: var(--transition);
+    transition: color var(--transition);
 }
-
-.botoesL a:hover,
-.botoesL a.active {
-    background: rgba(165,65,255,0.15);
-    color: var(--accent-lt);
-    border: 1px solid rgba(165,65,255,0.3);
-}
+.botoesL a:hover { color: var(--text); }
+.botoesL a.active { color: var(--accent-lt); font-weight: 600; }
+.botoesL a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .nav-icon {
     width: 20px;
     height: 20px;
-    opacity: 0.8;
+    opacity: .75;
+    transition: opacity var(--transition), filter var(--transition);
 }
-
-.botoesL a:hover .nav-icon,
+.botoesL a:hover .nav-icon { opacity: 1; }
 .botoesL a.active .nav-icon {
     opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(165,65,255,.6));
 }
 
-/* Sequência / Progress */
-.contSequencia {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 20px;
-    text-align: center;
+/* No desktop a conta fica no rodapé; na barra inferior do mobile
+   ela volta a ser um ícone. */
+@media (min-width: 769px) {
+    .botoesL a[href="conta.html"] { display: none; }
+}
+
+/* ---- Rodapé: conta do usuário ---- */
+.contUsuario {
     margin-top: auto;
-}
-
-.linhaCima {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    margin-bottom: 10px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,.06);
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    gap: 6px;
 }
-.linhaBaixo {
-    font-size: 1.5rem;
-    font-weight: 700;
+.usuario {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: background var(--transition);
+}
+.usuario:hover { background: rgba(255,255,255,.04); }
+.usuario.ativa {
+    background: rgba(165,65,255,.12);
+    border: 1px solid rgba(165,65,255,.18);
+    padding: 7px;                 /* compensa a borda para não pular */
+}
+.usuario.ativa .usuario__info strong { color: var(--accent-lt); }
+.usuario__avatar {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%);
     font-family: "Syne", sans-serif;
-    color: var(--accent-lt);
+    font-size: .95rem;
+    font-weight: 700;
+    color: #fff;
 }
+.usuario__info { min-width: 0; }
+.usuario__info strong {
+    display: block;
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.usuario__info span { font-size: .74rem; color: var(--text-muted); }
+.usuario__sair {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.usuario__sair svg { width: 17px; height: 17px; }
+.usuario__sair:hover { color: var(--accent-lt); border-color: rgba(165,65,255,.4); }
+.usuario__sair:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Barra de progresso (usada nos "primeiros passos") */
 progress {
     width: 100%;
-    margin-top: 10px;
     height: 8px;
     border-radius: 10px;
     appearance: none;
@@ -189,41 +297,7 @@ progress::-webkit-progress-value {
 }
 .h-nome { color: var(--accent-lt); }
 
-/* Dashboard Grid */
-.dashGeral {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-.dashCima {
-    display: flex;
-    gap: 24px;
-}
-.menosEmais, .grafico {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 30px;
-    backdrop-filter: blur(10px);
-}
-.dashCima .menosEmais {
-    flex: 1;
-}
-.textoDash h2 {
-    font-size: 1.2rem;
-    color: var(--text-dim);
-    font-weight: 600;
-    margin-bottom: 15px;
-}
-.dashInfo {
-    font-size: 2rem;
-    font-weight: 700;
-    font-family: "Syne", sans-serif;
-    color: var(--text);
-}
-.dashBaixo .grafico {
-    height: 300px;
-}
+/* O layout da página Início vive no bloco "INÍCIO (index)" no fim do arquivo. */
 
 /* ============================================================
    COMPONENTES COMPARTILHADOS (usados nas abas)
@@ -389,12 +463,6 @@ progress::-webkit-progress-value {
 .modal__actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
 
 /* ==== RESPONSIVIDADE ==== */
-@media (max-width: 1024px) {
-    .dashCima {
-        flex-direction: column;
-    }
-}
-
 @media (max-width: 768px) {
     .contGeral {
         flex-direction: column;
@@ -402,6 +470,8 @@ progress::-webkit-progress-value {
 
     /* Topo: apenas o logo, centralizado */
     .contLateral {
+        position: static;          /* no desktop e sticky em coluna */
+        height: auto;
         width: 100%;
         flex-direction: row;
         align-items: center;
@@ -415,15 +485,12 @@ progress::-webkit-progress-value {
     }
     .contLogo { margin-bottom: 0; text-align: center; }
 
-    /* Sequência no mobile: escondida no topo; exibida dentro do conteúdo
-       (o dashboard.js move o card para depois do "Bem-vindo") */
-    .contLateral .contSequencia { display: none; }
-    .contMeio .contSequencia {
-        display: block;
-        width: 100%;
-        margin: 0 0 24px 0;
-        padding: 16px 18px;
-    }
+    /* No mobile o menu vira barra de ícones: sem rótulos de grupo,
+       sem marcador deslizante e sem o cartão da conta (que virou
+       o ícone Conta na barra de baixo). */
+    .nav__grupo,
+    .nav__marca,
+    .contUsuario { display: none; }
 
     /* Nav vira barra inferior fixa (estilo Instagram, só ícones) */
     .botoesL {
@@ -465,19 +532,11 @@ progress::-webkit-progress-value {
     .contCabeca h1 {
         font-size: 2rem;
     }
-
-    .menosEmais, .grafico {
-        padding: 20px;
-    }
 }
 
 @media (max-width: 480px) {
     .contCabeca h1 {
         font-size: 1.6rem;
-    }
-    
-    .dashInfo {
-        font-size: 1.5rem;
     }
 }
 
@@ -506,3 +565,308 @@ body.saindo .contMeio {
     body.saindo .contMeio { animation: none; }
 }
 
+/* ============================================================
+   INÍCIO (index) — mesma linguagem visual da landing page
+   Referência: pages/inicio/css/inicio.css. O que veio de lá:
+   .section-tag + .section-title, o "em" roxo, o card com
+   gradiente 150deg + brilho que segue o cursor, o ícone de
+   52px que gira no hover, e as estatísticas do hero (números
+   soltos com divisor, SEM caixa). O respiro entre seções
+   segue a LP (lá são 120px; aqui, 72px).
+   ============================================================ */
+
+/* Herdados da LP para o dashboard falar a mesma língua */
+em { font-style: normal; color: var(--accent-lt); }
+
+/* Rótulo de seção: texto pequeno, sem cápsula (a pílula da LP
+   dava um ar artificial quando repetida no painel) */
+.section-tag {
+    display: block;
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+}
+/* a data acima da saudação é informativa, não rótulo: fica neutra */
+.ini-data {
+    display: block;
+    font-size: .74rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+}
+.section-title {
+    font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 28px;
+}
+
+/* ---- Abertura (eco do hero da LP) ---- */
+.ini-hero { margin-bottom: 72px; }
+.ini-hero__titulo {
+    font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1.05;
+    margin-bottom: 18px;
+}
+/* mesmo gradiente clipado do .hero__title-highlight da LP */
+.ini-hero__nome {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-lt) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.ini-hero__desc {
+    max-width: 540px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+}
+.ini-hero__cta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 44px; }
+
+/* ---- Estatísticas: números soltos, como no hero da LP ---- */
+.ini-stats {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 28px;
+}
+.ini-stat strong {
+    display: block;
+    font-family: "Syne", sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent-lt);
+    line-height: 1;
+}
+.ini-stat span {
+    display: block;
+    font-size: .78rem;
+    color: var(--text-muted);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+.ini-stat--vazio strong { color: var(--text-muted); }
+.ini-stat__div { width: 1px; height: 36px; background: rgba(165,65,255,.25); }
+
+/* ---- Seções ---- */
+.ini-secao { margin-bottom: 72px; }
+.ini-secao:last-child { margin-bottom: 0; }
+
+/* ---- Card (mesma receita do .card da LP) ---- */
+.ini-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    transition: var(--transition);
+    transform-style: preserve-3d;
+}
+/* brilho que acompanha o cursor — as vars vêm do inicio.js */
+.ini-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 0%), rgba(165,65,255,.10), transparent 42%);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+}
+.ini-card:hover::after { opacity: 1; }
+.ini-card > * { position: relative; z-index: 1; }
+
+/* ---- Grade de ferramentas ---- */
+.ini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+a.ini-card { text-decoration: none; color: inherit; display: block; }
+a.ini-card:hover,
+a.ini-card:focus-visible {
+    border-color: rgba(165,65,255,.35);
+    box-shadow: var(--shadow-glow);
+    outline: none;
+}
+.ini-card__ico {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(165,65,255,.12);
+    border-radius: var(--radius-sm);
+    color: var(--accent-lt);
+    margin-bottom: 20px;
+    transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
+}
+.ini-card__ico svg { width: 26px; height: 26px; }
+a.ini-card:hover .ini-card__ico {
+    transform: scale(1.08) rotate(-5deg);
+    background: rgba(165,65,255,.22);
+    box-shadow: 0 0 24px rgba(165,65,255,.35);
+}
+.ini-card__titulo {
+    font-family: "Syne", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ini-card__desc {
+    color: var(--text-dim);
+    font-size: .92rem;
+    line-height: 1.6;
+}
+.ini-tag {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(165,65,255,.1);
+    padding: 4px 10px;
+    border-radius: 100px;
+}
+
+/* ---- Duas colunas: semana + primeiros passos ---- */
+.ini-duas {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+.ini-card__cabeca {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.ini-card__cabeca h3 {
+    font-family: "Syne", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+.ini-card__nota { font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
+
+/* ---- Gráfico da semana ---- */
+.ini-chart { display: flex; align-items: flex-end; gap: 10px; height: 180px; }
+.ini-col {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+}
+.ini-col__trilho {
+    position: relative;
+    width: 100%;
+    max-width: 44px;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    background: rgba(255,255,255,.03);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.ini-col__barra {
+    width: 100%;
+    height: var(--h, 0%);
+    min-height: 3px;
+    background: linear-gradient(180deg, var(--accent-lt), var(--purple-md));
+    border-radius: 8px;
+    transition: height .5s cubic-bezier(.2,.7,.2,1);
+}
+.ini-col--vazio .ini-col__barra { background: rgba(165,65,255,.16); }
+.ini-col__dia {
+    font-size: .76rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.ini-col--hoje .ini-col__dia { color: var(--accent-lt); }
+.ini-chart__aviso {
+    margin-top: 20px;
+    font-size: .86rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-width: 44ch;
+}
+.ini-chart__aviso[hidden] { display: none; }
+
+/* ---- Primeiros passos ---- */
+.ini-passos progress { margin: 0 0 22px; }
+.ini-passos__lista { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.ini-passo { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; }
+.ini-passo__check {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    margin-top: 1px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(165,65,255,.4);
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.ini-passo__check svg { width: 13px; height: 13px; opacity: 0; transition: opacity var(--transition); }
+.ini-passo__check:hover { border-color: var(--accent); background: rgba(165,65,255,.15); }
+.ini-passo__check:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ini-passo.feito .ini-passo__check { background: var(--accent); border-color: var(--accent); }
+.ini-passo.feito .ini-passo__check svg { opacity: 1; }
+.ini-passo__link { text-decoration: none; color: inherit; min-width: 0; }
+.ini-passo__link strong {
+    display: block;
+    font-size: .94rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+.ini-passo__link span { font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+.ini-passo__link:hover strong { color: var(--accent-lt); }
+.ini-passo.feito .ini-passo__link strong { color: var(--text-muted); text-decoration: line-through; }
+
+/* ---- Responsivo ---- */
+@media (max-width: 1100px) {
+    .ini-duas { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .ini-hero { margin-bottom: 56px; }
+    .ini-secao { margin-bottom: 56px; }
+    .ini-hero__cta { margin-bottom: 36px; }
+    .ini-hero__cta .dash-btn { flex: 1 1 auto; justify-content: center; }
+    /* divisor solto quando quebra a linha: no mobile vira grade 2x2 */
+    .ini-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
+    .ini-stat__div { display: none; }
+    .ini-stat strong { font-size: 1.3rem; }
+    .ini-grid { grid-template-columns: 1fr; gap: 14px; }
+    .ini-card { padding: 22px; }
+    .ini-chart { height: 150px; gap: 6px; }
+}
+@media (max-width: 420px) {
+    .ini-stats { gap: 14px; }
+    .ini-stat span { font-size: .7rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ini-col__barra { transition: none; }
+}
