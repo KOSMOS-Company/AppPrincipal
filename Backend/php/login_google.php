@@ -7,8 +7,7 @@
 // ============================================================
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
+
 
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
@@ -26,11 +25,7 @@ if ($token === '') {
     exit;
 }
 
-if (!extension_loaded('curl')) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'msg' => 'Extensão curl não está habilitada no PHP.']);
-    exit;
-}
+
 
 // ---------- Verifica o token no Google ----------
 $ch = curl_init('https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($token));
