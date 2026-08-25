@@ -1,6 +1,19 @@
-/* ==== FLASHCARDS ==== */
+/* ==== FLASHCARDS ====
+   Três visões na mesma página: seus decks, os cartões de um deck
+   e o modo de estudo. As cascas de cartão seguem a receita da LP
+   (gradiente 150deg + borda roxa translúcida + --radius-lg), como
+   no resto do dashboard. */
 
-/* Grade de decks */
+/* Estatísticas do topo: números soltos, sem caixa (igual ao Início).
+   O layout base (.ini-stats/.ini-stat) vem do dashboard.css. */
+.fc-stats { margin-bottom: 34px; }
+
+/* Grupo de ações no cabeçalho (voltar / estudar / novo) */
+.fc-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ============================================================
+   VISÃO 1 — GRADE DE DECKS
+   ============================================================ */
 .decks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -37,12 +50,152 @@
 }
 .deck-card:hover::after { opacity: 1; }
 .deck-card > * { position: relative; z-index: 1; }
-.deck-card__nome { font-family: "Syne", sans-serif; font-size: 1.2rem; font-weight: 700; }
+
+/* linha de cima: matéria à esquerda, ações discretas à direita */
+.deck-card__topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+.deck-card__nome {
+    font-family: "Syne", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.25;
+    /* nomes longos não podem esticar o cartão */
+    overflow-wrap: anywhere;
+}
 .deck-card__qtd { font-size: .85rem; color: var(--text-muted); }
 .deck-card__qtd strong { color: var(--accent-lt); font-weight: 700; }
-.deck-card .dash-btn { margin-top: auto; justify-content: center; }
+.deck-card__quando { font-size: .78rem; color: var(--text-muted); }
 
-/* Área de estudo */
+/* barra de domínio do deck */
+.deck-card__barra {
+    height: 6px;
+    background: var(--purple-dk);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.deck-card__barra span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--purple-md), var(--accent));
+    border-radius: 10px;
+    transition: width .5s ease;
+}
+
+.deck-card__botoes {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+.deck-card__botoes .dash-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding-inline: 12px;
+}
+
+/* Botão-ícone (renomear/excluir) — só aparece de verdade no hover,
+   para não competir com o conteúdo do cartão */
+.icone-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 9px;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: .55;
+    transition: var(--transition);
+}
+.icone-btn svg { width: 15px; height: 15px; }
+.icone-btn:hover { opacity: 1; color: var(--accent-lt); border-color: rgba(165,65,255,.4); }
+.icone-btn:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
+.icone-btn--perigo:hover { color: #f87171; border-color: rgba(239,68,68,.4); }
+.deck-card:hover .icone-btn,
+.cartao-item:hover .icone-btn { opacity: .85; }
+
+/* dispositivos de toque não têm hover: os ícones ficam sempre visíveis */
+@media (hover: none) {
+    .icone-btn { opacity: .85; }
+}
+
+/* Enquanto os decks carregam */
+.fc-carregando {
+    grid-column: 1 / -1;
+    padding: 40px 0;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: .92rem;
+}
+
+/* ============================================================
+   VISÃO 2 — CARTÕES DO DECK
+   ============================================================ */
+.cartoes-lista {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cartao-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    transition: var(--transition);
+}
+.cartao-item:hover { border-color: rgba(165,65,255,.32); }
+
+/* bolinha de estado: nunca revisado / errou / acertou */
+.cartao-item__estado {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.18);
+}
+.cartao-item__estado--ok  { background: #34d399; box-shadow: 0 0 10px rgba(52,211,153,.5); }
+.cartao-item__estado--rev { background: #f0a742; box-shadow: 0 0 10px rgba(240,167,66,.4); }
+
+.cartao-item__texto { min-width: 0; }
+.cartao-item__texto strong {
+    display: block;
+    font-family: "Syne", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin-bottom: 3px;
+    overflow-wrap: anywhere;
+}
+.cartao-item__texto span {
+    display: block;
+    font-size: .88rem;
+    color: var(--text-dim);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+.cartao-item__nums {
+    font-size: .76rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.cartao-item__acoes { display: flex; gap: 6px; }
+
+/* ============================================================
+   VISÃO 3 — MODO DE ESTUDO
+   ============================================================ */
 .estudo-area {
     max-width: 620px;
     margin: 0 auto;
@@ -53,8 +206,9 @@
 .flashcard {
     perspective: 1600px;
     cursor: pointer;
-    margin-bottom: 28px;
+    margin-bottom: 22px;
 }
+.flashcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: var(--radius-lg); }
 .flashcard__inner {
     position: relative;
     width: 100%;
@@ -78,6 +232,7 @@
     justify-content: center;
     text-align: center;
     gap: 18px;
+    overflow-y: auto;
 }
 .flashcard__face--frente {
     background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
@@ -93,6 +248,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.35;
+    overflow-wrap: anywhere;
 }
 .flashcard__hint {
     font-size: .72rem;
@@ -106,6 +262,39 @@
     font-size: .8rem;
     color: var(--text-muted);
 }
+
+/* Autoavaliação (aparece ao virar a carta) */
+.estudo-avaliacao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 22px;
+    animation: dashFade .3s ease both;
+}
+.estudo-avaliacao__pergunta { font-size: .9rem; color: var(--text-dim); }
+.estudo-avaliacao__botoes { display: flex; gap: 10px; }
+.estudo-avaliacao__botoes .dash-btn { min-width: 120px; justify-content: center; }
+
+.fc-btn--acertei {
+    background: rgba(52,211,153,.14);
+    color: #34d399;
+    border-color: rgba(52,211,153,.3);
+}
+.fc-btn--acertei:hover { background: rgba(52,211,153,.24); border-color: #34d399; }
+.fc-btn--errei {
+    background: rgba(240,167,66,.12);
+    color: #f0a742;
+    border-color: rgba(240,167,66,.3);
+}
+.fc-btn--errei:hover { background: rgba(240,167,66,.22); border-color: #f0a742; }
+.fc-btn--perigo {
+    background: rgba(239,68,68,.16);
+    color: #f87171;
+    border-color: rgba(239,68,68,.32);
+}
+.fc-btn--perigo:hover { background: rgba(239,68,68,.26); border-color: #f87171; }
 
 /* Navegação do estudo */
 .estudo-nav {
@@ -128,8 +317,129 @@
     transition: width .35s ease;
 }
 
+/* Fim da sessão */
+.estudo-fim {
+    text-align: center;
+    animation: dashFade .4s ease both;
+}
+.estudo-fim h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+}
+.estudo-fim > p { color: var(--text-dim); margin-bottom: 26px; }
+.estudo-fim__stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 28px;
+}
+.estudo-fim__acoes {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* ============================================================
+   AVISO CURTO (sucesso / erro)
+   ============================================================ */
+.fc-aviso {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 300;
+    max-width: min(340px, calc(100vw - 48px));
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    font-size: .88rem;
+    font-weight: 500;
+    background: rgba(52,211,153,.15);
+    color: #34d399;
+    border: 1px solid rgba(52,211,153,.25);
+    box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    animation: fcAviso .3s ease both;
+}
+.fc-aviso--erro {
+    background: rgba(239,68,68,.15);
+    color: #f87171;
+    border-color: rgba(239,68,68,.25);
+}
+@keyframes fcAviso {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   EXTRAS DOS MODAIS (o resto vem do dashboard.css)
+   ============================================================ */
+.modal__box--estreito { max-width: 380px; }
+/* o modal do cartão tem três botões: em tela estreita eles quebram a linha */
+.modal__actions { flex-wrap: wrap; }
+.modal__texto {
+    color: var(--text-dim);
+    font-size: .95rem;
+    line-height: 1.55;
+    margin-bottom: 22px;
+}
+.modal__texto strong { color: #fff; }
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+@media (max-width: 768px) {
+    .fc-stats { margin-bottom: 26px; }
+
+    /* cabeçalho: as ações ocupam a linha inteira e dividem o espaço */
+    .fc-acoes { width: 100%; }
+    .fc-acoes .dash-btn { flex: 1 1 auto; justify-content: center; }
+
+    /* o cartão vira duas linhas: bolinha + texto + ações em cima,
+       números embaixo. Com áreas nomeadas, senão o auto-placement
+       do grid espalha os itens fora de ordem. */
+    .cartao-item {
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+            "estado texto acoes"
+            ".      nums  nums";
+        align-items: start;
+        gap: 8px 12px;
+    }
+    .cartao-item__estado { grid-area: estado; margin-top: 7px; }
+    .cartao-item__texto  { grid-area: texto; }
+    .cartao-item__nums   { grid-area: nums; }
+    .cartao-item__acoes  { grid-area: acoes; }
+
+    .estudo-avaliacao { justify-content: center; }
+    .estudo-avaliacao__pergunta { width: 100%; text-align: center; }
+    .estudo-avaliacao__botoes { width: 100%; }
+    .estudo-avaliacao__botoes .dash-btn { flex: 1 1 0; min-width: 0; }
+
+    /* o aviso sobe: no mobile a barra de navegação ocupa o rodapé */
+    .fc-aviso {
+        left: 16px;
+        right: 16px;
+        bottom: calc(84px + env(safe-area-inset-bottom));
+        max-width: none;
+    }
+}
+
 @media (max-width: 480px) {
     .flashcard__face { padding: 28px; }
     .flashcard__face p { font-size: 1.2rem; }
+    .flashcard__inner { min-height: 280px; }
     .estudo-nav .dash-btn { padding: 10px 14px; font-size: .85rem; }
+    .deck-card { padding: 22px; }
+    .estudo-fim__stats { gap: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flashcard__inner,
+    .estudo-progresso__bar,
+    .deck-card__barra span { transition: none; }
+    .fc-aviso,
+    .estudo-avaliacao,
+    .estudo-fim { animation: none; }
 }

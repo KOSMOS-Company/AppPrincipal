@@ -25,7 +25,8 @@ KOSMOS/
 ├── .htaccess               # config do Apache (ErrorDocument 404 → página de erro personalizada)
 └── AppPrincipal/
     ├── Backend/
-    │   ├── kosmos.sql          # dump do banco (estrutura da tabela "usuarios")
+    │   ├── kosmos.sql          # dump do banco (estrutura de todas as tabelas)
+    │   ├── sql/                # migrações para bancos que já existem
     │   ├── notes/              # anotações de desenvolvimento
     │   └── php/                # endpoints PHP (login, cadastro, sessão, conta, etc.)
     │       ├── conexao.php     # conexão com o banco  (NÃO versionado — ver .example)
@@ -54,6 +55,9 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
    - Abra o phpMyAdmin (`http://localhost/phpmyadmin`).
    - Crie um banco chamado `kosmos`.
    - Importe o arquivo `Backend/kosmos.sql`.
+   - *Já tinha o banco criado antes?* Rode também as migrações de `Backend/sql/`
+     (ex.: `mysql -u root kosmos < Backend/sql/2026-08-25_flashcards.sql`) — o
+     `kosmos.sql` completo já traz as tabelas novas, mas ele não altera um banco existente.
 
 4. **Configure os arquivos de ambiente** (eles não vêm no repositório por conterem segredos):
    ```bash
@@ -84,7 +88,8 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
 | Página de conta (editar perfil, trocar senha, logout) | ✅ Funcional |
 | Sequência de dias (streak) | ✅ Funcional |
 | Pomodoro | ✅ Funcional |
-| Flashcards / Resumos / Exercícios | 🟡 UI pronta, sem persistência |
+| **Flashcards** (decks, cartões, estudo e estatísticas) | ✅ Funcional |
+| Resumos / Exercícios | 🟡 UI pronta, sem persistência |
 | Estatísticas / gráfico da dashboard | 🟡 Dados mockados |
 | Exercícios com IA (n8n + Groq) | 🟡 Em integração |
 
