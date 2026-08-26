@@ -882,3 +882,58 @@ a.ini-card:hover .ini-card__ico {
 @media (prefers-reduced-motion: reduce) {
     .ini-col__barra { transition: none; }
 }
+
+/* ---- Cores do avatar (escolhidas na aba Conta) ----
+   Valem para o cartão da barra lateral e para o avatar grande
+   da Conta. A classe é aplicada pelo JS a partir da preferência
+   salva no banco. */
+.avatar-cor--roxo    { background: linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%); }
+.avatar-cor--azul    { background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%); }
+.avatar-cor--verde   { background: linear-gradient(135deg, #34d399 0%, #047857 100%); }
+.avatar-cor--laranja { background: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%); }
+.avatar-cor--rosa    { background: linear-gradient(135deg, #f472b6 0%, #be185d 100%); }
+.avatar-cor--ciano   { background: linear-gradient(135deg, #22d3ee 0%, #0e7490 100%); }
+/* ---- Avatar com foto ----
+   Fica AQUI (e não no conta.css) porque o cartão da barra lateral
+   usa isto em todas as abas — no conta.css a regra só existia na
+   aba Conta e nas outras a foto aparecia crua, com a inicial em cima.
+   A imagem entra por style.backgroundImage (JS) e a posição por
+   style.backgroundPosition (enquadramento escolhido pelo usuário). */
+.avatar--foto {
+    background-size: cover;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    color: transparent;
+}
+/* moldura discreta para separar a foto do fundo escuro */
+.conta-avatar.avatar--foto { box-shadow: 0 8px 24px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.12); }
+.usuario__avatar.avatar--foto { box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
+
+
+/* ---- Esqueleto de carregamento ----
+   O HTML não traz mais valores de mentira (era "Estudante", "—",
+   Pomodoro 25): no lugar entra uma barra neutra, que o JS troca
+   pelo dado real. Assim ninguém lê um número errado e conclui que
+   não salvou. */
+.esqueleto {
+    display: inline-block;
+    min-width: 7ch;
+    min-height: 1em;
+    border-radius: 6px;
+    color: transparent !important;
+    background: linear-gradient(90deg,
+                rgba(255,255,255,.05) 25%,
+                rgba(255,255,255,.11) 37%,
+                rgba(255,255,255,.05) 63%);
+    background-size: 400% 100%;
+    animation: esqueletoBrilho 1.4s ease infinite;
+    user-select: none;
+}
+.esqueleto--largo { min-width: 14ch; }
+@keyframes esqueletoBrilho {
+    from { background-position: 100% 0; }
+    to   { background-position: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .esqueleto { animation: none; }
+}

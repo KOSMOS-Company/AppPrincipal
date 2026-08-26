@@ -81,3 +81,75 @@ function exigirLogin(): array {
 
     return $usuario;
 }
+
+/**
+ * Marca nesta sessão qual a "geração" de sessões do usuário.
+ * Chame logo depois de gravar usuario_id no login.
+ */
+function marcarVersaoSessao(PDO $pdo, int $usuarioId): void {
+    iniciarSessao();
+    $stmt = $pdo->prepare('SELECT sessoes_versao FROM usuarios WHERE id = ? LIMIT 1');
+    $stmt->execute([$usuarioId]);
+    $row = $stmt->fetch();
+    $_SESSION['sessoes_versao'] = $row ? (int) $row['sessoes_versao'] : 0;
+}
+
+/**
+ * A sessão atual ainda vale? Fica falsa quando o usuário pede
+ * "sair de todos os dispositivos" em OUTRO lugar: lá a coluna
+ * sessoes_versao é incrementada e as sessões antigas ficam para trás.
+ *
+ * Obs.: a checagem acontece onde este helper é chamado — hoje no
+ * usuario_atual.php (que o dashboard consulta a cada página) e no
+ * conta_dados.php. Sessões antigas caem no próximo acesso, não no
+ * mesmo instante.
+ */
+function sessaoAindaValida(PDO $pdo, int $usuarioId): bool {
+    iniciarSessao();
+
+    $stmt = $pdo->prepare('SELECT sessoes_versao FROM usuarios WHERE id = ? LIMIT 1');
+    $stmt->execute([$usuarioId]);
+    $row = $stmt->fetch();
+
+    if (!$row) {
+        return false;   // usuário apagado (ex.: excluiu a conta)
+    }
+
+    $atual = (int) $row['sessoes_versao'];
+    $daSessao = isset($_SESSION['sessoes_versao']) ? (int) $_SESSION['sessoes_versao'] : 0;
+
+    return $daSessao >= $atual;
+}
+
+/**
+ * Encerra a sessão atual por completo (usado no logout e quando a
+ * sessão é invalidada por outro dispositivo ou pela exclusão da conta).
+ */
+function encerrarSessao(): void {
+    iniciarSessao();
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $p = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+    }
+    session_destroy();
+}
+
+/**
+ * Fecha o arquivo da sessão sem encerrar o login.
+ *
+ * Por que isso importa: enquanto uma requisição mantém a sessão
+ * aberta, o PHP guarda um lock exclusivo no arquivo dela — e as
+ * outras requisições DO MESMO usuário ficam na fila esperando.
+ * A aba Conta chama três endpoints ao mesmo tempo, então sem isso
+ * eles se enfileiram e a página parece travar ao carregar.
+ *
+ * Chame depois de ler o que precisa de $_SESSION e antes das
+ * consultas ao banco. Só não use em quem ESCREVE na sessão
+ * (login, "sair de todos os dispositivos", logout).
+ */
+function liberarSessao(): void {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+}

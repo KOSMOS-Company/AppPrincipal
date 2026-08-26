@@ -98,6 +98,9 @@ try {
     $_SESSION['usuario_nome'] = $nomeFinal;
     registrarAcesso($pdo, $id);
 
+    // Guarda a geração de sessões (ver "sair de todos os dispositivos")
+    marcarVersaoSessao($pdo, $id);
+
     // precisa_senha = conta sem senha própria (só Google). O frontend leva
     // esse usuário para a tela de criação de senha antes do dashboard.
     echo json_encode([

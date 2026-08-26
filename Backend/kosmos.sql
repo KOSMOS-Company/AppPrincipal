@@ -39,7 +39,8 @@ CREATE TABLE `usuarios` (
   `reset_expira` datetime DEFAULT NULL,
   `criado_em` datetime NOT NULL DEFAULT current_timestamp(),
   `ultimo_acesso` date DEFAULT NULL,
-  `sequencia` int(10) UNSIGNED NOT NULL DEFAULT 0
+  `sequencia` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `sessoes_versao` int(10) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -101,6 +102,27 @@ CREATE TABLE IF NOT EXISTS `flashcard_cartoes` (
   KEY `idx_cartao_deck` (`deck_id`),
   CONSTRAINT `fk_cartao_deck`
     FOREIGN KEY (`deck_id`) REFERENCES `flashcard_decks` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- ---------- Preferencias do usuario (aba Conta) ----------
+CREATE TABLE IF NOT EXISTS `usuario_preferencias` (
+  `usuario_id`       int(10) UNSIGNED NOT NULL,
+  `avatar_cor`       varchar(16) NOT NULL DEFAULT 'roxo',
+  `avatar_arquivo`   varchar(120) DEFAULT NULL,   -- foto de perfil enviada pelo usuario
+  `avatar_pos_x`     tinyint(3) UNSIGNED NOT NULL DEFAULT 50,  -- enquadramento da foto (0-100%)
+  `avatar_pos_y`     tinyint(3) UNSIGNED NOT NULL DEFAULT 50,
+  `pomo_foco`        tinyint(3) UNSIGNED NOT NULL DEFAULT 25,
+  `pomo_pausa`       tinyint(3) UNSIGNED NOT NULL DEFAULT 5,
+  `pomo_pausa_longa` tinyint(3) UNSIGNED NOT NULL DEFAULT 15,
+  `meta_diaria`      smallint(5) UNSIGNED NOT NULL DEFAULT 60,
+  `materias`         varchar(255) DEFAULT NULL,
+  `notif_lembrete`   tinyint(1) NOT NULL DEFAULT 0,
+  `notif_resumo`     tinyint(1) NOT NULL DEFAULT 0,
+  `atualizado_em`    datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`usuario_id`),
+  CONSTRAINT `fk_pref_usuario`
+    FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 COMMIT;

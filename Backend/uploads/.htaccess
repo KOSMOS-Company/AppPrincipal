@@ -1,0 +1,25 @@
+# Pasta de arquivos enviados pelos usuários (fotos de perfil).
+# Nada aqui pode ser executado: se algum dia subirem um script
+# disfarçado de imagem, o servidor entrega como arquivo e nunca roda.
+
+# 1) desliga o interpretador — só existe com mod_php (XAMPP).
+#    Envolvido em IfModule porque "php_flag" derruba o Apache (500)
+#    quando o PHP roda como FPM/CGI, o caso comum em VPS.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# 2) tira qualquer handler de script destas extensões (vale para FPM também)
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phar
+
+# 3) e, por cima disso, nega o acesso a elas
+<FilesMatch "\.(?i:php|phtml|php3|php4|php5|php7|php8|phar|cgi|pl|py|asp|aspx|shtml|sh|htaccess)$">
+    Require all denied
+</FilesMatch>

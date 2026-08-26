@@ -10,6 +10,7 @@ const API = "../../../Backend/php";
 
 document.addEventListener("DOMContentLoaded", () => {
     marcarLinkAtivo();
+    pintarDoCache();      // antes do fetch: evita a tela trocar de valor na sua frente
     verificarSessao();
     ativarTransicoes();
     ativarMarcador();
@@ -29,6 +30,64 @@ function marcarLinkAtivo() {
     // é o cartão do rodapé
     document.querySelector(".usuario")
         ?.classList.toggle("ativa", atual === "conta.html");
+}
+
+/* ------------------------------------------------------------
+   Pinta o que já sabemos desta sessão do navegador ANTES da
+   resposta do servidor. Sem isso a página aparece com o texto
+   genérico do HTML e troca ~150ms depois — o que parecia
+   travamento (e, nos números, parecia "não salvou").
+   O fetch em seguida confirma ou corrige.
+   ------------------------------------------------------------ */
+function pintarDoCache() {
+    try {
+        const nome = sessionStorage.getItem("kosmos_usuario");
+        if (nome) aplicarUsuario(nome);
+
+        const cor = sessionStorage.getItem("kosmos_avatar_cor");
+        if (cor) aplicarCorAvatarSidebar(cor);
+
+        const foto = sessionStorage.getItem("kosmos_avatar_url");
+        if (foto) aplicarFotoSidebar(foto, sessionStorage.getItem("kosmos_avatar_pos"));
+    } catch (err) {
+        /* sem sessionStorage (aba privada): segue o fluxo normal */
+    }
+}
+
+/* Escreve o nome nos três lugares que o usam e tira o esqueleto */
+function aplicarUsuario(nome) {
+    const primeiro = (nome || "").trim().split(" ")[0];
+    const inicial = (nome || "").trim().charAt(0).toUpperCase() || "?";
+
+    document.querySelectorAll("[data-usuario]").forEach((el) => {
+        el.textContent = nome;
+        el.classList.remove("esqueleto", "esqueleto--largo");
+    });
+    document.querySelectorAll("[data-usuario-primeiro]").forEach((el) => {
+        el.textContent = primeiro;
+        el.classList.remove("esqueleto", "esqueleto--largo");
+    });
+    document.querySelectorAll("[data-usuario-inicial]").forEach((el) => {
+        el.textContent = inicial;
+    });
+}
+
+function aplicarCorAvatarSidebar(cor) {
+    document.querySelectorAll(".usuario__avatar").forEach((el) => {
+        [...el.classList].forEach((c) => {
+            if (c.startsWith("avatar-cor--")) el.classList.remove(c);
+        });
+        el.classList.add("avatar-cor--" + cor);
+    });
+}
+
+/* pos = "20% 80%" (enquadramento escolhido na aba Conta) */
+function aplicarFotoSidebar(url, pos) {
+    document.querySelectorAll(".usuario__avatar").forEach((el) => {
+        el.style.backgroundImage = `url("${url}")`;
+        if (pos) el.style.backgroundPosition = pos;
+        el.classList.add("avatar--foto");
+    });
 }
 
 /* Pergunta ao servidor "quem sou eu?".
@@ -54,24 +113,33 @@ async function verificarSessao() {
             return;
         }
 
-        // Guarda o nome para uso rápido nesta sessão do navegador
+        // Guarda para a próxima carga pintar na hora (ver pintarDoCache)
         sessionStorage.setItem("kosmos_usuario", json.nome);
+        if (json.avatar_cor) sessionStorage.setItem("kosmos_avatar_cor", json.avatar_cor);
+        const pos = json.avatar_pos
+            ? json.avatar_pos.x + "% " + json.avatar_pos.y + "%"
+            : null;
+        if (json.avatar_url) {
+            sessionStorage.setItem("kosmos_avatar_url", json.avatar_url);
+            if (pos) sessionStorage.setItem("kosmos_avatar_pos", pos);
+        } else {
+            sessionStorage.removeItem("kosmos_avatar_url");
+            sessionStorage.removeItem("kosmos_avatar_pos");
+        }
 
-        document.querySelectorAll("[data-usuario]").forEach((el) => {
-            el.textContent = json.nome;
-        });
+        aplicarUsuario(json.nome);
 
-        // Só o primeiro nome (títulos grandes quebram com nome completo)
-        const primeiro = (json.nome || "").trim().split(" ")[0];
-        document.querySelectorAll("[data-usuario-primeiro]").forEach((el) => {
-            el.textContent = primeiro;
-        });
+        if (json.avatar_cor) aplicarCorAvatarSidebar(json.avatar_cor);
 
-        // Inicial do avatar no rodapé do menu
-        const inicial = (json.nome || "").trim().charAt(0).toUpperCase();
-        document.querySelectorAll("[data-usuario-inicial]").forEach((el) => {
-            el.textContent = inicial || "?";
-        });
+        // sem foto salva, garante que não sobrou imagem do cache
+        if (json.avatar_url) {
+            aplicarFotoSidebar(json.avatar_url, pos);
+        } else {
+            document.querySelectorAll(".usuario__avatar").forEach((el) => {
+                el.style.backgroundImage = "";
+                el.classList.remove("avatar--foto");
+            });
+        }
 
         // Avisa os scripts de página (ex.: inicio.js) que o usuário chegou,
         // para não precisarem repetir o fetch de usuario_atual.php.

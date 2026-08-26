@@ -116,3 +116,38 @@ document.querySelectorAll(".pomo-modo").forEach((btn) => {
 });
 
 atualizarDisplay();
+
+/* ------------------------------------------------------------
+   Durações escolhidas na aba Conta (usuario_preferencias).
+   Em IIFE para não criar nomes no escopo global — este arquivo
+   divide o escopo com o dashboard.js.
+   ------------------------------------------------------------ */
+(async function aplicarPreferencias() {
+    try {
+        const resp = await fetch("../../../Backend/php/conta_preferencias.php");
+        if (!resp.ok) return;
+        const json = await resp.json();
+        if (!json.ok || !json.preferencias) return;
+
+        const p = json.preferencias;
+        const minutos = { foco: p.pomo_foco, curta: p.pomo_pausa, longa: p.pomo_pausa_longa };
+
+        document.querySelectorAll(".pomo-modo").forEach((b) => {
+            const min = minutos[b.dataset.modo];
+            if (min) b.dataset.min = min;
+        });
+
+        // Só mexe no relógio se o usuário ainda não começou nada
+        if (!rodando && restante === totalSeg && minutos[modoAtual]) {
+            definirModo(modoAtual, minutos[modoAtual]);
+        }
+
+        const elMeta = document.getElementById("pomoMeta");
+        if (elMeta && p.meta_diaria) {
+            elMeta.textContent = "Sua meta: " + p.meta_diaria + " min por dia";
+            elMeta.hidden = false;
+        }
+    } catch (err) {
+        /* sem preferências: seguem os tempos padrão */
+    }
+})();

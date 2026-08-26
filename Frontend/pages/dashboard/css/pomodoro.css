@@ -89,3 +89,11 @@
     .pomo__tempo { font-size: 3rem; }
     .pomo__modos { flex-wrap: wrap; justify-content: center; }
 }
+
+/* Meta diária (vem das preferências da aba Conta) */
+.pomo__meta {
+    font-size: .82rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}

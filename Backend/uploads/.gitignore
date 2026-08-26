@@ -1,0 +1,8 @@
+# As fotos enviadas pelos usuários não entram no repositório,
+# mas a pasta e as regras de segurança precisam existir.
+*
+!.gitignore
+!.htaccess
+!avatares/
+avatares/*
+!avatares/.gitkeep

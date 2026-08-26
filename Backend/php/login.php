@@ -49,6 +49,9 @@ try {
     // Atualiza a sequência de dias de acesso
     registrarAcesso($pdo, (int) $user['id']);
 
+    // Guarda a geração de sessões (ver "sair de todos os dispositivos")
+    marcarVersaoSessao($pdo, (int) $user['id']);
+
     echo json_encode([
         'ok'   => true,
         'msg'  => 'Login realizado!',
