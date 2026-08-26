@@ -251,7 +251,11 @@
                 if (json.ok) {
                     sessionStorage.setItem('kosmos_usuario', json.nome);
                     sessionStorage.setItem('kosmos_intro', '1');
-                    setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 1000);
+                    // Conta do Google ainda sem senha: cria a senha antes de entrar
+                    const destino = json.precisa_senha
+                        ? '../login/criar-senha.html'
+                        : '../dashboard/index.html';
+                    setTimeout(() => { window.location.href = destino; }, 1000);
                 }
             } catch (err) {
                 mostrarMsg('Não foi possível conectar ao servidor.', 'erro');

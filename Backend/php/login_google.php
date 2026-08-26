@@ -70,7 +70,7 @@ if ($nome === '') {
 try {
     $pdo = conectar();
 
-    $stmt = $pdo->prepare('SELECT id, nome, google_id FROM usuarios WHERE email = ? LIMIT 1');
+    $stmt = $pdo->prepare('SELECT id, nome, google_id, senha_hash FROM usuarios WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -82,12 +82,14 @@ try {
         }
         $id        = (int) $user['id'];
         $nomeFinal = $user['nome'];
+        $temSenha  = !empty($user['senha_hash']);
     } else {
         // Não existe: cria conta nova (sem senha)
         $ins = $pdo->prepare('INSERT INTO usuarios (nome, email, google_id) VALUES (?, ?, ?)');
         $ins->execute([$nome, $email, $googleId]);
         $id        = (int) $pdo->lastInsertId();
         $nomeFinal = $nome;
+        $temSenha  = false;
     }
 
     // Abre a sessão (igual ao login normal)
@@ -96,7 +98,14 @@ try {
     $_SESSION['usuario_nome'] = $nomeFinal;
     registrarAcesso($pdo, $id);
 
-    echo json_encode(['ok' => true, 'msg' => 'Login com Google realizado!', 'nome' => $nomeFinal]);
+    // precisa_senha = conta sem senha própria (só Google). O frontend leva
+    // esse usuário para a tela de criação de senha antes do dashboard.
+    echo json_encode([
+        'ok'            => true,
+        'msg'           => 'Login com Google realizado!',
+        'nome'          => $nomeFinal,
+        'precisa_senha' => !$temSenha,
+    ]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Erro ao entrar com o Google.']);

@@ -46,6 +46,14 @@ async function verificarSessao() {
 
         const json = await resposta.json();
 
+        // Conta criada pelo Google que ainda não definiu senha: manda
+        // criar antes de usar o app (sem senha ela nunca conseguiria
+        // entrar por e-mail e senha).
+        if (json.tem_senha === false) {
+            window.location.replace("../login/criar-senha.html");
+            return;
+        }
+
         // Guarda o nome para uso rápido nesta sessão do navegador
         sessionStorage.setItem("kosmos_usuario", json.nome);
 
