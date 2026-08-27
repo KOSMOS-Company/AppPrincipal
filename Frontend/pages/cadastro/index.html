@@ -254,7 +254,7 @@
                     // Conta do Google ainda sem senha: cria a senha antes de entrar
                     const destino = json.precisa_senha
                         ? '../login/criar-senha.html'
-                        : '../dashboard/index.html';
+                        : '../dashboard/index.php';
                     setTimeout(() => { window.location.href = destino; }, 1000);
                 }
             } catch (err) {

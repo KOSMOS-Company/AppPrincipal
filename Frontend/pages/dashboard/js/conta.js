@@ -2,7 +2,11 @@
    KOSMOS — conta.js
    Aba "Conta" em módulos: perfil, segurança, estudo,
    notificações, privacidade e sobre.
-   O "porteiro" (redirecionar se não logado) é do dashboard.js.
+
+   A página chega pronta do servidor (conta.php + pagina_dashboard.php):
+   nome, e-mail, avatar, preferências e chips já vêm no HTML. Este
+   arquivo lê esse estado e cuida só do que o usuário faz — salvar,
+   confirmar, arrastar a foto, alternar interruptores.
 
    Tudo dentro de uma IIFE porque dashboard.js e os scripts de
    página dividem o mesmo escopo global.
@@ -13,7 +17,7 @@
     const BACKEND = "../../../Backend/php";
 
     let temSenha = true;      // false = conta só do Google (modo "criar senha")
-    let prefs    = null;      // preferências atuais (o que veio do banco)
+    let prefs    = null;      // preferências atuais (lidas do HTML e atualizadas ao salvar)
     let materiasEscolhidas = new Set();
 
     /* Tudo em que o usuário já mexeu nesta visita. As respostas do
@@ -25,9 +29,8 @@
     document.addEventListener("DOMContentLoaded", () => {
         if (!document.querySelector(".conta-layout")) return;
 
+        lerEstadoDoHTML();       // a página já vem pronta do servidor
         ativarNavegacao();
-        carregarDados();
-        carregarPreferencias();
 
         document.getElementById("formPerfil").addEventListener("submit", salvarPerfil);
         document.getElementById("formSenha").addEventListener("submit", trocarSenha);
@@ -41,63 +44,60 @@
         ativarFoto();
         marcarCamposTocados();
         ativarCores();
-        aplicarPrefsDoCache();   // valores certos já no primeiro instante
-        aplicarDadosDoCache();
+        ativarMaterias();
         ativarEditorFoto();
     });
 
-    const CHAVE_PREFS = "kosmos_prefs";   // cache só desta sessão do navegador
+    /* ------------------------------------------------------------
+       Estado inicial
+       A página já vem preenchida pelo PHP: aqui só lemos o que está
+       na tela para o JS trabalhar (nada de fetch no carregamento).
+       ------------------------------------------------------------ */
+    function lerEstadoDoHTML() {
+        const main = document.querySelector(".pagina-conta");
+        if (!main) return;
 
-    /* Preenche a tela com as preferências guardadas na visita anterior,
-       antes de o servidor responder. Evita ver um número e ele mudar
-       depois (o que parecia "não salvou"). */
-    function aplicarPrefsDoCache() {
-        try {
-            const bruto = sessionStorage.getItem(CHAVE_PREFS);
-            if (!bruto) return;
-            const p = JSON.parse(bruto);
+        temSenha = main.dataset.temSenha !== "0";
+        configurarSenha(temSenha);
+        configurarCamposExclusao(temSenha);
 
-            valor("pomoFoco", p.pomo_foco);
-            valor("pomoPausa", p.pomo_pausa);
-            valor("pomoPausaLonga", p.pomo_pausa_longa);
-            valor("metaDiaria", p.meta_diaria);
-            marcarCor(p.avatar_cor);
-            if (p.avatar_url) aplicarFoto(p.avatar_url, p.avatar_pos_x, p.avatar_pos_y);
-            marcarSwitch("swLembrete", p.notif_lembrete);
-            marcarSwitch("swResumo", p.notif_resumo);
-        } catch (err) {
-            /* cache inválido: o fetch resolve */
-        }
+        const url = main.dataset.avatarUrl || "";
+        const px = Number(main.dataset.avatarPosX ?? 50);
+        const py = Number(main.dataset.avatarPosY ?? 50);
+        fotoAtual = url ? { url, x: px, y: py } : null;
+
+        materiasEscolhidas = new Set(
+            [...document.querySelectorAll("#chipsMaterias .chip.active")].map((c) => c.textContent.trim())
+        );
+
+        prefs = {
+            avatar_cor:       document.querySelector(".conta-cor.ativa")?.dataset.cor || "roxo",
+            avatar_url:       url || null,
+            avatar_pos_x:     px,
+            avatar_pos_y:     py,
+            pomo_foco:        +document.getElementById("pomoFoco").value || 25,
+            pomo_pausa:       +document.getElementById("pomoPausa").value || 5,
+            pomo_pausa_longa: +document.getElementById("pomoPausaLonga").value || 15,
+            meta_diaria:      +document.getElementById("metaDiaria").value || 60,
+            materias:         [...materiasEscolhidas],
+            notif_lembrete:   document.getElementById("swLembrete").getAttribute("aria-checked") === "true",
+            notif_resumo:     document.getElementById("swResumo").getAttribute("aria-checked") === "true",
+        };
     }
 
-    const CHAVE_DADOS = "kosmos_conta";
-
-    /* Mesmo atalho para os dados do perfil: mostra o que já era
-       verdade na visita anterior e deixa o fetch confirmar. */
-    function aplicarDadosDoCache() {
-        try {
-            const bruto = sessionStorage.getItem(CHAVE_DADOS);
-            if (!bruto) return;
-            const d = JSON.parse(bruto);
-            mostrarDados(d);
-        } catch (err) { /* cache inválido: o fetch resolve */ }
-    }
-
-    function guardarDadosNoCache(d) {
-        try {
-            sessionStorage.setItem(CHAVE_DADOS, JSON.stringify({
-                nome: d.nome, email: d.email, criado_em: d.criado_em,
-                ultimo_acesso: d.ultimo_acesso, sequencia: d.sequencia,
-                tem_senha: d.tem_senha, tem_google: d.tem_google,
-                decks: d.decks, cartoes: d.cartoes
-            }));
-        } catch (err) { /* sem storage: só não há atalho na próxima */ }
-    }
-
-    function guardarPrefsNoCache(p) {
-        try {
-            sessionStorage.setItem(CHAVE_PREFS, JSON.stringify(p));
-        } catch (err) { /* sem storage: só não há atalho na próxima */ }
+    /* Liga os chips de matéria que já vieram no HTML */
+    function ativarMaterias() {
+        document.querySelectorAll("#chipsMaterias .chip").forEach((chip) => {
+            chip.addEventListener("click", () => {
+                const materia = chip.textContent.trim();
+                tocado.add("materias");
+                const marcado = !materiasEscolhidas.has(materia);
+                marcado ? materiasEscolhidas.add(materia) : materiasEscolhidas.delete(materia);
+                chip.classList.toggle("active", marcado);
+                chip.setAttribute("aria-pressed", String(marcado));
+                marcarPendente("estudo");
+            });
+        });
     }
 
     /* Assim que o usuário digita num campo, ele passa a ser "dele":
@@ -146,47 +146,6 @@
         window.addEventListener("hashchange", () => mostrar((location.hash || "#perfil").slice(1)));
     }
 
-    /* ------------------------------------------------------------
-       Dados da conta (perfil + resumo de acesso)
-       ------------------------------------------------------------ */
-    async function carregarDados() {
-        try {
-            const resp = await fetch(`${BACKEND}/conta_dados.php`);
-            if (!resp.ok) return;   // sem sessão: dashboard.js redireciona
-            const json = await resp.json();
-            if (!json.ok) return;
-
-            guardarDadosNoCache(json);
-            mostrarDados(json);
-        } catch (err) {
-            /* backend fora do ar — dashboard.js trata o redirecionamento */
-        }
-    }
-
-    /* Joga na tela os dados do perfil (vem do cache ou do servidor) */
-    function mostrarDados(d) {
-        preencher(d.nome, d.email);
-        texto("contaMembro", "Membro desde " + formatarData(d.criado_em));
-        texto("contaUltimoAcesso", formatarData(d.ultimo_acesso) || "—");
-        texto("contaSequencia", (d.sequencia ?? 0) + (d.sequencia === 1 ? " dia" : " dias"));
-        texto("contaDecks", d.decks ?? 0);
-        texto("contaCartoes", d.cartoes ?? 0);
-
-        configurarSenha(d.tem_senha);
-        configurarProvedor(d.tem_google);
-        configurarCamposExclusao(d.tem_senha);
-    }
-
-    const ICONE_GOOGLE = '<svg width="14" height="14" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.3 2.9l5.7-5.7C33.5 6.2 28.1 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.5-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c2.8 0 5.4 1.1 7.3 2.9l5.7-5.7C33.5 6.2 28.1 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35 26.7 36 24 36c-5.3 0-9.6-2.6-11.3-7l-6.5 5C9.6 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2C39.9 35.6 44 30.4 44 24c0-1.3-.1-2.5-.4-3.5z"/></svg>';
-    const ICONE_EMAIL  = '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4" width="15" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 5l7 5 7-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
-
-    function configurarProvedor(temGoogle) {
-        const el = document.getElementById("contaProvedor");
-        if (!el) return;
-        el.innerHTML = temGoogle ? ICONE_GOOGLE + "Google" : ICONE_EMAIL + "E-mail e senha";
-        el.classList.remove("esqueleto", "esqueleto--largo");
-    }
-
     /* Painel de senha muda de cara quando a conta não tem senha */
     function configurarSenha(possui) {
         temSenha = possui !== false;
@@ -212,41 +171,6 @@
         valor("email", email, forcar);
     }
 
-    /* ------------------------------------------------------------
-       Preferências (avatar, pomodoro, meta, matérias, notificações)
-       ------------------------------------------------------------ */
-    async function carregarPreferencias() {
-        try {
-            const resp = await fetch(`${BACKEND}/conta_preferencias.php`);
-            if (!resp.ok) return;
-            const json = await resp.json();
-            if (!json.ok) return;
-
-            prefs = json.preferencias;
-            guardarPrefsNoCache(prefs);
-            materiasEscolhidas = new Set(prefs.materias || []);
-
-            // a cor/matérias/foto só vêm do servidor se o usuário ainda
-            // não tiver escolhido outra coisa enquanto isto carregava
-            marcarCor(prefs.avatar_cor);
-            if (!tocado.has("cor")) aplicarCorAvatar(prefs.avatar_cor);
-            if (!tocado.has("foto")) {
-                aplicarFoto(prefs.avatar_url || null, prefs.avatar_pos_x, prefs.avatar_pos_y);
-            }
-            montarMaterias(json.materias_disponiveis || []);
-
-            valor("pomoFoco", prefs.pomo_foco);
-            valor("pomoPausa", prefs.pomo_pausa);
-            valor("pomoPausaLonga", prefs.pomo_pausa_longa);
-            valor("metaDiaria", prefs.meta_diaria);
-
-            marcarSwitch("swLembrete", prefs.notif_lembrete);
-            marcarSwitch("swResumo", prefs.notif_resumo);
-        } catch (err) {
-            /* sem preferências: a tela fica com os valores padrão do HTML */
-        }
-    }
-
     /* Liga o clique das bolinhas que já estão no HTML. Feito na carga
        da página: assim a pessoa pode escolher a cor antes de o servidor
        responder, sem o clique cair no vazio. */
@@ -268,7 +192,7 @@
     /* Clicar na cor salva na hora (é uma mudança pequena e visível) */
     async function escolherCor(cor) {
         tocado.add("cor");
-        if (prefs) { prefs.avatar_cor = cor; guardarPrefsNoCache(prefs); }
+        if (prefs) prefs.avatar_cor = cor;
         document.querySelectorAll(".conta-cor").forEach((b) => {
             b.classList.toggle("ativa", b.dataset.cor === cor);
         });
@@ -296,30 +220,6 @@
         document.querySelectorAll(".usuario__avatar").forEach(limpar);
     }
 
-    function montarMaterias(disponiveis) {
-        const caixa = document.getElementById("chipsMaterias");
-        if (!caixa) return;
-        // se o usuário já mexeu nos chips, mantém a seleção da tela
-        if (tocado.has("materias") && caixa.children.length) return;
-        caixa.innerHTML = "";
-
-        disponiveis.forEach((materia) => {
-            const chip = document.createElement("button");
-            chip.type = "button";
-            chip.className = "chip" + (materiasEscolhidas.has(materia) ? " active" : "");
-            chip.textContent = materia;
-            chip.setAttribute("aria-pressed", String(materiasEscolhidas.has(materia)));
-            chip.addEventListener("click", () => {
-                tocado.add("materias");
-                const marcado = !materiasEscolhidas.has(materia);
-                marcado ? materiasEscolhidas.add(materia) : materiasEscolhidas.delete(materia);
-                chip.classList.toggle("active", marcado);
-                chip.setAttribute("aria-pressed", String(marcado));
-            });
-            caixa.appendChild(chip);
-        });
-    }
-
     /* Salvar a seção "Estudo" (pomodoro + meta + matérias) */
     async function salvarEstudo() {
         const btn = document.getElementById("btnSalvarEstudo");
@@ -340,7 +240,6 @@
                 // o backend pode ter ajustado valores fora da faixa:
                 // aqui ele é a verdade, então forçamos
                 prefs = json.preferencias;
-                guardarPrefsNoCache(prefs);
                 valor("pomoFoco", prefs.pomo_foco, true);
                 valor("pomoPausa", prefs.pomo_pausa, true);
                 valor("pomoPausaLonga", prefs.pomo_pausa_longa, true);
@@ -411,15 +310,6 @@
                 tocado.delete("nome");
                 tocado.delete("email");
                 preencher(json.nome, json.email, true);
-                try {
-                    const bruto = sessionStorage.getItem(CHAVE_DADOS);
-                    if (bruto) {
-                        const d = JSON.parse(bruto);
-                        d.nome = json.nome;
-                        d.email = json.email;
-                        sessionStorage.setItem(CHAVE_DADOS, JSON.stringify(d));
-                    }
-                } catch (err) { /* segue sem atalho */ }
                 document.querySelectorAll("[data-usuario]").forEach((el) => (el.textContent = json.nome));
                 const primeiro = json.nome.trim().split(" ")[0];
                 document.querySelectorAll("[data-usuario-primeiro]").forEach((el) => (el.textContent = primeiro));
@@ -883,7 +773,6 @@
                 if (prefs) {
                     prefs.avatar_pos_x = x;
                     prefs.avatar_pos_y = y;
-                    guardarPrefsNoCache(prefs);
                 }
                 msg("msgFoto", "Posição salva!", "sucesso");
                 fecharEditorFoto();
@@ -897,52 +786,8 @@
         }
     }
 
-    /* ------------------------------------------------------------
-       Confirmação
-       Abre a mini tela e devolve uma promessa: true se a pessoa
-       confirmou, false se desistiu. Usada nas ações que mexem em algo
-       de verdade — remover a foto, encerrar as outras sessões, sair da
-       conta e trocar o e-mail de acesso.
-       ------------------------------------------------------------ */
-    function confirmar({ titulo, texto, botao = "Confirmar", perigo = false }) {
-        const modal = document.getElementById("modalConfirma");
-        const sim = document.getElementById("confirmaSim");
-        const nao = document.getElementById("confirmaNao");
-        const fechar = document.getElementById("confirmaFechar");
-
-        // sem o modal na página (outra aba), não trava a ação
-        if (!modal || !sim) return Promise.resolve(true);
-
-        texto_(titulo, texto, botao, perigo);
-        modal.classList.add("open");
-        sim.focus();
-
-        return new Promise((resolve) => {
-            const encerrar = (resposta) => {
-                modal.classList.remove("open");
-                sim.onclick = null;
-                nao.onclick = null;
-                fechar.onclick = null;
-                modal.onclick = null;
-                document.removeEventListener("keydown", noEsc);
-                resolve(resposta);
-            };
-            const noEsc = (e) => { if (e.key === "Escape") encerrar(false); };
-
-            sim.onclick = () => encerrar(true);
-            nao.onclick = () => encerrar(false);
-            fechar.onclick = () => encerrar(false);
-            modal.onclick = (e) => { if (e.target === modal) encerrar(false); };
-            document.addEventListener("keydown", noEsc);
-        });
-
-        function texto_(t, msgTexto, rotulo, ehPerigo) {
-            document.getElementById("confirmaTitulo").textContent = t;
-            document.getElementById("confirmaTexto").textContent = msgTexto;
-            sim.textContent = rotulo;
-            sim.className = "dash-btn " + (ehPerigo ? "dash-btn--danger" : "dash-btn--primary");
-        }
-    }
+    /* confirmar() agora vive no dashboard.js (compartilhada com as
+       outras abas). O modal em si vem de partes/modal-confirma.php. */
 
     /* ------------------------------------------------------------
        Alterações não salvas

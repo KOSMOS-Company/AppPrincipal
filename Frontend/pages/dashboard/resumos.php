@@ -1,3 +1,41 @@
+<?php
+// Porteiro + dados desta página (sem sessão, redireciona antes de
+// mandar qualquer HTML). Deixa $USUARIO, $PREF e $PAGINA prontos.
+require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
+
+/* Os resumos do usuário já saem prontos daqui: a página chega com a
+   lista montada, sem depender de JS para aparecer. As ações (salvar,
+   apagar) continuam por fetch nos endpoints resumos_*.php.
+   As datas vêm em pedaços do MySQL — o PHP só monta o texto. */
+$RESUMOS = [];
+if (!$ERRO_BANCO) {
+    try {
+        $stmt = $pdo->prepare('SELECT id, titulo, materia, corpo,
+                                      DAY(criado_em)   AS dia,
+                                      MONTH(criado_em) AS mes
+                                 FROM resumos
+                                WHERE usuario_id = ?
+                             ORDER BY atualizado_em DESC, id DESC');
+        $stmt->execute([$USUARIO['id']]);
+        foreach ($stmt as $r) {
+            $RESUMOS[] = [
+                'id'      => (int) $r['id'],
+                'titulo'  => $r['titulo'],
+                'materia' => $r['materia'],
+                'corpo'   => $r['corpo'],
+                'quando'  => dataCurtaPt((int) $r['dia'], (int) $r['mes']),
+            ];
+        }
+    } catch (PDOException $e) {
+        $RESUMOS = [];
+    }
+}
+$TOTAL_RESUMOS = count($RESUMOS);
+
+/* Só as matérias que aparecem nos resumos viram filtro */
+$MATERIAS_USADAS = array_values(array_unique(array_column($RESUMOS, 'materia')));
+sort($MATERIAS_USADAS);
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -25,61 +63,7 @@
     <div class="contGeral">
 
         <!-- Sidebar -->
-        <aside class="contLateral">
-            <a class="contLogo" href="index.html">
-                <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
-            </a>
-
-            <nav class="botoesL" aria-label="Navegação principal">
-                <!-- marcador que desliza entre os itens (posicionado pelo dashboard.js) -->
-                <span class="nav__marca" aria-hidden="true"></span>
-
-                <a href="index.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Início
-                </a>
-
-                <span class="nav__grupo">Estudar</span>
-                <a href="resumos.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Resumos
-                </a>
-                <a href="flashcards.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Flashcards
-                </a>
-                <a href="exercicios.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Exercícios
-                </a>
-
-                <span class="nav__grupo">Foco</span>
-                <a href="pomodoro.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Pomodoro
-                </a>
-
-                <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile -->
-                <a href="conta.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Conta
-                </a>
-            </nav>
-
-            <div class="contUsuario">
-                <a class="usuario" href="conta.html">
-                    <span class="usuario__avatar" data-usuario-inicial aria-hidden="true">E</span>
-                    <span class="usuario__info">
-                        <strong data-usuario class="esqueleto"></strong>
-                        <span>Ver conta</span>
-                    </span>
-                </a>
-                <button class="usuario__sair" type="button"
-                        title="Sair da conta" aria-label="Sair da conta">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5 H18 a1 1 0 0 1 1 1 V18 a1 1 0 0 1 -1 1 H15 M10 8 L6 12 L10 16 M6 12 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
-        </aside>
+        <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
         <!-- Main -->
         <main class="contMeio">
@@ -87,7 +71,13 @@
                 <div class="contCabeca__texto">
                     <span class="section-tag">Biblioteca</span>
                     <h1>Seus <span class="h-nome">Resumos</span></h1>
-                    <p>Guarde e organize seus resumos por matéria.</p>
+                    <p>
+<?php if ($TOTAL_RESUMOS === 0): ?>
+                        Escreva o que você estudou — fica salvo na sua conta.
+<?php else: ?>
+                        <?= $TOTAL_RESUMOS ?> <?= $TOTAL_RESUMOS === 1 ? 'resumo salvo' : 'resumos salvos' ?> na sua conta.
+<?php endif; ?>
+                    </p>
                 </div>
                 <button class="dash-btn dash-btn--primary" id="btnNovo">
                     <svg viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -95,65 +85,64 @@
                 </button>
             </header>
 
-            <!-- Filtros -->
+            <!-- Filtros: só as matérias que o usuário realmente tem -->
+<?php if (count($MATERIAS_USADAS) > 1): ?>
             <div class="chips" id="filtros">
                 <button class="chip active" data-materia="todos">Todos</button>
-                <button class="chip" data-materia="Matemática">Matemática</button>
-                <button class="chip" data-materia="Física">Física</button>
-                <button class="chip" data-materia="Química">Química</button>
-                <button class="chip" data-materia="Biologia">Biologia</button>
-                <button class="chip" data-materia="História">História</button>
-                <button class="chip" data-materia="Português">Português</button>
+<?php foreach ($MATERIAS_USADAS as $m): ?>
+                <button class="chip" data-materia="<?= hesc($m) ?>"><?= hesc($m) ?></button>
+<?php endforeach; ?>
+            </div>
+<?php else: ?>
+            <div class="chips" id="filtros" hidden></div>
+<?php endif; ?>
+
+            <!-- Grid: os cartões já vêm prontos do servidor -->
+            <div class="resumos-grid" id="grid">
+<?php foreach ($RESUMOS as $i => $r): ?>
+                <article class="resumo-card anim-in" data-id="<?= (int) $r['id'] ?>"
+                         data-materia="<?= hesc($r['materia']) ?>"
+                         style="animation-delay: <?= number_format($i * 0.04, 2, '.', '') ?>s">
+                    <!-- o cartão leva para a leitura; editar é um passo à parte -->
+                    <a class="resumo-card__link" href="resumo.php?id=<?= (int) $r['id'] ?>">
+                        <div class="resumo-card__thumb">
+                            <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        </div>
+                        <div class="resumo-card__body">
+                            <span class="materia-tag"><?= hesc($r['materia']) ?></span>
+                            <h3 class="resumo-card__title"><?= hesc($r['titulo']) ?></h3>
+                            <div class="resumo-card__meta">
+                                <span><?= hesc($r['quando']) ?></span>
+                                <span>Ler →</span>
+                            </div>
+                        </div>
+                    </a>
+                    <button type="button" class="resumo-card__editar" data-editar="<?= (int) $r['id'] ?>"
+                            title="Editar este resumo" aria-label="Editar o resumo <?= hesc($r['titulo']) ?>">
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                    </button>
+                </article>
+<?php endforeach; ?>
             </div>
 
-            <!-- Grid de resumos -->
-            <div class="resumos-grid" id="grid"></div>
-
             <!-- Estado vazio -->
-            <div class="vazio" id="vazio" hidden>
+            <div class="vazio" id="vazio"<?= $TOTAL_RESUMOS > 0 ? ' hidden' : '' ?>>
                 <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                 <h3>Nenhum resumo aqui</h3>
                 <p>Crie um novo resumo para começar a organizar essa matéria.</p>
             </div>
         </main>
-    </div>
 
-    <!-- Modal: novo resumo -->
-    <div class="modal" id="modal">
-        <div class="modal__box">
-            <div class="modal__head">
-                <h3>Novo resumo</h3>
-                <button class="modal__close" id="fechar" aria-label="Fechar">&times;</button>
-            </div>
-            <form class="modal__form" id="formNovo">
-                <div class="campo">
-                    <label for="titulo">Título</label>
-                    <input id="titulo" type="text" placeholder="Ex: Leis de Newton" required>
-                </div>
-                <div class="campo">
-                    <label for="materia">Matéria</label>
-                    <select id="materia" required>
-                        <option value="Matemática">Matemática</option>
-                        <option value="Física">Física</option>
-                        <option value="Química">Química</option>
-                        <option value="Biologia">Biologia</option>
-                        <option value="História">História</option>
-                        <option value="Português">Português</option>
-                    </select>
-                </div>
-                <div class="campo">
-                    <label for="conteudo">Anotação (opcional)</label>
-                    <textarea id="conteudo" placeholder="Escreva um resumo rápido..."></textarea>
-                </div>
-                <div class="modal__actions">
-                    <button type="button" class="dash-btn dash-btn--outline" id="cancelar">Cancelar</button>
-                    <button type="submit" class="dash-btn dash-btn--primary">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
+        <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
+
+        <?php include __DIR__ . '/partes/modal-resumo.php'; ?>
+
+        <!-- os resumos completos (com o texto) para a página abrir sem
+             outra ida ao servidor -->
+        <script type="application/json" id="dadosResumos"><?= json_encode($RESUMOS, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 
     <script src="./js/dashboard.js"></script>
+    <script src="./js/resumo-form.js"></script>
     <script src="./js/resumos.js"></script>
     <script src="./js/cursor.js"></script>
 </body>

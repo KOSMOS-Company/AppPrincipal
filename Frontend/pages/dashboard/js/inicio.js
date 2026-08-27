@@ -32,11 +32,9 @@
         iniciarPassos();
     });
 
-    /* Recebe o usuário logado (evento disparado pelo dashboard.js
-       depois do fetch em usuario_atual.php) e mostra a sequência. */
-    document.addEventListener("kosmos:usuario", (e) => {
-        preencherMetricas({ sequencia: e.detail?.sequencia ?? 0 });
-    });
+    /* A sequência (e o que mais existir de real) já vem impressa pelo
+       index.php. preencherMetricas() continua exposto para quando os
+       outros números passarem a existir no banco. */
 
     /* ------------------------------------------------------------
        Abertura: data de hoje + saudação pelo horário

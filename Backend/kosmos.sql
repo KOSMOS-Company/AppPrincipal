@@ -125,6 +125,22 @@ CREATE TABLE IF NOT EXISTS `usuario_preferencias` (
     FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- ---------- Resumos ----------
+CREATE TABLE IF NOT EXISTS `resumos` (
+  `id`            int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `usuario_id`    int(10) UNSIGNED NOT NULL,
+  `titulo`        varchar(140) NOT NULL,
+  `materia`       varchar(40) NOT NULL,
+  `corpo`         mediumtext NOT NULL,          -- o texto do resumo (o que faltava)
+  `criado_em`     datetime NOT NULL DEFAULT current_timestamp(),
+  `atualizado_em` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_resumo_usuario` (`usuario_id`),
+  CONSTRAINT `fk_resumo_usuario`
+    FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

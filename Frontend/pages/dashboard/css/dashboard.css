@@ -192,7 +192,7 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
 /* No desktop a conta fica no rodapé; na barra inferior do mobile
    ela volta a ser um ícone. */
 @media (min-width: 769px) {
-    .botoesL a[href="conta.html"] { display: none; }
+    .botoesL a[href="conta.php"] { display: none; }
 }
 
 /* ---- Rodapé: conta do usuário ---- */
@@ -575,6 +575,9 @@ body.saindo .contMeio {
 @media (prefers-reduced-motion: reduce) {
     .contMeio,
     body.saindo .contMeio { animation: none; }
+    /* quem pediu menos movimento vê o modal já aberto, sem o fade */
+    .modal.open,
+    .anim-in { animation: none; }
 }
 
 /* ============================================================
@@ -937,3 +940,54 @@ a.ini-card:hover .ini-card__ico {
 @media (prefers-reduced-motion: reduce) {
     .esqueleto { animation: none; }
 }
+
+/* ============================================================
+   PEÇAS COMPARTILHADAS
+   Estas classes eram definidas no conta.css e por isso só
+   funcionavam naquela aba — mas o modal de confirmação
+   (partes/modal-confirma.php), as mensagens de feedback e o
+   botão de ação destrutiva são usados por várias páginas.
+   Regra do projeto: o que mais de uma aba usa vive aqui.
+   ============================================================ */
+
+/* Mensagem de feedback (sucesso / erro) */
+.msg {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: .875rem;
+    font-weight: 500;
+}
+.msg--sucesso {
+    background: rgba(52, 211, 153, .15);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, .25);
+}
+.msg--erro {
+    background: rgba(239, 68, 68, .15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, .25);
+}
+
+/* Títulos internos de cartão/modal */
+.painel__titulo { font-size: 1.2rem; font-weight: 700; }
+.painel__sub {
+    color: var(--text-dim);
+    font-size: .92rem;
+    line-height: 1.55;
+    margin: 5px 0 20px;
+}
+
+/* Botão de ação destrutiva (apagar, sair, remover) */
+.dash-btn--danger {
+    background: rgba(239, 68, 68, .12);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, .3);
+}
+.dash-btn--danger:hover {
+    background: rgba(239, 68, 68, .2);
+    border-color: #f87171;
+    transform: translateY(-1px);
+}
+
+/* O modal de confirmação é estreito: é só uma pergunta */
+.modal__box--confirma { max-width: 400px; }

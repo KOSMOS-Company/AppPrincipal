@@ -1,154 +1,24 @@
 /* ============================================================
    KOSMOS — dashboard.js  (compartilhado por todas as abas)
-   Faz o papel de "porteiro": só deixa ver o dashboard quem
-   tiver sessão ativa no backend. Também preenche o nome real,
-   move o marcador do menu e cuida do botão de sair.
+   Só interação: move o marcador do menu, faz a transição entre
+   abas, o botão de sair e o brilho dos cartões.
+
+   Quem cuida de "pode ver esta página?" e de preencher nome,
+   avatar e preferências é o PHP (Backend/php/pagina_dashboard.php),
+   antes de a página sair do servidor. Por isso aqui não há mais
+   fetch de sessão nem cache no sessionStorage: a página já chega
+   pronta, sem o "pisca" que a versão em JS tinha.
    ============================================================ */
 
 // Caminho do backend a partir de /Frontend/pages/dashboard/
 const API = "../../../Backend/php";
 
 document.addEventListener("DOMContentLoaded", () => {
-    marcarLinkAtivo();
-    pintarDoCache();      // antes do fetch: evita a tela trocar de valor na sua frente
-    verificarSessao();
     ativarTransicoes();
     ativarMarcador();
     ativarSair();
     ativarBrilhoNosCards();
 });
-
-/* Marca o link ativo da sidebar com base no arquivo atual */
-function marcarLinkAtivo() {
-    const atual = location.pathname.split("/").pop() || "index.html";
-    document.querySelectorAll(".botoesL a").forEach((a) => {
-        const alvo = a.getAttribute("href");
-        a.classList.toggle("active", alvo === atual);
-    });
-
-    // no desktop o link Conta fica oculto: quem indica "você está aqui"
-    // é o cartão do rodapé
-    document.querySelector(".usuario")
-        ?.classList.toggle("ativa", atual === "conta.html");
-}
-
-/* ------------------------------------------------------------
-   Pinta o que já sabemos desta sessão do navegador ANTES da
-   resposta do servidor. Sem isso a página aparece com o texto
-   genérico do HTML e troca ~150ms depois — o que parecia
-   travamento (e, nos números, parecia "não salvou").
-   O fetch em seguida confirma ou corrige.
-   ------------------------------------------------------------ */
-function pintarDoCache() {
-    try {
-        const nome = sessionStorage.getItem("kosmos_usuario");
-        if (nome) aplicarUsuario(nome);
-
-        const cor = sessionStorage.getItem("kosmos_avatar_cor");
-        if (cor) aplicarCorAvatarSidebar(cor);
-
-        const foto = sessionStorage.getItem("kosmos_avatar_url");
-        if (foto) aplicarFotoSidebar(foto, sessionStorage.getItem("kosmos_avatar_pos"));
-    } catch (err) {
-        /* sem sessionStorage (aba privada): segue o fluxo normal */
-    }
-}
-
-/* Escreve o nome nos três lugares que o usam e tira o esqueleto */
-function aplicarUsuario(nome) {
-    const primeiro = (nome || "").trim().split(" ")[0];
-    const inicial = (nome || "").trim().charAt(0).toUpperCase() || "?";
-
-    document.querySelectorAll("[data-usuario]").forEach((el) => {
-        el.textContent = nome;
-        el.classList.remove("esqueleto", "esqueleto--largo");
-    });
-    document.querySelectorAll("[data-usuario-primeiro]").forEach((el) => {
-        el.textContent = primeiro;
-        el.classList.remove("esqueleto", "esqueleto--largo");
-    });
-    document.querySelectorAll("[data-usuario-inicial]").forEach((el) => {
-        el.textContent = inicial;
-    });
-}
-
-function aplicarCorAvatarSidebar(cor) {
-    document.querySelectorAll(".usuario__avatar").forEach((el) => {
-        [...el.classList].forEach((c) => {
-            if (c.startsWith("avatar-cor--")) el.classList.remove(c);
-        });
-        el.classList.add("avatar-cor--" + cor);
-    });
-}
-
-/* pos = "20% 80%" (enquadramento escolhido na aba Conta) */
-function aplicarFotoSidebar(url, pos) {
-    document.querySelectorAll(".usuario__avatar").forEach((el) => {
-        el.style.backgroundImage = `url("${url}")`;
-        if (pos) el.style.backgroundPosition = pos;
-        el.classList.add("avatar--foto");
-    });
-}
-
-/* Pergunta ao servidor "quem sou eu?".
-   - 401  -> não logado: volta para o login
-   - 200  -> logado: mostra o nome real do usuário */
-async function verificarSessao() {
-    try {
-        const resposta = await fetch(`${API}/usuario_atual.php`);
-
-        if (!resposta.ok) {
-            // Sem sessão válida: expulsa para o login
-            window.location.replace("../login/index.html");
-            return;
-        }
-
-        const json = await resposta.json();
-
-        // Conta criada pelo Google que ainda não definiu senha: manda
-        // criar antes de usar o app (sem senha ela nunca conseguiria
-        // entrar por e-mail e senha).
-        if (json.tem_senha === false) {
-            window.location.replace("../login/criar-senha.html");
-            return;
-        }
-
-        // Guarda para a próxima carga pintar na hora (ver pintarDoCache)
-        sessionStorage.setItem("kosmos_usuario", json.nome);
-        if (json.avatar_cor) sessionStorage.setItem("kosmos_avatar_cor", json.avatar_cor);
-        const pos = json.avatar_pos
-            ? json.avatar_pos.x + "% " + json.avatar_pos.y + "%"
-            : null;
-        if (json.avatar_url) {
-            sessionStorage.setItem("kosmos_avatar_url", json.avatar_url);
-            if (pos) sessionStorage.setItem("kosmos_avatar_pos", pos);
-        } else {
-            sessionStorage.removeItem("kosmos_avatar_url");
-            sessionStorage.removeItem("kosmos_avatar_pos");
-        }
-
-        aplicarUsuario(json.nome);
-
-        if (json.avatar_cor) aplicarCorAvatarSidebar(json.avatar_cor);
-
-        // sem foto salva, garante que não sobrou imagem do cache
-        if (json.avatar_url) {
-            aplicarFotoSidebar(json.avatar_url, pos);
-        } else {
-            document.querySelectorAll(".usuario__avatar").forEach((el) => {
-                el.style.backgroundImage = "";
-                el.classList.remove("avatar--foto");
-            });
-        }
-
-        // Avisa os scripts de página (ex.: inicio.js) que o usuário chegou,
-        // para não precisarem repetir o fetch de usuario_atual.php.
-        document.dispatchEvent(new CustomEvent("kosmos:usuario", { detail: json }));
-    } catch (err) {
-        // Backend fora do ar (ex.: abriu sem XAMPP). Volta ao login.
-        window.location.replace("../login/index.html");
-    }
-}
 
 /* ------------------------------------------------------------
    Marcador do menu: um retângulo que desliza entre os itens.
@@ -246,6 +116,55 @@ function ativarBrilhoNosCards() {
         atual = null;
         proximo = null;
     });
+}
+
+/* ------------------------------------------------------------
+   Confirmação (compartilhada por todas as abas)
+   Abre a mini tela e devolve uma promessa: true se a pessoa
+   confirmou, false se desistiu. Use antes de qualquer ação que
+   mexa em algo de verdade — apagar um resumo, remover a foto,
+   encerrar as outras sessões, sair da conta.
+   O HTML do modal vem de partes/modal-confirma.php; se a página
+   não o incluir, confirmar() devolve true e não trava a ação.
+   ------------------------------------------------------------ */
+function confirmar({ titulo, texto, botao = "Confirmar", perigo = false }) {
+    const modal = document.getElementById("modalConfirma");
+    const sim = document.getElementById("confirmaSim");
+    const nao = document.getElementById("confirmaNao");
+    const fechar = document.getElementById("confirmaFechar");
+
+    // sem o modal na página (outra aba), não trava a ação
+    if (!modal || !sim) return Promise.resolve(true);
+
+    texto_(titulo, texto, botao, perigo);
+    modal.classList.add("open");
+    sim.focus();
+
+    return new Promise((resolve) => {
+        const encerrar = (resposta) => {
+            modal.classList.remove("open");
+            sim.onclick = null;
+            nao.onclick = null;
+            fechar.onclick = null;
+            modal.onclick = null;
+            document.removeEventListener("keydown", noEsc);
+            resolve(resposta);
+        };
+        const noEsc = (e) => { if (e.key === "Escape") encerrar(false); };
+
+        sim.onclick = () => encerrar(true);
+        nao.onclick = () => encerrar(false);
+        fechar.onclick = () => encerrar(false);
+        modal.onclick = (e) => { if (e.target === modal) encerrar(false); };
+        document.addEventListener("keydown", noEsc);
+    });
+
+    function texto_(t, msgTexto, rotulo, ehPerigo) {
+        document.getElementById("confirmaTitulo").textContent = t;
+        document.getElementById("confirmaTexto").textContent = msgTexto;
+        sim.textContent = rotulo;
+        sim.className = "dash-btn " + (ehPerigo ? "dash-btn--danger" : "dash-btn--primary");
+    }
 }
 
 /* ------------------------------------------------------------
