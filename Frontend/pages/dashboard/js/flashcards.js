@@ -31,13 +31,36 @@ let decks = [
 ];
 
 // ---- Visões ----
-const viewDecks  = document.getElementById("viewDecks");
-const viewEstudo = document.getElementById("viewEstudo");
-const decksGrid  = document.getElementById("decksGrid");
+const viewDecks   = document.getElementById("viewDecks");
+const viewEstudo  = document.getElementById("viewEstudo");
+const decksGrid   = document.getElementById("decksGrid");
+const filtrosDecks = document.getElementById("filtrosDecks");
+
+let filtroAtual = "todos";
+
+function renderFiltrosDecks() {
+    const materias = [...new Set(decks.map((d) => d.materia))].sort();
+
+    filtrosDecks.querySelectorAll(".chip").forEach((c) => c.remove());
+    filtrosDecks.appendChild(criarDeckChip("todos", "Todos"));
+    materias.forEach((m) => filtrosDecks.appendChild(criarDeckChip(m, m)));
+}
+
+function criarDeckChip(materia, texto) {
+    const chip = document.createElement("button");
+    chip.className = "chip" + (filtroAtual === materia ? " active" : "");
+    chip.dataset.materia = materia;
+    chip.textContent = texto;
+    return chip;
+}
 
 function renderDecks() {
+    const lista = decks
+        .map((d, idx) => ({ ...d, _idx: idx }))
+        .filter((d) => filtroAtual === "todos" || d.materia === filtroAtual);
+
     decksGrid.innerHTML = "";
-    decks.forEach((d, i) => {
+    lista.forEach((d, i) => {
         const card = document.createElement("article");
         card.className = "deck-card anim-in";
         card.style.animationDelay = `${i * 0.05}s`;
@@ -45,7 +68,7 @@ function renderDecks() {
             <span class="materia-tag">${d.materia}</span>
             <h3 class="deck-card__nome">${d.nome}</h3>
             <span class="deck-card__qtd"><strong>${d.cartoes.length}</strong> cartões</span>
-            <button class="dash-btn dash-btn--ghost" data-deck="${i}" ${d.cartoes.length ? "" : "disabled"}>
+            <button class="dash-btn dash-btn--ghost" data-deck="${d._idx}" ${d.cartoes.length ? "" : "disabled"}>
                 Estudar
             </button>`;
         decksGrid.appendChild(card);
@@ -55,6 +78,17 @@ function renderDecks() {
 decksGrid.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-deck]");
     if (btn) iniciarEstudo(+btn.dataset.deck);
+});
+
+// Filtros
+filtrosDecks.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    filtroAtual = chip.dataset.materia;
+    filtrosDecks.querySelectorAll(".chip").forEach((c) =>
+        c.classList.toggle("active", c === chip)
+    );
+    renderDecks();
 });
 
 // ---- Modo de estudo ----
@@ -121,9 +155,12 @@ document.getElementById("formDeck").addEventListener("submit", (e) => {
     const materia = document.getElementById("materiaDeck").value;
     if (!nome) return;
     decks.unshift({ nome, materia, cartoes: [] });
+    filtroAtual = "todos";
+    renderFiltrosDecks();
     e.target.reset();
     fechar();
     renderDecks();
 });
 
+renderFiltrosDecks();
 renderDecks();

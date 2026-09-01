@@ -22,6 +22,22 @@ const grid    = document.getElementById("grid");
 const vazio   = document.getElementById("vazio");
 const filtros = document.getElementById("filtros");
 
+function renderFiltros() {
+    const materias = [...new Set(resumos.map((r) => r.materia))].sort();
+
+    filtros.querySelectorAll(".chip").forEach((c) => c.remove());
+    filtros.appendChild(criarChip("todos", "Todos"));
+    materias.forEach((m) => filtros.appendChild(criarChip(m, m)));
+}
+
+function criarChip(materia, texto) {
+    const chip = document.createElement("button");
+    chip.className = "chip" + (filtroAtual === materia ? " active" : "");
+    chip.dataset.materia = materia;
+    chip.textContent = texto;
+    return chip;
+}
+
 function render() {
     const lista = resumos.filter(
         (r) => filtroAtual === "todos" || r.materia === filtroAtual
@@ -52,9 +68,10 @@ function render() {
 filtros.addEventListener("click", (e) => {
     const chip = e.target.closest(".chip");
     if (!chip) return;
-    filtros.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
-    chip.classList.add("active");
     filtroAtual = chip.dataset.materia;
+    filtros.querySelectorAll(".chip").forEach((c) =>
+        c.classList.toggle("active", c === chip)
+    );
     render();
 });
 
@@ -76,14 +93,13 @@ document.getElementById("formNovo").addEventListener("submit", (e) => {
 
     resumos.unshift({ titulo, materia, data: "hoje" });
     // mostra a matéria recém-criada
-    filtros.querySelectorAll(".chip").forEach((c) =>
-        c.classList.toggle("active", c.dataset.materia === "todos")
-    );
     filtroAtual = "todos";
+    renderFiltros();
 
     e.target.reset();
     fechar();
     render();
 });
 
+renderFiltros();
 render();

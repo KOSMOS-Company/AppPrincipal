@@ -360,36 +360,66 @@ progress::-webkit-progress-value {
 }
 
 /* Chips de filtro */
-.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+.chips { display: flex; flex-wrap: wrap; column-gap: 6px; row-gap: 10px; margin-bottom: 28px; }
 .chip {
-    font-size: .85rem;
+    position: relative;
+    font-family: "DM Sans", sans-serif;
+    font-size: .82rem;
     font-weight: 500;
-    color: var(--text-dim);
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.1);
-    padding: 8px 16px;
-    border-radius: 100px;
+    letter-spacing: .02em;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    padding: 4px 6px 9px;
     cursor: pointer;
     transition: var(--transition);
     white-space: nowrap;
 }
-.chip:hover { color: #fff; border-color: rgba(165,65,255,.4); }
-.chip.active { background: rgba(165,65,255,.15); color: var(--accent-lt); border-color: rgba(165,65,255,.4); }
+.chip::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-lt));
+    transform: translateX(-50%);
+    transition: width .3s cubic-bezier(.4,0,.2,1);
+}
+.chip:hover { color: var(--text-dim); }
+.chip:hover::after { width: 60%; }
+.chip.active { color: var(--text); }
+.chip.active::after {
+    width: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-lt));
+    box-shadow: 0 0 12px rgba(165,65,255,.5);
+}
 
 /* Tag de matéria */
 .materia-tag {
     display: inline-flex;
     align-items: center;
+    gap: 8px;
     align-self: flex-start;      /* em card flex-column, senao estica a largura toda */
+    font-family: "DM Sans", sans-serif;
     font-size: .72rem;
-    font-weight: 600;
-    letter-spacing: .04em;
+    font-weight: 500;
+    letter-spacing: .08em;
     text-transform: uppercase;
-    color: var(--accent);
-    background: rgba(165,65,255,.1);
-    border: 1px solid rgba(165,65,255,.22);
-    padding: 4px 10px;
-    border-radius: 100px;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    padding: 0;
+}
+.materia-tag::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-lt));
+    box-shadow: 0 0 8px rgba(165,65,255,.45);
+    flex-shrink: 0;
 }
 
 /* Estado vazio */
@@ -744,14 +774,16 @@ a.ini-card:hover .ini-card__ico {
     line-height: 1.6;
 }
 .ini-tag {
-    font-size: .72rem;
-    font-weight: 600;
-    letter-spacing: .08em;
+    font-family: "Syne", sans-serif;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .12em;
     text-transform: uppercase;
-    color: var(--accent);
-    background: rgba(165,65,255,.1);
-    padding: 4px 10px;
-    border-radius: 100px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--purple-md), var(--accent));
+    padding: 3px 9px;
+    border-radius: 6px;
+    box-shadow: 0 0 14px rgba(165,65,255,.35), inset 0 1px 0 rgba(255,255,255,.15);
 }
 
 /* ---- Duas colunas: semana + primeiros passos ---- */
