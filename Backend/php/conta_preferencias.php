@@ -13,6 +13,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/avatar_util.php';
+require_once __DIR__ . '/materias.php';
 
 $usuario = exigirLogin();
 $id      = (int) $usuario['id'];
@@ -31,10 +32,10 @@ const PREF_PADRAO = [
     'notif_resumo'     => 0,
 ];
 
-// Listas fechadas: nada que venha do navegador entra sem passar por aqui
-const CORES_AVATAR = ['roxo', 'azul', 'verde', 'laranja', 'rosa', 'ciano'];
-const MATERIAS_OK  = ['Matemática', 'Física', 'Química', 'Biologia', 'História', 'Português',
-                      'Geografia', 'Filosofia', 'Sociologia', 'Inglês', 'Redação'];
+// Listas fechadas (vêm de materias.php, a mesma que a página usa para
+// desenhar os chips): nada que venha do navegador entra sem passar aqui
+const CORES_AVATAR = CORES_AVATAR_KOSMOS;
+const MATERIAS_OK  = MATERIAS_KOSMOS;
 
 /** Mantém um número dentro de um intervalo, com fallback se vier lixo. */
 function faixa($valor, int $min, int $max, int $padrao): int {

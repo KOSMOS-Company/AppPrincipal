@@ -170,7 +170,7 @@
                 const json = await resp.json();
 
                 if (json.ok && json.tem_senha) {
-                    window.location.replace('../dashboard/index.html');
+                    window.location.replace('../dashboard/index.php');
                     return;
                 }
 
@@ -239,7 +239,7 @@
 
                 if (json.ok) {
                     form.style.display = 'none';
-                    setTimeout(() => { window.location.replace('../dashboard/index.html'); }, 1400);
+                    setTimeout(() => { window.location.replace('../dashboard/index.php'); }, 1400);
                     return;
                 }
             } catch (err) {

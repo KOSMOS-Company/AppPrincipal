@@ -1,3 +1,8 @@
+<?php
+// Porteiro + dados desta página (sem sessão, redireciona antes de
+// mandar qualquer HTML). Deixa $USUARIO, $PREF e $PAGINA prontos.
+require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
+?>
 ﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -84,61 +89,7 @@
     <div class="contGeral">
 
         <!-- Sidebar (Lateral) -->
-        <aside class="contLateral">
-            <a class="contLogo" href="index.html">
-                <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
-            </a>
-
-            <nav class="botoesL" aria-label="Navegação principal">
-                <!-- marcador que desliza entre os itens (posicionado pelo dashboard.js) -->
-                <span class="nav__marca" aria-hidden="true"></span>
-
-                <a href="index.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Início
-                </a>
-
-                <span class="nav__grupo">Estudar</span>
-                <a href="resumos.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Resumos
-                </a>
-                <a href="flashcards.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Flashcards
-                </a>
-                <a href="exercicios.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Exercícios
-                </a>
-
-                <span class="nav__grupo">Foco</span>
-                <a href="pomodoro.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Pomodoro
-                </a>
-
-                <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile -->
-                <a href="conta.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Conta
-                </a>
-            </nav>
-
-            <div class="contUsuario">
-                <a class="usuario" href="conta.html">
-                    <span class="usuario__avatar" data-usuario-inicial aria-hidden="true">E</span>
-                    <span class="usuario__info">
-                        <strong data-usuario class="esqueleto"></strong>
-                        <span>Ver conta</span>
-                    </span>
-                </a>
-                <button class="usuario__sair" type="button"
-                        title="Sair da conta" aria-label="Sair da conta">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5 H18 a1 1 0 0 1 1 1 V18 a1 1 0 0 1 -1 1 H15 M10 8 L6 12 L10 16 M6 12 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
-        </aside>
+        <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
         <!-- Main Content (Meio) -->
         <main class="contMeio pagina-inicio">
@@ -152,7 +103,7 @@
                 <span class="ini-data" id="iniData">Hoje</span>
                 <h1 class="ini-hero__titulo">
                     <span id="iniSaudacao">Bem-vindo</span>,
-                    <span class="ini-hero__nome" data-usuario-primeiro>Estudante</span>.
+                    <span class="ini-hero__nome"><?= hesc($USUARIO['primeiro']) ?></span>.
                 </h1>
                 <p class="ini-hero__desc">
                     Suas ferramentas de estudo em um só lugar. Escolha por onde começar
@@ -160,28 +111,28 @@
                 </p>
 
                 <div class="ini-hero__cta">
-                    <a href="pomodoro.html" class="dash-btn dash-btn--primary">
+                    <a href="pomodoro.php" class="dash-btn dash-btn--primary">
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Iniciar foco
                     </a>
-                    <a href="resumos.html" class="dash-btn dash-btn--ghost">Escrever um resumo</a>
+                    <a href="resumos.php" class="dash-btn dash-btn--ghost">Escrever um resumo</a>
                 </div>
 
                 <!-- Só a sequência é um número real hoje; os outros esperam
                      a persistência (ver js/inicio.js). -->
                 <div class="ini-stats" aria-label="Seus números">
-                    <div class="ini-stat">
-                        <strong data-metrica="sequencia">—</strong>
-                        <span>dias de sequência</span>
+                    <div class="ini-stat<?= $USUARIO['sequencia'] === 0 ? ' ini-stat--vazio' : '' ?>">
+                        <strong data-metrica="sequencia"><?= (int) $USUARIO['sequencia'] ?></strong>
+                        <span><?= $USUARIO['sequencia'] === 1 ? 'dia de sequência' : 'dias de sequência' ?></span>
                     </div>
                     <i class="ini-stat__div" aria-hidden="true"></i>
-                    <div class="ini-stat ini-stat--vazio">
-                        <strong data-metrica="resumos">—</strong>
-                        <span>resumos</span>
+                    <div class="ini-stat<?= $USUARIO['resumos'] === 0 ? ' ini-stat--vazio' : '' ?>">
+                        <strong data-metrica="resumos"><?= $USUARIO['resumos'] > 0 ? (int) $USUARIO['resumos'] : '—' ?></strong>
+                        <span><?= $USUARIO['resumos'] === 1 ? 'resumo' : 'resumos' ?></span>
                     </div>
                     <i class="ini-stat__div" aria-hidden="true"></i>
-                    <div class="ini-stat ini-stat--vazio">
-                        <strong data-metrica="flashcards">—</strong>
+                    <div class="ini-stat<?= $USUARIO['cartoes'] === 0 ? ' ini-stat--vazio' : '' ?>">
+                        <strong data-metrica="flashcards"><?= $USUARIO['cartoes'] > 0 ? (int) $USUARIO['cartoes'] : '—' ?></strong>
                         <span>flashcards</span>
                     </div>
                     <i class="ini-stat__div" aria-hidden="true"></i>
@@ -201,7 +152,7 @@
                 <h2 class="section-title">O que você quer fazer <em>agora</em>?</h2>
 
                 <div class="ini-grid">
-                    <a class="ini-card" href="resumos.html">
+                    <a class="ini-card" href="resumos.php">
                         <span class="ini-card__ico" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </span>
@@ -209,7 +160,7 @@
                         <p class="ini-card__desc">Escreva com suas palavras o que acabou de estudar.</p>
                     </a>
 
-                    <a class="ini-card" href="flashcards.html">
+                    <a class="ini-card" href="flashcards.php">
                         <span class="ini-card__ico" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </span>
@@ -217,7 +168,7 @@
                         <p class="ini-card__desc">Revise por repetição: pergunta na frente, resposta atrás.</p>
                     </a>
 
-                    <a class="ini-card" href="exercicios.html">
+                    <a class="ini-card" href="exercicios.php">
                         <span class="ini-card__ico" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none"><path d="M5 7 H19 M5 12 H19 M5 17 H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </span>
@@ -225,7 +176,7 @@
                         <p class="ini-card__desc">Questões geradas na hora, na matéria e no nível que quiser.</p>
                     </a>
 
-                    <a class="ini-card" href="pomodoro.html">
+                    <a class="ini-card" href="pomodoro.php">
                         <span class="ini-card__ico" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
@@ -269,7 +220,7 @@
                                         aria-label="Marcar como feito: criar seu primeiro resumo">
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 </button>
-                                <a class="ini-passo__link" href="resumos.html">
+                                <a class="ini-passo__link" href="resumos.php">
                                     <strong>Criar seu primeiro resumo</strong>
                                     <span>Comece pela matéria que você viu hoje.</span>
                                 </a>
@@ -279,7 +230,7 @@
                                         aria-label="Marcar como feito: montar um baralho de flashcards">
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 </button>
-                                <a class="ini-passo__link" href="flashcards.html">
+                                <a class="ini-passo__link" href="flashcards.php">
                                     <strong>Montar um baralho</strong>
                                     <span>Transforme o resumo em perguntas curtas.</span>
                                 </a>
@@ -289,7 +240,7 @@
                                         aria-label="Marcar como feito: fazer uma sessão de foco">
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 </button>
-                                <a class="ini-passo__link" href="pomodoro.html">
+                                <a class="ini-passo__link" href="pomodoro.php">
                                     <strong>Fazer 25 minutos de foco</strong>
                                     <span>Um ciclo de Pomodoro já conta para a sequência.</span>
                                 </a>

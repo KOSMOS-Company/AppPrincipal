@@ -221,32 +221,9 @@
 }
 .switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---- Mensagem de feedback (sucesso / erro) ---- */
-.msg {
-    padding: 10px 14px;
-    border-radius: var(--radius-sm);
-    font-size: .875rem;
-    font-weight: 500;
-}
-.msg--sucesso {
-    background: rgba(52, 211, 153, .15);
-    color: #34d399;
-    border: 1px solid rgba(52, 211, 153, .25);
-}
-.msg--erro {
-    background: rgba(239, 68, 68, .15);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, .25);
-}
-
-/* ---- Títulos internos ---- */
-.painel__titulo { font-size: 1.2rem; font-weight: 700; }
-.painel__sub {
-    color: var(--text-dim);
-    font-size: .92rem;
-    line-height: 1.55;
-    margin: 5px 0 20px;
-}
+/* .msg, .painel__titulo, .painel__sub, .dash-btn--danger e
+   .modal__box--confirma agora vivem no dashboard.css: mais de uma
+   aba usa essas peças. */
 .conta-nota {
     margin-top: 18px;
     font-size: .82rem;
@@ -268,16 +245,7 @@
 .conta-perigo { border-color: rgba(239, 68, 68, .28); }
 .conta-perigo .painel__titulo { color: #f87171; }
 
-.dash-btn--danger {
-    background: rgba(239, 68, 68, .12);
-    color: #f87171;
-    border-color: rgba(239, 68, 68, .3);
-}
-.dash-btn--danger:hover {
-    background: rgba(239, 68, 68, .2);
-    border-color: #f87171;
-    transform: translateY(-1px);
-}
+
 
 /* ---- Responsivo ---- */
 @media (max-width: 900px) {
@@ -436,5 +404,4 @@
 }
 .conta-pendente svg { width: 17px; height: 17px; flex: 0 0 auto; }
 
-/* O modal de confirmação é estreito: é só uma pergunta */
-.modal__box--confirma { max-width: 400px; }
+

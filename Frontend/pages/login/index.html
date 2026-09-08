@@ -187,7 +187,7 @@
                 if (json.ok) {
                     sessionStorage.setItem('kosmos_usuario', json.nome);
                     sessionStorage.setItem('kosmos_intro', '1'); // dispara o splash no dashboard
-                    setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 1200);
+                    setTimeout(() => { window.location.href = '../dashboard/index.php'; }, 1200);
                 }
             } catch (err) {
                 mostrarMsg('Nao foi possivel conectar ao servidor. Verifique se o XAMPP esta rodando.', 'erro');
@@ -220,7 +220,7 @@
                     // Conta do Google ainda sem senha: cria a senha antes de entrar
                     const destino = json.precisa_senha
                         ? 'criar-senha.html'
-                        : '../dashboard/index.html';
+                        : '../dashboard/index.php';
                     setTimeout(() => { window.location.href = destino; }, 1000);
                 }
             } catch (err) {

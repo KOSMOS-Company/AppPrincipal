@@ -1,3 +1,29 @@
+<?php
+// Porteiro + dados desta página (sem sessão, redireciona antes de
+// mandar qualquer HTML). Deixa $USUARIO, $PREF e $PAGINA prontos.
+require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
+
+/* Datas em pt-br, montadas pelos números para não escorregar de dia
+   (o projeto tem PHP e MySQL em fusos diferentes). */
+function dataBonita(?string $sql): string {
+    if (!$sql) return '—';
+    if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $sql, $p)) return '—';
+    $meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+              'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    return ((int) $p[3]) . ' de ' . $meses[((int) $p[2]) - 1] . ' de ' . $p[1];
+}
+
+// avatar grande: cor, e a foto no enquadramento salvo (se existir)
+$avatarClasse = 'conta-avatar avatar-cor--' . hesc($PREF['avatar_cor']);
+$avatarStyle  = '';
+if (!empty($PREF['avatar_url'])) {
+    $avatarClasse .= ' avatar--foto';
+    $avatarStyle   = 'background-image:url(&quot;' . hesc($PREF['avatar_url']) . '&quot;);'
+                   . 'background-position:' . (int) $PREF['avatar_pos_x'] . '% '
+                   . (int) $PREF['avatar_pos_y'] . '%;';
+}
+$temFoto = !empty($PREF['avatar_url']);
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -24,64 +50,15 @@
     <div class="contGeral">
 
         <!-- Sidebar -->
-        <aside class="contLateral">
-            <a class="contLogo" href="index.html">
-                <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
-            </a>
-
-            <nav class="botoesL" aria-label="Navegação principal">
-                <!-- marcador que desliza entre os itens (posicionado pelo dashboard.js) -->
-                <span class="nav__marca" aria-hidden="true"></span>
-
-                <a href="index.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Início
-                </a>
-
-                <span class="nav__grupo">Estudar</span>
-                <a href="resumos.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Resumos
-                </a>
-                <a href="flashcards.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Flashcards
-                </a>
-                <a href="exercicios.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Exercícios
-                </a>
-
-                <span class="nav__grupo">Foco</span>
-                <a href="pomodoro.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Pomodoro
-                </a>
-
-                <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile -->
-                <a href="conta.html">
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Conta
-                </a>
-            </nav>
-
-            <div class="contUsuario">
-                <a class="usuario" href="conta.html">
-                    <span class="usuario__avatar" data-usuario-inicial aria-hidden="true">E</span>
-                    <span class="usuario__info">
-                        <strong data-usuario class="esqueleto"></strong>
-                        <span>Ver conta</span>
-                    </span>
-                </a>
-                <button class="usuario__sair" type="button"
-                        title="Sair da conta" aria-label="Sair da conta">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5 H18 a1 1 0 0 1 1 1 V18 a1 1 0 0 1 -1 1 H15 M10 8 L6 12 L10 16 M6 12 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
-        </aside>
+        <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
         <!-- Main -->
-        <main class="contMeio pagina-conta">
+        <main class="contMeio pagina-conta"
+              data-tem-senha="<?= $USUARIO['tem_senha'] ? '1' : '0' ?>"
+              data-tem-google="<?= $USUARIO['tem_google'] ? '1' : '0' ?>"
+              data-avatar-url="<?= hesc((string) $PREF['avatar_url']) ?>"
+              data-avatar-pos-x="<?= (int) $PREF['avatar_pos_x'] ?>"
+              data-avatar-pos-y="<?= (int) $PREF['avatar_pos_y'] ?>">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <span class="section-tag">Sua conta</span>
@@ -136,11 +113,11 @@
                     <section class="conta-secao" data-painel="perfil">
                         <div class="ini-card conta-cartao">
                             <div class="conta-perfil__topo">
-                                <div class="conta-avatar" id="contaAvatar">?</div>
+                                <div class="<?= $avatarClasse ?>" id="contaAvatar" style="<?= $avatarStyle ?>"><?= hesc($USUARIO['inicial']) ?></div>
                                 <div class="conta-perfil__info">
-                                    <h3 id="contaNome" data-usuario class="esqueleto esqueleto--largo"></h3>
-                                    <p id="contaEmail" class="esqueleto esqueleto--largo"></p>
-                                    <span class="conta-membro esqueleto" id="contaMembro"></span>
+                                    <h3 id="contaNome"><?= hesc($USUARIO['nome']) ?></h3>
+                                    <p id="contaEmail"><?= hesc($USUARIO['email']) ?></p>
+                                    <span class="conta-membro" id="contaMembro">Membro desde <?= dataBonita($USUARIO['criado_em']) ?></span>
                                 </div>
                             </div>
 
@@ -154,11 +131,11 @@
                                         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 14V5m0 0L6.5 8.5M10 5l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16.5h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                                         Enviar foto
                                     </button>
-                                    <button type="button" class="dash-btn dash-btn--ghost" id="btnAjustarFoto" hidden>
+                                    <button type="button" class="dash-btn dash-btn--ghost" id="btnAjustarFoto"<?= $temFoto ? '' : ' hidden' ?>>
                                         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10a6 6 0 1 0 12 0 6 6 0 0 0-12 0Z" stroke="currentColor" stroke-width="1.6"/><path d="M8 8.5h4M8 11.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
                                         Ajustar posição
                                     </button>
-                                    <button type="button" class="dash-btn dash-btn--outline" id="btnRemoverFoto" hidden>
+                                    <button type="button" class="dash-btn dash-btn--outline" id="btnRemoverFoto"<?= $temFoto ? '' : ' hidden' ?>>
                                         Remover foto
                                     </button>
                                     <span class="campo__dica">JPG, PNG ou WEBP, até 2 MB.</span>
@@ -171,17 +148,17 @@
                             </div>
 
                             <div class="conta-cores">
-                                <span class="conta-cores__rotulo" id="rotuloCores">Cor do seu avatar</span>
+                                <span class="conta-cores__rotulo" id="rotuloCores"><?= $temFoto ? 'Cor do avatar (usada quando não há foto)' : 'Cor do seu avatar' ?></span>
                                 <!-- lista fixa (a mesma whitelist do conta_preferencias.php):
                                      já vem no HTML para dar para clicar antes do servidor
                                      responder. O conta.js só marca a cor ativa. -->
                                 <div class="conta-cores__lista" id="listaCores">
-                                    <button type="button" class="conta-cor avatar-cor--roxo" data-cor="roxo" title="Usar a cor roxo" aria-label="Usar a cor roxo"></button>
-                                    <button type="button" class="conta-cor avatar-cor--azul" data-cor="azul" title="Usar a cor azul" aria-label="Usar a cor azul"></button>
-                                    <button type="button" class="conta-cor avatar-cor--verde" data-cor="verde" title="Usar a cor verde" aria-label="Usar a cor verde"></button>
-                                    <button type="button" class="conta-cor avatar-cor--laranja" data-cor="laranja" title="Usar a cor laranja" aria-label="Usar a cor laranja"></button>
-                                    <button type="button" class="conta-cor avatar-cor--rosa" data-cor="rosa" title="Usar a cor rosa" aria-label="Usar a cor rosa"></button>
-                                    <button type="button" class="conta-cor avatar-cor--ciano" data-cor="ciano" title="Usar a cor ciano" aria-label="Usar a cor ciano"></button>
+                                    <button type="button" class="conta-cor avatar-cor--roxo<?= $PREF['avatar_cor'] === 'roxo' ? ' ativa' : '' ?>" data-cor="roxo" title="Usar a cor roxo" aria-label="Usar a cor roxo"></button>
+                                    <button type="button" class="conta-cor avatar-cor--azul<?= $PREF['avatar_cor'] === 'azul' ? ' ativa' : '' ?>" data-cor="azul" title="Usar a cor azul" aria-label="Usar a cor azul"></button>
+                                    <button type="button" class="conta-cor avatar-cor--verde<?= $PREF['avatar_cor'] === 'verde' ? ' ativa' : '' ?>" data-cor="verde" title="Usar a cor verde" aria-label="Usar a cor verde"></button>
+                                    <button type="button" class="conta-cor avatar-cor--laranja<?= $PREF['avatar_cor'] === 'laranja' ? ' ativa' : '' ?>" data-cor="laranja" title="Usar a cor laranja" aria-label="Usar a cor laranja"></button>
+                                    <button type="button" class="conta-cor avatar-cor--rosa<?= $PREF['avatar_cor'] === 'rosa' ? ' ativa' : '' ?>" data-cor="rosa" title="Usar a cor rosa" aria-label="Usar a cor rosa"></button>
+                                    <button type="button" class="conta-cor avatar-cor--ciano<?= $PREF['avatar_cor'] === 'ciano' ? ' ativa' : '' ?>" data-cor="ciano" title="Usar a cor ciano" aria-label="Usar a cor ciano"></button>
                                 </div>
                             </div>
                         </div>
@@ -193,11 +170,11 @@
                                 <div class="conta-dupla">
                                     <div class="campo">
                                         <label for="nome">Nome completo</label>
-                                        <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo">
+                                        <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo" value="<?= hesc($USUARIO['nome']) ?>">
                                     </div>
                                     <div class="campo">
                                         <label for="email">E-mail</label>
-                                        <input id="email" name="email" type="email" autocomplete="email" placeholder="seu@email.com">
+                                        <input id="email" name="email" type="email" autocomplete="email" placeholder="seu@email.com" value="<?= hesc($USUARIO['email']) ?>">
                                     </div>
                                 </div>
                                 <div class="msg" id="msgPerfil" hidden></div>
@@ -241,19 +218,23 @@
                             <div class="conta-info">
                                 <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Método de acesso</span>
-                                    <span class="conta-info__valor esqueleto" id="contaProvedor"></span>
+                                    <span class="conta-info__valor" id="contaProvedor"><?= $USUARIO['tem_google'] ? 'Google' : 'E-mail e senha' ?></span>
                                 </div>
                                 <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Último acesso</span>
-                                    <span class="conta-info__valor esqueleto" id="contaUltimoAcesso"></span>
+                                    <span class="conta-info__valor" id="contaUltimoAcesso"><?= dataBonita($USUARIO['ultimo_acesso']) ?></span>
                                 </div>
                                 <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Sequência de dias</span>
-                                    <span class="conta-info__valor"><strong id="contaSequencia" class="esqueleto"></strong></span>
+                                    <span class="conta-info__valor"><strong id="contaSequencia"><?= (int) $USUARIO['sequencia'] ?> <?= $USUARIO['sequencia'] === 1 ? 'dia' : 'dias' ?></strong></span>
+                                </div>
+                                <div class="conta-info__linha">
+                                    <span class="conta-info__rotulo">Resumos escritos</span>
+                                    <span class="conta-info__valor"><strong id="contaResumos"><?= (int) $USUARIO['resumos'] ?></strong></span>
                                 </div>
                                 <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Baralhos e cartões</span>
-                                    <span class="conta-info__valor"><strong id="contaDecks" class="esqueleto"></strong> baralhos · <strong id="contaCartoes" class="esqueleto"></strong> cartões</span>
+                                    <span class="conta-info__valor"><strong id="contaDecks"><?= (int) $USUARIO['decks'] ?></strong> baralhos · <strong id="contaCartoes"><?= (int) $USUARIO['cartoes'] ?></strong> cartões</span>
                                 </div>
                             </div>
                         </div>
@@ -292,17 +273,17 @@
                             <div class="conta-dupla">
                                 <div class="campo">
                                     <label for="pomoFoco">Foco (min)</label>
-                                    <input id="pomoFoco" type="number" min="5" max="90" step="1" placeholder="25">
+                                    <input id="pomoFoco" type="number" min="5" max="90" step="1" placeholder="25" value="<?= (int) $PREF['pomo_foco'] ?>">
                                     <span class="campo__dica">entre 5 e 90</span>
                                 </div>
                                 <div class="campo">
                                     <label for="pomoPausa">Pausa curta (min)</label>
-                                    <input id="pomoPausa" type="number" min="1" max="30" step="1" placeholder="5">
+                                    <input id="pomoPausa" type="number" min="1" max="30" step="1" placeholder="5" value="<?= (int) $PREF['pomo_pausa'] ?>">
                                     <span class="campo__dica">entre 1 e 30</span>
                                 </div>
                                 <div class="campo">
                                     <label for="pomoPausaLonga">Pausa longa (min)</label>
-                                    <input id="pomoPausaLonga" type="number" min="5" max="60" step="1" placeholder="15">
+                                    <input id="pomoPausaLonga" type="number" min="5" max="60" step="1" placeholder="15" value="<?= (int) $PREF['pomo_pausa_longa'] ?>">
                                     <span class="campo__dica">entre 5 e 60</span>
                                 </div>
                             </div>
@@ -313,7 +294,7 @@
                             <p class="painel__sub">Quantos minutos por dia você quer estudar.</p>
                             <div class="campo" style="max-width:220px">
                                 <label for="metaDiaria">Minutos por dia</label>
-                                <input id="metaDiaria" type="number" min="10" max="600" step="5" placeholder="60">
+                                <input id="metaDiaria" type="number" min="10" max="600" step="5" placeholder="60" value="<?= (int) $PREF['meta_diaria'] ?>">
                                 <span class="campo__dica">entre 10 e 600</span>
                             </div>
                         </div>
@@ -322,7 +303,12 @@
                             <h2 class="painel__titulo">Matérias que você estuda</h2>
                             <p class="painel__sub">Escolha as suas — elas aparecem primeiro ao criar resumos, baralhos e exercícios.</p>
                             <!-- os chips são criados pelo conta.js com a lista do backend -->
-                            <div class="chips" id="chipsMaterias"></div>
+                            <div class="chips" id="chipsMaterias">
+<?php foreach (MATERIAS_KOSMOS as $materia):
+    $marcada = in_array($materia, $PREF['materias'], true); ?>
+                                <button type="button" class="chip<?= $marcada ? ' active' : '' ?>" aria-pressed="<?= $marcada ? 'true' : 'false' ?>"><?= hesc($materia) ?></button>
+<?php endforeach; ?>
+                            </div>
                         </div>
 
                         <div class="conta-acoes">
@@ -344,7 +330,7 @@
                                     <strong>Lembrete diário de estudo</strong>
                                     <span>Um empurrãozinho no fim do dia se você ainda não estudou.</span>
                                 </div>
-                                <button type="button" class="switch" id="swLembrete" role="switch" aria-checked="false"
+                                <button type="button" class="switch" id="swLembrete" role="switch" aria-checked="<?= $PREF['notif_lembrete'] ? 'true' : 'false' ?>"
                                         aria-label="Lembrete diário de estudo"></button>
                             </div>
 
@@ -353,7 +339,7 @@
                                     <strong>Resumo semanal</strong>
                                     <span>Quanto você estudou na semana e o que revisar na próxima.</span>
                                 </div>
-                                <button type="button" class="switch" id="swResumo" role="switch" aria-checked="false"
+                                <button type="button" class="switch" id="swResumo" role="switch" aria-checked="<?= $PREF['notif_resumo'] ? 'true' : 'false' ?>"
                                         aria-label="Resumo semanal por e-mail"></button>
                             </div>
 
@@ -431,26 +417,7 @@
         </main>
     </div>
 
-        <!-- ==========================================================
-             Confirmação genérica: usada por "remover foto", "sair de
-             todos os dispositivos", "sair da conta" e pela troca de
-             e-mail. O texto é preenchido pelo conta.js.
-             ========================================================== -->
-        <div class="modal" id="modalConfirma" role="dialog" aria-modal="true" aria-labelledby="confirmaTitulo">
-            <div class="modal__box modal__box--confirma">
-                <div class="modal__head">
-                    <h3 id="confirmaTitulo">Confirmar</h3>
-                    <button class="modal__close" type="button" id="confirmaFechar" aria-label="Fechar">&times;</button>
-                </div>
-
-                <p class="painel__sub" id="confirmaTexto"></p>
-
-                <div class="modal__actions">
-                    <button type="button" class="dash-btn dash-btn--outline" id="confirmaNao">Cancelar</button>
-                    <button type="button" class="dash-btn dash-btn--primary" id="confirmaSim">Confirmar</button>
-                </div>
-            </div>
-        </div>
+        <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
 
         <!-- ==========================================================
              Editor da foto de perfil: arraste a imagem para escolher
