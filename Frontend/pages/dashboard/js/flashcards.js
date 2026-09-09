@@ -322,11 +322,17 @@
         const c = cartaoAtual();
         const total = s.ordem.length;
 
+        // volta para a frente sem animar: com a transicao ligada o giro de
+        // retorno exibiria por um instante a resposta do novo cartao
+        flashcard.classList.add("sem-anim");
         flashcard.classList.remove("virada");   // sempre começa na frente
         avaliacao.hidden = true;
 
         $("#cardFrente").textContent = c.frente;
         $("#cardVerso").textContent  = c.verso;
+
+        void flashcard.offsetWidth;             // aplica o estado sem transicao
+        flashcard.classList.remove("sem-anim");
 
         const respondido = s.respostas.has(c.id);
         $("#estudoProgresso").textContent =

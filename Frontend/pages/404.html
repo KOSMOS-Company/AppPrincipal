@@ -11,6 +11,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/KOSMOS/AppPrincipal/Frontend/pages/shared/cursor.css">
+    <link rel="stylesheet" href="/KOSMOS/AppPrincipal/Frontend/pages/shared/mascote.css">
+    <script src="/KOSMOS/AppPrincipal/Frontend/pages/shared/mascote.js" defer></script>
     <style>
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         :root {
@@ -47,9 +49,8 @@
 
         .wrap { position:relative; z-index:1; max-width:520px; display:flex; flex-direction:column; align-items:center; }
 
-        /* Mascote */
-        .mascote { width:150px; margin-bottom:6px; animation:flutua 4.5s ease-in-out infinite; }
-        .mascote svg { width:100%; height:auto; display:block; }
+        /* Mascote (desenho + animações em shared/mascote.css) */
+        .mascote { --mascote-tam:186px; margin:-18px auto -6px; }
 
         .erro404 {
             font-family:'Syne',sans-serif; font-weight:800;
@@ -80,18 +81,17 @@
         .btn--ghost { background:transparent; color:var(--accent-lt); border:1px solid rgba(165,65,255,.4); }
         .btn--ghost:hover { background:rgba(165,65,255,.1); border-color:var(--accent); }
 
-        @keyframes flutua { 0%,100%{transform:translateY(0) rotate(-3deg);} 50%{transform:translateY(-12px) rotate(3deg);} }
         @keyframes orbFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-26px);} }
         @keyframes orbDrift { 0%,100%{transform:translate(0,0);} 50%{transform:translate(20px,-16px);} }
         @keyframes twinkle { 0%,100%{opacity:.25; transform:scale(.8);} 50%{opacity:.9; transform:scale(1.1);} }
 
         @media (prefers-reduced-motion: reduce) {
-            .mascote, .bg__orb--1, .bg__orb--2, .star { animation:none !important; }
+            .bg__orb--1, .bg__orb--2, .star { animation:none !important; }
         }
         @media (max-width:480px) {
             .actions { flex-direction:column; width:100%; }
             .btn { justify-content:center; width:100%; }
-            .mascote { width:120px; }
+            .mascote { --mascote-tam:148px; margin:-14px auto -4px; }
         }
     </style>
 </head>
@@ -108,30 +108,8 @@
     </div>
 
     <div class="wrap">
-        <!-- Mascote confuso -->
-        <div class="mascote" aria-hidden="true">
-            <svg viewBox="0 0 140 112">
-                <defs>
-                    <radialGradient id="corpo" cx="38%" cy="32%" r="80%">
-                        <stop offset="0%" stop-color="#5b1a8f"/>
-                        <stop offset="100%" stop-color="#2a0745"/>
-                    </radialGradient>
-                </defs>
-                <path d="M12 58 A58 16 0 0 1 128 58" fill="none" stroke="rgba(165,65,255,.45)" stroke-width="4" stroke-linecap="round"/>
-                <circle cx="70" cy="56" r="34" fill="url(#corpo)" stroke="rgba(165,65,255,.35)" stroke-width="1.5"/>
-                <circle cx="50" cy="42" r="5" fill="rgba(255,255,255,.07)"/>
-                <circle cx="90" cy="70" r="4" fill="rgba(255,255,255,.06)"/>
-                <!-- olhos (um deles em espiral de tontura) -->
-                <circle cx="59" cy="52" r="7.2" fill="#fff"/>
-                <circle cx="59" cy="52" r="3.3" fill="#12011f"/>
-                <circle cx="82" cy="52" r="7.2" fill="#fff"/>
-                <circle cx="82" cy="52" r="3.3" fill="#12011f"/>
-                <!-- boca confusa (ondinha) -->
-                <path d="M62 69 Q66 66 70 69 Q74 72 78 69" fill="none" stroke="#c97cff" stroke-width="2.2" stroke-linecap="round"/>
-                <path d="M12 58 A58 16 0 0 0 128 58" fill="none" stroke="#a541ff" stroke-width="4" stroke-linecap="round"/>
-                <path d="M118 22 l2.2 4.6 4.8 .7 -3.5 3.4 .8 4.8 -4.3-2.3 -4.3 2.3 .8-4.8 -3.5-3.4 4.8-.7z" fill="#c97cff"/>
-            </svg>
-        </div>
+        <!-- Mascote perdido: boca ondulada, cabeça tonta e "?" no ar -->
+        <div class="mascote" data-mascote data-mascote-humor="confuso" aria-hidden="true"></div>
 
         <div class="erro404">404</div>
         <span class="tag">Perdido no espaço</span>

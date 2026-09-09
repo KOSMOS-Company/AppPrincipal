@@ -32,6 +32,7 @@ $temFoto = !empty($PREF['avatar_url']);
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Conta</title>
     <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/pomodoro-aviso.css">
     <link rel="stylesheet" href="./css/conta.css">
     <link rel="stylesheet" href="./css/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
@@ -488,6 +489,7 @@ $temFoto = !empty($PREF['avatar_url']);
         </div>
 
     <script src="./js/dashboard.js"></script>
+    <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/conta.js"></script>
     <script src="./js/cursor.js"></script>
 </body>

@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
     <link rel="stylesheet" href="../shared/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
+    <link rel="stylesheet" href="../shared/mascote.css">
+    <script src="../shared/mascote.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
@@ -36,42 +38,9 @@
             <div class="form-shell">
             <div class="form-card">
 
-                <!-- Mascote: planetinha que segue o cursor e tapa os olhos na senha -->
-                <div class="mascote" id="mascote" aria-hidden="true">
-                    <svg class="mascote__svg" viewBox="0 0 140 112">
-                        <defs>
-                            <radialGradient id="mascoteCorpo" cx="38%" cy="32%" r="80%">
-                                <stop offset="0%" stop-color="#5b1a8f"/>
-                                <stop offset="100%" stop-color="#2a0745"/>
-                            </radialGradient>
-                        </defs>
-                        <!-- anel (parte de trás) -->
-                        <path d="M12 58 A58 16 0 0 1 128 58" fill="none" stroke="rgba(165,65,255,.45)" stroke-width="4" stroke-linecap="round"/>
-                        <!-- corpo -->
-                        <circle cx="70" cy="56" r="34" fill="url(#mascoteCorpo)" stroke="rgba(165,65,255,.35)" stroke-width="1.5"/>
-                        <!-- crateras -->
-                        <circle cx="50" cy="42" r="5" fill="rgba(255,255,255,.07)"/>
-                        <circle cx="90" cy="70" r="4" fill="rgba(255,255,255,.06)"/>
-                        <circle cx="56" cy="74" r="2.6" fill="rgba(255,255,255,.06)"/>
-                        <!-- olhos -->
-                        <g class="mascote__olho">
-                            <circle cx="59" cy="52" r="7.2" fill="#fff"/>
-                            <circle class="mascote__pupila" cx="59" cy="52" r="3.3" fill="#12011f"/>
-                            <rect class="mascote__palpebra" x="51" y="44.4" width="16" height="15.2" rx="7.6" fill="#3c1160"/>
-                        </g>
-                        <g class="mascote__olho">
-                            <circle cx="82" cy="52" r="7.2" fill="#fff"/>
-                            <circle class="mascote__pupila" cx="82" cy="52" r="3.3" fill="#12011f"/>
-                            <rect class="mascote__palpebra" x="74" y="44.4" width="16" height="15.2" rx="7.6" fill="#3c1160"/>
-                        </g>
-                        <!-- sorriso -->
-                        <path class="mascote__boca" d="M63 68 Q70.5 74 78 68" fill="none" stroke="#c97cff" stroke-width="2.2" stroke-linecap="round"/>
-                        <!-- anel (parte da frente) -->
-                        <path d="M12 58 A58 16 0 0 0 128 58" fill="none" stroke="#a541ff" stroke-width="4" stroke-linecap="round"/>
-                        <!-- estrelinha -->
-                        <path class="mascote__estrela" d="M118 22 l2.2 4.6 4.8 .7 -3.5 3.4 .8 4.8 -4.3-2.3 -4.3 2.3 .8-4.8 -3.5-3.4 4.8-.7z" fill="#c97cff"/>
-                    </svg>
-                </div>
+                <!-- Mascote: planetinha formado. Desenhado por shared/mascote.js:
+                     segue o cursor, pisca e tapa os olhos quando você digita a senha. -->
+                <div class="mascote" id="mascote" data-mascote aria-hidden="true"></div>
 
                 <div class="form-card__header">
                     <h2 class="form-card__title">Entre na sua conta</h2>
@@ -262,43 +231,8 @@
 
         /* ═══ Interações visuais (não alteram a lógica do formulário) ═══ */
 
-        /* --- Mascote: olhos seguem o cursor / fecham na senha --- */
-        (function () {
-            const mascote = document.getElementById('mascote');
-            if (!mascote) return;
-            const reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const ponteiroFino = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-            const pupilas = mascote.querySelectorAll('.mascote__pupila');
-            const senhaInput = document.getElementById('senha');
-
-            // olhos seguem o cursor
-            if (ponteiroFino && !reduzMovimento) {
-                document.addEventListener('mousemove', (e) => {
-                    if (mascote.classList.contains('mascote--fechado')) return;
-                    const r = mascote.getBoundingClientRect();
-                    const dx = e.clientX - (r.left + r.width / 2);
-                    const dy = e.clientY - (r.top + r.height / 2);
-                    const ang = Math.atan2(dy, dx);
-                    const dist = Math.min(2.8, Math.hypot(dx, dy) / 40);
-                    const tx = Math.cos(ang) * dist;
-                    const ty = Math.sin(ang) * dist;
-                    pupilas.forEach(p => { p.style.transform = 'translate(' + tx + 'px,' + ty + 'px)'; });
-                }, { passive: true });
-            }
-
-            // tapa os olhos enquanto digita a senha
-            senhaInput.addEventListener('focus', () => mascote.classList.add('mascote--fechado'));
-            senhaInput.addEventListener('blur', () => mascote.classList.remove('mascote--fechado'));
-
-            // piscadinha de vez em quando
-            if (!reduzMovimento) {
-                setInterval(() => {
-                    if (mascote.classList.contains('mascote--fechado')) return;
-                    mascote.classList.add('mascote--pisca');
-                    setTimeout(() => mascote.classList.remove('mascote--pisca'), 180);
-                }, 4200);
-            }
-        })();
+        /* --- Mascote: vive em shared/mascote.js (segue o cursor, pisca,
+               tapa os olhos na senha e sorri com o e-mail válido) --- */
 
         /* --- Check visual de e-mail válido --- */
         (function () {

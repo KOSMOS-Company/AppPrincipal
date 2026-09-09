@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Pomodoro</title>
     <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/pomodoro-aviso.css">
     <link rel="stylesheet" href="./css/pomodoro.css">
     <link rel="stylesheet" href="./css/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
@@ -77,6 +78,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     </div>
 
     <script src="./js/dashboard.js"></script>
+    <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/pomodoro.js"></script>
     <script src="./js/cursor.js"></script>
 </body>

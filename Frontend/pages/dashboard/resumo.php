@@ -51,6 +51,7 @@ if ($id > 0 && !$ERRO_BANCO) {
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title><?= $RESUMO ? hesc($RESUMO['titulo']) . ' — Kosmos' : 'Kosmos — Resumo' ?></title>
     <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/pomodoro-aviso.css">
     <link rel="stylesheet" href="./css/resumos.css">
     <link rel="stylesheet" href="./css/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
@@ -124,6 +125,7 @@ if ($id > 0 && !$ERRO_BANCO) {
 <?php endif; ?>
 
     <script src="./js/dashboard.js"></script>
+    <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/resumo-form.js"></script>
     <script src="./js/resumo.js"></script>
     <script src="./js/cursor.js"></script>

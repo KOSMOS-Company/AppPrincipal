@@ -1,0 +1,105 @@
+/* ============================================================
+   KOSMOS — pomodoro-aviso.css
+   Selo flutuante do Pomodoro em andamento. O elemento é criado
+   por js/pomodoro-aviso.js e vive no canto inferior direito de
+   qualquer aba do dashboard (menos a do próprio Pomodoro).
+   ============================================================ */
+
+.pomo-selo {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 60;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px 12px 16px;
+
+    border-radius: 999px;
+    border: 1px solid rgba(165, 65, 255, .45);
+    background: linear-gradient(135deg, rgba(47, 10, 75, .96) 0%, rgba(26, 2, 48, .96) 100%);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .5), 0 0 28px rgba(165, 65, 255, .22);
+
+    color: var(--text);
+    text-decoration: none;
+    transition: var(--transition);
+    animation: pomo-selo-entra .35s cubic-bezier(.4, 0, .2, 1);
+}
+.pomo-selo:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .55), 0 0 36px rgba(165, 65, 255, .35);
+}
+.pomo-selo:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+}
+
+/* pontinho que pulsa: o sinal de "está correndo agora" */
+.pomo-selo__pulso {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(165, 65, 255, .6);
+    animation: pomo-selo-pulso 2s ease-out infinite;
+}
+
+.pomo-selo__txt {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+.pomo-selo__tempo {
+    font-family: "Syne", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;   /* o texto não "pula" a cada segundo */
+    letter-spacing: .02em;
+}
+.pomo-selo__modo {
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Nas pausas o selo esfria: fica claro que não é tempo de foco. */
+.pomo-selo--pausa {
+    border-color: rgba(46, 204, 160, .4);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .5), 0 0 28px rgba(46, 204, 160, .18);
+}
+.pomo-selo--pausa:hover { border-color: rgba(46, 204, 160, .7); }
+.pomo-selo--pausa .pomo-selo__pulso {
+    background: #2ecca0;
+    box-shadow: 0 0 0 0 rgba(46, 204, 160, .6);
+}
+
+@keyframes pomo-selo-entra {
+    from { opacity: 0; transform: translateY(14px) scale(.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pomo-selo-pulso {
+    0%        { box-shadow: 0 0 0 0 rgba(165, 65, 255, .55); }
+    70%, 100% { box-shadow: 0 0 0 12px rgba(165, 65, 255, 0); }
+}
+
+/* No mobile a navegação é uma barra fixa embaixo: sobe o selo. */
+@media (max-width: 768px) {
+    .pomo-selo {
+        right: 14px;
+        bottom: calc(84px + env(safe-area-inset-bottom));
+        padding: 10px 15px 10px 13px;
+    }
+    .pomo-selo__tempo { font-size: .95rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pomo-selo,
+    .pomo-selo__pulso { animation: none; }
+    .pomo-selo:hover  { transform: none; }
+}

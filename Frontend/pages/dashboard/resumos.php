@@ -44,6 +44,7 @@ sort($MATERIAS_USADAS);
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Resumos</title>
     <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/pomodoro-aviso.css">
     <link rel="stylesheet" href="./css/resumos.css">
     <link rel="stylesheet" href="./css/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
@@ -142,6 +143,7 @@ sort($MATERIAS_USADAS);
         <script type="application/json" id="dadosResumos"><?= json_encode($RESUMOS, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 
     <script src="./js/dashboard.js"></script>
+    <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/resumo-form.js"></script>
     <script src="./js/resumos.js"></script>
     <script src="./js/cursor.js"></script>

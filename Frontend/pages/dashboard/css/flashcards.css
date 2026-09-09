@@ -217,6 +217,9 @@
     transform-style: preserve-3d;
 }
 .flashcard.virada .flashcard__inner { transform: rotateY(180deg); }
+/* usada ao trocar de cartao: volta para a frente sem animar,
+   senao a resposta do proximo cartao aparece durante o giro de volta */
+.flashcard.sem-anim .flashcard__inner { transition: none; }
 
 .flashcard__face {
     position: absolute;
