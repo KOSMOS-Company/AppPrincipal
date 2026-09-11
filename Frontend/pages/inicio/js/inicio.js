@@ -484,6 +484,82 @@
         });
     }
 
+    /* ── SOBRE e NOSSA HISTÓRIA: pinadas, com entrada em camadas ──
+       As duas têm a mesma forma, então usam o mesmo código: o
+       progresso do pin vira --sp, e o CSS decide o que fazer com ele
+       (aproximar a imagem, escalonar a entrada do texto). Manter o
+       cálculo aqui e a aparência lá evita que ajustar uma animação
+       exija mexer em JavaScript. */
+    [['sobrePin', '.sobre__vista'], ['historiaPin', '.historia__vista']]
+        .forEach(([idPin, seletorVista]) => {
+            const pin = document.getElementById(idPin);
+            const vista = pin && pin.querySelector(seletorVista);
+            if (!pin || !vista) return;
+
+            tarefas.push(() => {
+                if (!mqDesktop.matches) {
+                    vista.style.removeProperty('--sp');
+                    return;
+                }
+                vista.style.setProperty('--sp', progressoPin(pin).toFixed(4));
+            });
+        });
+
+    /* ── ORION: a apresentação dirigida pela rolagem ──
+       A seção fica pinada por ~3,6 telas e o progresso escolhe qual
+       passo está em foco. Quem EXECUTA o comportamento é o
+       js/orion.js: aqui só avisamos "agora é o passo 2", pela mesma
+       função que o clique usa. Assim rolar e clicar levam ao mesmo
+       lugar, e não existem dois caminhos para manter iguais. */
+    const orionPin = document.getElementById('orionPin');
+    const orionPassos = Array.from(document.querySelectorAll('.orion-passo'));
+    const orionTrilho = document.getElementById('orionTrilho');
+    const orionCorpoEl = document.getElementById('orionCorpo');
+
+    if (orionPin && orionPassos.length) {
+        let orionAtual = -1;
+
+        tarefas.push(() => {
+            if (!mqDesktop.matches) return;
+
+            const p = progressoPin(orionPin);
+
+            /* O primeiro trecho é só respiro: a pessoa acabou de chegar
+               e ainda está lendo o título. O roteiro começa depois. */
+            const inicio = 0.12;
+            const util = Math.max(0, (p - inicio) / (1 - inicio));
+            const idx = Math.min(orionPassos.length - 1,
+                                 Math.floor(util * orionPassos.length));
+
+            if (idx !== orionAtual && p > inicio) {
+                orionAtual = idx;
+                // a mesma porta que o clique usa (exposta por js/orion.js)
+                if (window.KosmosOrion) {
+                    window.KosmosOrion.mostrar(orionPassos[idx].dataset.passo);
+                }
+            }
+
+            if (orionTrilho) orionTrilho.style.width = (p * 100).toFixed(2) + '%';
+            if (orionCorpoEl) {
+                // sobe no começo e volta: dá a sensação de aproximação
+                orionCorpoEl.style.setProperty('--op', Math.sin(p * Math.PI).toFixed(4));
+            }
+        });
+
+        /* Clicar num passo rola até o trecho dele, como nos passos do
+           demo: quem prefere clicar não fica preso à rolagem. */
+        orionPassos.forEach((passo, i) => {
+            passo.addEventListener('click', () => {
+                if (!mqDesktop.matches) return;
+                const topo = orionPin.getBoundingClientRect().top + window.scrollY;
+                const total = orionPin.offsetHeight - window.innerHeight;
+                const inicio = 0.12;
+                const frac = inicio + (1 - inicio) * ((i + 0.5) / orionPassos.length);
+                window.scrollTo({ top: topo + total * frac, behavior: 'smooth' });
+            });
+        });
+    }
+
     /* ── DEMO: scrollytelling em 3 passos ── */
     const demoPin = document.getElementById('demoPin');
     const passos = Array.from(document.querySelectorAll('.demo__passo'));

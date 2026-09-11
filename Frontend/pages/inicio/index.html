@@ -39,11 +39,23 @@
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
     <link rel="stylesheet" href="../shared/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
+    <link rel="stylesheet" href="../shared/mascote.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 </head>
 <body>
+
+    <!-- O espaço por trás de tudo. Fica fixo e atravessa a página
+         inteira: antes ele vivia dentro do hero e sumia na primeira
+         rolagem. Ver js/cosmos.js. -->
+    <canvas class="cosmos" id="cosmos" aria-hidden="true"></canvas>
+
+    <!-- Uma folha translúcida entre o cosmos e o conteúdo. Segura a
+         legibilidade do texto sem apagar o céu — e, por ser UMA só
+         para a página inteira, acaba com as faixas que apareciam em
+         cada emenda de seção. -->
+    <div class="veu" aria-hidden="true"></div>
 
     <!-- Barra de progresso de scroll -->
     <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
@@ -58,6 +70,7 @@
                 <a href="#recursos" class="nav__link">Recursos</a>
                 <a href="#demo" class="nav__link">Experimente</a>
                 <a href="#historia" class="nav__link">Nossa História</a>
+                <a href="#orion" class="nav__link">A visita</a>
                 <a href="#faq" class="nav__link">FAQ</a>
             </nav>
             <div class="header__actions">
@@ -73,6 +86,7 @@
             <a href="#recursos" class="mobile-nav__link">Recursos</a>
             <a href="#demo" class="mobile-nav__link">Experimente</a>
             <a href="#historia" class="mobile-nav__link">Nossa História</a>
+            <a href="#orion" class="mobile-nav__link">A visita</a>
             <a href="#faq" class="mobile-nav__link">FAQ</a>
             <a href="../login/index.html" class="btn btn--ghost">Entrar</a>
             <a href="../cadastro/index.html" class="btn btn--primary">Cadastre-se</a>
@@ -81,11 +95,13 @@
 
     <!-- ───── HERO ───── -->
     <section class="hero">
+        <!-- Cada camada num plano de profundidade próprio, com sua
+             velocidade: a diferença entre elas é o que o cérebro lê
+             como distância. -->
         <div class="hero__bg">
             <div class="hero__orb hero__orb--1"></div>
             <div class="hero__orb hero__orb--2"></div>
-            <div class="hero__grid"></div>
-            <canvas class="hero__space" id="heroSpace"></canvas>
+            <div class="hero__grid" data-plano="fundo"></div>
         </div>
         <div class="hero__inner">
             <h1 class="hero__title">
@@ -149,9 +165,13 @@
 
     <!-- ───── SOBRE ───── -->
     <section class="sobre" id="sobre">
+      <!-- pinada no desktop: o conteúdo entra em camadas conforme se
+           rola. Abaixo de 1025px estes wrappers não fazem nada. -->
+      <div class="sobre__pin" id="sobrePin">
+        <div class="sobre__vista">
         <div class="container">
             <div class="sobre__inner">
-                <div class="sobre__img-wrap reveal reveal--left tilt">
+                <div class="sobre__img-wrap reveal reveal--left tilt" data-relevo>
                     <img src="imagens/imgSobre.png" alt="Estudante usando Kosmos" class="sobre__img">
                     <div class="sobre__img-glow"></div>
                 </div>
@@ -167,6 +187,8 @@
                 </div>
             </div>
         </div>
+        </div>
+      </div>
     </section>
 
     <!-- ───── RECURSOS (pinada: esteira horizontal no desktop) ───── -->
@@ -301,7 +323,7 @@
     <section class="demo" id="demo">
       <div class="demo__pin" id="demoPin">
         <div class="demo__vista">
-            <div class="demo__orb" aria-hidden="true"></div>
+            <div class="demo__orb" aria-hidden="true" data-parallax="60"></div>
             <span class="ghost ghost--demo" aria-hidden="true">Experimente</span>
             <div class="container demo__scrolly">
 
@@ -416,6 +438,9 @@
 
     <!-- ───── HISTORIA ───── -->
     <section class="historia" id="historia">
+      <!-- pinada no desktop, igual à seção Sobre -->
+      <div class="historia__pin" id="historiaPin">
+        <div class="historia__vista">
         <div class="container">
             <div class="historia__inner">
                 <div class="historia__content reveal reveal--left">
@@ -433,10 +458,187 @@
                         <div class="historia__badge"> Técnico em T.I</div>
                     </div>
                 </div>
-                <div class="historia__img-wrap reveal reveal--right reveal--d1 tilt">
+                <div class="historia__img-wrap reveal reveal--right reveal--d1 tilt" data-relevo>
                     <img src="imagens/imgAmigos.png" alt="Fundadores da Kosmos" class="historia__img">
                     <div class="historia__img-glow"></div>
                 </div>
+            </div>
+        </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ───── ORION APRESENTA A KOSMOS ─────
+         A seção deixou de ser "conheça o mascote" para ser uma visita
+         guiada: o Orion é o anfitrião e a Kosmos é o assunto. No
+         desktop ela fica pinada por ~5 telas e cada trecho da rolagem
+         é um passo do roteiro — a fala muda, o painel muda e o próprio
+         Orion reage. Abaixo de 1025px (e com "reduzir movimento") o
+         pin não existe: vira uma lista comum, rolável e clicável.
+         Quem dirige: js/inicio.js (bloco ORION) + js/orion.js. -->
+    <section class="orion" id="orion">
+        <div class="orion__bg" aria-hidden="true">
+            <div class="orion__orb"></div>
+            <div class="orion__grid"></div>
+        </div>
+
+        <div class="orion__pin" id="orionPin">
+            <div class="orion__vista">
+                <div class="container">
+
+                    <div class="orion__cabeca reveal reveal--up">
+                        <span class="section-tag">A visita guiada</span>
+                        <h2 class="section-title">Deixa que o <em>Orion</em> te mostra</h2>
+                    </div>
+
+                    <div class="orion__palco">
+
+                        <!-- ── Lado esquerdo: o anfitrião ── -->
+                        <div class="orion__figura reveal reveal--left" data-plano="meio">
+                            <div class="orion__halo" aria-hidden="true"></div>
+                            <div class="orion__orbita" aria-hidden="true">
+                                <span class="orion__satelite orion__satelite--1"></span>
+                                <span class="orion__satelite orion__satelite--2"></span>
+                            </div>
+
+                            <!-- O botão é quem recebe o clique e o foco; o desenho fica
+                                 dentro dele. Separado assim de propósito: o mascote.js
+                                 marca o próprio elemento como aria-hidden (é decoração),
+                                 e um elemento focável não pode viver dentro de algo
+                                 escondido do leitor de tela. -->
+                            <button class="orion__corpo" id="orionCorpo" type="button"
+                                    aria-label="Falar com o Orion">
+                                <!-- O SVG é montado por shared/mascote.js -->
+                                <span class="orion__mascote" id="orionMascote"
+                                      data-mascote data-mascote-auto="0"></span>
+                            </button>
+
+                            <p class="orion__dica" id="orionDica">Clique nele</p>
+                        </div>
+
+                        <!-- ── Lado direito: a fala e o roteiro ── -->
+                        <div class="orion__conversa reveal reveal--right reveal--d1" data-plano="frente">
+
+                            <!-- O que o Orion está dizendo agora -->
+                            <div class="orion__balao">
+                                <p class="orion__fala" id="orionFala" aria-live="polite">
+                                    Oi! Eu sou o Orion. Vem que eu te mostro a Kosmos.<span class="orion__cursor" aria-hidden="true"></span>
+                                </p>
+                            </div>
+
+                            <p class="orion__conversa-dica" id="orionConversaDica">
+                                Role para a visita continuar — ou toque num passo para ir direto:
+                            </p>
+
+                            <!-- Cada passo é um botão. A rolagem percorre e o clique
+                                 leva ao mesmo lugar: é a mesma função nos dois casos. -->
+                            <ol class="orion__roteiro" id="orionRoteiro">
+                                <li>
+                                    <button class="orion-passo" type="button" data-passo="chegada">
+                                        <span class="orion-passo__ico" aria-hidden="true">👋</span>
+                                        <span class="orion-passo__texto">
+                                            <strong>Prazer, sou o Orion</strong>
+                                            <span>Um planetinha formado que mora aqui dentro.</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="orion-passo" type="button" data-passo="kosmos">
+                                        <span class="orion-passo__ico" aria-hidden="true">🪐</span>
+                                        <span class="orion-passo__texto">
+                                            <strong>Esta é a Kosmos</strong>
+                                            <span>Tudo que você estuda em um lugar só, de graça.</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="orion-passo" type="button" data-passo="biblioteca">
+                                        <span class="orion-passo__ico" aria-hidden="true">📚</span>
+                                        <span class="orion-passo__texto">
+                                            <strong>Aqui você escreve</strong>
+                                            <span>Cadernos por matéria — ou só a foto do seu caderno de papel.</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="orion-passo" type="button" data-passo="revisao">
+                                        <span class="orion-passo__ico" aria-hidden="true">🃏</span>
+                                        <span class="orion-passo__texto">
+                                            <strong>Aqui você revisa</strong>
+                                            <span>Vira o cartão e me diz se lembrava. Eu anoto o resto.</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="orion-passo" type="button" data-passo="foco">
+                                        <span class="orion-passo__ico" aria-hidden="true">⏳</span>
+                                        <span class="orion-passo__texto">
+                                            <strong>Aqui você foca</strong>
+                                            <span>25 minutos de cada vez. Eu te aviso quando acabar.</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="orion-passo" type="button" data-passo="junto">
+                                        <span class="orion-passo__ico" aria-hidden="true">🙈</span>
+                                        <span class="orion-passo__texto">
+                                            <strong>E eu fico do seu lado</strong>
+                                            <span>Na hora da senha eu tapo os olhos. Palavra de mascote.</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="orion-passo" type="button" data-passo="perdido">
+                                        <span class="orion-passo__ico" aria-hidden="true">🤔</span>
+                                        <span class="orion-passo__texto">
+                                            <strong>Se você se perder…</strong>
+                                            <span>Eu me perco junto. Mas a gente acha o caminho.</span>
+                                        </span>
+                                    </button>
+                                </li>
+                            </ol>
+
+                            <!-- Só no desktop pinado: quanto da visita já passou -->
+                            <div class="orion__trilho" aria-hidden="true"><span id="orionTrilho"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Fora do pin: o teste de verdade, com rolagem livre ── -->
+        <div class="container">
+            <div class="orion__teste reveal reveal--up" data-relevo>
+                <div class="orion__teste-texto">
+                    <h3>Não acredita? Digite aqui.</h3>
+                    <p>São os mesmos campos do cadastro — e o Orion responde igualzinho.</p>
+                </div>
+
+                <div class="orion__campos">
+                    <label class="orion__campo">
+                        <span>Um e-mail qualquer</span>
+                        <input type="email" id="orionEmail" placeholder="voce@email.com"
+                               autocomplete="off" spellcheck="false">
+                    </label>
+
+                    <label class="orion__campo">
+                        <span>Uma senha de mentira</span>
+                        <span class="orion__campo-senha">
+                            <input type="password" id="orionSenha" placeholder="pode inventar"
+                                   autocomplete="off">
+                            <button type="button" class="orion__olho" id="orionOlho"
+                                    aria-label="Mostrar a senha" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+                            </button>
+                        </span>
+                    </label>
+                </div>
+
+                <p class="orion__aviso">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Nada aqui é enviado nem guardado — é só uma demonstração.
+                </p>
             </div>
         </div>
     </section>
@@ -449,7 +651,7 @@
                 <h2 class="section-title">Perguntas <em>frequentes</em></h2>
                 <p class="recursos__subtitle">Tudo o que você precisa saber antes de começar.</p>
             </div>
-            <div class="faq__lista reveal reveal--up reveal--d1">
+            <div class="faq__lista reveal reveal--up reveal--d1" data-plano="fundo">
                 <div class="faq__item">
                     <button class="faq__pergunta" type="button">
                         A Kosmos é realmente gratuita?
@@ -501,7 +703,7 @@
         <div class="cta-final__orb"></div>
         <div class="container">
             <div class="cta-final__box reveal reveal--scale">
-                <div class="cta-final__inner">
+                <div class="cta-final__inner" data-plano="frente">
                     <h2 class="cta-final__title">Pronto para organizar<br>seus estudos?</h2>
                     <p class="cta-final__desc">Junte-se à Kosmos e comece a estudar de forma mais organizada hoje mesmo.</p>
                     <div class="cta-final__actions">
@@ -572,13 +774,41 @@
         </div>
     </footer>
 
+    <!-- ───── ORION GUIA ─────
+         O Orion acompanha a pessoa pela página inteira: a cada seção
+         que entra na tela ele comenta o que é aquilo. Fica no canto
+         (o "voltar ao topo" mora do outro lado), aparece depois do
+         hero e some sozinho na seção onde ele já está em tamanho
+         grande — não faz sentido haver dois Orions na tela.
+         Quem dirige: js/orion-guia.js -->
+    <aside class="guia" id="guia" hidden>
+        <div class="guia__balao" id="guiaBalao" hidden>
+            <p class="guia__fala" id="guiaFala"></p>
+            <button class="guia__x" type="button" id="guiaFechar"
+                    aria-label="Dispensar o Orion">
+                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+
+        <button class="guia__corpo" type="button" id="guiaCorpo"
+                aria-label="Orion: ver o que ele diz sobre esta parte">
+            <span class="guia__mascote" id="guiaMascote" data-mascote data-mascote-auto="0"></span>
+            <span class="guia__ponto" id="guiaPonto" aria-hidden="true"></span>
+        </button>
+    </aside>
+
     <!-- Botão voltar ao topo -->
     <button class="back-top" id="backTop" type="button" aria-label="Voltar ao topo">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
 
+    <script src="../shared/mascote.js"></script>
+    <script src="./js/orion.js"></script>
+    <script src="./js/orion-guia.js"></script>
     <script src="./js/inicio.js"></script>
-    <script src="./js/space.js"></script>
+    <script src="./js/profundidade.js"></script>
+    <script src="./js/cosmos-gl.js"></script>
+    <script src="./js/cosmos.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
     <script src="../shared/cursor.js"></script>
 </body>

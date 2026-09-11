@@ -268,14 +268,41 @@ em { font-style: normal; color: var(--accent-lt); }
     mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, #000 40%, transparent 100%);
 }
 
-/* Campo de estrelas interativo (canvas) */
-.hero__space {
-    position: absolute;
+/* ── O cosmos: o campo de estrelas por trás da PÁGINA inteira ──
+   Fixo na viewport e no fundo de tudo (z-index 0; o conteúdo sobe
+   para 1). Antes isto vivia dentro do hero e sumia na primeira
+   rolagem — era essa a "falta de espaço" no resto da página. */
+.cosmos {
+    position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
+    z-index: 0;
     display: block;
     pointer-events: none;
+}
+
+/* As SEÇÕES passam a viver acima do cosmos e do véu.
+
+   O cabeçalho, a barra de progresso e o "voltar ao topo" ficam de
+   fora desta lista de propósito: eles são position:fixed com o
+   próprio z-index (o header é 100). Incluí-los aqui trocava o
+   `fixed` por `relative` e o header parava de grudar no topo —
+   foi exatamente o que aconteceu na primeira versão. Como são
+   posicionados e vêm depois do canvas no HTML, já pintam por cima
+   sem precisar de ajuda. */
+.hero,
+.marquee,
+.sobre,
+.recursos,
+.demo,
+.historia,
+.orion,
+.faq,
+.cta-final,
+.footer {
+    position: relative;
+    z-index: 1;
 }
 
 .hero__inner {
@@ -355,7 +382,7 @@ em { font-style: normal; color: var(--accent-lt); }
    ════════════════════════════════ */
 .sobre {
     padding: 120px 0;
-    background: linear-gradient(180deg, var(--black) 0%, var(--bg-deep) 50%, var(--black) 100%);
+    background: none;
 }
 
 .sobre__inner {
@@ -513,7 +540,7 @@ em { font-style: normal; color: var(--accent-lt); }
    ════════════════════════════════ */
 .historia {
     padding: 120px 0;
-    background: linear-gradient(180deg, var(--black) 0%, var(--bg-deep) 50%, var(--black) 100%);
+    background: none;
 }
 
 .historia__inner {
@@ -658,7 +685,9 @@ em { font-style: normal; color: var(--accent-lt); }
    ════════════════════════════════ */
 .footer {
     position: relative;
-    background: var(--bg-nav);
+    /* translúcido como o resto: o cosmos atravessa até aqui embaixo */
+    background: rgba(18,1,31,.88);
+    backdrop-filter: blur(6px);
     border-top: 1px solid rgba(165,65,255,.15);
     padding: 64px 0 32px;
 }
@@ -812,6 +841,476 @@ em { font-style: normal; color: var(--accent-lt); }
 }
 
 /* ════════════════════════════════
+   ORION — a seção do mascote
+   Mesma paleta e mesmos tokens do resto da página. O desenho do
+   Orion em si vem de shared/mascote.css (é o mesmo do login e do
+   404); aqui só cuidamos do palco em volta dele.
+   ════════════════════════════════ */
+.orion {
+    position: relative;
+    padding: 120px 0;
+    overflow: hidden;
+    background: none;
+}
+
+/* ── Fundo: o mesmo vocabulário do hero (orbe + grade) ── */
+.orion__bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.orion__orb {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 620px;
+    height: 620px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(130,3,219,.20) 0%, transparent 68%);
+    filter: blur(50px);
+    animation: orionPulsa 9s ease-in-out infinite;
+}
+.orion__grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(165,65,255,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(165,65,255,.055) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 78%);
+}
+
+.orion .container { position: relative; z-index: 1; }
+
+.orion__cabeca {
+    max-width: 660px;
+    margin: 0 auto 56px;
+    text-align: center;
+}
+.orion__cabeca .section-tag { justify-content: center; }
+.orion__intro {
+    color: var(--text-dim);
+    font-size: 1.02rem;
+}
+
+/* ── O palco: Orion à esquerda, conversa à direita ── */
+.orion__palco {
+    display: grid;
+    grid-template-columns: minmax(280px, .85fr) 1fr;
+    gap: 56px;
+    align-items: center;
+}
+
+/* ════════ Lado esquerdo: a figura ════════ */
+.orion__figura {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+}
+
+/* brilho por trás, que respira junto com o flutuar do mascote */
+.orion__halo {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    width: 340px;
+    height: 340px;
+    max-width: 90%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(165,65,255,.30) 0%, rgba(114,3,189,.12) 45%, transparent 70%);
+    filter: blur(22px);
+    animation: orionRespira 4.8s ease-in-out infinite;
+}
+
+/* anel inclinado com dois satélites girando */
+.orion__orbita {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    width: 330px;
+    height: 330px;
+    max-width: 88%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) rotateX(68deg);
+    border: 1px solid rgba(165,65,255,.22);
+    border-radius: 50%;
+    transform-style: preserve-3d;
+    animation: orionGira 18s linear infinite;
+}
+.orion__satelite {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: var(--accent-lt);
+    box-shadow: 0 0 12px rgba(201,124,255,.9);
+}
+/* posicionados na borda do anel por translate no raio */
+.orion__satelite--1 { transform: rotate(0deg)   translateX(165px); }
+.orion__satelite--2 { transform: rotate(150deg) translateX(165px); width: 5px; height: 5px; opacity: .7; }
+
+/* o botão que embrulha o desenho: sem cara de botão, com alvo de clique */
+.orion__corpo {
+    position: relative;
+    z-index: 2;
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.orion__corpo:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 10px;
+}
+.orion__corpo:active { transform: scale(.97); }
+
+.orion__mascote {
+    display: block;
+    /* bem maior que o padrão: aqui ele é o assunto, não um enfeite */
+    --mascote-tam: 300px;
+    width: min(300px, 62vw);
+}
+
+/* "Clique nele" — some na primeira interação */
+.orion__dica {
+    position: relative;
+    z-index: 2;
+    margin-top: 6px;
+    font-size: .82rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    animation: orionDicaPisca 2.6s ease-in-out infinite;
+    transition: opacity .4s ease, transform .4s ease;
+}
+.orion__dica.sumiu {
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    animation: none;
+}
+
+/* ════════ Lado direito: fala e roteiro ════════ */
+.orion__conversa { min-width: 0; }
+
+/* balão de fala com bico apontando para o Orion */
+.orion__balao {
+    position: relative;
+    padding: 20px 24px;
+    margin-bottom: 26px;
+    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    border: 1px solid rgba(165,65,255,.28);
+    border-radius: var(--radius-md);
+    box-shadow: 0 18px 46px rgba(0,0,0,.45);
+}
+.orion__balao::before,
+.orion__balao::after {
+    content: "";
+    position: absolute;
+    top: 34px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+/* duas setas sobrepostas: a de trás faz a "borda" do bico */
+.orion__balao::before {
+    left: -13px;
+    border-width: 11px 13px 11px 0;
+    border-color: transparent rgba(165,65,255,.28) transparent transparent;
+}
+.orion__balao::after {
+    left: -11px;
+    border-width: 10px 12px 10px 0;
+    border-color: transparent #1a052f transparent transparent;
+}
+
+.orion__fala {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.05rem, 1.9vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--text);
+    /* reserva duas linhas: sem isso o balão pula de altura a cada frase */
+    min-height: 2.9em;
+}
+.orion__cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 3px;
+    vertical-align: -.12em;
+    background: var(--accent);
+    animation: orionCursor 1s steps(2) infinite;
+}
+
+.orion__conversa-dica {
+    margin-bottom: 14px;
+    font-size: .85rem;
+    color: var(--text-muted);
+}
+
+/* ── Os passos do roteiro ── */
+.orion__roteiro {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.orion-passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+    padding: 15px 18px;
+    text-align: left;
+    background: rgba(255,255,255,.025);
+    border: 1px solid rgba(165,65,255,.14);
+    border-radius: var(--radius-sm);
+    color: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.orion-passo:hover,
+.orion-passo.ativo {
+    background: rgba(165,65,255,.10);
+    border-color: rgba(165,65,255,.5);
+    transform: translateX(5px);
+}
+.orion-passo:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.orion-passo__ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: rgba(165,65,255,.14);
+    font-size: 1.12rem;
+    line-height: 1;
+    transition: var(--transition);
+}
+.orion-passo:hover .orion-passo__ico,
+.orion-passo.ativo .orion-passo__ico {
+    background: rgba(165,65,255,.3);
+    transform: scale(1.08);
+}
+
+.orion-passo__texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.orion-passo__texto strong {
+    font-family: 'Syne', sans-serif;
+    font-size: .98rem;
+    font-weight: 600;
+}
+.orion-passo__texto span {
+    font-size: .87rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+.orion-passo.ativo .orion-passo__texto span { color: var(--text-dim); }
+
+/* ════════ Faixa de baixo: os campos de teste ════════ */
+.orion__teste {
+    margin-top: 56px;
+    padding: 32px;
+    background: linear-gradient(150deg, #1a0230 0%, #100120 100%);
+    border: 1px solid rgba(165,65,255,.16);
+    border-radius: var(--radius-lg);
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 28px 40px;
+    align-items: center;
+}
+.orion__teste-texto h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+.orion__teste-texto p {
+    font-size: .92rem;
+    color: var(--text-muted);
+}
+
+.orion__campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.orion__campo {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+.orion__campo > span:first-child {
+    font-size: .82rem;
+    font-weight: 500;
+    color: var(--text-dim);
+}
+.orion__campo input {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .95rem;
+    transition: var(--transition);
+}
+.orion__campo input::placeholder { color: var(--text-muted); }
+.orion__campo input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(165,65,255,.07);
+    box-shadow: 0 0 0 3px rgba(165,65,255,.12);
+}
+
+/* o campo de senha com o olho dentro */
+.orion__campo-senha { position: relative; display: block; }
+.orion__campo-senha input { padding-right: 48px; }
+.orion__olho {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 9px;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.orion__olho svg { width: 19px; height: 19px; }
+.orion__olho:hover { color: var(--accent-lt); background: rgba(165,65,255,.14); }
+.orion__olho.ativo { color: var(--accent); }
+.orion__olho:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.orion__aviso {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: .82rem;
+    color: var(--text-muted);
+}
+.orion__aviso svg { flex: none; width: 17px; height: 17px; color: var(--accent); }
+
+/* ════════ Animações ════════ */
+@keyframes orionPulsa {
+    0%, 100% { opacity: .75; transform: translate(-50%, -50%) scale(1); }
+    50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.08); }
+}
+@keyframes orionRespira {
+    0%, 100% { opacity: .8;  transform: translate(-50%, -50%) scale(1); }
+    50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.07); }
+}
+@keyframes orionGira {
+    from { transform: translate(-50%, -50%) rotateX(68deg) rotateZ(0deg); }
+    to   { transform: translate(-50%, -50%) rotateX(68deg) rotateZ(360deg); }
+}
+@keyframes orionCursor {
+    0%, 49%   { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+@keyframes orionDicaPisca {
+    0%, 100% { opacity: .45; }
+    50%      { opacity: 1; }
+}
+
+/* ════════ Responsividade ════════ */
+@media (max-width: 900px) {
+    .orion { padding: 88px 0; }
+
+    /* o Orion vai para cima: na tela estreita ele é a apresentação */
+    .orion__palco {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+    .orion__figura { min-height: 300px; }
+    .orion__mascote { width: min(240px, 58vw); }
+    .orion__halo, .orion__orbita { width: 270px; height: 270px; }
+    .orion__satelite--1 { transform: rotate(0deg)   translateX(135px); }
+    .orion__satelite--2 { transform: rotate(150deg) translateX(135px); }
+
+    /* o bico do balão passa a apontar para cima, na direção do Orion */
+    .orion__balao::before,
+    .orion__balao::after { top: auto; left: 34px; }
+    .orion__balao::before {
+        top: -13px;
+        border-width: 0 11px 13px 11px;
+        border-color: transparent transparent rgba(165,65,255,.28) transparent;
+    }
+    .orion__balao::after {
+        top: -11px;
+        left: 36px;
+        border-width: 0 10px 12px 10px;
+        border-color: transparent transparent #1a052f transparent;
+    }
+
+    .orion__teste { grid-template-columns: 1fr; padding: 26px; }
+}
+
+@media (max-width: 560px) {
+    .orion__campos { grid-template-columns: 1fr; }
+    .orion__teste { padding: 22px 18px; }
+    .orion-passo { padding: 13px 14px; gap: 12px; }
+    .orion-passo__ico { width: 34px; height: 34px; font-size: 1rem; }
+    /* no toque não há hover: o deslocamento só faria o cartão tremer */
+    .orion-passo:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .orion__orb,
+    .orion__halo,
+    .orion__orbita,
+    .orion__cursor,
+    .orion__dica {
+        animation: none !important;
+    }
+    .orion-passo:hover,
+    .orion-passo.ativo { transform: none; }
+    .orion__corpo:active { transform: none; }
+}
+
+/* ── Trilho de progresso da apresentação (só no desktop pinado) ── */
+.orion__trilho {
+    display: none;
+    position: relative;
+    height: 3px;
+    margin-top: 22px;
+    border-radius: 3px;
+    background: rgba(165,65,255,.14);
+    overflow: hidden;
+}
+.orion__trilho span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--purple-md), var(--accent-lt));
+    box-shadow: 0 0 12px rgba(165,65,255,.5);
+    transition: width .12s linear;
+}
+
+/* ════════════════════════════════
    RESPONSIVIDADE
    ════════════════════════════════ */
 
@@ -928,11 +1427,17 @@ em { font-style: normal; color: var(--accent-lt); }
     width: 100%;
     margin-left: 0;
     transform: none;
+    /* Bem mais translúcida que antes: era este fundo quase opaco,
+       somado às duas bordas de ponta a ponta, que desenhava a faixa
+       dura no meio do céu. Agora o cosmos atravessa a faixa. */
     background:
-        radial-gradient(120% 160% at 50% 0%, rgba(114,3,189,.28) 0%, transparent 60%),
-        linear-gradient(90deg, rgba(13,1,24,.6) 0%, rgba(47,10,75,.72) 50%, rgba(13,1,24,.6) 100%);
-    border-top: 1px solid rgba(165,65,255,.22);
-    border-bottom: 1px solid rgba(165,65,255,.22);
+        radial-gradient(120% 160% at 50% 0%, rgba(114,3,189,.20) 0%, transparent 62%),
+        linear-gradient(90deg, rgba(13,1,24,.22) 0%, rgba(47,10,75,.34) 50%, rgba(13,1,24,.22) 100%);
+    /* as bordas somem nas pontas em vez de cortarem a tela inteira */
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(90deg, transparent, rgba(165,65,255,.34) 22%,
+                                  rgba(165,65,255,.34) 78%, transparent) 1;
     padding: 14px 0;
     margin-top: 20px;
     overflow: hidden;
@@ -1025,7 +1530,7 @@ em { font-style: normal; color: var(--accent-lt); }
 .demo {
     position: relative;
     padding: 120px 0;
-    background: linear-gradient(180deg, var(--black) 0%, var(--bg-deep) 50%, var(--black) 100%);
+    background: none;
     overflow: hidden;
 }
 .demo__orb {
@@ -1427,13 +1932,9 @@ html.scrolly .hero__inner {
 }
 html.scrolly .hero__orb--1 { transform: translateY(calc(var(--hp, 0) * 160px)); }
 html.scrolly .hero__orb--2 { transform: translateY(calc(var(--hp, 0) * 220px)); }
-html.scrolly .hero__space  { opacity: calc(1 - var(--hp, 0) * .6); }
 html.scrolly .hero__scroll { opacity: calc(1 - var(--hp, 0) * 3); }
 
 /* ── Parallax sutil (elementos com --pv -1..1, viewport-centrado) ── */
-html.scrolly .sobre__img     { transform: translateY(calc(var(--pv, 0) * -26px)); }
-html.scrolly .historia__img  { transform: translateY(calc(var(--pv, 0) * -26px)); }
-html.scrolly .demo__orb      { transform: translateY(calc(var(--pv, 0) * 60px)); }
 html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 70px)); }
 /* deriva do marquee só no desktop: o alargamento (+160px) causava
    deslocamento horizontal em telas menores */
@@ -1512,7 +2013,7 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 70
         display: flex;
         align-items: center;
         overflow: hidden;
-        background: linear-gradient(180deg, var(--black) 0%, var(--bg-deep) 50%, var(--black) 100%);
+        background: none;
     }
     html.scrolly .demo__scrolly {
         display: grid;
@@ -1621,6 +2122,57 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 70
         transform: none;
         pointer-events: auto;
     }
+
+    /* ---------- ORION: apresentação pinada ----------
+       A seção trava por ~3,5 telas e cada trecho da rolagem aciona um
+       comportamento real do Orion. Vive dentro do mesmo bloco
+       @media (min-width:1025px) das outras seções pinadas: no celular
+       nada disso existe, e a seção volta a ser empilhada e rolável.  */
+    html.scrolly .orion { padding: 0; overflow: visible; }
+    html.scrolly .orion__pin { height: 520vh; }   /* sete passos */
+    html.scrolly .orion__vista {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+    /* dentro do palco fixo o cabeçalho encolhe: são 100vh para tudo */
+    html.scrolly .orion__vista .orion__cabeca {
+        margin-bottom: 34px;
+        max-width: 620px;
+    }
+    html.scrolly .orion__vista .section-title { margin-bottom: 12px; }
+    html.scrolly .orion__vista .orion__intro { font-size: .96rem; }
+    html.scrolly .orion__figura { min-height: 0; }
+
+    /* o Orion respira junto com a narrativa: cresce um pouco no
+       começo e volta — dirigido por --op (0..1) no JS */
+    html.scrolly .orion__corpo {
+        transform: scale(calc(1 + var(--op, 0) * .06));
+        transition: transform .5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* o passo em foco salta; os outros recuam. É isto que faz o
+       roteiro "andar" com a rolagem em vez de ficar toda acesa */
+    html.scrolly .orion-passo {
+        opacity: .38;
+        transform: scale(.975);
+        transition: opacity .45s ease, transform .45s cubic-bezier(.4,0,.2,1),
+                    background .3s ease, border-color .3s ease;
+    }
+    html.scrolly .orion-passo.ativo {
+        opacity: 1;
+        transform: scale(1) translateX(5px);
+    }
+    /* passar o mouse ainda acende, mesmo fora do trecho */
+    html.scrolly .orion-passo:hover { opacity: 1; }
+
+    html.scrolly .orion__trilho { display: block; }
+
+    /* a dica de clique não faz sentido enquanto a rolagem conduz */
+    html.scrolly .orion__vista .orion__conversa-dica { opacity: .55; }
 }
 
 /* Sem o modo scrolly (mobile/tablet/reduced-motion), a demo mantém
@@ -1636,3 +2188,531 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 70
         transition: none !important;
     }
 }
+
+
+/* ════════════════════════════════════════════════════════════
+   Esta camada fica no FIM do arquivo de propósito. Ela sobrepõe o
+   fundo de caixas que são definidas em vários pontos acima (o
+   .demo__panel, por exemplo, é declarado lá embaixo, junto do
+   scrollytelling). Como todas essas regras têm a mesma
+   especificidade, quem vence é a última — então a camada de
+   profundidade só funciona se vier por último.
+   ════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════
+   PROFUNDIDADE — as caixas passam a flutuar NO espaço
+   Antes cada card era uma caixa opaca colada num fundo preto: o
+   cosmos existia atrás, mas ficava tapado. Agora eles deixam passar
+   um pouco do céu e ganham sombra de corpo suspenso, para parecerem
+   estar A UMA DISTÂNCIA do fundo, não grudados nele.
+   ════════════════════════════════ */
+.card,
+.faq__item,
+.demo__panel,
+.orion__balao,
+.orion__teste,
+.historia__badge {
+    /* o degrade continua, só que translúcido; o blur impede que as
+       estrelas atrás disputem com o texto */
+    background:
+        linear-gradient(150deg, rgba(30,6,54,.80) 0%, rgba(18,2,32,.86) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+        0 22px 48px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+/* borda superior clareada: lê como luz batendo de cima, que é de
+   onde a iluminação vem em todo o resto da identidade */
+.card::before,
+.orion__teste::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,124,255,.35), transparent);
+    border-radius: inherit;
+    pointer-events: none;
+}
+.orion__teste { position: relative; }
+
+/* ── Deriva por profundidade ──
+   Cada faixa de conteúdo anda um pouquinho diferente conforme cruza
+   a tela (--pv vai de -1 a 1). São poucos pixels de propósito: o
+   suficiente para o olho perceber camadas, longe do bastante para
+   ninguém sentir a página "escorregando". */
+
+/* O hero deixa de ter o próprio campo de estrelas (agora é da página
+   inteira), mas os orbes continuam dando volume ao primeiro quadro. */
+.hero__grid { opacity: .7; }
+
+@media (prefers-reduced-motion: reduce) {
+    html.scrolly .sobre__content,
+    html.scrolly .historia__content,
+    html.scrolly .orion__figura,
+    html.scrolly .orion__conversa,
+    html.scrolly .faq__lista { transform: none !important; }
+}
+
+/* O desfoque de fundo é caro em telas pequenas e o ganho é pequeno:
+   no celular ficam os fundos translúcidos, sem o blur. */
+@media (max-width: 768px) {
+    .card,
+    .faq__item,
+    .demo__panel,
+    .orion__balao,
+    .orion__teste,
+    .historia__badge {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: linear-gradient(150deg, rgba(30,6,54,.94) 0%, rgba(18,2,32,.96) 100%);
+    }
+}
+
+/* ── O roteiro virou uma lista ordenada: são passos numa ordem, e
+      um leitor de tela deve anunciar "item 3 de 7". Visualmente os
+      marcadores saem — a numeração já está no próprio desenho. ── */
+.orion__roteiro { list-style: none; }
+.orion__roteiro > li { display: block; }
+
+/* ════════════════════════════════════════════════════════════
+   No desktop pinado são SETE passos dentro de uma tela só. Abertos
+   eles não cabem, então só o passo em foco mostra a descrição: os
+   outros encolhem para uma linha. Além de resolver a altura, é isso
+   que faz o roteiro parecer andar — o trecho atual se abre e os
+   vizinhos recuam.
+   ════════════════════════════════════════════════════════════ */
+@media (min-width: 1025px) and (prefers-reduced-motion: no-preference) {
+    html.scrolly .orion__roteiro { gap: 6px; }
+
+    html.scrolly .orion-passo {
+        padding: 9px 14px;
+        gap: 12px;
+        align-items: center;
+    }
+    html.scrolly .orion-passo__ico {
+        width: 30px;
+        height: 30px;
+        font-size: .95rem;
+        border-radius: 9px;
+    }
+    html.scrolly .orion-passo__texto strong { font-size: .92rem; }
+
+    /* a descrição some nos passos parados e volta no ativo */
+    html.scrolly .orion-passo__texto span {
+        display: block;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height .45s cubic-bezier(.4,0,.2,1), opacity .35s ease;
+    }
+    html.scrolly .orion-passo.ativo {
+        padding: 13px 16px;
+    }
+    html.scrolly .orion-passo.ativo .orion-passo__texto span {
+        max-height: 4em;
+        opacity: 1;
+    }
+    html.scrolly .orion-passo.ativo .orion-passo__ico {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+
+    /* o balão encolhe: com sete passos, cada pixel conta */
+    html.scrolly .orion__balao { padding: 16px 20px; margin-bottom: 18px; }
+    html.scrolly .orion__fala { font-size: clamp(1rem, 1.55vw, 1.2rem); min-height: 2.8em; }
+    html.scrolly .orion__vista .orion__conversa-dica { margin-bottom: 10px; font-size: .8rem; }
+    html.scrolly .orion__trilho { margin-top: 16px; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   MAIS SEÇÕES PINADAS — Sobre e Nossa História
+   As duas têm a mesma forma (imagem de um lado, texto do outro), e
+   antes passavam num piscar. Pinadas, elas ganham tempo: a imagem
+   se aproxima e o texto entra em camadas conforme se rola.
+
+   Os pins são curtos de propósito (170vh ≈ meia tela de rolagem
+   extra cada). Já existem três pins longos na página; se estes
+   também fossem, a LP viraria uma sequência de paradas obrigatórias
+   e cansaria antes do fim.
+
+   Tudo mora no mesmo @media das outras pinadas: no celular e com
+   "reduzir movimento" os wrappers não fazem nada e as seções voltam
+   a ser comuns.
+   ════════════════════════════════════════════════════════════ */
+@media (min-width: 1025px) and (prefers-reduced-motion: no-preference) {
+
+    html.scrolly .sobre,
+    html.scrolly .historia { padding: 0; overflow: visible; }
+
+    html.scrolly .sobre__pin,
+    html.scrolly .historia__pin { height: 170vh; }
+
+    html.scrolly .sobre__vista,
+    html.scrolly .historia__vista {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    /* --sp vai de 0 a 1 ao longo do pin (posto pelo js/inicio.js).
+       A imagem se aproxima devagar: é o que dá a sensação de estar
+       chegando perto, em vez de só passar por cima. */
+    /* Aqui DOIS efeitos valem sobre a mesma imagem: a aproximação
+       pelo progresso do pin (--sp) e a inclinação pelo ponteiro
+       (--inc-*). Um transform só, compondo os dois — se fossem duas
+       regras, a de maior especificidade apagaria a outra sem aviso. */
+    html.scrolly .sobre__img-wrap,
+    html.scrolly .historia__img-wrap {
+        transform:
+            perspective(900px)
+            rotateX(calc(var(--inc-x, 0) * 5deg))
+            rotateY(calc(var(--inc-y, 0) * 5deg))
+            scale(calc(1 + var(--sp, 0) * .07));
+        transition: transform .1s linear;
+    }
+
+    /* O texto entra em camadas: cada elemento tem seu próprio atraso
+       dentro do progresso, então eles não aparecem todos juntos. */
+    html.scrolly .sobre__content > *,
+    html.scrolly .historia__content > * {
+        opacity: calc((var(--sp, 0) - var(--atraso, 0)) * 5);
+        transform: translateY(calc((1 - (var(--sp, 0) - var(--atraso, 0)) * 5) * 22px));
+        transition: opacity .1s linear, transform .1s linear;
+    }
+    html.scrolly .sobre__content    > *:nth-child(1),
+    html.scrolly .historia__content > *:nth-child(1) { --atraso: .06; }
+    html.scrolly .sobre__content    > *:nth-child(2),
+    html.scrolly .historia__content > *:nth-child(2) { --atraso: .14; }
+    html.scrolly .sobre__content    > *:nth-child(3),
+    html.scrolly .historia__content > *:nth-child(3) { --atraso: .22; }
+    html.scrolly .sobre__content    > *:nth-child(4),
+    html.scrolly .historia__content > *:nth-child(4) { --atraso: .30; }
+    html.scrolly .sobre__content    > *:nth-child(5),
+    html.scrolly .historia__content > *:nth-child(5) { --atraso: .38; }
+
+    /* O reveal por IntersectionObserver e a deriva por --pv brigariam
+       com o transform daqui: dentro do pin quem manda é o progresso. */
+    html.scrolly .sobre__content,
+    html.scrolly .historia__content {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   ORION GUIA — o acompanhante que anda com a pessoa pela página
+   Fica no canto inferior ESQUERDO: o "voltar ao topo" já ocupa o
+   direito, e um não pode cobrir o outro.
+   Ver js/orion-guia.js para o comportamento.
+   ════════════════════════════════════════════════════════════ */
+.guia {
+    position: fixed;
+    left: 24px;
+    bottom: 24px;
+    z-index: 80;
+
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+
+    /* O contêiner é só um posicionador — no celular ele ocupa a
+       largura toda e passaria por cima do "voltar ao topo". Quem
+       recebe clique são os filhos, não ele. */
+    pointer-events: none;
+
+    /* entra deslizando de baixo; a classe .dentro é posta pelo JS */
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .32s ease, transform .32s cubic-bezier(.4,0,.2,1);
+}
+.guia.dentro { opacity: 1; transform: none; }
+
+/* ── O planetinha ── */
+.guia__corpo {
+    pointer-events: auto;
+    position: relative;
+    flex: none;
+    order: -1;                 /* ele à esquerda, o balão à direita */
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform var(--transition);
+}
+.guia__corpo:hover { transform: scale(1.07); }
+.guia__corpo:active { transform: scale(.96); }
+.guia__corpo:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+
+.guia__mascote {
+    display: block;
+    --mascote-tam: 76px;
+    width: 76px;
+    /* um brilho por baixo, para ele não sumir num fundo estrelado */
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,.6))
+            drop-shadow(0 0 16px rgba(165,65,255,.35));
+}
+
+/* pontinho de "tenho algo a dizer", quando ele está calado */
+.guia__ponto {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-lt);
+    border: 2px solid var(--bg-deep);
+    box-shadow: 0 0 10px rgba(201,124,255,.9);
+    animation: guiaPulsa 2s ease-in-out infinite;
+}
+
+/* dispensado: ele encolhe e fica quieto num canto */
+.guia.quieto .guia__mascote { width: 56px; --mascote-tam: 56px; }
+.guia.quieto { opacity: .8; }
+.guia.quieto:hover { opacity: 1; }
+
+/* ── O balão ── */
+.guia__balao {
+    pointer-events: auto;
+    position: relative;
+    max-width: 300px;
+    padding: 14px 38px 14px 18px;
+    background: linear-gradient(150deg, rgba(30,6,54,.97) 0%, rgba(18,2,32,.97) 100%);
+    border: 1px solid rgba(165,65,255,.35);
+    border-radius: var(--radius-md);
+    box-shadow: 0 18px 44px rgba(0,0,0,.55);
+    backdrop-filter: blur(10px);
+    animation: guiaBalaoEntra .26s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* bico apontando para o planetinha, à esquerda e embaixo */
+.guia__balao::before,
+.guia__balao::after {
+    content: "";
+    position: absolute;
+    bottom: 22px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+.guia__balao::before {
+    left: -12px;
+    border-width: 9px 12px 9px 0;
+    border-color: transparent rgba(165,65,255,.35) transparent transparent;
+}
+.guia__balao::after {
+    left: -10px;
+    border-width: 8px 11px 8px 0;
+    border-color: transparent #1a052f transparent transparent;
+}
+
+.guia__fala {
+    font-size: .88rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+.guia__x {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.guia__x svg { width: 14px; height: 14px; }
+.guia__x:hover { color: #fff; background: rgba(165,65,255,.25); }
+.guia__x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@keyframes guiaPulsa {
+    0%, 100% { transform: scale(1);   opacity: 1; }
+    50%      { transform: scale(1.25); opacity: .6; }
+}
+@keyframes guiaBalaoEntra {
+    from { opacity: 0; transform: translateX(-10px) scale(.94); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ── Telas pequenas ──
+   Ele encolhe e o balão passa a ocupar a largura disponível, sempre
+   ACIMA dele, para não empurrar a página de lado. No celular o balão
+   só aparece quando a pessoa toca (ver o JS). */
+@media (max-width: 640px) {
+    .guia {
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .guia__corpo { order: 0; }
+    .guia__mascote { width: 58px; --mascote-tam: 58px; }
+
+    .guia__balao {
+        max-width: none;
+        width: 100%;
+        padding: 12px 36px 12px 14px;
+    }
+    /* o bico desce para o canto de baixo, apontando para o planetinha */
+    .guia__balao::before,
+    .guia__balao::after { bottom: -12px; left: 22px; }
+    .guia__balao::before {
+        border-width: 12px 9px 0 9px;
+        border-color: rgba(165,65,255,.35) transparent transparent transparent;
+    }
+    .guia__balao::after {
+        bottom: -10px;
+        left: 24px;
+        border-width: 11px 8px 0 8px;
+        border-color: #1a052f transparent transparent transparent;
+    }
+}
+
+/* Quem pediu menos movimento não recebe o acompanhante (o JS nem o
+   liga); esta regra é a rede de segurança, caso ele já esteja no ar. */
+@media (prefers-reduced-motion: reduce) {
+    .guia { display: none; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PROFUNDIDADE — parallax, eixo Z e microinterações
+   As contas vivem em js/profundidade.js, que escreve variáveis CSS
+   (--py, --scrub, --lx, --ly, --inc-x, --inc-y). Aqui só se decide
+   o que FAZER com elas — é o que permite calibrar um efeito sem
+   abrir um arquivo de JavaScript.
+   ════════════════════════════════════════════════════════════ */
+
+/* A regra única do parallax: quem declarar um plano no HTML já anda.
+   translate3d (e não translateY) para a GPU assumir a composição. */
+[data-plano],
+[data-parallax] {
+    transform: translate3d(0, var(--py, 0px), 0);
+    will-change: transform;
+}
+
+/* ── ESTRATIFICAÇÃO NO EIXO Z ──
+   A ordem importa mais que os números: cosmos (canvas, z 0) →
+   orbes → grade → texto. É essa pilha que mantém o texto legível
+   por cima de um fundo que nunca para de se mexer. */
+.hero__bg    { z-index: 1; }
+.hero__orb--1,
+.hero__orb--2 { z-index: 1; }
+.hero__grid  { z-index: 2; }
+.hero__inner { position: relative; z-index: 4; }
+.hero__scroll { position: relative; z-index: 4; }
+
+/* ── MICROINTERAÇÕES ESPACIAIS ──
+   O elemento inclina e ganha um brilho especular que nasce onde o
+   ponteiro está (ou para onde o aparelho está inclinado). A sombra
+   muda de ângulo junto, como um objeto real pegando luz. */
+[data-relevo] {
+    position: relative;
+    transform:
+        perspective(900px)
+        rotateX(calc(var(--inc-x, 0) * 5deg))
+        rotateY(calc(var(--inc-y, 0) * 5deg))
+        translate3d(0, var(--py, 0px), 0);
+    transition: transform .32s cubic-bezier(.4,0,.2,1), box-shadow .32s ease;
+}
+/* enquanto o ponteiro está em cima, a resposta é imediata */
+[data-relevo].relevo-ativo {
+    transition: transform .08s linear, box-shadow .2s ease;
+    box-shadow:
+        0 28px 60px rgba(0,0,0,.5),
+        0 0 0 1px rgba(201,124,255,.16);
+}
+
+/* o reflexo: um brilho que segue a luz e some quando ela sai */
+[data-relevo]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(420px circle at var(--lx, 50%) var(--ly, 50%),
+                rgba(255,255,255,.10) 0%,
+                rgba(201,124,255,.07) 35%,
+                transparent 62%);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+[data-relevo].relevo-ativo::after { opacity: 1; }
+
+/* ── Nada disso com "reduzir movimento" ──
+   O JS nem liga o motor; esta regra é a rede de segurança para o
+   caso de um elemento já ter recebido uma variável. */
+@media (prefers-reduced-motion: reduce) {
+    [data-plano],
+    [data-parallax],
+    [data-relevo] { transform: none !important; }
+    [data-relevo]::after { display: none; }
+}
+
+/* ── Telas pequenas ──
+   O parallax é dividido pela metade: num celular o percurso de
+   rolagem é curto e o deslocamento cheio faria os elementos
+   escorregarem visivelmente dentro da própria seção. */
+@media (max-width: 768px) {
+    [data-plano],
+    [data-parallax] { transform: translate3d(0, calc(var(--py, 0px) * .5), 0); }
+
+
+    /* sem ponteiro não há reflexo a seguir: fica só a caixa */
+    [data-relevo] { transform: translate3d(0, calc(var(--py, 0px) * .5), 0); }
+    [data-relevo]::after { display: none; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   O VÉU — uma folha só sobre a página inteira
+
+   Antes cada seção tinha o seu degradê: escuro nas pontas, claro no
+   meio. Só que metade das seções não tinha véu nenhum, e a outra
+   metade tinha — então em TODA emenda aparecia uma faixa horizontal
+   dura, com um lado preto e o outro roxo. Era o degradê, e não o
+   cosmos, que estava desenhando aquela linha.
+
+   Agora o véu é um só, fixo na viewport, com opacidade constante:
+   as seções não têm mais fundo próprio, logo não há onde emendar.
+   Ele fica ENTRE o cosmos (z 0) e o conteúdo (z 1), então segura a
+   legibilidade do texto sem apagar o céu.
+   ════════════════════════════════════════════════════════════ */
+.veu {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: rgba(5, 0, 12, .52);
+}
+
+/* O hero respira mais: ali o céu é o assunto, e quase não há texto
+   corrido para proteger. A máscara tira o véu do alto da página e o
+   traz gradualmente — sem linha, porque é um degradê de 60vh. */
+.veu::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 0, 12, .30) 0%, rgba(5, 0, 12, 0) 100%);
+    mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+}
+
+/* O rodapé continua mais fechado: é o pé da página, cheio de links. */
+.footer { background: rgba(18, 1, 31, .78); }
