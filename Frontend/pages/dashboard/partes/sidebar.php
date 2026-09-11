@@ -44,8 +44,9 @@ if (!empty($PREF['avatar_url'])) {
 
                 <span class="nav__grupo">Estudar</span>
                 <a href="resumos.php"<?= navAtivo('resumos.php', $PAGINA) ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Resumos
+                    <!-- ícone de estante: a aba guarda cadernos, não folhas soltas -->
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m18.4 6.2 2.2 13.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Biblioteca
                 </a>
                 <a href="flashcards.php"<?= navAtivo('flashcards.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>

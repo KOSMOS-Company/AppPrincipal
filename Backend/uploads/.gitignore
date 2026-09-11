@@ -6,3 +6,9 @@
 !avatares/
 avatares/*
 !avatares/.gitkeep
+!resumos/
+resumos/*
+!resumos/.gitkeep
+!cadernos/
+cadernos/*
+!cadernos/.gitkeep

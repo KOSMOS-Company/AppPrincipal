@@ -30,6 +30,8 @@
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/avatar_util.php';
+require_once __DIR__ . '/resumo_imagem_util.php';
+require_once __DIR__ . '/cadernos_util.php';
 require_once __DIR__ . '/materias.php';
 require_once __DIR__ . '/datas.php';
 

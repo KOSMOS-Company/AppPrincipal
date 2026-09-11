@@ -16,6 +16,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/avatar_util.php';
+require_once __DIR__ . '/resumo_imagem_util.php';
 
 $usuario = exigirLogin();
 $id      = (int) $usuario['id'];
@@ -59,8 +60,11 @@ try {
         exit;
     }
 
-    // A foto está no disco, fora do banco: o CASCADE não a apagaria
+    // A foto e as imagens dos resumos estão no disco, fora do banco:
+    // o CASCADE apaga as linhas, mas nunca os arquivos
     apagarAvatarDoUsuario($pdo, $id);
+    apagarImagensDoUsuario($pdo, $id);
+    apagarCapasDoUsuario($pdo, $id);
 
     // Apaga o usuário; o CASCADE leva preferências, decks e cartões
     $pdo->prepare('DELETE FROM usuarios WHERE id = ?')->execute([$id]);

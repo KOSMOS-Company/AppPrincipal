@@ -16,10 +16,17 @@ require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/materias.php';
 require_once __DIR__ . '/datas.php';
+require_once __DIR__ . '/resumo_imagem_util.php';
+require_once __DIR__ . '/cadernos_util.php';
 
 /** Limites — batem com as colunas da tabela `resumos`. */
 const RS_MAX_TITULO = 140;
 const RS_MAX_CORPO  = 20000;     // mediumtext aguenta muito mais; isto é o limite de uso
+
+/** Limites do caderno — batem com `resumo_cadernos`. */
+const RS_MAX_CADERNO   = 120;
+const RS_MAX_MATERIA   = 40;
+const RS_MAX_DESCRICAO = 160;
 
 /** Responde em JSON e encerra. */
 function apiResponder(array $dados, int $codigo = 200): void {
@@ -91,7 +98,7 @@ function resumoDoUsuario(PDO $pdo, int $resumoId, int $usuarioId): ?array {
         return null;
     }
 
-    $stmt = $pdo->prepare('SELECT id, titulo, materia, corpo
+    $stmt = $pdo->prepare('SELECT id, titulo, materia, corpo, caderno_id
                              FROM resumos
                             WHERE id = ? AND usuario_id = ?
                             LIMIT 1');
@@ -99,6 +106,52 @@ function resumoDoUsuario(PDO $pdo, int $resumoId, int $usuarioId): ?array {
     $resumo = $stmt->fetch();
 
     return $resumo ?: null;
+}
+
+/**
+ * Mesma ideia para um caderno: garante que ele é do usuário logado
+ * antes de deixar abrir, renomear ou apagar.
+ */
+function cadernoDoUsuario(PDO $pdo, int $cadernoId, int $usuarioId): ?array {
+    if ($cadernoId < 1) {
+        return null;
+    }
+
+    $stmt = $pdo->prepare('SELECT id, nome, materia, cor, icone, descricao, capa_arquivo, ordem
+                             FROM resumo_cadernos
+                            WHERE id = ? AND usuario_id = ?
+                            LIMIT 1');
+    $stmt->execute([$cadernoId, $usuarioId]);
+    $caderno = $stmt->fetch();
+
+    return $caderno ?: null;
+}
+
+/**
+ * Lê o caderno escolhido no POST.
+ *   - campo ausente/vazio/0 -> null (resumo solto, "Sem caderno")
+ *   - id de outra conta      -> encerra a requisição com 404
+ */
+function apiCadernoEscolhido(PDO $pdo, int $usuarioId): ?array {
+    $id = apiId('caderno');
+    if ($id < 1) {
+        return null;
+    }
+
+    $caderno = cadernoDoUsuario($pdo, $id, $usuarioId);
+    if ($caderno === null) {
+        apiErro('Caderno não encontrado.', 404);
+    }
+
+    return $caderno;
+}
+
+/** Quantas imagens este resumo já tem. */
+function contarImagensDoResumo(PDO $pdo, int $resumoId): int {
+    $stmt = $pdo->prepare('SELECT COUNT(*) AS n FROM resumo_imagens WHERE resumo_id = ?');
+    $stmt->execute([$resumoId]);
+
+    return (int) ($stmt->fetch()['n'] ?? 0);
 }
 
 /** Atalho para o helper compartilhado (datas.php). */

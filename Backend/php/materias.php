@@ -13,3 +13,29 @@ const MATERIAS_KOSMOS = [
 ];
 
 const CORES_AVATAR_KOSMOS = ['roxo', 'azul', 'verde', 'laranja', 'rosa', 'ciano'];
+
+/* A cor do caderno usa a MESMA paleta do avatar: são as classes
+   .avatar-cor--* que já existem no dashboard.css, então escolher
+   uma cor nova aqui não custa nenhum CSS. */
+const CORES_CADERNO_KOSMOS = CORES_AVATAR_KOSMOS;
+
+/**
+ * Ícones que o caderno pode usar.
+ *
+ * É uma lista fechada de propósito, não um campo livre de emoji: o
+ * ícone vai para o HTML de várias telas, e uma lista curada garante
+ * que ali só entra emoji de verdade — sem depender de adivinhar, por
+ * expressão regular, o que é ou não emoji num texto qualquer.
+ */
+const ICONES_CADERNO_KOSMOS = [
+    // cadernos e escrita
+    '📕', '📗', '📘', '📙', '📓', '📔', '📝', '✏️',
+    // exatas
+    '🔢', '📐', '➗', '💻', '⚙️', '🧲',
+    // natureza
+    '🧪', '🔬', '🧬', '🌱', '🪐', '🌎',
+    // humanas
+    '🏛️', '🗺️', '⚖️', '🗣️', '🧠', '💡',
+    // idiomas e artes
+    '🌐', '🇧🇷', '🎨', '🎭', '🎵', '⚽',
+];

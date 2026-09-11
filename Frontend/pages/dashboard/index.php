@@ -157,8 +157,8 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                         <span class="ini-card__ico" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </span>
-                        <h3 class="ini-card__titulo">Resumos</h3>
-                        <p class="ini-card__desc">Escreva com suas palavras o que acabou de estudar.</p>
+                        <h3 class="ini-card__titulo">Biblioteca</h3>
+                        <p class="ini-card__desc">Monte cadernos por matéria e guarde seus resumos neles.</p>
                     </a>
 
                     <a class="ini-card" href="flashcards.php">
