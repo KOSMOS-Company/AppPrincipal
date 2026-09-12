@@ -66,7 +66,11 @@
 }
 
 /* Modal de escrever/abrir resumo: mais largo, porque tem texto */
-.modal__box--resumo { max-width: 620px; }
+.modal__box--resumo { 
+    max-width: 620px; 
+    max-height: calc(100vh - 48px);
+    padding-bottom: 40px;
+}
 .modal__box--resumo textarea {
     min-height: 200px;
     line-height: 1.6;
@@ -74,6 +78,13 @@
 }
 /* o "Apagar" fica na ponta esquerda, longe do "Salvar" */
 .modal__box--resumo #btnApagar { margin-right: auto; }
+
+/* Modal de caderno: mais largo que o padrão, com scroll próprio */
+.modal__box--caderno { 
+    max-width: 560px; 
+    max-height: calc(100vh - 48px);
+    padding-bottom: 40px;
+}
 
 /* cartão é clicável: mostra isso */
 .resumo-card { cursor: pointer; }
