@@ -49,7 +49,7 @@
     /* ------------------------------------------------------------
        O balão de fala
        ------------------------------------------------------------ */
-    var FRASE_PADRAO = 'Oi! Eu sou o Orion. Vem que eu te mostro a Kosmos.';
+    var FRASE_PADRAO = 'Oi! Sou o Orion — seu companheiro de estudos. Bora conhecer a Kosmos?';
 
     var escrevendo = null;
     var voltarTimer = null;
@@ -92,7 +92,7 @@
        nunca uma imitação montada só para a vitrine. */
     var ROTEIRO = {
         chegada: {
-            fala: 'Oi! Eu sou o Orion. Vem que eu te mostro a Kosmos.',
+            fala: 'Oi! Sou o Orion — seu companheiro de estudos. Bora conhecer a Kosmos?',
             fazer: function () {
                 orion.humor('normal');
                 orion.fecharOlhos(false);
@@ -100,21 +100,21 @@
             }
         },
         kosmos: {
-            fala: 'Esta é a Kosmos: tudo que você estuda num lugar só. E é de graça.',
+            fala: 'A Kosmos é seu QG de estudos: resumos, flashcards, pomodoro, exercícios com IA — tudo num lugar só, 100% grátis.',
             fazer: function () {
                 orion.fecharOlhos(false);
                 orion.humor('feliz');
             }
         },
         biblioteca: {
-            fala: 'Na Biblioteca você monta cadernos por matéria — ou só fotografa o seu caderno de papel.',
+            fala: 'Na Biblioteca você organiza cadernos por matéria. Pode digitar ou só fotografar as páginas do seu caderno de papel.',
             fazer: function () {
                 orion.fecharOlhos(false);
                 orion.humor('normal');
             }
         },
         revisao: {
-            fala: 'Nos Flashcards você vira o cartão e me diz se lembrava. Eu guardo o resto.',
+            fala: 'Nos Flashcards você vira o cartão, testa a memória e diz se acertou. O resto — repetição espaçada, estatísticas — eu cuido.',
             fazer: function () {
                 orion.fecharOlhos(false);
                 orion.humor('normal');
@@ -122,21 +122,21 @@
             }
         },
         foco: {
-            fala: 'No Pomodoro são 25 minutos de cada vez — e eu te aviso quando acabar.',
+            fala: 'Pomodoro: 25 min de foco, 5 de pausa. Eu conto o tempo e te aviso quando acaba. Sem celular na mão, só estudo.',
             fazer: function () {
                 orion.fecharOlhos(false);
                 orion.humor('normal');
             }
         },
         junto: {
-            fala: 'E eu fico do seu lado o tempo todo. Na hora da senha, tapo os olhos.',
+            fala: 'Tô do seu lado em tudo. Na hora da senha, tapo os olhos — sua privacidade vem primeiro.',
             fazer: function () {
                 orion.humor('normal');
                 orion.fecharOlhos(true);
             }
         },
         perdido: {
-            fala: 'Se você se perder numa página que não existe, eu me perco junto.',
+            fala: 'Se cair numa página que não existe (404), eu me perco junto. Mas a gente acha o caminho de volta.',
             fazer: function () {
                 orion.fecharOlhos(false);
                 orion.humor('confuso');
@@ -205,12 +205,12 @@
        Clicar no próprio Orion
        ------------------------------------------------------------ */
     var CUMPRIMENTOS = [
-        'Bora? A Kosmos tá te esperando.',
+        'Bora estudar? A Kosmos tá te esperando.',
         'Já fez seu Pomodoro hoje?',
-        'Se travar num resumo, me chama.',
-        'Dica: flashcard curto gruda mais.',
-        'Tudo isso aqui é de graça, viu.',
-        'Eu também tenho prova amanhã.'
+        'Travou num resumo? Me chama que a gente resolve.',
+        'Dica de ouro: flashcard curto e direto gruda na memória.',
+        'Lembra: tudo aqui é 100% grátis, sem pegadinha.',
+        'Também tenho prova amanhã... vamos juntos?'
     ];
     var proximoOi = 0;
 
@@ -248,7 +248,7 @@
             orion.fecharOlhos(cobrir);
 
             if (cobrir) {
-                dizer('Sem espiar. Palavra de mascote.');
+                dizer('Sem espiar! Palavra de mascote — sua senha é só sua.');
                 marcarPasso(null);
                 esconderDica();
                 clearTimeout(voltarTimer);
@@ -275,8 +275,8 @@
             orion.fecharOlhos(senha.type === 'password');
 
             dizer(mostrando
-                ? 'Escondeu de novo. Volto a tapar os olhos.'
-                : 'Ah, pode mostrar? Então eu dou uma espiada.');
+                ? 'Feito — volto a tapar os olhos. Segurança em primeiro lugar.'
+                : 'Ok, você pediu... mas eu não vi nada, combinado?');
             esconderDica();
             clearTimeout(voltarTimer);
         });
@@ -291,7 +291,7 @@
 
             orion.humor(valido ? 'feliz' : 'normal');
             if (valido) {
-                dizer('E-mail certinho! Já pode entrar.');
+                dizer('E-mail válido! Tá pronto pra criar sua conta.');
                 esconderDica();
                 agendarVolta(5000);
             }
