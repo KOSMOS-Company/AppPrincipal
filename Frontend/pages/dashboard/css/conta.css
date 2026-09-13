@@ -141,7 +141,6 @@
     gap: 14px;
     flex-wrap: wrap;
 }
-.campo__dica { font-size: .78rem; color: var(--text-muted); }
 
 /* ---- Lista de informações (resumo de acesso, sobre) ---- */
 .conta-info { display: flex; flex-direction: column; gap: 2px; margin-top: 18px; }

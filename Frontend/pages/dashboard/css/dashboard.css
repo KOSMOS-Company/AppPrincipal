@@ -448,6 +448,13 @@ progress::-webkit-progress-value {
     transition: var(--transition);
 }
 .campo textarea { resize: vertical; min-height: 90px; }
+
+/* Modificadoras do campo. Moram aqui, e não no CSS de uma feature,
+   porque as partes reaproveitadas (partes/modal-resumo.php,
+   partes/modal-caderno.php) as usam e podem ser incluídas por
+   qualquer página do dashboard. */
+.campo__dica     { font-size: .78rem; color: var(--text-muted); }
+.campo__opcional { font-weight: 400;  color: var(--text-muted); }
 .campo input:focus, .campo select:focus, .campo textarea:focus {
     border-color: var(--accent);
     background: rgba(165,65,255,.08);

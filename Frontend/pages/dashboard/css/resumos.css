@@ -287,8 +287,6 @@
 /* ============================================================
    IMAGENS no editor (partes/modal-resumo.php)
    ============================================================ */
-.campo__opcional { font-weight: 400; color: var(--text-muted); }
-.campo__dica { font-size: .78rem; color: var(--text-muted); }
 
 /* a área de escolher arquivo: um alvo grande, não um input cru */
 .img-solta {
