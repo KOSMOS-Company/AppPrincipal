@@ -55,27 +55,27 @@
        ------------------------------------------------------------ */
     var FALAS = {
         sobre: {
-            texto: 'Aqui eles contam por que a Kosmos existe. Resumindo: foi gente como você que fez.',
+            texto: 'Aqui contam por que a Kosmos nasceu. Spoiler: foi estudante como você que criou — pra resolver o próprio sufoco.',
             humor: 'normal'
         },
         recursos: {
-            texto: 'Estes são os cômodos da casa. Passa o olho com calma — eu espero.',
+            texto: 'Essas são as ferramentas da casa. Dá uma olhada com calma — cada uma resolve um pedaço do estudo.',
             humor: 'normal'
         },
         demo: {
-            texto: 'Esta parte é pra mexer, não pra ler. Vira um cartão, liga o cronômetro. Pode.',
+            texto: 'Aqui é pra testar de verdade: vira o flashcard, roda o pomodoro, responde a questão da IA. Vá fundo.',
             humor: 'feliz'
         },
         historia: {
-            texto: 'Quatro estudantes, um TCC e muita noite mal dormida. É essa a história.',
+            texto: 'Quatro estudantes, um TCC e várias noites viradas. A Kosmos nasceu da nossa própria necessidade.',
             humor: 'normal'
         },
         faq: {
-            texto: 'Ficou com dúvida? Provavelmente já perguntaram antes. Dá uma olhada.',
+            texto: 'Dúvida? Provavelmente alguém já teve. Dá uma olhada aqui — é rapidinho.',
             humor: 'normal'
         },
         fim: {
-            texto: 'Chegamos ao fim da visita. Agora é criar a sua conta — e é de graça mesmo.',
+            texto: 'Chegamos ao fim do tour. Agora é sua vez: cria a conta e começa a organizar os estudos — de graça, pra sempre.',
             humor: 'feliz'
         }
     };

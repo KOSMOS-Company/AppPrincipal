@@ -480,16 +480,20 @@ progress::-webkit-progress-value {
     padding: 24px;
     background: rgba(5, 0, 12, .7);
     backdrop-filter: blur(6px);
+    overflow-y: auto;
 }
 .modal.open { display: flex; animation: dashFade .25s ease both; }
 .modal__box {
     width: 100%;
     max-width: 440px;
+    max-height: calc(100vh - 48px);
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 28px;
+    padding-bottom: 40px;
     box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 60px rgba(165,65,255,.12);
+    overflow-y: auto;
 }
 .modal__head {
     display: flex;
