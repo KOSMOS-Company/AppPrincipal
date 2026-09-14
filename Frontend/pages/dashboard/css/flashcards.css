@@ -448,3 +448,33 @@
     .estudo-avaliacao,
     .estudo-fim { animation: none; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   REVISAR HOJE (revisar.php)
+
+   A página reaproveita todo o resto deste arquivo — .flashcard,
+   .estudo-area, .estudo-avaliacao, .estudo-fim. Só estes dois
+   elementos são dela: a fila mistura baralhos, então cada cartão
+   precisa dizer de onde veio, e a carga precisa de um aviso.
+   ════════════════════════════════════════════════════════════════ */
+
+/* De qual baralho é o cartão da vez. Na aba Flashcards isto não
+   existe porque lá a pessoa escolheu o baralho; aqui quem escolheu
+   foi o agendamento, e sem esta linha o cartão chega sem contexto. */
+.rev-origem {
+    display: block;
+    margin-bottom: 12px;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.rev-carregando {
+    color: var(--text-muted);
+    font-size: .95rem;
+    padding: 40px 0;
+    text-align: center;
+}

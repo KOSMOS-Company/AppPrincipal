@@ -28,50 +28,97 @@ if (!empty($PREF['avatar_url'])) {
                     . (int) $PREF['avatar_pos_y'] . '%;';
 }
 ?>
-        <aside class="contLateral">
-            <a class="contLogo" href="index.php">
-                <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
-            </a>
+        <!-- Restaura a barra recolhida ANTES de o <aside> ser lido pelo
+             navegador. Se isso rodasse junto com o resto do JS, a barra
+             apareceria aberta e encolheria na frente da pessoa a cada
+             carregamento — e com a transição de largura ligada, o salto
+             seria bem visível. É a mesma razão pela qual o index.php lê
+             `kosmos_intro` aqui em cima. -->
+        <script>
+            try {
+                if (localStorage.getItem('kosmos_lateral') === 'recolhida') {
+                    document.documentElement.classList.add('lateral-recolhida');
+                }
+            } catch (e) { /* navegação privada: segue aberta, sem drama */ }
+        </script>
 
-            <nav class="botoesL" aria-label="Navegação principal">
+        <aside class="contLateral">
+            <!-- A seta de recolher NÃO mora aqui dentro: ela é posicionada
+                 na borda direita da barra (ver o CSS). Ficar ao lado da
+                 marca a fazia disputar atenção com o próprio nome do app. -->
+            <div class="contTopo">
+                <a class="contLogo" href="index.php">
+                    <!-- Dois estados da marca, e o CSS escolhe qual aparece.
+                         Aberta: a wordmark. Recolhida: o favicon — o mesmo
+                         ícone que a pessoa vê na aba do navegador e no
+                         atalho da tela inicial, então é ELE que ela
+                         reconhece como "o app", não um "K" recortado. -->
+                    <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
+                    <img class="contLogo__icone" src="../shared/favicon.svg" alt="Kosmos"
+                         width="34" height="34" decoding="async">
+                </a>
+            </div>
+
+            <!-- Só no computador: no celular a navegação é a barra de baixo,
+                 onde não existe nada para recolher (o CSS a esconde lá). -->
+            <button class="lateral__aperta" id="lateralAperta" type="button"
+                    aria-expanded="true" aria-controls="navPrincipal"
+                    aria-label="Recolher menu">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M14 7 L9 12 L14 17" stroke="currentColor" stroke-width="2.2"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+
+            <nav class="botoesL" id="navPrincipal" aria-label="Navegação principal">
                 <!-- marcador que desliza entre os itens (posicionado pelo dashboard.js) -->
                 <span class="nav__marca" aria-hidden="true"></span>
 
-                <a href="index.php"<?= navAtivo('index.php', $PAGINA) ?>>
+                <!-- `data-rotulo` alimenta a etiqueta que aparece ao lado do
+                     ícone quando a barra está recolhida. É CSS puro
+                     (content: attr), então funciona no teclado também — não
+                     depende de hover. -->
+                <a href="index.php" data-rotulo="Início"<?= navAtivo('index.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Início
+                    <span class="nav__rotulo">Início</span>
+                </a>
+
+                <a href="busca.php" data-rotulo="Buscar"<?= navAtivo('busca.php', $PAGINA) ?>>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/><path d="M16 16 L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <span class="nav__rotulo">Buscar</span>
                 </a>
 
                 <span class="nav__grupo">Estudar</span>
-                <a href="resumos.php"<?= navAtivo('resumos.php', $PAGINA) ?>>
+                <a href="resumos.php" data-rotulo="Biblioteca"<?= navAtivo('resumos.php', $PAGINA) ?>>
                     <!-- ícone de estante: a aba guarda cadernos, não folhas soltas -->
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m18.4 6.2 2.2 13.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Biblioteca
+                    <span class="nav__rotulo">Biblioteca</span>
                 </a>
-                <a href="flashcards.php"<?= navAtivo('flashcards.php', $PAGINA) ?>>
+                <a href="flashcards.php" data-rotulo="Flashcards"<?= navAtivo('flashcards.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Flashcards
+                    <span class="nav__rotulo">Flashcards</span>
                 </a>
-                <a href="exercicios.php"<?= navAtivo('exercicios.php', $PAGINA) ?>>
+                <a href="exercicios.php" data-rotulo="Exercícios"<?= navAtivo('exercicios.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Exercícios
+                    <span class="nav__rotulo">Exercícios</span>
                 </a>
 
                 <span class="nav__grupo">Foco</span>
-                <a href="pomodoro.php"<?= navAtivo('pomodoro.php', $PAGINA) ?>>
+                <a href="pomodoro.php" data-rotulo="Pomodoro"<?= navAtivo('pomodoro.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Pomodoro
+                    <span class="nav__rotulo">Pomodoro</span>
                 </a>
 
                 <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile -->
-                <a href="conta.php"<?= navAtivo('conta.php', $PAGINA) ?>>
+                <a href="conta.php" data-rotulo="Conta"<?= navAtivo('conta.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Conta
+                    <span class="nav__rotulo">Conta</span>
                 </a>
             </nav>
 
             <div class="contUsuario">
-                <a class="usuario<?= $PAGINA === 'conta.php' ? ' ativa' : '' ?>" href="conta.php">
+                <a class="usuario<?= $PAGINA === 'conta.php' ? ' ativa' : '' ?>" href="conta.php"
+                   data-rotulo="<?= hesc($USUARIO['nome']) ?>">
                     <span class="<?= $avatarClasses ?>" style="<?= $avatarEstilo ?>" aria-hidden="true"><?= hesc($USUARIO['inicial']) ?></span>
                     <span class="usuario__info">
                         <strong><?= hesc($USUARIO['nome']) ?></strong>

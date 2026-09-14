@@ -62,6 +62,7 @@ if ($id > 0 && !$ERRO_BANCO) {
     <link rel="stylesheet" href="./css/pomodoro-aviso.css">
     <link rel="stylesheet" href="./css/resumos.css">
     <link rel="stylesheet" href="./css/cursor.css">
+    <link rel="stylesheet" href="./css/impressao.css" media="print">
     <link rel="stylesheet" href="../shared/logo.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -110,10 +111,32 @@ if ($id > 0 && !$ERRO_BANCO) {
                         <?php endif; ?>
                     </p>
                 </div>
-                <button class="dash-btn dash-btn--primary" id="btnEditar">
-                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                    Editar
-                </button>
+                <div class="resumo-acoes">
+                    <!-- Modo revisão: esconde os trechos marcados com ==assim==
+                         para a pessoa tentar lembrar antes de ver. Nasce
+                         escondido e o js/resumo-revisao.js só o mostra se o
+                         texto TIVER marcação — botão que não faz nada é pior
+                         do que botão nenhum. -->
+                    <button class="dash-btn dash-btn--ghost" id="btnRevisar"
+                            type="button" aria-pressed="false" hidden>
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2 10s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.2" stroke="currentColor" stroke-width="1.6"/></svg>
+                        <span id="btnRevisarTexto">Modo revisão</span>
+                    </button>
+
+                    <!-- Imprimir é também "salvar em PDF": o próprio diálogo
+                         do navegador oferece isso em todos os sistemas. Uma
+                         biblioteca de PDF no servidor faria o mesmo trabalho
+                         pior, e o projeto não usa nenhuma no frontend. -->
+                    <button class="dash-btn dash-btn--outline" id="btnImprimir" type="button">
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 8V3h8v5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 12h8v5H6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                        PDF
+                    </button>
+
+                    <button class="dash-btn dash-btn--primary" id="btnEditar">
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        Editar
+                    </button>
+                </div>
             </header>
 
             <!-- As imagens anexadas. Clicar abre no tamanho grande. -->
@@ -165,6 +188,7 @@ if ($id > 0 && !$ERRO_BANCO) {
     <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/resumo-form.js"></script>
     <script src="./js/resumo.js"></script>
+    <script src="./js/resumo-revisao.js"></script>
     <script src="./js/cursor.js"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta
          primeiro e, se não houver placa ou o shader não compilar, ele

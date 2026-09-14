@@ -15,6 +15,26 @@
    (era o caso do rodape de Exercicios, que aparecia sem questoes). */
 [hidden] { display: none !important; }
 
+/* ── Escondido só para os olhos ──
+   Some do layout e da tela, mas CONTINUA no DOM e na árvore de
+   acessibilidade. É o oposto de `display: none`, que apaga o
+   elemento para o leitor de tela também.
+
+   Usado em dois lugares: o rótulo dos itens quando a barra lateral
+   recolhe (lá o leitor de tela precisa continuar ouvindo
+   "Biblioteca", não "link") e o label do campo de busca, que é
+   óbvio pelo desenho e necessário para quem não o vê. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
 :root {
     --black:    #000000;
     --bg-deep:  #0d0118;
@@ -102,7 +122,18 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
     position: sticky;
     top: 0;
     align-self: flex-start;
-    width: 236px;
+
+    /* Largura numa variável: é ela que a classe `.lateral-recolhida`
+       troca, e é a única coisa que precisa mudar para a barra encolher.
+       O resto (rótulos, grupos, logo) some por consequência. */
+    width: var(--lateral, 236px);
+    transition: width .26s cubic-bezier(.4, 0, .2, 1);
+
+    /* `visible` porque a seta fica meio para fora da borda direita e as
+       etiquetas do estado recolhido também precisam escapar. Nada
+       transborda por acidente: os rótulos saem do layout por conta
+       própria quando a barra encolhe. */
+    overflow: visible;
     height: 100vh;
     flex: 0 0 auto;
     display: flex;
@@ -112,10 +143,71 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
     border-right: 1px solid rgba(165,65,255,.1);
 }
 
-.contLogo {
-    display: block;
+/* Topo: a marca e o botão de recolher dividem a linha. Quando a barra
+   encolhe, vira uma coluna — o botão desce para baixo do "K". */
+.contTopo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin: 0 8px 34px;
+}
+.contLogo {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: block;
     text-decoration: none;
+}
+/* O favicon só entra quando a barra recolhe (ver o bloco do estado
+   recolhido). Aberta, quem manda é a wordmark. */
+.contLogo__icone { display: none; }
+
+/* ── A seta de recolher ──
+   Mora na BORDA direita da barra, meio dentro e meio fora, na altura do
+   primeiro item. Ao lado da marca ela disputava atenção com o próprio
+   nome do app; aqui ela fica onde a ação acontece — na linha que se
+   move.
+
+   Discreta, não escondida: 40% de opacidade parada, cheia quando o
+   ponteiro entra na barra ou quando ela recebe foco. Sumir de vez até o
+   hover é o jeito clássico de ninguém descobrir que o recurso existe. */
+.lateral__aperta {
+    position: absolute;
+    top: 92px;
+    right: -13px;
+    z-index: 5;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    background: var(--bg-card);
+    border: 1px solid rgba(165, 65, 255, .28);
+    border-radius: 50%;
+    color: var(--text-dim);
+    cursor: pointer;
+    opacity: .4;
+    transition: opacity var(--transition), color var(--transition),
+                border-color var(--transition), transform var(--transition);
+}
+.lateral__aperta svg { width: 15px; height: 15px; }
+.contLateral:hover .lateral__aperta,
+.lateral__aperta:focus-visible { opacity: 1; }
+.lateral__aperta:hover {
+    color: var(--accent-lt);
+    border-color: var(--accent);
+}
+
+/* Recolhida, a seta aponta para o outro lado — ela mostra o que vai
+   acontecer, não o estado em que está. */
+html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
+.lateral__aperta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* No celular ele SOME. A navegação ali é a barra de baixo, e todas as
+   regras do estado recolhido vivem dentro de `min-width: 769px` — o
+   botão continuaria clicável e não faria nada visível, que é pior do
+   que não existir. */
+@media (max-width: 768px) {
+    .lateral__aperta { display: none; }
 }
 .logo__text {
     font-family: "Syne", sans-serif;
@@ -205,6 +297,138 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
 .botoesL a.active .nav-icon {
     opacity: 1;
     filter: drop-shadow(0 0 6px rgba(165,65,255,.6));
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BARRA RECOLHIDA  ·  html.lateral-recolhida
+
+   Só os ícones. A classe fica no <html> (e não no <aside>) porque o
+   partes/sidebar.php a restaura num script inline ANTES de o aside ser
+   lido — assim a barra já nasce estreita, sem encolher na frente da
+   pessoa a cada carregamento.
+
+   O que NÃO acontece aqui: nada é removido do DOM. Os rótulos saem do
+   layout pela receita de "escondido só para os olhos" (ver abaixo), então
+   quem usa leitor de tela continua ouvindo "Biblioteca", e não "link".
+   Devolver o nome por `aria-label` seria a alternativa, e é justamente a
+   origem clássica de leitura duplicada.
+   ════════════════════════════════════════════════════════════════ */
+@media (min-width: 769px) {
+    html.lateral-recolhida .contLateral {
+        --lateral: 74px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    /* o topo vira coluna: "K●" em cima, botão embaixo */
+    html.lateral-recolhida .contTopo {
+        flex-direction: column;
+        gap: 12px;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    html.lateral-recolhida .contLogo { flex: none; line-height: 0; }
+
+    /* Recolhida, a marca vira o FAVICON — o mesmo ícone da aba do
+       navegador e do atalho na tela inicial. A tentativa anterior
+       cortava a wordmark em "K" + planeta, e um "K" solto não é a marca
+       de nada: é uma letra. O ícone a pessoa já reconhece. */
+    html.lateral-recolhida .logo__text { display: none; }
+    html.lateral-recolhida .contLogo__icone {
+        display: block;
+        width: 34px;
+        height: 34px;
+        margin: 0 auto;
+        border-radius: 9px;
+    }
+
+    html.lateral-recolhida .botoesL a { justify-content: center; padding: 12px 0; }
+
+    /* O rótulo sai do LAYOUT, não só da vista — a mesma receita da
+       `.sr-only` lá no topo deste arquivo, aplicada por classe em vez
+       de ser copiada aqui.
+
+       A primeira versão usava `opacity: 0`, e isso não tira o elemento
+       do fluxo: o texto continuava ocupando ~70px e, como o link é
+       `justify-content: center`, o ÍCONE era empurrado para fora da
+       barra. A tela ficou sem nenhum ícone.
+
+       `display: none` também resolveria o layout, mas apagaria o nome
+       para o leitor de tela junto. */
+    html.lateral-recolhida .nav__rotulo,
+    html.lateral-recolhida .usuario__info {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    /* O rótulo do grupo não cabe em 74px. Vira um traço: o agrupamento
+       continua visível, que é a informação que ele carrega de verdade. */
+    html.lateral-recolhida .nav__grupo {
+        padding: 14px 0 10px;
+        font-size: 0;
+        line-height: 0;
+    }
+    html.lateral-recolhida .nav__grupo::before {
+        content: "";
+        display: block;
+        height: 1px;
+        background: rgba(165, 65, 255, .16);
+    }
+
+    /* o rodapé guarda só o avatar */
+    html.lateral-recolhida .contUsuario { flex-direction: column; gap: 10px; }
+    html.lateral-recolhida .usuario { justify-content: center; padding: 6px; }
+
+    /* ── A etiqueta que diz o que cada ícone é ──
+       `content: attr(data-rotulo)` — CSS puro, sem JS e sem `title`
+       (que só aparece no hover do mouse e depois de um segundo parado).
+       Responde a `:focus-visible` também: quem navega por teclado
+       precisa saber onde está tanto quanto quem usa mouse. */
+    html.lateral-recolhida .botoesL a::after,
+    html.lateral-recolhida .usuario::after {
+        content: attr(data-rotulo);
+        position: absolute;
+        left: calc(100% + 14px);
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 60;
+        padding: 7px 11px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-card);
+        border: 1px solid rgba(165, 65, 255, .28);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+        color: var(--text);
+        font-size: .85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .16s ease;
+    }
+    html.lateral-recolhida .usuario { position: relative; }
+    html.lateral-recolhida .botoesL a:hover::after,
+    html.lateral-recolhida .botoesL a:focus-visible::after,
+    html.lateral-recolhida .usuario:hover::after,
+    html.lateral-recolhida .usuario:focus-visible::after { opacity: 1; }
+
+    /* A etiqueta precisa escapar da barra, que é `overflow: hidden` para
+       recortar os rótulos. Sem isto ela nasceria cortada na borda. */
+    html.lateral-recolhida .contLateral { overflow: visible; }
+    html.lateral-recolhida .botoesL a { overflow: hidden; }
+    html.lateral-recolhida .botoesL a:hover,
+    html.lateral-recolhida .botoesL a:focus-visible { overflow: visible; }
+}
+
+/* Quem pediu menos movimento não vê a barra deslizar — ela troca de
+   largura de uma vez. O estado continua o mesmo. */
+@media (prefers-reduced-motion: reduce) {
+    .contLateral { transition: none; }
 }
 
 /* No desktop a conta fica no rodapé; na barra inferior do mobile
@@ -682,14 +906,36 @@ em { font-style: normal; color: var(--accent-lt); }
     margin-bottom: 28px;
 }
 
-/* ---- Abertura (eco do hero da LP) ---- */
-.ini-hero { margin-bottom: 72px; }
+/* ════════════════════════════════════════════════════════════════
+   ABERTURA
+
+   Era o hero da landing page transplantado: título de 3.4rem,
+   parágrafo de venda, dois botões e quatro números soltos — quase uma
+   tela inteira antes de qualquer informação útil. Mas quem abre o
+   Início já se cadastrou: não precisa ser convencido de novo, precisa
+   saber como está.
+
+   Agora é uma linha, no formato da prévia que está na landing page:
+   saudação à esquerda, sequência à direita.
+   ════════════════════════════════════════════════════════════════ */
+.ini-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+}
+.ini-hero__texto { min-width: 0; }
 .ini-hero__titulo {
-    font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+    /* Era clamp(2.2rem, 4.4vw, 3.4rem). Num cabeçalho de app o nome da
+       pessoa não precisa de manchete — precisa caber na mesma linha do
+       selo e deixar o painel aparecer sem rolagem. */
+    font-size: clamp(1.6rem, 2.8vw, 2.1rem);
     font-weight: 800;
     letter-spacing: -.03em;
-    line-height: 1.05;
-    margin-bottom: 18px;
+    line-height: 1.1;
+    margin-bottom: 6px;
 }
 /* mesmo gradiente clipado do .hero__title-highlight da LP */
 .ini-hero__nome {
@@ -700,12 +946,65 @@ em { font-style: normal; color: var(--accent-lt); }
 }
 .ini-hero__desc {
     max-width: 540px;
-    font-size: 1.05rem;
-    line-height: 1.6;
+    font-size: .95rem;
+    line-height: 1.5;
     color: var(--text-dim);
-    margin-bottom: 32px;
+    margin: 0;
 }
-.ini-hero__cta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 44px; }
+
+/* ---- O selo da sequência ----
+   O mesmo elemento da prévia na landing page: o número que a pessoa
+   mais quer ver, num lugar fixo e sempre igual. */
+.ini-selo {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 18px;
+    border-radius: 999px;
+    background: rgba(165, 65, 255, .1);
+    border: 1px solid rgba(165, 65, 255, .26);
+}
+.ini-selo__icone {
+    font-size: 1.3rem;
+    line-height: 1;
+    font-style: normal;          /* é um <i>, e emoji não se inclina */
+}
+
+/* O número e o rótulo empilhados. Antes isto era um <span> (inline) com
+   um bloco dentro — bloco dentro de inline parte a caixa, e era isso que
+   jogava o "DIA SEGUIDO" para fora da pílula. */
+.ini-selo__num {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+}
+.ini-selo__num strong {
+    font-family: "Syne", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent-lt);
+    line-height: 1;
+}
+.ini-selo__txt {
+    font-style: normal;
+    font-size: .7rem;
+    font-weight: 500;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    line-height: 1.1;
+    white-space: nowrap;
+}
+/* Sequência zerada: o selo recua em vez de sumir — o lugar continua
+   reservado, então a tela não muda de forma quando ela começa. */
+.ini-selo.ini-stat--vazio {
+    background: rgba(255, 255, 255, .03);
+    border-color: rgba(255, 255, 255, .08);
+}
+.ini-selo.ini-stat--vazio .ini-selo__icone { filter: grayscale(1); opacity: .5; }
 
 /* ---- Estatísticas: números soltos, como no hero da LP ---- */
 .ini-stats {
@@ -733,9 +1032,50 @@ em { font-style: normal; color: var(--accent-lt); }
 .ini-stat--vazio strong { color: var(--text-muted); }
 .ini-stat__div { width: 1px; height: 36px; background: rgba(165,65,255,.25); }
 
+/* ---- O painel "Esta semana" ----
+   Subiu para logo abaixo da saudação: é a única coisa nesta tela que
+   responde "como eu estou indo", e antes estava no fim da página. */
+.ini-painel { padding: 22px 24px 24px; margin-bottom: 40px; }
+.ini-painel__cabeca {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.ini-painel__cabeca h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+.ini-painel__nota { font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
+
+/* Os outros números, no rodapé do painel: são contexto do "como estou
+   indo", não manchete — por isso saíram do topo da página. */
+.ini-numeros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(165, 65, 255, .12);
+}
+.ini-numeros .ini-stat strong { font-size: 1.25rem; }
+
 /* ---- Seções ---- */
-.ini-secao { margin-bottom: 72px; }
+.ini-secao { margin-bottom: 40px; }
 .ini-secao:last-child { margin-bottom: 0; }
+
+/* O título de seção aqui é um rótulo, não uma manchete: a fileira de
+   atalhos não precisa ser anunciada com tag + título grande, que é o
+   que a landing page faz porque lá é preciso convencer. */
+.ini-titulo {
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
 
 /* ---- Card (mesma receita do .card da LP) ---- */
 .ini-card {
@@ -765,9 +1105,19 @@ em { font-style: normal; color: var(--accent-lt); }
 /* ---- Grade de ferramentas ---- */
 .ini-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
+    /* Era minmax(240px, …): com quatro atalhos e a barra lateral aberta,
+       4x240 + 3 vãos passava da largura útil por poucos pixels — e a
+       grade caía para três, deixando o Pomodoro sozinho numa segunda
+       linha. 200px faz os quatro caberem numa fileira só. */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
 }
+
+/* Atalho é atalho: ícone, nome e uma linha. O tamanho de antes vinha de
+   quando estes cartões eram a apresentação dos recursos, com a moldura
+   de campanha em volta. */
+.ini-grid .ini-card { padding: 20px; }
+.ini-grid .ini-card__desc { margin-bottom: 0; }
 a.ini-card { text-decoration: none; color: inherit; display: block; }
 a.ini-card:hover,
 a.ini-card:focus-visible {
@@ -820,13 +1170,6 @@ a.ini-card:hover .ini-card__ico {
     box-shadow: 0 0 14px rgba(165,65,255,.35), inset 0 1px 0 rgba(255,255,255,.15);
 }
 
-/* ---- Duas colunas: semana + primeiros passos ---- */
-.ini-duas {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 20px;
-    align-items: start;
-}
 .ini-card__cabeca {
     display: flex;
     align-items: baseline;
@@ -1054,3 +1397,223 @@ a.ini-card:hover .ini-card__ico {
 
 /* O modal de confirmação é estreito: é só uma pergunta */
 .modal__box--confirma { max-width: 400px; }
+
+/* ════════════════════════════════════════════════════════════════
+   INÍCIO — os blocos que dependem de dados reais
+
+   Os três nascem com o atributo `hidden` e só aparecem quando o
+   inicio_dados.php responde. É de propósito: seção que se anuncia
+   vazia ("0 cartões", "nenhuma prova") é ruído, e ruído a pessoa
+   aprende a ignorar — junto com o aviso de verdade quando ele vier.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ---- Revisar hoje: a faixa que puxa de volta amanhã ---- */
+.ini-revisar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    background: linear-gradient(100deg, rgba(165,65,255,.16) 0%, rgba(165,65,255,.05) 100%);
+    border: 1px solid rgba(165,65,255,.3);
+    transition: var(--transition);
+}
+.ini-revisar:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px rgba(0,0,0,.35);
+}
+.ini-revisar:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.ini-revisar__ico { font-size: 1.4rem; line-height: 1; }
+.ini-revisar__txt { flex: 1 1 auto; min-width: 0; }
+.ini-revisar__txt strong {
+    font-family: "Syne", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--accent-lt);
+    margin-right: 6px;
+}
+.ini-revisar__cta {
+    flex: none;
+    font-size: .86rem;
+    font-weight: 500;
+    color: var(--accent-lt);
+}
+/* Abaixo de 560px a chamada sai: o card inteiro já é o link, e o
+   texto principal vale mais que a repetição da ação. */
+@media (max-width: 560px) {
+    .ini-revisar__cta { display: none; }
+}
+
+/* ---- A meta do dia ---- */
+.ini-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 20px;
+}
+.ini-meta progress {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+}
+.ini-meta__txt {
+    flex: none;
+    font-size: .82rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.ini-meta--batida .ini-meta__txt { color: var(--accent-lt); font-weight: 500; }
+
+/* ---- Próximas provas ---- */
+.ini-provas {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ini-prova {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 13px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--superficie);
+    border: 1px solid rgba(165,65,255,.12);
+}
+.ini-prova strong {
+    flex: none;
+    min-width: 62px;
+    font-family: "Syne", sans-serif;
+    font-weight: 800;
+    color: var(--text-dim);
+}
+.ini-prova__nome { flex: 1 1 auto; min-width: 0; }
+.ini-prova__quando { flex: none; font-size: .8rem; color: var(--text-muted); }
+
+/* Faltando uma semana ou menos, a contagem acende. É a única
+   diferença visual da lista — e a que importa. */
+.ini-prova--perto { border-color: rgba(165,65,255,.34); }
+.ini-prova--perto strong { color: var(--accent-lt); }
+
+@media (max-width: 560px) {
+    .ini-prova { flex-wrap: wrap; gap: 4px 12px; }
+    .ini-prova__nome { flex-basis: 100%; order: 3; }
+}
+
+/* ---- Cabeçalho de seção com ação ---- */
+.ini-secao__cabeca {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.ini-secao__cabeca .ini-titulo { margin-bottom: 0; }
+
+/* Botão menor, para caber ao lado de um rótulo de seção sem virar
+   o assunto da linha. */
+.dash-btn--pequeno {
+    padding: 6px 12px;
+    font-size: .82rem;
+}
+
+.ini-provas__vazio {
+    font-size: .9rem;
+    color: var(--text-muted);
+    padding: 14px 18px;
+    border: 1px dashed rgba(165,65,255,.2);
+    border-radius: var(--radius-sm);
+}
+.ini-provas__vazio[hidden] { display: none; }
+
+/* O × de apagar. Só aparece no hover da linha e no foco — mas fica
+   SEMPRE visível onde não há hover (celular), senão não há como
+   apagar uma prova pelo telefone. */
+.ini-prova__apagar {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    transition: var(--transition);
+}
+.ini-prova:hover .ini-prova__apagar,
+.ini-prova:focus-within .ini-prova__apagar { opacity: 1; }
+.ini-prova__apagar:hover { color: #ff6b8a; background: rgba(255,107,138,.12); }
+.ini-prova__apagar:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (hover: none) {
+    .ini-prova__apagar { opacity: 1; }
+}
+
+/* ---- Busca global ---- */
+.busca-campo { display: flex; gap: 10px; margin-bottom: 28px; }
+.busca-campo input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 13px 16px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--superficie);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+.busca-campo input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(165,65,255,.08);
+}
+
+.busca-lista { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.busca-item {
+    display: block;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--superficie);
+    border: 1px solid rgba(165,65,255,.12);
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
+.busca-item:hover { border-color: rgba(165,65,255,.4); transform: translateX(3px); }
+.busca-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.busca-item__topo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.busca-item__tipo {
+    flex: none;
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+    background: rgba(165,65,255,.12);
+    border-radius: 999px;
+    padding: 3px 9px;
+}
+.busca-item__titulo { font-weight: 500; }
+.busca-item__trecho {
+    display: block;
+    font-size: .86rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+/* O termo procurado, destacado. Criado por createElement no JS —
+   nunca por innerHTML, porque o trecho é texto do usuário. */
+.busca-item__trecho mark {
+    background: rgba(165,65,255,.28);
+    color: var(--text);
+    border-radius: 3px;
+    padding: 0 2px;
+}

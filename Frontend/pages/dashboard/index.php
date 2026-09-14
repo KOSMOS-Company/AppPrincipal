@@ -86,61 +86,135 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
         <main class="contMeio pagina-inicio">
 
             <!-- ==========================================================
-                 ABERTURA — eco do hero da landing page: pílula, título
-                 grande em Syne com o nome em gradiente, e as estatísticas
-                 como números soltos (sem caixa), igual ao hero da LP.
+                 ABERTURA
+
+                 Era um hero de landing page dentro do app: pílula, título
+                 gigante, parágrafo de venda, dois botões e quatro números
+                 soltos — quase uma tela inteira antes de qualquer coisa
+                 útil. Mas quem abre o Início já se cadastrou; não precisa
+                 ser convencido, precisa saber como está e continuar.
+
+                 Agora é uma linha só, no formato da prévia que está na
+                 landing page: saudação à esquerda, sequência à direita.
                  ========================================================== -->
             <header class="ini-hero">
-                <span class="ini-data" id="iniData">Hoje</span>
-                <h1 class="ini-hero__titulo">
-                    <span id="iniSaudacao">Bem-vindo</span>,
-                    <span class="ini-hero__nome"><?= hesc($USUARIO['primeiro']) ?></span>.
-                </h1>
-                <p class="ini-hero__desc">
-                    Suas ferramentas de estudo em um só lugar. Escolha por onde começar
-                    — ou entre direto numa sessão de foco.
-                </p>
-
-                <div class="ini-hero__cta">
-                    <a href="pomodoro.php" class="dash-btn dash-btn--primary">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Iniciar foco
-                    </a>
-                    <a href="resumos.php" class="dash-btn dash-btn--ghost">Escrever um resumo</a>
+                <div class="ini-hero__texto">
+                    <span class="ini-data" id="iniData">Hoje</span>
+                    <h1 class="ini-hero__titulo">
+                        <span id="iniSaudacao">Bem-vindo</span>,
+                        <span class="ini-hero__nome"><?= hesc($USUARIO['primeiro']) ?></span>
+                    </h1>
+                    <p class="ini-hero__desc">
+                        <?= $USUARIO['sequencia'] > 0
+                            ? 'Sua sequência está de pé — continue de onde parou.'
+                            : 'Uma sessão de foco hoje já começa sua sequência.' ?>
+                    </p>
                 </div>
 
-                <!-- Só a sequência é um número real hoje; os outros esperam
-                     a persistência (ver js/inicio.js). -->
-                <div class="ini-stats" aria-label="Seus números">
-                    <div class="ini-stat<?= $USUARIO['sequencia'] === 0 ? ' ini-stat--vazio' : '' ?>">
+                <!-- O selo da sequência. `.ini-stat` continua aqui porque é
+                     por ele que o js/inicio.js apaga o número quando zera
+                     (`el.closest('.ini-stat')`) — a classe é contrato, não
+                     enfeite. -->
+                <div class="ini-selo ini-stat<?= $USUARIO['sequencia'] === 0 ? ' ini-stat--vazio' : '' ?>">
+                    <!-- Nada de <span> aqui dentro, de propósito. Este bloco
+                         precisa da classe `.ini-stat` porque é por ela que o
+                         js/inicio.js apaga o número quando a sequência zera
+                         (`el.closest('.ini-stat')`) — é contrato, não estilo.
+                         Só que junto com a classe vêm as regras genéricas
+                         `.ini-stat span { display:block; text-transform:
+                         uppercase; margin-top:5px }`, escritas para os
+                         números soltos do Flashcards. Elas acertavam a chama
+                         e o rótulo e desmontavam o selo. Trocar as tags
+                         resolve na raiz; brigar por especificidade só
+                         adiaria o problema para o próximo que mexer. -->
+                    <i class="ini-selo__icone" aria-hidden="true">🔥</i>
+                    <div class="ini-selo__num">
                         <strong data-metrica="sequencia"><?= (int) $USUARIO['sequencia'] ?></strong>
-                        <span><?= $USUARIO['sequencia'] === 1 ? 'dia de sequência' : 'dias de sequência' ?></span>
-                    </div>
-                    <i class="ini-stat__div" aria-hidden="true"></i>
-                    <div class="ini-stat<?= $USUARIO['resumos'] === 0 ? ' ini-stat--vazio' : '' ?>">
-                        <strong data-metrica="resumos"><?= $USUARIO['resumos'] > 0 ? (int) $USUARIO['resumos'] : '—' ?></strong>
-                        <span><?= $USUARIO['resumos'] === 1 ? 'resumo' : 'resumos' ?></span>
-                    </div>
-                    <i class="ini-stat__div" aria-hidden="true"></i>
-                    <div class="ini-stat<?= $USUARIO['cartoes'] === 0 ? ' ini-stat--vazio' : '' ?>">
-                        <strong data-metrica="flashcards"><?= $USUARIO['cartoes'] > 0 ? (int) $USUARIO['cartoes'] : '—' ?></strong>
-                        <span>flashcards</span>
-                    </div>
-                    <i class="ini-stat__div" aria-hidden="true"></i>
-                    <div class="ini-stat ini-stat--vazio">
-                        <strong data-metrica="exercicios">—</strong>
-                        <span>exercícios</span>
+                        <i class="ini-selo__txt"><?= $USUARIO['sequencia'] === 1 ? 'dia seguido' : 'dias seguidos' ?></i>
                     </div>
                 </div>
             </header>
 
             <!-- ==========================================================
-                 FERRAMENTAS — cards com a mesma receita do .card da LP
-                 (gradiente 150deg, ícone 52px, brilho seguindo o cursor)
+                 REVISAR HOJE
+
+                 A fila de revisão atravessando todos os baralhos. É o
+                 motivo de voltar amanhã, então fica acima de tudo.
+
+                 Nasce escondida e só aparece quando há o que revisar
+                 (js/inicio.js). Um aviso permanente dizendo "0 cartões"
+                 vira ruído, e ruído a pessoa aprende a ignorar — junto
+                 com o aviso de verdade quando ele chegar.
+                 ========================================================== -->
+            <a class="ini-revisar" id="iniRevisar" href="revisar.php" hidden>
+                <span class="ini-revisar__ico" aria-hidden="true">🃏</span>
+                <span class="ini-revisar__txt">
+                    <strong data-revisar-n>0</strong>
+                    <span data-revisar-txt>cartões esperando revisão</span>
+                </span>
+                <span class="ini-revisar__cta" aria-hidden="true">Revisar agora →</span>
+            </a>
+
+            <!-- ==========================================================
+                 ESTA SEMANA — o painel principal
+
+                 É o que a prévia da landing page mostra em primeiro plano,
+                 e é a única coisa nesta tela que responde "como eu estou
+                 indo". Por isso subiu: antes estava no fim da página.
+                 ========================================================== -->
+            <section class="ini-painel painel">
+                <div class="ini-painel__cabeca">
+                    <h2>Esta semana</h2>
+                    <span class="ini-painel__nota" data-total-semana>últimos 7 dias</span>
+                </div>
+
+                <!-- as colunas são desenhadas pelo inicio.js (CSS puro, sem biblioteca) -->
+                <div class="ini-chart" id="iniChart" role="img"
+                     aria-label="Minutos estudados nos últimos sete dias"></div>
+                <p class="ini-chart__aviso" id="iniChartAviso">
+                    Ainda não há sessões registradas. Assim que você estudar com o
+                    Pomodoro, seus dias aparecem aqui.
+                </p>
+
+                <!-- A meta do dia. A coluna `meta_diaria` existe em
+                     usuario_preferencias desde agosto e NENHUM código a
+                     lia — salvar um número que nada usa é pior do que não
+                     ter o campo, porque promete um ajuste que não ajusta
+                     nada. Escondida até os dados chegarem. -->
+                <div class="ini-meta" id="iniMeta" role="group" hidden>
+                    <progress data-meta-barra value="0" max="60"></progress>
+                    <span class="ini-meta__txt" data-meta-texto></span>
+                </div>
+
+                <!-- Os outros números vivem AQUI, no rodapé do painel, e não
+                     mais soltos no topo da página: eles são contexto do
+                     "como estou indo", não manchete. -->
+                <div class="ini-numeros">
+                    <div class="ini-stat<?= $USUARIO['resumos'] === 0 ? ' ini-stat--vazio' : '' ?>">
+                        <strong data-metrica="resumos"><?= $USUARIO['resumos'] > 0 ? (int) $USUARIO['resumos'] : '—' ?></strong>
+                        <span><?= $USUARIO['resumos'] === 1 ? 'resumo' : 'resumos' ?></span>
+                    </div>
+                    <div class="ini-stat<?= $USUARIO['cartoes'] === 0 ? ' ini-stat--vazio' : '' ?>">
+                        <strong data-metrica="flashcards"><?= $USUARIO['cartoes'] > 0 ? (int) $USUARIO['cartoes'] : '—' ?></strong>
+                        <span>flashcards</span>
+                    </div>
+                    <div class="ini-stat ini-stat--vazio">
+                        <strong data-metrica="exercicios">—</strong>
+                        <span>exercícios</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 ATALHOS
+
+                 Os mesmos quatro destinos de antes. O que saiu foi a
+                 moldura de campanha em volta ("O que você quer fazer
+                 agora?", com tag de seção e título grande): num app, uma
+                 fileira de atalhos não precisa ser anunciada.
                  ========================================================== -->
             <section class="ini-secao">
-                <span class="section-tag">Ferramentas</span>
-                <h2 class="section-title">O que você quer fazer <em>agora</em>?</h2>
+                <h2 class="ini-titulo">Atalhos</h2>
 
                 <div class="ini-grid">
                     <a class="ini-card" href="resumos.php">
@@ -148,7 +222,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                             <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 10 H16 M8 14 H12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </span>
                         <h3 class="ini-card__titulo">Biblioteca</h3>
-                        <p class="ini-card__desc">Monte cadernos por matéria e guarde seus resumos neles.</p>
+                        <p class="ini-card__desc">Cadernos por matéria.</p>
                     </a>
 
                     <a class="ini-card" href="flashcards.php">
@@ -156,7 +230,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                             <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </span>
                         <h3 class="ini-card__titulo">Flashcards</h3>
-                        <p class="ini-card__desc">Revise por repetição: pergunta na frente, resposta atrás.</p>
+                        <p class="ini-card__desc">Revisão por repetição.</p>
                     </a>
 
                     <a class="ini-card" href="exercicios.php">
@@ -164,7 +238,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                             <svg viewBox="0 0 24 24" fill="none"><path d="M5 7 H19 M5 12 H19 M5 17 H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </span>
                         <h3 class="ini-card__titulo">Exercícios <span class="ini-tag">IA</span></h3>
-                        <p class="ini-card__desc">Questões geradas na hora, na matéria e no nível que quiser.</p>
+                        <p class="ini-card__desc">Questões geradas na hora.</p>
                     </a>
 
                     <a class="ini-card" href="pomodoro.php">
@@ -172,77 +246,94 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                             <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <h3 class="ini-card__titulo">Pomodoro</h3>
-                        <p class="ini-card__desc">25 minutos de foco, 5 de descanso. Sem distração.</p>
+                        <p class="ini-card__desc">25 de foco, 5 de pausa.</p>
                     </a>
                 </div>
             </section>
 
             <!-- ==========================================================
-                 SEU RITMO — semana + primeiros passos
+                 PRÓXIMAS PROVAS
+
+                 Também nasce escondida: quem não cadastrou prova nenhuma
+                 não precisa de uma seção vazia explicando que está vazia.
+                 A contagem de dias vem pronta do servidor (DATEDIFF no
+                 MySQL) — o projeto tem PHP e MySQL em fusos diferentes, e
+                 data calculada no cliente erraria o dia da virada.
+                 ========================================================== -->
+            <section class="ini-secao" id="iniProvas">
+                <div class="ini-secao__cabeca">
+                    <h2 class="ini-titulo">Próximas provas</h2>
+                    <button class="dash-btn dash-btn--ghost dash-btn--pequeno"
+                            type="button" id="btnNovaProva">+ Prova</button>
+                </div>
+
+                <ul class="ini-provas" data-provas-lista></ul>
+
+                <!-- Sem prova cadastrada a seção CONTINUA visível, ao
+                     contrário do "Revisar hoje". A diferença: revisar
+                     depende de já ter cartões, e anunciar zero seria
+                     cobrança; cadastrar prova é uma ação que a pessoa pode
+                     fazer agora — esconder seria esconder o recurso. -->
+                <p class="ini-provas__vazio" data-provas-vazio>
+                    Cadastre suas provas e o Kosmos conta os dias para você.
+                </p>
+            </section>
+
+            <!-- ==========================================================
+                 PRIMEIROS PASSOS
+                 Mantido como estava: é a única parte da tela que ensina o
+                 caminho a quem acabou de chegar.
                  ========================================================== -->
             <section class="ini-secao">
-                <span class="section-tag">Seu ritmo</span>
-                <h2 class="section-title">Como você está <em>indo</em></h2>
-
-                <div class="ini-duas">
-                    <div class="ini-card">
-                        <div class="ini-card__cabeca">
-                            <h3>Esta semana</h3>
-                            <span class="ini-card__nota" data-total-semana>últimos 7 dias</span>
-                        </div>
-                        <!-- as colunas são desenhadas pelo inicio.js (CSS puro, sem biblioteca) -->
-                        <div class="ini-chart" id="iniChart" role="img"
-                             aria-label="Minutos estudados nos últimos sete dias"></div>
-                        <p class="ini-chart__aviso" id="iniChartAviso">
-                            Ainda não há sessões registradas. Assim que você estudar com o
-                            Pomodoro, seus dias aparecem aqui.
-                        </p>
+                <div class="ini-card ini-passos">
+                    <div class="ini-card__cabeca">
+                        <h3>Primeiros passos</h3>
+                        <span class="ini-card__nota" id="iniPassosContador">0 de 3</span>
                     </div>
-
-                    <div class="ini-card ini-passos">
-                        <div class="ini-card__cabeca">
-                            <h3>Primeiros passos</h3>
-                            <span class="ini-card__nota" id="iniPassosContador">0 de 3</span>
-                        </div>
-                        <progress id="iniPassosBarra" value="0" max="3"></progress>
-                        <ul class="ini-passos__lista">
-                            <li class="ini-passo" data-passo="resumo">
-                                <button class="ini-passo__check" type="button" aria-pressed="false"
-                                        aria-label="Marcar como feito: criar seu primeiro resumo">
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </button>
-                                <a class="ini-passo__link" href="resumos.php">
-                                    <strong>Criar seu primeiro resumo</strong>
-                                    <span>Comece pela matéria que você viu hoje.</span>
-                                </a>
-                            </li>
-                            <li class="ini-passo" data-passo="flashcards">
-                                <button class="ini-passo__check" type="button" aria-pressed="false"
-                                        aria-label="Marcar como feito: montar um baralho de flashcards">
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </button>
-                                <a class="ini-passo__link" href="flashcards.php">
-                                    <strong>Montar um baralho</strong>
-                                    <span>Transforme o resumo em perguntas curtas.</span>
-                                </a>
-                            </li>
-                            <li class="ini-passo" data-passo="pomodoro">
-                                <button class="ini-passo__check" type="button" aria-pressed="false"
-                                        aria-label="Marcar como feito: fazer uma sessão de foco">
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </button>
-                                <a class="ini-passo__link" href="pomodoro.php">
-                                    <strong>Fazer 25 minutos de foco</strong>
-                                    <span>Um ciclo de Pomodoro já conta para a sequência.</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <progress id="iniPassosBarra" value="0" max="3"></progress>
+                    <ul class="ini-passos__lista">
+                        <li class="ini-passo" data-passo="resumo">
+                            <button class="ini-passo__check" type="button" aria-pressed="false"
+                                    aria-label="Marcar como feito: criar seu primeiro resumo">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <a class="ini-passo__link" href="resumos.php">
+                                <strong>Criar seu primeiro resumo</strong>
+                                <span>Comece pela matéria que você viu hoje.</span>
+                            </a>
+                        </li>
+                        <li class="ini-passo" data-passo="flashcards">
+                            <button class="ini-passo__check" type="button" aria-pressed="false"
+                                    aria-label="Marcar como feito: montar um baralho de flashcards">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <a class="ini-passo__link" href="flashcards.php">
+                                <strong>Montar um baralho</strong>
+                                <span>Transforme o resumo em perguntas curtas.</span>
+                            </a>
+                        </li>
+                        <li class="ini-passo" data-passo="pomodoro">
+                            <button class="ini-passo__check" type="button" aria-pressed="false"
+                                    aria-label="Marcar como feito: fazer uma sessão de foco">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <a class="ini-passo__link" href="pomodoro.php">
+                                <strong>Fazer 25 minutos de foco</strong>
+                                <span>Um ciclo de Pomodoro já conta para a sequência.</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </section>
         </main>
 
     </div>
+
+    <?php include __DIR__ . '/partes/modal-prova.php'; ?>
+    <?php /* O confirmar() do dashboard.js precisa desta parte na página;
+             sem ela ele devolve `true` na hora e a prova some sem
+             perguntar nada. */ ?>
+    <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
 
     <?php if (empty($PREF['onboarding_completo'])): ?>
         <?php include __DIR__ . '/partes/modal-onboarding.php'; ?>

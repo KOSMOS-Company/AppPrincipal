@@ -1,0 +1,132 @@
+/* ════════════════════════════════════════════════════════════════
+   KOSMOS — impressao.css   (carregado com media="print")
+
+   "Exportar em PDF" é isto. O diálogo de impressão de todo
+   navegador oferece "Salvar como PDF" em Windows, macOS, Linux,
+   Android e iOS — então a única coisa que faltava era a página
+   ficar decente no papel.
+
+   Uma biblioteca de PDF no servidor faria o mesmo trabalho pior:
+   exigiria Composer (o projeto não usa), teria de reimplementar o
+   layout, e quebraria sempre que o CSS da tela mudasse. Aqui o
+   documento impresso é o MESMO documento, com outra roupa.
+
+   ── A regra que rege tudo ──
+   Papel é branco e tinta é cara. O tema cósmico inteiro — fundo,
+   céu, cartões translúcidos, brilhos — vira preto sobre branco.
+   Imprimir o fundo escuro gastaria um cartucho por resumo e
+   deixaria o texto pior de ler.
+   ════════════════════════════════════════════════════════════════ */
+
+@page {
+    margin: 18mm 16mm;
+}
+
+/* ---- Fora do papel: tudo que é navegação ou enfeite ---- */
+.cosmos,
+.veu,
+.contLateral,
+.lateral__aperta,
+.resumo-acoes,
+.pomo-selo,
+.modal,
+.cursor,
+.cursor-dot,
+#voltar,
+.resumo-galeria__zoom {
+    display: none !important;
+}
+
+/* ---- A folha ---- */
+html, body {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+.contGeral { display: block !important; }
+
+.contMeio {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* ---- Texto ---- */
+h1, h2, h3, .resumo-leitura, .resumo-meta, .materia-tag {
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+h1 {
+    font-size: 20pt !important;
+    margin-bottom: 4mm !important;
+}
+
+.resumo-meta {
+    font-size: 9pt !important;
+    color: #555 !important;
+    margin-bottom: 8mm !important;
+}
+.materia-tag {
+    border: 1px solid #999 !important;
+    background: none !important;
+    color: #333 !important;
+}
+
+/* O corpo do resumo perde a aparência de cartão: no papel ele é o
+   documento, não um bloco flutuando em cima de alguma coisa. */
+.resumo-leitura {
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    font-size: 11.5pt !important;
+    line-height: 1.6 !important;
+}
+
+/* ---- Modo revisão no papel ----
+   As lacunas ficam em branco DE PROPÓSITO: um resumo com buracos
+   impresso vira folha de exercício para preencher à mão. É o
+   melhor motivo para imprimir um resumo que existe.
+
+   O sublinhado marca onde escrever; a largura é a da resposta. */
+.resumo-leitura--revisao .cloze {
+    color: transparent !important;
+    background: none !important;
+    border-bottom: 1px solid #000 !important;
+}
+/* Já revelado na tela continua legível no papel: se a pessoa abriu
+   o trecho, ela quer aquela resposta junto. */
+.resumo-leitura--revisao .cloze--aberto {
+    color: #000 !important;
+    border-bottom-color: #999 !important;
+}
+/* Fora do modo revisão, o realce vira só um grifo leve. */
+.cloze {
+    background: none !important;
+    color: #000 !important;
+    border-bottom: 1px solid #bbb !important;
+}
+
+/* ---- Imagens ---- */
+.resumo-galeria {
+    display: block !important;
+    margin-top: 8mm !important;
+}
+.resumo-galeria img {
+    max-width: 60% !important;
+    height: auto !important;
+    /* Uma imagem cortada ao meio pela quebra de página é inútil. */
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 5mm;
+}
+
+/* ---- Quebras ---- */
+h1, h2, h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+}

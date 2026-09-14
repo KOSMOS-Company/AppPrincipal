@@ -16,9 +16,53 @@ const API = "../../../Backend/php";
 document.addEventListener("DOMContentLoaded", () => {
     ativarTransicoes();
     ativarMarcador();
+    ativarRecolher();
     ativarSair();
     ativarBrilhoNosCards();
 });
+
+/* ------------------------------------------------------------
+   Recolher a barra lateral (só no computador)
+
+   Quem PINTA a barra estreita é o CSS (html.lateral-recolhida), e
+   quem a restaura no carregamento é um script inline dentro do
+   partes/sidebar.php — ele roda antes do <aside> existir, para a
+   barra não aparecer aberta e encolher na frente da pessoa. Aqui
+   fica só o que depende de clique.
+   ------------------------------------------------------------ */
+function ativarRecolher() {
+    const botao = document.getElementById("lateralAperta");
+    if (!botao) return;
+
+    const raiz = document.documentElement;
+
+    const aplicar = (recolhida) => {
+        raiz.classList.toggle("lateral-recolhida", recolhida);
+        botao.setAttribute("aria-expanded", String(!recolhida));
+        botao.setAttribute("aria-label", recolhida ? "Expandir menu" : "Recolher menu");
+
+        try {
+            localStorage.setItem("kosmos_lateral", recolhida ? "recolhida" : "aberta");
+        } catch (e) { /* navegação privada: vale só para esta visita */ }
+
+        /* O marcador do menu é posicionado por offsetTop, e recolher
+           esconde os rótulos de grupo — todos os itens sobem. O
+           `ativarMarcador` já escuta `resize` para se recolocar, então
+           avisar por ali evita expor a função dele só para isto.
+           Depois da transição de largura (.26s), senão ele mede a
+           posição do meio do caminho. */
+        const remedir = () => window.dispatchEvent(new Event("resize"));
+        setTimeout(remedir, 300);
+        remedir();
+    };
+
+    // o estado inicial veio do script inline; aqui só espelhamos no botão
+    aplicar(raiz.classList.contains("lateral-recolhida"));
+
+    botao.addEventListener("click", () => {
+        aplicar(!raiz.classList.contains("lateral-recolhida"));
+    });
+}
 
 /* ------------------------------------------------------------
    Marcador do menu: um retângulo que desliza entre os itens.

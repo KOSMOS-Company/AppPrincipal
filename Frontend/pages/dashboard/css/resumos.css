@@ -1070,3 +1070,56 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     /* o título da seção é redundante: a aba já diz onde se está */
     .rs-soltos__cabeca h2 { display: none; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   MODO REVISÃO (resumo.php)
+
+   Trechos marcados com ==assim== no editor. Fora do modo revisão
+   eles são só um realce; dentro dele viram lacuna, e a pessoa
+   clica para conferir um a um.
+   ════════════════════════════════════════════════════════════════ */
+
+.resumo-acoes { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+
+/* Fora do modo: um realce comum. É <button>, então precisa perder
+   toda a aparência de botão aqui — ele só age como botão quando a
+   revisão está ligada. */
+.cloze {
+    font: inherit;
+    color: inherit;
+    background: rgba(165, 65, 255, .16);
+    border: 0;
+    border-radius: 4px;
+    padding: 1px 3px;
+    cursor: text;
+}
+
+/* Dentro do modo: o texto some, o espaço fica.
+   `color: transparent` em vez de esconder o texto de verdade —
+   assim a lacuna tem exatamente a largura da resposta e o
+   parágrafo não se reorganiza ao revelar, que é o que faz a pessoa
+   perder a linha que estava lendo. */
+.resumo-leitura--revisao .cloze {
+    color: transparent;
+    background: rgba(165, 65, 255, .14);
+    border-bottom: 2px solid var(--accent);
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition);
+}
+.resumo-leitura--revisao .cloze:hover { background: rgba(165, 65, 255, .26); }
+.resumo-leitura--revisao .cloze:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+.resumo-leitura--revisao .cloze--aberto {
+    color: var(--accent-lt);
+    background: rgba(165, 65, 255, .1);
+    border-bottom-color: rgba(165, 65, 255, .3);
+}
+
+@media (max-width: 560px) {
+    .resumo-acoes { width: 100%; }
+    .resumo-acoes .dash-btn { flex: 1 1 auto; justify-content: center; }
+}

@@ -76,7 +76,14 @@ if (!isset($CADERNOS)) {
                     <div class="campo">
                         <label for="conteudo">Resumo escrito <span class="campo__opcional">(opcional se anexar imagem)</span></label>
                         <textarea id="conteudo" rows="8" placeholder="Escreva com suas palavras o que você estudou..."></textarea>
-                        <span class="campo__dica"><span id="contador">0</span> caracteres</span>
+                        <!-- A dica da marcação fica AQUI e não num canto de
+                             ajuda: recurso escondido atrás de documentação é
+                             recurso que ninguém usa. Uma linha no lugar onde a
+                             pessoa está escrevendo custa pouco e ensina. -->
+                        <span class="campo__dica">
+                            <span id="contador">0</span> caracteres
+                            · marque com <code>==assim==</code> para esconder no modo revisão
+                        </span>
                     </div>
 
                     <!-- ---------- Imagens ---------- -->

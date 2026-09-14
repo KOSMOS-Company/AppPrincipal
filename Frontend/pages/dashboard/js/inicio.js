@@ -3,13 +3,15 @@
    Saudação, estatísticas, gráfico da semana e primeiros passos.
    (O brilho/tilt dos cartões vive no dashboard.js, compartilhado.)
 
-   IMPORTANTE — dados: hoje o único número real é a SEQUÊNCIA
-   (vem de usuario_atual.php via dashboard.js). Resumos,
-   flashcards, exercícios e o gráfico ficam em estado vazio
-   porque ainda não existe persistência no banco.
-   Quando os endpoints existirem, NÃO é preciso mexer no HTML:
-   basta chamar as funções expostas em window.KosmosInicio
-   (ver o fim do arquivo) com os dados vindos do backend.
+   DADOS: vêm de Backend/php/inicio_dados.php numa requisição
+   só — série da semana, minutos de hoje, meta diária, contagens
+   e próximas provas. O gráfico nasce em estado vazio e é
+   repintado quando a resposta chega; se a rede falhar, o estado
+   vazio permanece e nada quebra.
+
+   As sessões que alimentam o gráfico são gravadas pelo
+   js/pomodoro-aviso.js (que roda em toda aba), não por este
+   arquivo.
 
    Tudo dentro de uma IIFE: o dashboard.js e os scripts de
    página dividem o mesmo escopo global, então nada aqui pode
@@ -30,6 +32,7 @@
         mostrarDataESaudacao();
         if (!graficoComDados) renderGrafico(null);   // desenha os 7 dias em estado vazio
         iniciarPassos();
+        carregarDados();
     });
 
     /* A sequência (e o que mais existir de real) já vem impressa pelo
@@ -243,12 +246,235 @@
 
 
     /* ------------------------------------------------------------
-       Ponte para quando a persistência existir.
-       Exemplo de uso (num futuro estatisticas.php):
-           const r = await fetch(`${API}/estatisticas.php`);
-           const j = await r.json();
-           KosmosInicio.preencherMetricas(j.totais);
-           KosmosInicio.renderGrafico(j.semana);
+       Os dados de verdade
        ------------------------------------------------------------ */
-    window.KosmosInicio = { preencherMetricas, renderGrafico };
+
+    /**
+     * Uma requisição só traz tudo que a tela precisa.
+     *
+     * Falha em silêncio de propósito: a página já foi desenhada em
+     * estado vazio antes desta chamada, então uma rede ruim deixa o
+     * Início com os traços do gráfico e o aviso de "ainda não há
+     * sessões" — que é uma tela correta, não uma tela quebrada.
+     * Barra de erro vermelha aqui só assustaria por algo que a
+     * pessoa não pediu.
+     */
+    async function carregarDados() {
+        let dados;
+        try {
+            const r = await fetch("../../../Backend/php/inicio_dados.php", {
+                credentials: "same-origin",
+            });
+            if (!r.ok) return;
+            dados = await r.json();
+            if (!dados || !dados.ok) return;
+        } catch {
+            return;
+        }
+
+        renderGrafico(dados.semana);
+
+        preencherMetricas({
+            resumos:    dados.metricas?.resumos,
+            flashcards: dados.metricas?.flashcards,
+        });
+
+        renderMeta(dados.hoje, dados.meta);
+        renderRevisar(dados.metricas?.vencidos);
+        renderProvas(dados.provas);
+    }
+
+    /** A meta diária. Existia em usuario_preferencias desde agosto e
+        nunca era lida por ninguém — salvar um número que nada usa é
+        pior do que não ter o campo. */
+    function renderMeta(minutos, meta) {
+        const caixa = document.getElementById("iniMeta");
+        if (!caixa || !(meta > 0)) return;
+
+        const feito = Math.max(0, +minutos || 0);
+        const pct   = Math.min(100, Math.round((feito / meta) * 100));
+
+        caixa.hidden = false;
+        caixa.querySelector("[data-meta-barra]").value = Math.min(feito, meta);
+        caixa.querySelector("[data-meta-barra]").max   = meta;
+        caixa.querySelector("[data-meta-texto]").textContent =
+            feito >= meta
+                ? `Meta do dia batida — ${formatarDuracao(feito)}`
+                : `${formatarDuracao(feito)} de ${formatarDuracao(meta)} hoje`;
+        caixa.classList.toggle("ini-meta--batida", feito >= meta);
+        caixa.setAttribute("aria-label", `Meta diária: ${pct}% concluída`);
+    }
+
+    /** O atalho "Revisar hoje" só aparece quando há o que revisar:
+        um card anunciando "0 cartões" é ruído. */
+    function renderRevisar(vencidos) {
+        const el = document.getElementById("iniRevisar");
+        if (!el) return;
+
+        const n = +vencidos || 0;
+        el.hidden = n === 0;
+        if (n === 0) return;
+
+        el.querySelector("[data-revisar-n]").textContent = n;
+        el.querySelector("[data-revisar-txt]").textContent =
+            n === 1 ? "cartão esperando revisão" : "cartões esperando revisão";
+    }
+
+    /** As próximas provas. A contagem de dias vem PRONTA do servidor
+        (DATEDIFF no MySQL) — este arquivo não calcula data, porque o
+        PHP e o MySQL do projeto estão em fusos diferentes. */
+    function renderProvas(provas) {
+        const secao = document.getElementById("iniProvas");
+        if (!secao) return;
+
+        const lista = Array.isArray(provas) ? provas : [];
+        const alvo  = secao.querySelector("[data-provas-lista]");
+        const vazio = secao.querySelector("[data-provas-vazio]");
+
+        if (vazio) vazio.hidden = lista.length > 0;
+        alvo.innerHTML = "";
+        if (lista.length === 0) return;
+
+        lista.forEach((p) => {
+            const li = document.createElement("li");
+            li.className = "ini-prova";
+            if (p.faltam <= 7) li.classList.add("ini-prova--perto");
+
+            const quantos = document.createElement("strong");
+            quantos.textContent = p.faltam === 0 ? "hoje"
+                                : p.faltam === 1 ? "amanhã"
+                                : `${p.faltam} dias`;
+
+            const nome = document.createElement("span");
+            nome.className = "ini-prova__nome";
+            // textContent, não innerHTML: o título vem do que a pessoa digitou
+            nome.textContent = p.titulo;
+
+            const quando = document.createElement("span");
+            quando.className = "ini-prova__quando";
+            quando.textContent = p.quando;
+
+            const apagar = document.createElement("button");
+            apagar.type = "button";
+            apagar.className = "ini-prova__apagar";
+            apagar.setAttribute("aria-label", `Apagar a prova ${p.titulo}`);
+            apagar.textContent = "×";
+            apagar.addEventListener("click", () => excluirProva(p));
+
+            li.append(quantos, nome, quando, apagar);
+            alvo.appendChild(li);
+        });
+    }
+
+    /* ------------------------------------------------------------
+       PROVAS — cadastro e exclusão
+       ------------------------------------------------------------ */
+    const modal = {
+        caixa:    document.getElementById("modalProva"),
+        form:     document.getElementById("provaForm"),
+        nome:     document.getElementById("provaNome"),
+        materia:  document.getElementById("provaMateria"),
+        data:     document.getElementById("provaData"),
+        msg:      document.getElementById("provaMsg"),
+        salvar:   document.getElementById("provaSalvar"),
+    };
+
+    function abrirProva() {
+        if (!modal.caixa) return;
+
+        modal.form.reset();
+        modal.msg.hidden = true;
+
+        /* O `min` sai do relógio do NAVEGADOR, não do servidor (ver o
+           comentário em partes/modal-prova.php): o PHP deste projeto
+           roda em Europe/Berlin e à noite, no Brasil, bloquearia o dia
+           de hoje. `sv-SE` porque esse locale formata como YYYY-MM-DD,
+           que é o que o <input type="date"> espera — e faz isso no fuso
+           local, ao contrário de toISOString(), que converte para UTC e
+           erra o dia perto da meia-noite. */
+        modal.data.min = new Date().toLocaleDateString("sv-SE");
+
+        modal.caixa.classList.add("open");
+        modal.nome.focus();
+    }
+
+    function fecharProva() {
+        modal.caixa?.classList.remove("open");
+    }
+
+    function avisoProva(texto, erro = true) {
+        modal.msg.textContent = texto;
+        modal.msg.className = `msg ${erro ? "msg--erro" : "msg--sucesso"}`;
+        modal.msg.hidden = false;
+    }
+
+    async function salvarProva(e) {
+        e.preventDefault();
+
+        const titulo = modal.nome.value.trim();
+        if (!titulo)            return avisoProva("Dê um nome para a prova.");
+        if (!modal.data.value)  return avisoProva("Escolha a data da prova.");
+
+        modal.salvar.disabled = true;
+        try {
+            const r = await fetch("../../../Backend/php/provas.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                    acao: "criar",
+                    titulo,
+                    materia: modal.materia.value,
+                    data: modal.data.value,
+                }),
+            });
+            const j = await r.json();
+
+            if (!j.ok) return avisoProva(j.msg || "Não foi possível salvar.");
+
+            // O servidor devolve a lista já atualizada: nada de recarregar
+            // a página nem de adivinhar onde a nova entra na ordem.
+            renderProvas(j.provas);
+            fecharProva();
+        } catch {
+            avisoProva("Sem conexão com o servidor.");
+        } finally {
+            modal.salvar.disabled = false;
+        }
+    }
+
+    async function excluirProva(prova) {
+        /* confirmar() é o modal compartilhado do dashboard.js. Apagar
+           é irreversível e um clique errado no "×" é fácil. */
+        const ok = window.confirmar
+            ? await window.confirmar({
+                  titulo: "Apagar prova",
+                  texto: `"${prova.titulo}" sai da sua lista. Isso não volta.`,
+                  botao: "Apagar",
+                  perigo: true,
+              })
+            : true;
+        if (!ok) return;
+
+        try {
+            const r = await fetch("../../../Backend/php/provas.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ acao: "excluir", id: prova.id }),
+            });
+            const j = await r.json();
+            if (j.ok) renderProvas(j.provas);
+        } catch { /* a linha continua na tela; recarregar resolve */ }
+    }
+
+    document.getElementById("btnNovaProva")?.addEventListener("click", abrirProva);
+    document.getElementById("provaFechar")?.addEventListener("click", fecharProva);
+    document.getElementById("provaCancelar")?.addEventListener("click", fecharProva);
+    modal.form?.addEventListener("submit", salvarProva);
+
+    /* ------------------------------------------------------------
+       Ponte: outras telas podem repintar sem recarregar.
+       ------------------------------------------------------------ */
+    window.KosmosInicio = { preencherMetricas, renderGrafico, carregarDados };
 })();

@@ -13,6 +13,7 @@
 // ============================================================
 
 require_once __DIR__ . '/flashcards_comum.php';
+require_once __DIR__ . '/flashcards_srs.php';   // fcProximaRevisao()
 
 $usuario = exigirLogin();
 fcExigirPost();
@@ -37,20 +38,39 @@ try {
         fcErro('Sessão grande demais.');
     }
 
-    // Só aceita ids de cartões QUE SÃO deste deck (e o deck já é do usuário).
-    $stmt = $pdo->prepare('SELECT id FROM flashcard_cartoes WHERE deck_id = ?');
+    /* Só aceita ids de cartões QUE SÃO deste deck (e o deck já é do
+       usuário). Traz junto o agendamento atual: a próxima revisão é
+       calculada a partir do intervalo e da facilidade que o cartão já
+       tem, então precisamos deles aqui — uma consulta para o deck
+       inteiro, não uma por cartão respondido. */
+    $stmt = $pdo->prepare(
+        'SELECT id, intervalo, facilidade FROM flashcard_cartoes WHERE deck_id = ?'
+    );
     $stmt->execute([$deck['id']]);
-    $doDeck = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+
+    $doDeck = [];
+    foreach ($stmt as $c) {
+        $doDeck[(int) $c['id']] = [
+            'intervalo'  => (int) $c['intervalo'],
+            'facilidade' => (float) $c['facilidade'],
+        ];
+    }
 
     $pdo->beginTransaction();
 
+    /* A data da próxima revisão sai de CURDATE() + INTERVAL, no
+       MySQL. Calcular em PHP daria o dia errado na virada: os dois
+       rodam em fusos diferentes neste projeto. */
     $atualizar = $pdo->prepare(
         'UPDATE flashcard_cartoes
             SET revisoes         = revisoes + 1,
                 acertos          = acertos + ?,
                 erros            = erros + ?,
                 ultimo_resultado = ?,
-                ultima_revisao   = NOW()
+                ultima_revisao   = NOW(),
+                intervalo        = ?,
+                facilidade       = ?,
+                proxima_revisao  = CURDATE() + INTERVAL ? DAY
           WHERE id = ? AND deck_id = ?'
     );
 
@@ -60,17 +80,23 @@ try {
     foreach ($respostas as $resposta) {
         $id = filter_var($resposta['id'] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 
-        if ($id === false || !in_array((int) $id, $doDeck, true)) {
+        if ($id === false || !isset($doDeck[(int) $id])) {
             continue; // id inválido ou de outro deck: ignora em silêncio
         }
 
         $acertou = !empty($resposta['acertou']);
         $acertou ? $acertos++ : $erros++;
 
+        $antes = $doDeck[(int) $id];
+        $agora = fcProximaRevisao($antes['intervalo'], $antes['facilidade'], $acertou);
+
         $atualizar->execute([
             $acertou ? 1 : 0,
             $acertou ? 0 : 1,
             $acertou ? 1 : 0,
+            $agora['intervalo'],
+            $agora['facilidade'],
+            $agora['intervalo'],
             (int) $id,
             $deck['id'],
         ]);

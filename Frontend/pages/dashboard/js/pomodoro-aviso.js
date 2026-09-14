@@ -9,6 +9,14 @@
    2. Um aviso do navegador (mais o som) quando o ciclo acaba,
       mesmo que a pessoa esteja em outra aba ou em outro programa.
 
+   3. Registra no servidor a sessão de foco que acabou de fechar.
+
+   Por que o registro mora AQUI e não no pomodoro.js: este arquivo
+   roda em TODA aba do dashboard, e o pomodoro.js só na página do
+   Pomodoro. Gravando lá, a sessão de quem deixou o timer correndo
+   e foi escrever um resumo só chegaria ao banco quando a pessoa
+   voltasse à página do timer — se voltasse.
+
    O estado é o mesmo que pomodoro.js guarda em localStorage; aqui
    só se lê. A única coisa que este arquivo escreve é a marca de
    "já avisei sobre este ciclo", numa chave separada, para dois
@@ -169,6 +177,47 @@
        assusta. Ainda assim marcamos, para não tentar de novo. */
     const TOLERANCIA = 5 * 60 * 1000;
 
+    /* ------------------------------------------------------------
+       Registro da sessão
+       ------------------------------------------------------------ */
+    const API = "../../../Backend/php";
+
+    /**
+     * Manda para o servidor um ciclo de FOCO que terminou.
+     *
+     * Pausa não conta: o gráfico da semana e a meta diária medem
+     * tempo ESTUDADO, e somar os cinco minutos de descanso inflaria
+     * o número justamente para quem descansa mais.
+     *
+     * Manda o instante do fim em vez de deixar o servidor usar
+     * NOW(): o ciclo pode ter fechado há horas, com o navegador
+     * fechado, e gravar "agora" jogaria a sessão no dia errado.
+     *
+     * Não trata falha de propósito. Se a rede cair, a sessão se
+     * perde — e tudo bem: é melhor perder um registro em silêncio
+     * do que interromper quem está estudando com um aviso de erro
+     * sobre algo que ela não pediu. O servidor ignora duplicata
+     * (UNIQUE em usuario_id + fim_em), então reenviar nunca soma
+     * duas vezes.
+     */
+    function registrarSessao(s) {
+        if (!s || s.modo !== "foco") return;
+
+        const minutos = Math.round((+s.totalSeg || 0) / 60);
+        if (!(minutos > 0) || !s.fimEm) return;
+
+        fetch(`${API}/pomodoro_sessao.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({
+                fim: Math.floor(s.fimEm / 1000),   // o PHP espera SEGUNDOS
+                minutos,
+            }),
+            keepalive: true,   // sobrevive se a pessoa fechar a aba agora
+        }).catch(() => { /* ver o comentário acima */ });
+    }
+
     function verificar() {
         const s = ler();
         const restante = s ? restanteDe(s) : 0;
@@ -180,6 +229,14 @@
         const acabou = !!s && !!s.fimEm && (s.rodando ? restante === 0 : !!s.encerrado);
         if (acabou && !jaAvisou(s.fimEm)) {
             marcarAvisado(s.fimEm);
+
+            /* Aqui dentro roda UMA vez por ciclo, em qualquer aba: o
+               `jaAvisou` é a trava. Por isso é o lugar do registro —
+               e não junto do aviso sonoro logo abaixo, que é pulado
+               quando o ciclo terminou há muito tempo. Sessão antiga
+               não deve tocar sino, mas deve entrar no gráfico. */
+            registrarSessao(s);
+
             if (Date.now() - s.fimEm < TOLERANCIA) avisarFim(s);
         }
 
