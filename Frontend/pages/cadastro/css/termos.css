@@ -13,6 +13,14 @@
     --radius-md:20px;
     --radius-lg:28px;
     --transition:.25s cubic-bezier(.4,0,.2,1);
+
+    /* ── O céu ──
+       As regras de `.cosmos` e `.veu` estão em ../shared/cosmos.css: são
+       as mesmas da landing page e do dashboard. Aqui só o ajuste desta
+       página. Parede de texto: aqui o céu recua e o véu fecha, porque o que
+       importa é ler. O canvas também leva `data-calmo` no HTML. */
+    --cosmos-opacidade: .75;
+    --veu-forca: .66;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -29,14 +37,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 }
 
 /* ── Fundo animado ── */
-.bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.bg__orb{position:absolute;border-radius:50%;filter:blur(90px)}
-.bg__orb--1{width:600px;height:600px;top:-150px;left:-100px;background:radial-gradient(circle,#7203bd 0%,transparent 70%);opacity:.45;animation:orbFloat 9s ease-in-out infinite}
-.bg__orb--2{width:400px;height:400px;bottom:-120px;right:-100px;background:radial-gradient(circle,#a541ff 0%,transparent 70%);opacity:.2;animation:orbDrift 11s ease-in-out infinite}
-.bg__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(165,65,255,.04) 1px, transparent 1px),linear-gradient(90deg, rgba(165,65,255,.04) 1px, transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 90% 70% at 50% 30%, #000 40%, transparent 100%)}
 
-@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-28px)}}
-@keyframes orbDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(-24px,-18px)}}
 
 /* ── Header ── */
 .header-terms{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px;max-width:1120px;margin:0 auto;padding:24px 32px 0}
@@ -109,7 +110,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 
 /* ── Movimento reduzido ── */
 @media (prefers-reduced-motion: reduce){
-    .bg__orb--1,.bg__orb--2{animation:none!important}
     .reveal{opacity:1!important;transform:none!important;transition:none!important}
     .priv-highlight,.priv-highlight__icon{transition:none!important}
 }

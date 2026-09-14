@@ -22,7 +22,7 @@
 
 .deck-card {
     position: relative;
-    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    background: var(--superficie);
     border: 1px solid rgba(165,65,255,.12);
     border-radius: var(--radius-lg);
     padding: 26px;
@@ -151,7 +151,7 @@
     grid-template-columns: auto 1fr auto auto;
     align-items: center;
     gap: 16px;
-    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    background: var(--superficie);
     border: 1px solid rgba(165,65,255,.12);
     border-radius: var(--radius-md);
     padding: 16px 20px;
@@ -238,7 +238,9 @@
     overflow-y: auto;
 }
 .flashcard__face--frente {
-    background: linear-gradient(150deg, #1e0636 0%, #120220 100%);
+    background: var(--superficie);
+    -webkit-backdrop-filter: var(--desfoque-painel);
+    backdrop-filter: var(--desfoque-painel);
     border-color: rgba(165,65,255,.12);
 }
 .flashcard__face--verso {

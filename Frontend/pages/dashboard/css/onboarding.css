@@ -1,0 +1,346 @@
+/* ============================================================
+   KOSMOS — onboarding.css (Pesquisa de Perfil Inicial do Aluno)
+   Modal guiado pelo Mascote 3D para calibrar o universo de estudos.
+   ============================================================ */
+
+.onb-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(5, 0, 11, 0.86);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease;
+}
+.onb-overlay--ativo {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.onb-card {
+    position: relative;
+    width: 100%;
+    max-width: 580px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: #120224;
+    border: 1px solid rgba(165, 65, 255, 0.42);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(130, 0, 219, 0.35);
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(165, 65, 255, 0.3) transparent;
+}
+
+/* ── Topo: Barra de Progresso e Badge ── */
+.onb-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.onb-progresso-trilha {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.onb-progresso-barra {
+    height: 100%;
+    background: linear-gradient(90deg, #a541ff, #c97cff);
+    box-shadow: 0 0 10px rgba(165, 65, 255, 0.6);
+    border-radius: 100px;
+    transition: width .35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.onb-etapa-badge {
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #c97cff;
+    background: rgba(165, 65, 255, 0.14);
+    border: 1px solid rgba(165, 65, 255, 0.35);
+    padding: 3px 10px;
+    border-radius: 100px;
+}
+
+/* ── Mascote Guia ── */
+.onb-mascote-area {
+    width: 112px;
+    height: 112px;
+    margin: -4px auto 14px;
+    pointer-events: none;
+    filter: drop-shadow(0 10px 20px rgba(107, 33, 168, 0.45));
+}
+.onb-mascote-area .mascote {
+    --mascote-tam: 112px;
+    width: 112px;
+    height: 112px;
+}
+
+/* ── Títulos e Textos dos Passos ── */
+.onb-titulo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    line-height: 1.25;
+    margin-bottom: 6px;
+}
+
+.onb-sub {
+    font-size: .92rem;
+    color: #b8a8cc;
+    text-align: center;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+/* ── Controle de Passos ── */
+.onb-passo {
+    display: none;
+    animation: onbEntraPasso .35s ease both;
+}
+.onb-passo--ativo {
+    display: block;
+}
+
+@keyframes onbEntraPasso {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Cards de Seleção (Objetivo e Meta) ── */
+.onb-opcoes-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.onb-opcao-card {
+    display: block;
+    cursor: pointer;
+    position: relative;
+}
+.onb-opcao-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.onb-opcao-conteudo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(201, 124, 255, 0.2);
+    border-radius: 16px;
+    transition: background .2s, border-color .2s, transform .2s, box-shadow .2s;
+}
+
+.onb-opcao-card:hover .onb-opcao-conteudo {
+    background: rgba(165, 65, 255, 0.08);
+    border-color: rgba(165, 65, 255, 0.45);
+    transform: translateY(-1px);
+}
+
+.onb-opcao-card input:checked + .onb-opcao-conteudo {
+    background: rgba(165, 65, 255, 0.18);
+    border-color: #a541ff;
+    box-shadow: 0 0 18px rgba(165, 65, 255, 0.35);
+}
+
+.onb-opcao-icone {
+    font-size: 1.55rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.onb-opcao-textos {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.onb-opcao-textos strong {
+    font-size: .96rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.onb-opcao-textos span {
+    font-size: .8rem;
+    color: #b8a8cc;
+}
+
+.onb-tag-destaque {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.14);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    padding: 3px 8px;
+    border-radius: 100px;
+    flex-shrink: 0;
+}
+
+/* ── Grid de Matérias (Etapa 2) ── */
+.onb-materias-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.onb-materia-chip {
+    display: inline-flex;
+    cursor: pointer;
+    position: relative;
+}
+.onb-materia-chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.onb-materia-nome {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(201, 124, 255, 0.22);
+    border-radius: 100px;
+    font-size: .88rem;
+    font-weight: 500;
+    color: #e2d3f5;
+    transition: all .2s ease;
+}
+
+.onb-materia-chip:hover .onb-materia-nome {
+    background: rgba(165, 65, 255, 0.14);
+    border-color: #a541ff;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.onb-materia-chip input:checked + .onb-materia-nome {
+    background: #8b3fe0;
+    border-color: #c97cff;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(165, 65, 255, 0.5);
+    transform: scale(1.03);
+}
+
+.onb-dica-selecao {
+    display: block;
+    font-size: .78rem;
+    color: #7b6794;
+    text-align: center;
+    margin-top: 4px;
+}
+
+/* ── Rodapé de Ações ── */
+.onb-rodape {
+    display: flex;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 12px;
+}
+
+.onb-rodape-espaco {
+    flex: 1;
+}
+
+.onb-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all .2s ease;
+    border: none;
+    white-space: nowrap;
+}
+
+.onb-btn--primary {
+    background: linear-gradient(135deg, #9333ea, #7e22ce);
+    color: #ffffff;
+    box-shadow: 0 4px 18px rgba(147, 51, 234, 0.45);
+}
+.onb-btn--primary:hover {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+    box-shadow: 0 6px 22px rgba(168, 85, 247, 0.6);
+    transform: translateY(-1px);
+}
+
+.onb-btn--ghost {
+    background: transparent;
+    border: 1px solid rgba(201, 124, 255, 0.35);
+    color: #c97cff;
+}
+.onb-btn--ghost:hover {
+    background: rgba(165, 65, 255, 0.12);
+    border-color: #a541ff;
+    color: #fff;
+}
+
+.onb-btn--pular {
+    background: transparent;
+    color: #8f7da8;
+    font-size: .8rem;
+    padding: 8px 14px;
+}
+.onb-btn--pular:hover {
+    color: #c97cff;
+    text-decoration: underline;
+}
+
+/* ── Mobile ── */
+@media (max-width: 540px) {
+    .onb-card {
+        padding: 20px 18px;
+        border-radius: 20px;
+    }
+    .onb-titulo {
+        font-size: 1.25rem;
+    }
+    .onb-opcao-conteudo {
+        padding: 10px 14px;
+    }
+    .onb-rodape {
+        flex-wrap: wrap;
+    }
+    .onb-btn--primary {
+        width: 100%;
+        order: 1;
+    }
+    .onb-btn--ghost {
+        order: 2;
+    }
+    .onb-btn--pular {
+        order: 3;
+        width: 100%;
+        text-align: center;
+    }
+}

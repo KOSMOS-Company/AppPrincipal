@@ -36,6 +36,14 @@
     --radius-md: 20px;
     --radius-lg: 28px;
     --transition: .22s cubic-bezier(.4,0,.2,1);
+
+    /* ── O céu ──
+       As regras de `.cosmos` e `.veu` estão em ../shared/cosmos.css: são
+       as mesmas da landing page e do dashboard. Aqui só o ajuste desta
+       página. Página de passagem: o céu pode aparecer inteiro. O véu segura só
+       o suficiente para o formulário continuar legível. */
+    --cosmos-opacidade: 1;
+    --veu-forca: .46;
 }
 
 html { overflow-x: hidden; overflow-x: clip; }
@@ -47,39 +55,6 @@ body {
     min-height: 100vh;
 }
 em { font-style: normal; color: var(--accent-lt); }
-
-/* ── Background ── */
-.bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-.bg__orb { position: absolute; border-radius: 50%; filter: blur(90px); }
-.bg__orb--1 {
-    width: 700px; height: 700px;
-    top: -100px; right: -200px;
-    background: radial-gradient(circle, #6003a8 0%, transparent 70%);
-    opacity: .45;
-    animation: orbFloat 9s ease-in-out infinite;
-}
-.bg__orb--2 {
-    width: 400px; height: 400px;
-    bottom: -100px; left: -100px;
-    background: radial-gradient(circle, #a541ff 0%, transparent 70%);
-    opacity: .2;
-    animation: orbDrift 11s ease-in-out infinite;
-}
-.bg__grid {
-    position: absolute; inset: 0;
-    background-image:
-        linear-gradient(rgba(165,65,255,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(165,65,255,.04) 1px, transparent 1px);
-    background-size: 48px 48px;
-}
-/* campo de estrelas interativo (canvas do space.js) */
-.bg__space {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-}
 
 /* ── Page layout (form centralizado) ── */
 .page {
@@ -394,17 +369,8 @@ em { font-style: normal; color: var(--accent-lt); }
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes orbFloat {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-26px); }
-}
-@keyframes orbDrift {
-    0%, 100% { transform: translate(0, 0); }
-    50%       { transform: translate(20px, -16px); }
-}
 
 @media (prefers-reduced-motion: reduce) {
-    .bg__orb--1, .bg__orb--2,
     .auth__logo, .auth__footer,
     .form-shell, .form .field, .form .divider, .form .google-btn-wrap, .form .btn-submit,
     .cad-progresso { animation: none !important; opacity: 1 !important; transform: none !important; }

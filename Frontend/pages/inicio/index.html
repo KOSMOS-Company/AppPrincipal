@@ -36,6 +36,7 @@
     <meta name="twitter:image" content="../shared/og-image.png">
 
     <link rel="stylesheet" href="./css/inicio.css">
+    <link rel="stylesheet" href="../shared/cosmos.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
     <link rel="stylesheet" href="../shared/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
@@ -48,7 +49,8 @@
 
     <!-- O espaço por trás de tudo. Fica fixo e atravessa a página
          inteira: antes ele vivia dentro do hero e sumia na primeira
-         rolagem. Ver js/cosmos.js. -->
+         rolagem. Ver ../shared/cosmos.js — ele mora em shared/ porque o
+         dashboard usa o MESMO céu. -->
     <canvas class="cosmos" id="cosmos" aria-hidden="true"></canvas>
 
     <!-- Uma folha translúcida entre o cosmos e o conteúdo. Segura a
@@ -104,13 +106,23 @@
             <div class="hero__grid" data-plano="fundo"></div>
         </div>
         <div class="hero__inner">
+            <!-- "Organize seus estudos" nomeava a CATEGORIA — qualquer
+                 concorrente assina a mesma frase. Este título nomeia a DOR,
+                 que é o que faz o visitante parar de rolar. A máquina de
+                 escrever continua: agora ela rotaciona as dores em vez dos
+                 recursos, o mesmo mecanismo trabalhando a favor da
+                 mensagem. As palavras estão em js/inicio.js. -->
             <h1 class="hero__title">
-                Organize seus 
-                <span class="hero__rotator"><span id="rotatorWord">estudos</span><span class="hero__caret" aria-hidden="true"></span></span> com<br>
-                <span class="hero__title-highlight">facilidade.</span>
+                Chega de estudar<br>
+                <!-- Tudo numa linha que NÃO quebra. O rotator é inline-block
+                     com largura mínima da maior palavra (o JS mede); sem este
+                     nowrap o ponto final não cabia junto e descia sozinho para
+                     a linha de baixo — um retângulo branco solto embaixo do
+                     título, que foi o que a primeira captura mostrou. -->
+                <span class="hero__linha">e <span class="hero__rotator"><span id="rotatorWord">esquecer</span><span class="hero__caret" aria-hidden="true"></span></span></span>
             </h1>
             <p class="hero__desc">
-                A Kosmos é uma plataforma completa para você, estudante, organizar e potencializar seus estudos — do dia a dia ao vestibular.
+                A Kosmos junta resumos, flashcards, exercícios com IA e Pomodoro num lugar só — de graça, do dia a dia ao vestibular.
             </p>
             <div class="hero__cta">
                 <a href="../cadastro/index.html" class="btn btn--primary btn--lg">
@@ -130,11 +142,83 @@
                     <span>Gratuito</span>
                 </div>
                 <div class="hero__stat-divider"></div>
+                <!-- Era "Tudo / Organizado": não é estatística, é decoração
+                     vestida de estatística — e isso TIRA credibilidade,
+                     porque denuncia que não havia um terceiro número.
+                     11 é o tamanho real de MATERIAS_KOSMOS
+                     (Backend/php/materias.php): se a lista mudar lá,
+                     este número passa a mentir aqui. -->
                 <div class="hero__stat">
-                    <strong>Tudo</strong>
-                    <span>Organizado</span>
+                    <strong data-count="11">0</strong>
+                    <span>Matérias</span>
                 </div>
             </div>
+        <!-- ───── O PRODUTO, no hero ─────
+             A página vendia atmosfera por três telas antes de mostrar um
+             pixel do app. Esta prévia é o argumento que o fundo cósmico
+             não consegue fazer: "é ISSO que você ganha".
+
+             Construída em HTML/CSS, sem imagem, de propósito: acompanha os
+             tokens de cor, fica nítida em qualquer tela e não envelhece
+             junto com uma captura que ninguém lembra de refazer quando o
+             dashboard muda.
+
+             `role="img"` + rótulo em vez de aria-hidden: para quem usa
+             leitor de tela, a prévia do produto é conteúdo, não enfeite.
+             Não há nada focável aqui dentro — se algum dia houver, o role
+             tem que sair junto. -->
+        <div class="mock" role="img"
+             aria-label="Prévia do painel da Kosmos: saudação, sequência de 12 dias, gráfico de horas da semana e atalhos para cadernos e flashcards.">
+            <div class="mock__janela">
+                <div class="mock__lateral" aria-hidden="true">
+                    <span class="mock__marca">K</span>
+                    <i class="mock__nav mock__nav--ativo"></i>
+                    <i class="mock__nav"></i><i class="mock__nav"></i>
+                    <i class="mock__nav"></i><i class="mock__nav"></i>
+                </div>
+
+                <div class="mock__tela" aria-hidden="true">
+                    <div class="mock__topo">
+                        <div>
+                            <b class="mock__ola">Boa noite, Ana</b>
+                            <span class="mock__sub">Sua sequência está de pé</span>
+                        </div>
+                        <span class="mock__selo">🔥 12 dias</span>
+                    </div>
+
+                    <div class="mock__painel">
+                        <span class="mock__rotulo">Esta semana</span>
+                        <div class="mock__semana">
+                            <i style="--h: 34%"></i><i style="--h: 58%"></i>
+                            <i style="--h: 22%"></i><i style="--h: 76%"></i>
+                            <i style="--h: 48%"></i><i style="--h: 90%"></i>
+                            <i style="--h: 40%"></i>
+                        </div>
+                    </div>
+
+                    <div class="mock__cards">
+                        <div class="mock__card">
+                            <span class="mock__card-ic">📗</span>
+                            <b>Biologia</b>
+                            <span class="mock__card-sub">8 resumos</span>
+                        </div>
+                        <div class="mock__card">
+                            <span class="mock__card-ic">🃏</span>
+                            <b>Revisar hoje</b>
+                            <span class="mock__card-sub">24 cartões</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- O Orion mora no dashboard de verdade, então ele aparece
+                 aqui DENTRO da prévia — como parte do produto. Isto não
+                 fere a regra do guia ("ele não aparece no hero", em
+                 js/orion-guia.js): aquela vale para o Orion que FALA e
+                 acompanha a rolagem. Este é um desenho parado.
+                 O mascote.js monta sozinho todo [data-mascote]. -->
+            <span class="mock__orion" data-mascote data-mascote-auto="0"></span>
+        </div>
         </div>
         <a href="#sobre" class="hero__scroll" aria-label="Rolar para a próxima seção">
             <span class="hero__scroll-mouse"><span class="hero__scroll-wheel"></span></span>
@@ -204,9 +288,31 @@
             </div>
             <div class="recursos__esteira">
             <div class="recursos__grid" id="recursosTrack">
+                <!-- Exercícios com IA — PRIMEIRO e em destaque.
+                     Estava em 4º, com o mesmo peso visual do Pomodoro, que
+                     todo app de estudo tem. Este é o único recurso da lista
+                     que um concorrente gratuito normalmente não oferece:
+                     é ele que responde "por que a Kosmos e não outra". -->
+                <div class="card card--featured">
+                    <div class="card__icon-wrap">
+                        <svg viewBox="0 0 40 40" fill="none" class="card__svg">
+                            <rect x="5" y="6" width="30" height="28" rx="3" fill="rgba(165,65,255,0.1)" stroke="#a541ff" stroke-width="1.5"/>
+                            <circle cx="12" cy="14" r="2.5" fill="#a541ff"/>
+                            <path d="M18 14 L32 14" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <circle cx="12" cy="22" r="2.5" fill="#7203bd"/>
+                            <path d="M18 22 L28 22" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
+                            <circle cx="12" cy="30" r="2.5" stroke="#a541ff" stroke-width="1.5"/>
+                            <path d="M18 30 L25 30" stroke="#c97cff" stroke-width="1" stroke-linecap="round" opacity=".5"/>
+                            <path d="M30 27 L34 31 L38 22" stroke="#a541ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card__title">Exercícios com IA</h3>
+                    <p class="card__desc">Escolha a matéria, a dificuldade e a quantidade — a IA monta as questões na hora, só para você.</p>
+                    <span class="card__tag">Prática</span>
+                </div>
 
                 <!-- Dashboard -->
-                <div class="card card--featured">
+                <div class="card">
                     <div class="card__icon-wrap">
                         <svg viewBox="0 0 40 40" fill="none" class="card__svg">
                             <rect x="4" y="22" width="7" height="14" rx="2" fill="#a541ff" opacity=".9"/>
@@ -256,25 +362,6 @@
                     <h3 class="card__title">FlashCards</h3>
                     <p class="card__desc">Crie você mesmo seus flashcards, mantendo seu estudo mais dinâmico e eficiente.</p>
                     <span class="card__tag">Memorização</span>
-                </div>
-
-                <!-- Exercícios -->
-                <div class="card">
-                    <div class="card__icon-wrap">
-                        <svg viewBox="0 0 40 40" fill="none" class="card__svg">
-                            <rect x="5" y="6" width="30" height="28" rx="3" fill="rgba(165,65,255,0.1)" stroke="#a541ff" stroke-width="1.5"/>
-                            <circle cx="12" cy="14" r="2.5" fill="#a541ff"/>
-                            <path d="M18 14 L32 14" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
-                            <circle cx="12" cy="22" r="2.5" fill="#7203bd"/>
-                            <path d="M18 22 L28 22" stroke="#c97cff" stroke-width="1.5" stroke-linecap="round"/>
-                            <circle cx="12" cy="30" r="2.5" stroke="#a541ff" stroke-width="1.5"/>
-                            <path d="M18 30 L25 30" stroke="#c97cff" stroke-width="1" stroke-linecap="round" opacity=".5"/>
-                            <path d="M30 27 L34 31 L38 22" stroke="#a541ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <h3 class="card__title">Exercícios com IA</h3>
-                    <p class="card__desc">Gere exercícios personalizados com inteligência artificial para praticar com eficiência.</p>
-                    <span class="card__tag">Prática</span>
                 </div>
 
                 <!-- Sequência -->
@@ -807,8 +894,8 @@
     <script src="./js/orion-guia.js"></script>
     <script src="./js/inicio.js"></script>
     <script src="./js/profundidade.js"></script>
-    <script src="./js/cosmos-gl.js"></script>
-    <script src="./js/cosmos.js"></script>
+    <script src="../shared/cosmos-gl.js"></script>
+    <script src="../shared/cosmos.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
     <script src="../shared/cursor.js"></script>
 </body>

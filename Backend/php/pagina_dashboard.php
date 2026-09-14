@@ -70,17 +70,20 @@ $USUARIO = [
 ];
 
 $PREF = [
-    'avatar_cor'       => 'roxo',
-    'avatar_url'       => null,
-    'avatar_pos_x'     => 50,
-    'avatar_pos_y'     => 50,
-    'pomo_foco'        => 25,
-    'pomo_pausa'       => 5,
-    'pomo_pausa_longa' => 15,
-    'meta_diaria'      => 60,
-    'materias'         => [],
-    'notif_lembrete'   => false,
-    'notif_resumo'     => false,
+    'avatar_cor'          => 'roxo',
+    'avatar_url'          => null,
+    'avatar_pos_x'        => 50,
+    'avatar_pos_y'        => 50,
+    'pomo_foco'           => 25,
+    'pomo_pausa'          => 5,
+    'pomo_pausa_longa'    => 15,
+    'meta_diaria'         => 60,
+    'objetivo'            => '',
+    'ano_escolar'         => '',
+    'onboarding_completo' => false,
+    'materias'            => [],
+    'notif_lembrete'      => false,
+    'notif_resumo'        => false,
 ];
 
 $ERRO_BANCO = false;
@@ -125,6 +128,7 @@ try {
     // ---------- 4) Preferências ----------
     $stmt = $pdo->prepare('SELECT avatar_cor, avatar_arquivo, avatar_pos_x, avatar_pos_y,
                                   pomo_foco, pomo_pausa, pomo_pausa_longa, meta_diaria,
+                                  objetivo, ano_escolar, onboarding_completo,
                                   materias, notif_lembrete, notif_resumo
                            FROM usuario_preferencias WHERE usuario_id = ? LIMIT 1');
     $stmt->execute([$USUARIO['id']]);
@@ -135,19 +139,22 @@ try {
         $pdo->prepare('INSERT INTO usuario_preferencias (usuario_id) VALUES (?)')
             ->execute([$USUARIO['id']]);
     } else {
-        $PREF['avatar_cor']       = $p['avatar_cor'];
-        $PREF['avatar_url']       = urlAvatar($p['avatar_arquivo']);
-        $PREF['avatar_pos_x']     = (int) $p['avatar_pos_x'];
-        $PREF['avatar_pos_y']     = (int) $p['avatar_pos_y'];
-        $PREF['pomo_foco']        = (int) $p['pomo_foco'];
-        $PREF['pomo_pausa']       = (int) $p['pomo_pausa'];
-        $PREF['pomo_pausa_longa'] = (int) $p['pomo_pausa_longa'];
-        $PREF['meta_diaria']      = (int) $p['meta_diaria'];
-        $PREF['materias']         = ($p['materias'] === null || $p['materias'] === '')
+        $PREF['avatar_cor']          = $p['avatar_cor'];
+        $PREF['avatar_url']          = urlAvatar($p['avatar_arquivo']);
+        $PREF['avatar_pos_x']        = (int) $p['avatar_pos_x'];
+        $PREF['avatar_pos_y']        = (int) $p['avatar_pos_y'];
+        $PREF['pomo_foco']           = (int) $p['pomo_foco'];
+        $PREF['pomo_pausa']          = (int) $p['pomo_pausa'];
+        $PREF['pomo_pausa_longa']    = (int) $p['pomo_pausa_longa'];
+        $PREF['meta_diaria']         = (int) $p['meta_diaria'];
+        $PREF['objetivo']            = $p['objetivo'] ?? '';
+        $PREF['ano_escolar']         = $p['ano_escolar'] ?? '';
+        $PREF['onboarding_completo'] = (bool) ($p['onboarding_completo'] ?? 0);
+        $PREF['materias']            = ($p['materias'] === null || $p['materias'] === '')
                                         ? []
                                         : explode(',', $p['materias']);
-        $PREF['notif_lembrete']   = (bool) $p['notif_lembrete'];
-        $PREF['notif_resumo']     = (bool) $p['notif_resumo'];
+        $PREF['notif_lembrete']      = (bool) $p['notif_lembrete'];
+        $PREF['notif_resumo']        = (bool) $p['notif_resumo'];
     }
 
     // ---------- 5) Números do que o usuário já produziu ----------

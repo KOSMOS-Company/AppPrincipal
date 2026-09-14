@@ -1,9 +1,14 @@
 /* ============================================================
-   KOSMOS — intro.css  (V2 "viagem espacial")
-   Splash de boas-vindas que toca uma vez logo após o login.
-   Sequência: starfield warp (canvas) → letras surgem em cascata
-   (o 1º "o" é um planetinha com anel, eco do favicon) → tagline
-   e saudação com o nome → saída em hyperspace + reveal suave.
+   KOSMOS — intro.css (Mini Desenho Animado Introdutório)
+   Logo Oficial: K maiúsculo + planeta no 1º 'o' + smos minúsculo.
+   Atuação do Mascote 3D:
+     1. Voo acrobático com looping e frenagem elástica com inércia
+     2. Pisca, ajusta a postura e flash de estrela nos óculos
+     3. Órbitas de ferramentas (⏱️ Pomodoro, 🎴 Flashcards, 📝 Resumos)
+     4. Balão pop: "Seu espaço de estudos tá pronto! ✦"
+     5. Revelação da logo oficial Kosmos com rotação do anel
+     6. Tagline & saudação personalizada
+     7. Salto em velocidade de dobra espacial (hyperspace dive)
    ============================================================ */
 
 .intro {
@@ -13,13 +18,14 @@
     display: none;                 /* só aparece quando <html> tem .com-intro */
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle at 50% 40%, #1a0530 0%, #06000c 75%);
+    background: radial-gradient(circle at 50% 40%, #150328 0%, #06000c 80%);
     overflow: hidden;
-    cursor: pointer;               /* clique pula a animação */
+    cursor: pointer;
+    user-select: none;
 }
 html.com-intro .intro { display: flex; }
 
-/* Céu em warp (estrelas viajando) — desenhado pelo intro.js */
+/* Céu em warp de estrelas (controlado pelo intro.js) */
 .intro__ceu {
     position: absolute;
     inset: 0;
@@ -27,91 +33,202 @@ html.com-intro .intro { display: flex; }
     height: 100%;
 }
 
-/* Brilho roxo atrás da logo */
+/* Orbe pulsante cósmico central */
 .intro__glow {
     position: absolute;
-    width: 620px;
-    height: 620px;
+    width: 700px;
+    height: 700px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(165, 65, 255, .32), transparent 70%);
-    filter: blur(40px);
-    animation: introGlow 3.4s ease-in-out both;
+    background: radial-gradient(circle, rgba(165, 65, 255, .34), transparent 70%);
+    filter: blur(48px);
     pointer-events: none;
+    animation: introGlowPulsa 4.2s ease-in-out infinite;
 }
 
-.intro__conteudo {
+/* Portal cósmico / Onda de choque de abertura */
+.intro__portal {
+    position: absolute;
+    top: 36%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.1);
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(165,65,255,0.45) 0%, rgba(130,0,219,0.18) 40%, transparent 70%);
+    border: 2px solid rgba(201,124,255,0.6);
+    box-shadow: 0 0 50px rgba(165,65,255,0.6), inset 0 0 40px rgba(165,65,255,0.4);
+    pointer-events: none;
+    opacity: 0;
+    animation: introPortalExpande 1.4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards 0.2s;
+}
+
+/* Palco central do desenho animado */
+.intro__cenario {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    pointer-events: none;          /* cliques atravessam → supernova no céu */
+    z-index: 2;
+    pointer-events: none;
 }
 
-/* ---- Wordmark letra a letra ---- */
-.intro__nome {
-    font-family: "Syne", sans-serif;
-    font-size: clamp(3.2rem, 13vw, 6.5rem);
-    font-weight: 800;
-    letter-spacing: -.03em;
-    color: #fff;
-    text-shadow: 0 0 30px rgba(165, 65, 255, .55);
-    display: flex;
-    align-items: baseline;
-    transition: letter-spacing .9s ease;   /* estica na saída (warp) */
-}
-
-.intro__letra {
-    display: inline-block;
-    opacity: 0;
-    animation: introLetra .7s cubic-bezier(.2, .7, .2, 1) both;
-    animation-delay: calc(.25s + var(--i) * .09s);
-}
-
-/* O planetinha ocupa o lugar do primeiro "o" (altura-x da fonte) */
-.intro__letra--planeta {
+/* ── Ator Mascote 3D com Voo e Acrobacia ── */
+.intro__ator-mascote {
     position: relative;
-    width: .72em;
-    height: .72em;
-    align-self: center;
-    margin: 0 .03em;
-    transform-origin: 50% 50%;
+    width: clamp(170px, 24vw, 220px);
+    height: clamp(170px, 24vw, 220px);
+    margin-bottom: -4px;
+    pointer-events: auto;
+    cursor: pointer;
+    filter: drop-shadow(0 16px 32px rgba(107, 33, 168, .6));
+    transform-origin: center bottom;
+    animation: mascoteEntraVoo 1.5s cubic-bezier(0.18, 0.89, 0.32, 1.15) forwards;
 }
-.intro__letra--planeta svg {
+.intro__ator-mascote .mascote {
+    --mascote-tam: 100%;
+    width: 100%;
+    height: 100%;
+}
+
+/* Órbitas de ferramentas flutuantes (Pomodoro, Flashcards, Resumos) */
+.intro__orbita-item {
     position: absolute;
-    inset: -42%;                   /* anel maior que o "corpo" da letra */
-    width: 184%;
-    height: 184%;
-    overflow: visible;
-    filter: drop-shadow(0 0 12px rgba(165, 65, 255, .6));
-}
-
-/* Anel se desenha sozinho (pathLength=100 no SVG) */
-.intro__anel {
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    animation: introAnel 1s ease-out both .75s;
-}
-
-/* Olhinhos do planeta: piscam sozinhos; as pupilas seguem o cursor (JS) */
-.intro__olhos {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: introPisca 4.4s ease-in-out infinite 1.6s;
-}
-#introPupilas { transition: transform .12s ease-out; }
-
-/* ---- Textos de apoio ---- */
-.intro__tag {
-    font-family: "DM Sans", sans-serif;
-    font-size: 1rem;
-    color: var(--text-dim, #b8a8cc);
-    margin-top: 14px;
-    min-height: 1.5em;             /* reserva a linha (texto chega digitado) */
+    top: 50%;
+    left: 50%;
+    width: 38px;
+    height: 38px;
+    margin: -19px 0 0 -19px;
+    border-radius: 50%;
+    background: rgba(30, 8, 55, 0.88);
+    border: 1px solid rgba(201, 124, 255, 0.55);
+    box-shadow: 0 0 16px rgba(165, 65, 255, 0.5);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.18rem;
     opacity: 0;
-    animation: introSobe .7s ease both 1.05s;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
-/* Caret do typewriter (enquanto digita) */
+.intro__orbita-item--1 { transform: rotate(30deg) translateX(125px) rotate(-30deg); }
+.intro__orbita-item--2 { transform: rotate(150deg) translateX(125px) rotate(-150deg); }
+.intro__orbita-item--3 { transform: rotate(270deg) translateX(125px) rotate(-270deg); }
+
+.intro--revelou .intro__orbita-item {
+    opacity: 1;
+    animation: orbitaGira 12s linear infinite;
+}
+.intro--revelou .intro__orbita-item--1 { animation-delay: 0s; }
+.intro--revelou .intro__orbita-item--2 { animation-delay: -4s; }
+.intro--revelou .intro__orbita-item--3 { animation-delay: -8s; }
+
+/* Flash reluzente de estrela nos óculos */
+.intro__flash-oculos {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    transform: translate(-34px, -15px) scale(0);
+    pointer-events: none;
+    z-index: 10;
+}
+.intro__flash-oculos svg {
+    width: 100%;
+    height: 100%;
+    fill: #ffffff;
+    filter: drop-shadow(0 0 10px #d8b4fe);
+}
+.intro--piscou .intro__flash-oculos {
+    animation: flashEstrela 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Balãozinho de fala pop */
+.intro__balao-fala {
+    position: absolute;
+    top: 26px;
+    right: -80px;
+    background: rgba(36, 8, 66, 0.95);
+    border: 1px solid rgba(201, 124, 255, 0.7);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 22px rgba(165, 65, 255, 0.5);
+    backdrop-filter: blur(12px);
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    opacity: 0;
+    transform: scale(0.4) translateY(12px);
+    transform-origin: bottom left;
+    transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 20;
+}
+.intro__balao-fala::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 20px;
+    width: 10px;
+    height: 10px;
+    background: rgba(36, 8, 66, 0.95);
+    border-right: 1px solid rgba(201, 124, 255, 0.7);
+    border-bottom: 1px solid rgba(201, 124, 255, 0.7);
+    transform: rotate(45deg);
+}
+.intro--balao-on .intro__balao-fala {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+/* ── LOGO OFICIAL KOSMOS (Exata da 2ª Foto: K + planeta no 1º 'o' + smos) ── */
+.intro__marca-oficial {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4px;
+    opacity: 0;
+    transform: translateY(22px) scale(0.92);
+    animation: marcaSurge 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 1.2s;
+}
+
+.intro__logo-wrapper .klogo {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3.2rem, 7.8vw, 5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -.02em;
+    color: #ffffff;
+    text-shadow: 0 0 35px rgba(165, 65, 255, 0.65), 0 0 70px rgba(130, 0, 219, 0.35);
+}
+
+/* Proporção majestosa do planeta no 1º 'o' */
+.intro__logo-wrapper .klogo__o {
+    width: .66em;
+    height: .66em;
+    transform: translateY(.08em);
+}
+.intro__logo-wrapper .klogo__o::before {
+    background: radial-gradient(circle at 35% 32%, #d896ff, #a541ff 55%, #4d1487);
+    box-shadow: 0 0 .45em rgba(165, 65, 255, .7);
+}
+.intro__logo-wrapper .klogo__o::after {
+    border-width: .055em;
+    border-color: #f3e8ff;
+    box-shadow: 0 0 .25em rgba(201, 124, 255, .6);
+}
+
+/* Tagline & Saudação */
+.intro__tag {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.06rem;
+    color: #d1c2e6;
+    margin-top: 8px;
+    min-height: 1.4em;
+}
 .intro__tag--digitando::after {
     content: "|";
     color: var(--accent-lt, #c97cff);
@@ -119,77 +236,79 @@ html.com-intro .intro { display: flex; }
 }
 
 .intro__ola {
-    font-family: "DM Sans", sans-serif;
-    font-size: 1.05rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.22rem;
     font-weight: 600;
-    color: var(--accent-lt, #c97cff);
-    margin-top: 6px;
-    min-height: 1.4em;             /* reserva o espaço (nome chega async) */
+    color: #c97cff;
+    margin-top: 4px;
+    min-height: 1.4em;
+    text-shadow: 0 0 20px rgba(201, 124, 255, .55);
     opacity: 0;
     transform: translateY(10px);
     transition: opacity .6s ease, transform .6s ease;
 }
-.intro__ola--on { opacity: 1; transform: none; }
+.intro__ola--on {
+    opacity: 1;
+    transform: none;
+}
 
-/* Dica de interação (o céu responde ao toque/clique) */
+/* ── Dica & Botão Pular ── */
 .intro__dica {
     position: absolute;
-    bottom: 82px;
+    bottom: 84px;
     left: 50%;
-    font-family: "DM Sans", sans-serif;
+    transform: translateX(-50%);
+    font-family: 'DM Sans', sans-serif;
     font-size: .74rem;
     letter-spacing: .12em;
     text-transform: uppercase;
-    color: var(--text-muted, #6a5880);
+    color: #7b6794;
     opacity: 0;
-    animation: introSobe .8s ease both 2.2s, introDica 3s ease-in-out infinite 3s;
+    animation: textoFade 0.8s ease forwards 1.8s, introDica 3s ease-in-out infinite 3s;
     pointer-events: none;
 }
-.intro__dica { --tx: -50%; }       /* mantém o centering durante o introSobe */
 
-/* Botão de pular com barra de progresso do tempo restante */
 .intro__pular {
     position: absolute;
     bottom: 26px;
     left: 50%;
     transform: translateX(-50%);
     overflow: hidden;
-    padding: 9px 22px 11px;
-    border: 1px solid rgba(165, 65, 255, .4);
-    border-radius: 999px;
-    background: rgba(19, 2, 32, .55);
-    backdrop-filter: blur(8px);
-    font-family: "DM Sans", sans-serif;
+    padding: 10px 26px 12px;
+    border: 1px solid rgba(165, 65, 255, .45);
+    border-radius: 100px;
+    background: rgba(22, 4, 38, .7);
+    backdrop-filter: blur(10px);
+    font-family: 'DM Sans', sans-serif;
     font-size: .78rem;
+    font-weight: 600;
     letter-spacing: .08em;
     text-transform: uppercase;
-    color: var(--text-dim, #b8a8cc);
+    color: #e2d3f5;
     cursor: pointer;
     opacity: 0;
-    animation: introSobe .8s ease both 1.6s;
-    transition: color .25s ease, border-color .25s ease, background .25s ease;
+    animation: textoFade 0.8s ease forwards 1.4s;
+    transition: background .2s, border-color .2s, transform .2s, color .2s;
 }
-.intro__pular { --tx: -50%; }
-.intro__pular:hover,
-.intro__pular:focus-visible {
+.intro__pular:hover {
+    background: rgba(165, 65, 255, .25);
+    border-color: #a541ff;
     color: #fff;
-    border-color: var(--accent, #a541ff);
-    background: rgba(165, 65, 255, .18);
+    transform: translateX(-50%) scale(1.04);
 }
 .intro__pular-barra {
     position: absolute;
     left: 0;
     bottom: 0;
-    height: 2px;
+    height: 2.5px;
     width: 100%;
-    background: linear-gradient(90deg, var(--accent, #a541ff), var(--accent-lt, #c97cff));
+    background: linear-gradient(90deg, #a541ff, #c97cff);
     transform: scaleX(0);
     transform-origin: left;
-    /* duração = tempo da intro, setada pelo intro.js */
     animation: introBarra linear forwards;
 }
 
-/* ---- Saída: hyperspace (logo estica + dissolve com zoom/blur) ---- */
+/* ── Saída em Dobra Espacial (Hyperspace Dive) ── */
 .intro--saindo {
     opacity: 0;
     transform: scale(1.08);
@@ -197,83 +316,141 @@ html.com-intro .intro { display: flex; }
     transition: opacity .9s ease, transform .9s cubic-bezier(.4, 0, .8, 1), filter .9s ease;
     pointer-events: none;
 }
-.intro--saindo .intro__nome { letter-spacing: .22em; }
-.intro--saindo .intro__pular { opacity: 0 !important; }
+.intro--saindo .intro__ator-mascote {
+    transform: scale(2.6) translateY(-40px);
+    filter: blur(14px);
+    opacity: 0;
+    transition: transform 0.85s cubic-bezier(0.4, 0, 0.8, 1), filter 0.85s ease, opacity 0.85s ease;
+}
+.intro--saindo .intro__marca-oficial {
+    transform: scale(1.15);
+    letter-spacing: 0.12em;
+    opacity: 0;
+    filter: blur(10px);
+    transition: transform 0.8s ease, letter-spacing 0.8s ease, opacity 0.8s ease, filter 0.8s ease;
+}
+.intro--saindo .intro__balao-fala {
+    opacity: 0 !important;
+}
+.intro--saindo .intro__pular {
+    opacity: 0 !important;
+}
 
-/* Reveal do dashboard atrás — só opacity (transform/filter criariam
-   containing block e deslocariam a nav fixa do mobile) */
+/* Reveal da dashboard */
 html.intro-saida .contGeral,
 html.intro-saida .bg {
     animation: introRevela .9s ease both;
 }
 
-/* ---- Keyframes ---- */
-@keyframes introLetra {
-    0%   { opacity: 0; transform: translateY(28px) scale(.55); filter: blur(10px); }
-    70%  { opacity: 1; filter: blur(0); }
-    100% { opacity: 1; transform: none; filter: blur(0); }
+/* ══════════════ KEYFRAMES CINEMATOGRÁFICOS ══════════════ */
+@keyframes mascoteEntraVoo {
+    0% {
+        transform: translate(-140px, -240px) scale(0.12) rotate(-35deg);
+        opacity: 0;
+        filter: blur(14px);
+    }
+    35% {
+        transform: translate(60px, -60px) scale(0.65) rotate(18deg);
+        opacity: 0.9;
+        filter: blur(4px);
+    }
+    65% {
+        transform: translate(-10px, 16px) scale(1.15) rotate(-6deg);
+        opacity: 1;
+        filter: blur(0);
+    }
+    82% {
+        transform: translate(4px, -8px) scale(0.96) rotate(3deg);
+    }
+    100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
 }
-@keyframes introAnel {
-    from { stroke-dashoffset: 100; }
-    to   { stroke-dashoffset: 0; }
+
+@keyframes flashEstrela {
+    0%   { transform: translate(-34px, -15px) scale(0) rotate(0deg); opacity: 0; }
+    45%  { transform: translate(-34px, -15px) scale(1.5) rotate(90deg); opacity: 1; }
+    100% { transform: translate(-34px, -15px) scale(0) rotate(180deg); opacity: 0; }
 }
-@keyframes introSobe {
-    from { opacity: 0; transform: translate(var(--tx, 0), 14px); }
-    to   { opacity: 1; transform: translate(var(--tx, 0), 0); }
+
+@keyframes marcaSurge {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
-@keyframes introPisca {
-    0%, 92%, 100% { transform: scaleY(1); }
-    95%           { transform: scaleY(.08); }
+
+@keyframes orbitaGira {
+    from { transform: rotate(0deg) translateX(125px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(125px) rotate(-360deg); }
 }
-@keyframes introCaret {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0; }
+
+@keyframes introPortalExpande {
+    0% {
+        transform: translate(-50%, -50%) scale(0.1);
+        opacity: 0;
+    }
+    30% {
+        opacity: 0.95;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.6);
+        opacity: 0;
+    }
 }
+
+@keyframes introGlowPulsa {
+    0%, 100% { transform: scale(0.95); opacity: 0.7; }
+    50%      { transform: scale(1.1);  opacity: 1; }
+}
+
 @keyframes introBarra {
     from { transform: scaleX(0); }
     to   { transform: scaleX(1); }
 }
+
+@keyframes introCaret {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0; }
+}
+
 @keyframes introDica {
     0%, 100% { opacity: .5; }
     50%      { opacity: 1; }
 }
-@keyframes introGlow {
-    0%   { opacity: 0; transform: scale(.6); }
-    50%  { opacity: 1; transform: scale(1); }
-    100% { opacity: .75; transform: scale(1.05); }
+
+@keyframes textoFade {
+    to { opacity: 1; }
 }
+
 @keyframes introRevela {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
 
-/* Acessibilidade: sem movimento exagerado */
+/* ══════════════ ACESSIBILIDADE ══════════════ */
 @media (prefers-reduced-motion: reduce) {
-    .intro__letra,
-    .intro__tag,
-    .intro__glow,
-    .intro__anel {
-        animation-duration: .01ms !important;
-        animation-delay: 0s !important;
-        opacity: 1 !important;
+    .intro__portal, .intro__orbita-item, .intro__flash-oculos { display: none !important; }
+    .intro__ator-mascote {
+        animation: none !important;
         transform: none !important;
         filter: none !important;
     }
-    .intro__dica { display: none; }
-    .intro__pular {
-        animation-duration: .01ms !important;
-        animation-delay: 0s !important;
+    .intro__marca-oficial {
+        animation: none !important;
         opacity: 1 !important;
+        transform: none !important;
     }
-    .intro__olhos { animation: none; }
-    .intro__pular-barra { animation-timing-function: linear !important; }
+    .intro__glow { animation: none !important; }
+    .intro__dica { display: none; }
+    .intro__pular { animation: none !important; opacity: 1 !important; }
     .intro__ola { transition: none; }
     .intro--saindo {
         transform: none;
         filter: none;
         transition: opacity .4s ease;
     }
-    .intro--saindo .intro__nome { letter-spacing: -.03em; }
     html.intro-saida .contGeral,
     html.intro-saida .bg { animation: none; }
 }

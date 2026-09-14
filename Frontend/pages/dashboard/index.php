@@ -11,9 +11,12 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Dashboard</title>
     <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="../shared/cosmos.css">
     <link rel="stylesheet" href="./css/pomodoro-aviso.css">
     <link rel="stylesheet" href="./css/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
+    <link rel="stylesheet" href="../shared/mascote.css">
+    <link rel="stylesheet" href="./css/onboarding.css">
     <link rel="stylesheet" href="./css/intro.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,64 +30,51 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 </head>
 <body>
 
-    <!-- Splash de boas-vindas (toca uma vez após o login) -->
+    <!-- Splash de boas-vindas cinematográfico (mini desenho animado de introdução) -->
     <div class="intro" id="intro" aria-hidden="true">
         <canvas class="intro__ceu" id="introCeu"></canvas>
         <div class="intro__glow"></div>
-        <div class="intro__conteudo">
-            <h1 class="intro__nome" aria-label="Kosmos">
-                <span class="intro__letra" style="--i:0">K</span>
-                <span class="intro__letra intro__letra--planeta" style="--i:1">
-                    <!-- planetinha com anel (eco do favicon) no lugar do primeiro "o";
-                         os olhinhos seguem o cursor (mesma alma da mascote do login) -->
-                    <svg viewBox="0 0 64 64" focusable="false" aria-hidden="true">
-                        <defs>
-                            <radialGradient id="introPlaneta" cx="35%" cy="35%" r="75%">
-                                <stop offset="0"   stop-color="#c97cff"/>
-                                <stop offset=".55" stop-color="#a541ff"/>
-                                <stop offset="1"   stop-color="#4d1487"/>
-                            </radialGradient>
-                        </defs>
-                        <circle cx="32" cy="32" r="17" fill="url(#introPlaneta)"/>
-                        <g class="intro__olhos" id="introOlhos">
-                            <circle cx="26" cy="30" r="4.2" fill="#ffffff"/>
-                            <circle cx="38" cy="30" r="4.2" fill="#ffffff"/>
-                            <g id="introPupilas">
-                                <circle cx="26" cy="30" r="2" fill="#2a0845"/>
-                                <circle cx="38" cy="30" r="2" fill="#2a0845"/>
-                            </g>
-                        </g>
-                        <g transform="rotate(-22 32 32)">
-                            <ellipse class="intro__anel" cx="32" cy="32" rx="28" ry="10" pathLength="100"
-                                     fill="none" stroke="#e8d5ff" stroke-width="2.5" stroke-linecap="round"/>
-                            <circle r="3" fill="#ffffff">
-                                <animateMotion dur="3.2s" repeatCount="indefinite"
-                                               path="M60,32 A28,10 0 1,1 4,32 A28,10 0 1,1 60,32 Z"/>
-                            </circle>
-                        </g>
+        <div class="intro__portal"></div>
+
+        <div class="intro__cenario">
+            <!-- Ator Mascote 3D em ação animada -->
+            <div class="intro__ator-mascote" id="introMascoteHero" title="Clique no mascote!">
+                <div class="mascote" id="introMascote" data-mascote aria-hidden="true"></div>
+
+                <!-- Ícones das ferramentas orbitando ao redor do mascote -->
+                <div class="intro__orbita-item intro__orbita-item--1" title="Pomodoro">⏱️</div>
+                <div class="intro__orbita-item intro__orbita-item--2" title="Flashcards">🎴</div>
+                <div class="intro__orbita-item intro__orbita-item--3" title="Resumos">📝</div>
+
+                <!-- Flash reluzente nos óculos -->
+                <div class="intro__flash-oculos" id="introFlashOculos">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 0 Q13 11 24 12 Q13 13 12 24 Q11 13 0 12 Q11 11 12 0 Z"/>
                     </svg>
-                </span>
-                <span class="intro__letra" style="--i:2">s</span>
-                <span class="intro__letra" style="--i:3">m</span>
-                <span class="intro__letra" style="--i:4">o</span>
-                <span class="intro__letra" style="--i:5">s</span>
-            </h1>
-            <p class="intro__tag" id="introTag" data-texto="Estudar nunca foi difícil.">&nbsp;</p>
-            <p class="intro__ola" id="introOla"></p>
+                </div>
+
+                <!-- Balão de fala alegre do mascote -->
+                <div class="intro__balao-fala" id="introBalao">Seu espaço de estudos tá pronto! ✦</div>
+            </div>
+
+            <!-- LOGO OFICIAL KOSMOS (Exata da 2ª foto: K maiúsculo + planeta no 1º 'o' + smos minúsculo) -->
+            <div class="intro__marca-oficial">
+                <div class="intro__logo-wrapper">
+                    <span class="klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
+                </div>
+                <p class="intro__tag" id="introTag" data-texto="Estudar nunca foi tão envolvente.">&nbsp;</p>
+                <p class="intro__ola" id="introOla"></p>
+            </div>
         </div>
-        <p class="intro__dica">toque no céu ✦</p>
+
+        <p class="intro__dica">toque no céu para criar supernovas ✦</p>
         <button class="intro__pular" id="introPular" type="button">
             Pular intro
             <span class="intro__pular-barra" id="introBarra"></span>
         </button>
     </div>
 
-    <!-- Background Efeitos -->
-    <div class="bg">
-        <div class="bg__orb bg__orb--1"></div>
-        <div class="bg__orb bg__orb--2"></div>
-        <div class="bg__grid"></div>
-    </div>
+    <?php include __DIR__ . '/partes/fundo.php'; ?>
 
     <!-- Layout Container -->
     <div class="contGeral">
@@ -254,10 +244,24 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
     </div>
 
+    <?php if (empty($PREF['onboarding_completo'])): ?>
+        <?php include __DIR__ . '/partes/modal-onboarding.php'; ?>
+    <?php endif; ?>
+
     <script src="./js/dashboard.js"></script>
     <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/inicio.js"></script>
     <script src="./js/cursor.js"></script>
+    <script src="../shared/mascote.js"></script>
     <script src="./js/intro.js"></script>
+    <?php if (empty($PREF['onboarding_completo'])): ?>
+        <script src="./js/onboarding.js"></script>
+    <?php endif; ?>
+    <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta
+         primeiro e, se não houver placa ou o shader não compilar, ele
+         desiste em silêncio e o cosmos.js (Canvas 2D) assume — por isso
+         esta ordem importa. Ver partes/fundo.php. -->
+    <script src="../shared/cosmos-gl.js"></script>
+    <script src="../shared/cosmos.js"></script>
 </body>
 </html>

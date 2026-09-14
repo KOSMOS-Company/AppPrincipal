@@ -73,15 +73,15 @@
         }
         .acao-sair:hover { color: #fff; }
     </style>
+    <link rel="stylesheet" href="../shared/cosmos.css">
 </head>
 <body>
 
     <!-- Background -->
-    <div class="bg">
-        <div class="bg__orb bg__orb--1"></div>
-        <div class="bg__orb bg__orb--2"></div>
-        <div class="bg__grid"></div>
-    </div>
+    <!-- O céu. As regras estão em ../shared/cosmos.css e os dois arquivos que
+         o animam são os mesmos da landing page e do dashboard. -->
+    <canvas class="cosmos" id="cosmos" aria-hidden="true"></canvas>
+    <div class="veu" aria-hidden="true"></div>
 
     <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; position:relative; z-index:1;">
         <div class="form-card" style="max-width:440px; width:100%;">
@@ -273,5 +273,9 @@
     </script>
     <script src="../shared/mouse-tracker.js"></script>
     <script src="../shared/cursor.js"></script>
+    <!-- O WebGL tenta primeiro; sem placa ou com shader que não compila,
+         ele desiste em silêncio e o Canvas 2D assume. A ordem importa. -->
+    <script src="../shared/cosmos-gl.js"></script>
+    <script src="../shared/cosmos.js"></script>
 </body>
 </html>

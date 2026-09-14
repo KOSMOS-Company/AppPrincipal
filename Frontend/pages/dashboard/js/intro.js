@@ -1,48 +1,51 @@
 /* ============================================================
-   KOSMOS — intro.js  (V3 "viagem espacial interativa")
-   Controla o splash de boas-vindas (toca uma vez após o login).
-   A classe .com-intro já é adicionada no <head> da index para
-   evitar "flash". Interações:
-     • o warp de estrelas inclina na direção do cursor (parallax)
-     • clicar/tocar no céu cria uma supernova + acelera as estrelas
-     • as pupilas do planetinha seguem o cursor (alma da mascote)
-     • tagline em typewriter; botão "Pular intro" com barra de
-       progresso do tempo restante (Esc/Enter/espaço também pulam)
+   KOSMOS — intro.js (Mini Desenho Animado Introdutório)
+   Logo Oficial: K maiúsculo + planeta no 1º 'o' + smos minúsculo.
+   Roteiro animado:
+     • 0.0s: Starfield cósmico suave + portal de luz se expande
+     • 0.3s: Mascote 3D entra em voo acrobático com curva e frenagem elástica
+     • 1.5s: Flash de estrela na lente dos óculos
+     • 1.8s: Logo oficial K<o>smos se materializa com glow púrpura
+     • 2.2s: Mascote dá piscadinha, ergue o capelo e balão de fala pop surge
+     • 2.4s: Ferramentas de estudo (⏱️, 🎴, 📝) entram em órbita ao redor dele
+     • 2.7s: Mascote abre sorrisão e tagline + saudação personalizada acendem
+     • 3.0s: Modo interativo completo (pupilas seguem o cursor, supernovas no céu)
+     • Saída: Mascote e universo saltam em dobra espacial (hyperspace dive)
    ============================================================ */
 
 (function () {
     const overlay = document.getElementById("intro");
     if (!overlay) return;
 
-    // Se não veio do login, não mostra nada
+    // Se não veio do login/cadastro, não executa
     if (!document.documentElement.classList.contains("com-intro")) {
         overlay.remove();
         return;
     }
 
-    sessionStorage.removeItem("kosmos_intro"); // não repete ao recarregar
+    sessionStorage.removeItem("kosmos_intro"); // não repete ao recarregar (F5)
 
     const reduzMov = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const DURACAO = reduzMov ? 2600 : 4400; // tempo visível antes de sumir (ms)
+    const DURACAO = reduzMov ? 2600 : 5400; // tempo total do filminho (ms)
 
-    /* ---------- Céu em warp (estrelas viajando na direção da tela) ---------- */
+    /* ---------- Céu em warp 3D (estrelas viajando em direção à tela) ---------- */
     function criarWarp(canvas) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return null;
 
-        const QTD = 240;
+        const QTD = 260;
         let larg, alt, cx, cy, escala;
         let estrelas = [];
-        let fagulhas = [];      // partículas das supernovas (clique no céu)
+        let fagulhas = [];      // partículas de supernovas (cliques)
         let raf = null;
 
-        let vel = 0.002;        // começa lenta…
-        let velAlvo = 0.011;    // …acelera de leve durante a intro
-        let impulso = 0;        // "chute" extra a cada supernova (decai)
+        let vel = 0.0025;       // velocidade inicial suave
+        let velAlvo = 0.012;    // velocidade de cruzeiro cósmico
+        let impulso = 0;        // aceleração dinâmica
 
-        // parallax: o ponto de fuga persegue o cursor com suavidade
-        let miraX = 0, miraY = 0;   // alvo (deslocamento a partir do centro)
-        let desvX = 0, desvY = 0;   // posição atual (eased)
+        // Parallax suave perseguindo o cursor
+        let miraX = 0, miraY = 0;
+        let desvX = 0, desvY = 0;
 
         function medir() {
             const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -61,18 +64,17 @@
                 x: Math.random() * 2 - 1,
                 y: Math.random() * 2 - 1,
                 z: zInicial !== undefined ? zInicial : Math.random() * 0.9 + 0.1,
-                roxa: Math.random() < 0.45 // mistura branco + roxo da marca
+                roxa: Math.random() < 0.45
             };
         }
 
         function quadro() {
-            vel += (velAlvo + impulso - vel) * 0.03;
+            vel += (velAlvo + impulso - vel) * 0.035;
             impulso *= 0.92;
             desvX += (miraX - desvX) * 0.05;
             desvY += (miraY - desvY) * 0.05;
-            const fx = cx + desvX, fy = cy + desvY; // ponto de fuga da vez
+            const fx = cx + desvX, fy = cy + desvY;
 
-            // rastro: escurece com transparência em vez de limpar
             ctx.fillStyle = "rgba(6, 0, 12, 0.42)";
             ctx.fillRect(0, 0, larg, alt);
             ctx.lineCap = "round";
@@ -89,18 +91,18 @@
                 const x2 = fx + (e.x / e.z) * escala;
                 const y2 = fy + (e.y / e.z) * escala;
 
-                const prox = 1 - e.z; // 0 = longe, 1 = perto
+                const prox = 1 - e.z;
                 ctx.strokeStyle = e.roxa
                     ? "rgba(201, 124, 255," + (0.25 + prox * 0.75) + ")"
                     : "rgba(232, 213, 255," + (0.2 + prox * 0.8) + ")";
-                ctx.lineWidth = prox * 2.4 + 0.3;
+                ctx.lineWidth = prox * 2.5 + 0.3;
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
                 ctx.lineTo(x2, y2);
                 ctx.stroke();
             }
 
-            // fagulhas de supernova (voam do ponto do clique e apagam)
+            // Fagulhas de supernova no clique
             for (let i = fagulhas.length - 1; i >= 0; i--) {
                 const f = fagulhas[i];
                 const rastroX = f.x, rastroY = f.y;
@@ -112,7 +114,7 @@
                 ctx.strokeStyle = f.roxa
                     ? "rgba(201, 124, 255," + f.vida + ")"
                     : "rgba(255, 255, 255," + f.vida + ")";
-                ctx.lineWidth = f.vida * 2.2 + 0.4;
+                ctx.lineWidth = f.vida * 2.4 + 0.4;
                 ctx.beginPath();
                 ctx.moveTo(rastroX, rastroY);
                 ctx.lineTo(f.x, f.y);
@@ -130,24 +132,24 @@
         raf = requestAnimationFrame(quadro);
 
         return {
-            mirar(px, py) {                        // parallax segue o cursor
+            mirar(px, py) {
                 miraX = (px - cx) * 0.14;
                 miraY = (py - cy) * 0.14;
             },
-            explodir(px, py) {                     // supernova no clique
-                const n = 26 + Math.floor(Math.random() * 8);
+            explodir(px, py) {
+                const n = 28 + Math.floor(Math.random() * 10);
                 for (let i = 0; i < n; i++) {
                     fagulhas.push({
                         x: px, y: py,
                         ang: (Math.PI * 2 * i) / n + Math.random() * 0.4,
-                        v: 2.5 + Math.random() * 5,
+                        v: 2.5 + Math.random() * 5.5,
                         vida: 0.9 + Math.random() * 0.1,
                         roxa: Math.random() < 0.5
                     });
                 }
-                impulso = Math.min(impulso + 0.028, 0.06); // chute de velocidade
+                impulso = Math.min(impulso + 0.032, 0.065);
             },
-            turbinar() { velAlvo = 0.11; },        // hyperspace na saída
+            turbinar() { velAlvo = 0.12; },
             parar() {
                 if (raf) cancelAnimationFrame(raf);
                 window.removeEventListener("resize", medir);
@@ -158,34 +160,72 @@
     const canvas = document.getElementById("introCeu");
     const warp = (!reduzMov && canvas) ? criarWarp(canvas) : null;
 
-    /* ---------- Pupilas do planetinha seguem o cursor ---------- */
-    const pupilas = document.getElementById("introPupilas");
-    const olhos = document.getElementById("introOlhos");
-
+    /* ---------- Parallax do céu perseguindo o mouse ---------- */
     function seguirCursor(ev) {
         if (warp) warp.mirar(ev.clientX, ev.clientY);
-        if (!pupilas || !olhos || reduzMov) return;
-        const r = olhos.getBoundingClientRect();
-        if (!r.width) return;
-        const dx = ev.clientX - (r.left + r.width / 2);
-        const dy = ev.clientY - (r.top + r.height / 2);
-        const dist = Math.hypot(dx, dy) || 1;
-        const passo = Math.min(dist / 90, 1) * 1.8; // até 1.8 unidades do SVG
-        pupilas.style.transform =
-            "translate(" + (dx / dist) * passo + "px," + (dy / dist) * passo + "px)";
     }
     if (!reduzMov) window.addEventListener("pointermove", seguirCursor);
 
-    /* ---------- Supernova: clique/toque no céu (fora do botão) ---------- */
+    /* ---------- Roteiro do Mini Desenho Animado ---------- */
+    const hero = document.getElementById("introMascoteHero");
+    const balao = document.getElementById("introBalao");
+    const mascoteEl = document.getElementById("introMascote");
+
+    if (!reduzMov) {
+        // Cena 2: Flash de estrela na lente dos óculos (1.5s)
+        setTimeout(function () {
+            if (hero) hero.classList.add("intro--piscou");
+        }, 1500);
+
+        // Cena 3: Ativa órbitas de ferramentas e balão de fala pop (2.2s)
+        setTimeout(function () {
+            if (overlay) overlay.classList.add("intro--revelou");
+            if (hero) hero.classList.add("intro--balao-on");
+            if (mascoteEl && mascoteEl.mascote) mascoteEl.mascote.piscar(280);
+        }, 2200);
+
+        // Cena 4: Mascote abre sorrisão feliz (2.7s)
+        setTimeout(function () {
+            if (mascoteEl && mascoteEl.mascote) mascoteEl.mascote.humor("feliz");
+        }, 2700);
+
+        // Cena 5: Recolhe o balão suavemente antes da dobra espacial (4.4s)
+        setTimeout(function () {
+            if (hero) hero.classList.remove("intro--balao-on");
+        }, 4400);
+    } else {
+        if (overlay) overlay.classList.add("intro--revelou");
+        if (hero) hero.classList.add("intro--balao-on");
+    }
+
+    /* ---------- Interação: clicar no mascote durante a animação ---------- */
+    if (hero) {
+        hero.addEventListener("pointerdown", function (ev) {
+            ev.stopPropagation(); // não dispara supernova
+            if (mascoteEl && mascoteEl.mascote) {
+                mascoteEl.mascote.humor("feliz");
+                mascoteEl.mascote.piscar(280);
+                if (balao) {
+                    balao.textContent = "Vamos nessa! 🚀";
+                    hero.classList.add("intro--balao-on");
+                }
+                setTimeout(function () {
+                    if (mascoteEl && mascoteEl.mascote) mascoteEl.mascote.humor("normal");
+                }, 1600);
+            }
+        });
+    }
+
+    /* ---------- Supernova: clique no céu estrelado ---------- */
     overlay.addEventListener("pointerdown", function (ev) {
-        if (ev.target.closest("#introPular")) return; // botão cuida do skip
+        if (ev.target.closest("#introPular")) return;
         if (warp) warp.explodir(ev.clientX, ev.clientY);
     });
 
-    /* ---------- Tagline em typewriter ---------- */
+    /* ---------- Tagline em Typewriter ---------- */
     const tag = document.getElementById("introTag");
     if (tag) {
-        const texto = tag.dataset.texto || "";
+        const texto = tag.dataset.texto || "Estudar nunca foi tão envolvente.";
         if (reduzMov) {
             tag.textContent = texto;
         } else {
@@ -203,39 +243,39 @@
                         }, 700);
                     }
                 })();
-            }, 1100); // entra junto com o fade do .intro__tag
+            }, 2300);
         }
     }
 
-    /* ---------- Saudação: o dashboard.js grava kosmos_usuario (async) ---------- */
+    /* ---------- Saudação Personalizada ---------- */
     const ola = document.getElementById("introOla");
     let tentativas = 0;
     (function esperarNome() {
         const nome = sessionStorage.getItem("kosmos_usuario");
         if (nome && ola) {
-            ola.textContent = "Boas-vindas, " + nome.trim().split(" ")[0] + "!";
+            ola.textContent = "Boas-vindas ao seu universo, " + nome.trim().split(" ")[0] + "!";
             ola.classList.add("intro__ola--on");
             return;
         }
-        if (++tentativas < 14) setTimeout(esperarNome, 150); // tenta por ~2s
+        if (++tentativas < 16) setTimeout(esperarNome, 150);
     })();
 
-    /* ---------- Barra de progresso do botão (tempo restante) ---------- */
+    /* ---------- Barra de Progresso do Tempo Restante ---------- */
     const barra = document.getElementById("introBarra");
     if (barra) barra.style.animationDuration = DURACAO + "ms";
 
-    /* ---------- Saída ---------- */
+    /* ---------- Saída em Salto Hyperspace (Dobra Espacial) ---------- */
     function encerrar() {
         if (overlay.dataset.saindo) return;
         overlay.dataset.saindo = "1";
         if (warp) warp.turbinar();
         overlay.classList.add("intro--saindo");
         document.documentElement.classList.remove("com-intro");
-        document.documentElement.classList.add("intro-saida"); // reveal do dashboard
+        document.documentElement.classList.add("intro-saida");
         window.removeEventListener("keydown", pularPorTecla);
         window.removeEventListener("pointermove", seguirCursor);
         overlay.addEventListener("transitionend", finalizar, { once: true });
-        setTimeout(finalizar, 1100); // fallback alinhado à saída de .9s
+        setTimeout(finalizar, 1000);
     }
 
     function finalizar() {

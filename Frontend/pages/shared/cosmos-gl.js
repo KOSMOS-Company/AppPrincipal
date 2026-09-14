@@ -34,6 +34,15 @@
     var semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var ponteiroFino = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+    /* MODO CALMO — <canvas id="cosmos" data-calmo>
+       Ligado no dashboard, não na landing page. Lá o céu é o assunto e a
+       visita dura um minuto; aqui a pessoa fica horas estudando com um
+       Pomodoro correndo, e um fundo caro rodando o tempo todo cobra em
+       bateria e em atenção. Então no dashboard o MESMO céu roda com menos
+       resolução e metade dos quadros. O quanto ele aparece é decisão do
+       CSS (a opacidade do canvas), não daqui. */
+    var calmo = canvas.hasAttribute('data-calmo');
+
     /* ------------------------------------------------------------
        O shader
        ------------------------------------------------------------ */
@@ -358,6 +367,7 @@
            amplia. Num fundo desfocado ninguém percebe, e o custo cai
            com o quadrado da escala. */
         escala = ponteiroFino ? Math.min(dpr, 1.25) : Math.min(dpr, 1.0) * 0.6;
+        if (calmo) escala *= 0.72;        // o custo cai com o QUADRADO disto
 
         canvas.width = Math.max(1, Math.round(L * escala));
         canvas.height = Math.max(1, Math.round(A * escala));
@@ -383,8 +393,8 @@
         if (!rodando) return;
         quadro++;
 
-        // no toque, metade dos quadros: o custo cai pela metade
-        if (!ponteiroFino && quadro % 2) {
+        // no toque — e no modo calmo — metade dos quadros
+        if ((!ponteiroFino || calmo) && quadro % 2) {
             requestAnimationFrame(passo);
             return;
         }

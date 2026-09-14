@@ -71,6 +71,7 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title><?= $CADERNO ? hesc($CADERNO['nome']) . ' — Kosmos' : 'Kosmos — Caderno' ?></title>
     <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="../shared/cosmos.css">
     <link rel="stylesheet" href="./css/pomodoro-aviso.css">
     <link rel="stylesheet" href="./css/resumos.css">
     <link rel="stylesheet" href="./css/cursor.css">
@@ -81,12 +82,7 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
 </head>
 <body<?= $CADERNO ? ' class="tema-caderno tema-caderno--' . hesc($CADERNO['cor']) . '"' : '' ?>>
 
-    <!-- Background Efeitos -->
-    <div class="bg">
-        <div class="bg__orb bg__orb--1"></div>
-        <div class="bg__orb bg__orb--2"></div>
-        <div class="bg__grid"></div>
-    </div>
+    <?php include __DIR__ . '/partes/fundo.php'; ?>
 
     <div class="contGeral">
 
@@ -199,5 +195,11 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
     <script src="./js/resumo-form.js"></script>
     <script src="./js/caderno.js"></script>
     <script src="./js/cursor.js"></script>
+    <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta
+         primeiro e, se não houver placa ou o shader não compilar, ele
+         desiste em silêncio e o cosmos.js (Canvas 2D) assume — por isso
+         esta ordem importa. Ver partes/fundo.php. -->
+    <script src="../shared/cosmos-gl.js"></script>
+    <script src="../shared/cosmos.js"></script>
 </body>
 </html>

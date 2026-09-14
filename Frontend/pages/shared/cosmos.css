@@ -1,0 +1,73 @@
+/* ════════════════════════════════════════════════════════════════
+   O CÉU — as duas camadas de fundo, num lugar só
+
+   Estas regras já existiam escritas à mão na landing page e no
+   dashboard, e estavam prestes a ser copiadas para mais cinco
+   páginas (login, cadastro, criar senha, redefinir, termos,
+   política, 404). Sete cópias da mesma coisa é sete lugares para
+   esquecer de ajustar.
+
+   O par é sempre o mesmo e sempre nesta ordem:
+
+       <canvas class="cosmos" id="cosmos" aria-hidden="true"></canvas>
+       <div class="veu" aria-hidden="true"></div>
+
+   e os dois arquivos que o animam, nesta ordem (o WebGL tenta
+   primeiro; se não houver placa ou o shader não compilar, ele
+   desiste em silêncio e o Canvas 2D assume):
+
+       <script src=".../shared/cosmos-gl.js"></script>
+       <script src=".../shared/cosmos.js"></script>
+
+   ── O que muda de página para página ──
+
+   Nada de copiar a regra: cada página só redefine as variáveis
+   abaixo, no seu próprio `:root`.
+
+     --cosmos-z / --veu-z   onde as camadas entram no empilhamento.
+                            O padrão é NEGATIVO, que é o valor seguro:
+                            assim nenhum conteúdo precisa ganhar
+                            z-index para ficar por cima. A landing
+                            page usa 0 porque as seções dela já
+                            declaram z-index 1 — lá o padrão não
+                            serve, e é a única exceção.
+
+     --cosmos-opacidade     o quanto o céu aparece. 1 onde ele é o
+                            assunto (landing, login); menos onde a
+                            pessoa fica horas lendo (dashboard).
+
+     --veu-forca            o quanto a folha escurece, de 0 a 1.
+                            Quanto mais texto corrido a página tem,
+                            mais fechada ela precisa ser.
+
+   ── E o `data-calmo` ──
+
+   No canvas, `data-calmo` faz o shader render em menos resolução e
+   em metade dos quadros (ver shared/cosmos-gl.js). É custo, não
+   aparência: quem decide o brilho é `--cosmos-opacidade`. Vale para
+   página onde se PERMANECE — dashboard, termos, política — e não
+   para página de passagem.
+   ════════════════════════════════════════════════════════════════ */
+
+.cosmos {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    z-index: var(--cosmos-z, -2);
+    opacity: var(--cosmos-opacidade, 1);
+}
+
+/* A folha translúcida entre o céu e o conteúdo. Segura a
+   legibilidade do texto sem apagar as estrelas — e, por ser UMA só
+   para a página inteira, não cria as faixas horizontais que apareciam
+   quando cada seção tinha o próprio fundo. */
+.veu {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: var(--veu-z, -1);
+    background: rgba(5, 0, 12, var(--veu-forca, .52));
+}

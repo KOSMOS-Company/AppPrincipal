@@ -16,16 +16,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/cosmos.css">
 </head>
 <body>
 
     <!-- Background -->
-    <div class="bg">
-        <div class="bg__orb bg__orb--1"></div>
-        <div class="bg__orb bg__orb--2"></div>
-        <div class="bg__grid"></div>
-        <canvas class="bg__space" id="heroSpace"></canvas>
-    </div>
+    <!-- O céu. As regras estão em ../shared/cosmos.css e os dois arquivos que
+         o animam são os mesmos da landing page e do dashboard. -->
+    <canvas class="cosmos" id="cosmos" aria-hidden="true"></canvas>
+    <div class="veu" aria-hidden="true"></div>
 
     <!-- Layout -->
     <div class="page">
@@ -312,5 +311,9 @@
     <script src="../inicio/js/space.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
     <script src="../shared/cursor.js"></script>
+    <!-- O WebGL tenta primeiro; sem placa ou com shader que não compila,
+         ele desiste em silêncio e o Canvas 2D assume. A ordem importa. -->
+    <script src="../shared/cosmos-gl.js"></script>
+    <script src="../shared/cosmos.js"></script>
 </body>
 </html>

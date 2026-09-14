@@ -112,7 +112,14 @@
         const alvo = document.getElementById('rotatorWord');
         if (!alvo || reduzMovimento) return;
 
-        const palavras = ['estudos', 'resumos', 'flashcards', 'horários', 'exercícios'];
+        /* A máquina de escrever agora rotaciona a DOR, não o recurso.
+           Antes eram os próprios recursos ('resumos', 'flashcards'), o
+           que repetia a lista que já aparece logo abaixo no hero e no
+           marquee. Como o título virou "Chega de estudar e ___", cada
+           palavra fecha uma frase inteira — e são curtas de propósito:
+           a `reservarLargura` abaixo reserva a largura da MAIOR delas,
+           então palavra longa empurra o título e quebra a linha. */
+        const palavras = ['esquecer', 'se perder', 'travar', 'não render'];
         let idx = 0, pos = palavras[0].length, apagando = false;
 
         // Reserva a largura da maior palavra para o título não mudar de
