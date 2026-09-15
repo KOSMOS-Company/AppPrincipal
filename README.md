@@ -59,6 +59,7 @@ KOSMOS/
             │   ├── flashcards.php  # baralhos e cartões
             │   ├── exercicios.php  # exercícios com IA
             │   ├── pomodoro.php    # timer
+            │   ├── provas.php     # provas: contagem, o que cai e a nota depois
             │   ├── conta.php       # conta (6 seções)
             │   └── partes/         # pedaços reaproveitados (sidebar e modais)
             └── shared/             # recursos comuns (favicon, imagem de compartilhamento, cursor)
@@ -89,6 +90,11 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
      mysql -u root kosmos < 2026-08-25_flashcards.sql   # decks e cartões
      mysql -u root kosmos < 2026-08-26_conta.sql        # preferências, avatar e sessoes_versao
      mysql -u root kosmos < 2026-08-27_resumos.sql      # resumos
+     mysql -u root kosmos < 2026-09-08_onboarding.sql   # onboarding
+     mysql -u root kosmos < 2026-09-09_resumo_cadernos.sql      # cadernos
+     mysql -u root kosmos < 2026-09-11_caderno_personalizacao.sql  # cor, ícone e capa
+     mysql -u root kosmos < 2026-09-13_estudo.sql       # sessões, repetição espaçada, provas, busca
+     mysql -u root kosmos < 2026-09-14_provas.sql       # assuntos que caem, anotações e nota
      ```
      Todas usam `IF NOT EXISTS`, então rodar de novo por engano não quebra nada.
 
@@ -168,6 +174,8 @@ e `YEAR()`, e o PHP só formata (`datas.php`). Motivo no "Problemas conhecidos" 
 | Pomodoro (com os tempos salvos nas preferências) | ✅ Funcional |
 | **Flashcards** (decks, cartões, estudo e estatísticas) | ✅ Funcional |
 | **Resumos** (escrever, editar, apagar, prévia de leitura) | ✅ Funcional |
+| **Provas** (contagem, assuntos que caem, material da matéria e a nota) | ✅ Funcional |
+| **Gerar flashcards de um resumo** (o app sugere, você confere e salva) | ✅ Funcional |
 | Preferências de e-mail de notificação | 🟡 Salvam, mas o envio ainda não existe |
 | Gráfico "Esta semana" da Início | 🟡 Estado vazio honesto — falta gravar as sessões do pomodoro |
 | "Primeiros passos" da Início | 🟡 Marcado só no navegador (`localStorage`), não na conta |

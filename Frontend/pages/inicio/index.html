@@ -153,72 +153,6 @@
                     <span>Matérias</span>
                 </div>
             </div>
-        <!-- ───── O PRODUTO, no hero ─────
-             A página vendia atmosfera por três telas antes de mostrar um
-             pixel do app. Esta prévia é o argumento que o fundo cósmico
-             não consegue fazer: "é ISSO que você ganha".
-
-             Construída em HTML/CSS, sem imagem, de propósito: acompanha os
-             tokens de cor, fica nítida em qualquer tela e não envelhece
-             junto com uma captura que ninguém lembra de refazer quando o
-             dashboard muda.
-
-             `role="img"` + rótulo em vez de aria-hidden: para quem usa
-             leitor de tela, a prévia do produto é conteúdo, não enfeite.
-             Não há nada focável aqui dentro — se algum dia houver, o role
-             tem que sair junto. -->
-        <div class="mock" role="img"
-             aria-label="Prévia do painel da Kosmos: saudação, sequência de 12 dias, gráfico de horas da semana e atalhos para cadernos e flashcards.">
-            <div class="mock__janela">
-                <div class="mock__lateral" aria-hidden="true">
-                    <span class="mock__marca">K</span>
-                    <i class="mock__nav mock__nav--ativo"></i>
-                    <i class="mock__nav"></i><i class="mock__nav"></i>
-                    <i class="mock__nav"></i><i class="mock__nav"></i>
-                </div>
-
-                <div class="mock__tela" aria-hidden="true">
-                    <div class="mock__topo">
-                        <div>
-                            <b class="mock__ola">Boa noite, Ana</b>
-                            <span class="mock__sub">Sua sequência está de pé</span>
-                        </div>
-                        <span class="mock__selo">🔥 12 dias</span>
-                    </div>
-
-                    <div class="mock__painel">
-                        <span class="mock__rotulo">Esta semana</span>
-                        <div class="mock__semana">
-                            <i style="--h: 34%"></i><i style="--h: 58%"></i>
-                            <i style="--h: 22%"></i><i style="--h: 76%"></i>
-                            <i style="--h: 48%"></i><i style="--h: 90%"></i>
-                            <i style="--h: 40%"></i>
-                        </div>
-                    </div>
-
-                    <div class="mock__cards">
-                        <div class="mock__card">
-                            <span class="mock__card-ic">📗</span>
-                            <b>Biologia</b>
-                            <span class="mock__card-sub">8 resumos</span>
-                        </div>
-                        <div class="mock__card">
-                            <span class="mock__card-ic">🃏</span>
-                            <b>Revisar hoje</b>
-                            <span class="mock__card-sub">24 cartões</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- O Orion mora no dashboard de verdade, então ele aparece
-                 aqui DENTRO da prévia — como parte do produto. Isto não
-                 fere a regra do guia ("ele não aparece no hero", em
-                 js/orion-guia.js): aquela vale para o Orion que FALA e
-                 acompanha a rolagem. Este é um desenho parado.
-                 O mascote.js monta sozinho todo [data-mascote]. -->
-            <span class="mock__orion" data-mascote data-mascote-auto="0"></span>
-        </div>
         </div>
         <a href="#sobre" class="hero__scroll" aria-label="Rolar para a próxima seção">
             <span class="hero__scroll-mouse"><span class="hero__scroll-wheel"></span></span>
@@ -623,7 +557,7 @@
                             <ol class="orion__roteiro" id="orionRoteiro">
                                 <li>
                                     <button class="orion-passo" type="button" data-passo="chegada">
-                                        <span class="orion-passo__ico" aria-hidden="true">👋</span>
+                                        <span class="orion-passo__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 11.5c0 3.9-3.8 7.1-8.5 7.1-1 0-2-.15-2.9-.42L4.2 20.4l1.5-3.5a6.8 6.8 0 0 1-2.3-5.4c0-3.9 3.8-7.1 8.6-7.1s8.6 3.2 8.6 7.1Z"/><circle cx="8.7" cy="11.4" r=".95" fill="currentColor" stroke="none"/><circle cx="12.1" cy="11.4" r=".95" fill="currentColor" stroke="none"/><circle cx="15.5" cy="11.4" r=".95" fill="currentColor" stroke="none"/></svg></span>
                                         <span class="orion-passo__texto">
                                             <strong>Prazer, sou o Orion</strong>
                                             <span>Seu companheiro de estudos — um planetinha que mora aqui.</span>
@@ -632,7 +566,7 @@
                                 </li>
                                 <li>
                                     <button class="orion-passo" type="button" data-passo="kosmos">
-                                        <span class="orion-passo__ico" aria-hidden="true">🪐</span>
+                                        <span class="orion-passo__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11.6" r="6.3"/><ellipse cx="12" cy="11.6" rx="10.6" ry="3.5" transform="rotate(-22 12 11.6)"/></svg></span>
                                         <span class="orion-passo__texto">
                                             <strong>Esta é a Kosmos</strong>
                                             <strong>Seu QG de estudos: resumos, flashcards, pomodoro, IA — tudo grátis.</strong>
@@ -641,7 +575,7 @@
                                 </li>
                                 <li>
                                     <button class="orion-passo" type="button" data-passo="biblioteca">
-                                        <span class="orion-passo__ico" aria-hidden="true">📚</span>
+                                        <span class="orion-passo__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.4A1.6 1.6 0 0 1 5.6 4.8H9a2 2 0 0 1 2 2v11.4a1.7 1.7 0 0 0-1.7-1.7H5.6A1.6 1.6 0 0 1 4 14.9V6.4Z"/><path d="M20 6.4a1.6 1.6 0 0 0-1.6-1.6H15a2 2 0 0 0-2 2v11.4a1.7 1.7 0 0 1 1.7-1.7h3.7a1.6 1.6 0 0 0 1.6-1.6V6.4Z"/></svg></span>
                                         <span class="orion-passo__texto">
                                             <strong>Biblioteca: cadernos organizados</strong>
                                             <span>Crie por matéria ou só fotografa seu caderno de papel.</span>
@@ -650,7 +584,7 @@
                                 </li>
                                 <li>
                                     <button class="orion-passo" type="button" data-passo="revisao">
-                                        <span class="orion-passo__ico" aria-hidden="true">🃏</span>
+                                        <span class="orion-passo__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></span>
                                         <span class="orion-passo__texto">
                                             <strong>Flashcards: memorização ativa</strong>
                                             <span>Vira o cartão, diz se acertou — a repetição espaçada é por minha conta.</span>
@@ -659,7 +593,7 @@
                                 </li>
                                 <li>
                                     <button class="orion-passo" type="button" data-passo="foco">
-                                        <span class="orion-passo__ico" aria-hidden="true">⏳</span>
+                                        <span class="orion-passo__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.8 3.4h10.4M6.8 20.6h10.4"/><path d="M8.2 3.4v3.2c0 1.7 1.3 3.2 2.7 4.2l1.1.8 1.1-.8c1.4-1 2.7-2.5 2.7-4.2V3.4"/><path d="M8.2 20.6v-3.2c0-1.7 1.3-3.2 2.7-4.2l1.1-.8 1.1.8c1.4 1 2.7 2.5 2.7 4.2v3.2"/></svg></span>
                                         <span class="orion-passo__texto">
                                             <strong>Pomodoro: foco de verdade</strong>
                                             <span>25 min estudando, 5 descansando. Eu conto o tempo e te aviso.</span>
@@ -668,7 +602,7 @@
                                 </li>
                                 <li>
                                     <button class="orion-passo" type="button" data-passo="junto">
-                                        <span class="orion-passo__ico" aria-hidden="true">🙈</span>
+                                        <span class="orion-passo__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m4 4 16 16"/><path d="M10 5.2A9.9 9.9 0 0 1 12 5c5.6 0 9 6 9 6a16 16 0 0 1-3.3 3.8M6.3 7.4C4.1 9 3 11 3 11s3.4 6 9 6c1.2 0 2.3-.2 3.3-.6"/></svg></span>
                                         <span class="orion-passo__texto">
                                             <strong>Sua privacidade primeiro</strong>
                                             <span>Na hora da senha, tapo os olhos. Seus dados são só seus.</span>
@@ -677,7 +611,7 @@
                                 </li>
                                 <li>
                                     <button class="orion-passo" type="button" data-passo="perdido">
-                                        <span class="orion-passo__ico" aria-hidden="true">🤔</span>
+                                        <span class="orion-passo__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M9.7 9.4a2.4 2.4 0 0 1 4.7.7c0 1.7-2.3 2-2.3 3.4"/><circle cx="12" cy="16.7" r="1" fill="currentColor" stroke="none"/></svg></span>
                                         <span class="orion-passo__texto">
                                             <strong>Erro 404? Tô junto</strong>
                                             <span>Se cair numa página que não existe, a gente se acha junto.</span>

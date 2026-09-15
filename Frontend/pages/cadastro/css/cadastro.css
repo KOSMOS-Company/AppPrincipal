@@ -169,12 +169,23 @@ em { font-style: normal; color: var(--accent-lt); }
     box-shadow: 0 0 10px rgba(165,65,255,.5);
     transition: width .45s cubic-bezier(.4,0,.2,1);
 }
+/* ── Ícone inline ── (ver .ico na dashboard e na landing) */
+.ico {
+    width: 1em;
+    height: 1em;
+    flex: none;
+    vertical-align: -.125em;
+}
+
 .cad-progresso__rocket {
     position: absolute;
     top: 50%;
     left: 0%;
-    transform: translate(-50%, -58%) rotate(45deg);
-    font-size: 1.05rem;
+    /* 90deg e nao 45: o emoji antigo ja saia apontando para a
+       diagonal, o icone novo sai apontando para cima. Os dois
+       precisam terminar deitados, na direcao em que a barra anda. */
+    transform: translate(-50%, -58%) rotate(90deg);
+    font-size: 1.15rem;
     transition: left .45s cubic-bezier(.4,0,.2,1);
     filter: drop-shadow(0 0 6px rgba(165,65,255,.6));
 }

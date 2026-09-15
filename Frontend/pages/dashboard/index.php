@@ -2,6 +2,52 @@
 // Porteiro + dados desta página (sem sessão, redireciona antes de
 // mandar qualquer HTML). Deixa $USUARIO, $PREF e $PAGINA prontos.
 require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
+
+// ============================================================
+//  PRIMEIROS PASSOS
+//  Cada passo é uma LEITURA do que o usuário já fez no site — não
+//  existe mais o "marcar como feito" à mão. Antes a lista vivia no
+//  localStorage do navegador: ela mentia dos dois lados (quem tinha
+//  trinta resumos via a lista zerada em outro aparelho, e quem só
+//  clicou nos círculos via tudo pronto sem ter escrito nada).
+//
+//  Os critérios, um por passo:
+//    resumo     -> tem ao menos um resumo
+//    flashcards -> tem ao menos um CARTÃO (deck vazio não conta:
+//                  o passo é "transformar o resumo em perguntas")
+//    pomodoro   -> tem ao menos uma sessão de foco registrada
+//
+//  Os dois primeiros números já vieram do pagina_dashboard.php; só
+//  a sessão de foco precisa de consulta, e ela é um EXISTS.
+//
+//  Isto aqui é a PRIMEIRA PINTURA. O inicio.js repete a conta com a
+//  resposta do inicio_dados.php, para a lista também acertar sozinha
+//  quando o Pomodoro termina um ciclo com a aba Início aberta.
+// ============================================================
+$PASSOS = [
+    'resumo'     => (int) $USUARIO['resumos'] > 0,
+    'flashcards' => (int) $USUARIO['cartoes'] > 0,
+    'pomodoro'   => false,
+];
+
+if (!$ERRO_BANCO && isset($pdo)) {
+    try {
+        $stmt = $pdo->prepare('SELECT EXISTS(SELECT 1 FROM pomodoro_sessoes
+                                              WHERE usuario_id = ?) AS fez');
+        $stmt->execute([(int) $USUARIO['id']]);
+        $PASSOS['pomodoro'] = (bool) ($stmt->fetch()['fez'] ?? 0);
+    } catch (PDOException $e) {
+        // sem a sessão de foco o passo fica pendente; a tela não quebra
+    }
+}
+
+$PASSOS_TOTAL  = count($PASSOS);
+$PASSOS_FEITOS = count(array_filter($PASSOS));
+
+/** Este passo já está cumprido? (usado três vezes na lista abaixo) */
+function passoFeito(array $passos, string $slug): bool {
+    return !empty($passos[$slug]);
+}
 ?>
 ﻿<!DOCTYPE html>
 <html lang="pt-br">
@@ -42,9 +88,9 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                 <div class="mascote" id="introMascote" data-mascote aria-hidden="true"></div>
 
                 <!-- Ícones das ferramentas orbitando ao redor do mascote -->
-                <div class="intro__orbita-item intro__orbita-item--1" title="Pomodoro">⏱️</div>
-                <div class="intro__orbita-item intro__orbita-item--2" title="Flashcards">🎴</div>
-                <div class="intro__orbita-item intro__orbita-item--3" title="Resumos">📝</div>
+                <div class="intro__orbita-item intro__orbita-item--1" title="Pomodoro"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.2V12l3.1 2"/></svg></div>
+                <div class="intro__orbita-item intro__orbita-item--2" title="Flashcards"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></div>
+                <div class="intro__orbita-item intro__orbita-item--3" title="Resumos"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div>
 
                 <!-- Flash reluzente nos óculos -->
                 <div class="intro__flash-oculos" id="introFlashOculos">
@@ -127,7 +173,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                          e o rótulo e desmontavam o selo. Trocar as tags
                          resolve na raiz; brigar por especificidade só
                          adiaria o problema para o próximo que mexer. -->
-                    <i class="ini-selo__icone" aria-hidden="true">🔥</i>
+                    <i class="ini-selo__icone" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.2a5.6 5.6 0 0 0 5.6-5.6c0-4.6-5.6-9.2-5.6-9.2S6.4 11 6.4 15.6A5.6 5.6 0 0 0 12 21.2Z"/><path d="M12 21.2a2.4 2.4 0 0 0 2.4-2.4c0-2-2.4-4.1-2.4-4.1s-2.4 2.1-2.4 4.1a2.4 2.4 0 0 0 2.4 2.4Z"/></svg></i>
                     <div class="ini-selo__num">
                         <strong data-metrica="sequencia"><?= (int) $USUARIO['sequencia'] ?></strong>
                         <i class="ini-selo__txt"><?= $USUARIO['sequencia'] === 1 ? 'dia seguido' : 'dias seguidos' ?></i>
@@ -147,7 +193,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                  com o aviso de verdade quando ele chegar.
                  ========================================================== -->
             <a class="ini-revisar" id="iniRevisar" href="revisar.php" hidden>
-                <span class="ini-revisar__ico" aria-hidden="true">🃏</span>
+                <span class="ini-revisar__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></span>
                 <span class="ini-revisar__txt">
                     <strong data-revisar-n>0</strong>
                     <span data-revisar-txt>cartões esperando revisão</span>
@@ -208,10 +254,16 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             <!-- ==========================================================
                  ATALHOS
 
-                 Os mesmos quatro destinos de antes. O que saiu foi a
-                 moldura de campanha em volta ("O que você quer fazer
-                 agora?", com tag de seção e título grande): num app, uma
-                 fileira de atalhos não precisa ser anunciada.
+                 O que saiu daqui foi a moldura de campanha em volta ("O
+                 que você quer fazer agora?", com tag de seção e título
+                 grande): num app, uma fileira de atalhos não precisa ser
+                 anunciada.
+
+                 Provas entrou nesta fileira quando a funcionalidade saiu
+                 do fim desta página e virou uma aba de Foco, ao lado do
+                 Pomodoro. Uma prova não é um aviso — é um plano, com
+                 assuntos que caem, material para estudar e resultado
+                 depois. Nada disso cabia numa lista no rodapé do Início.
                  ========================================================== -->
             <section class="ini-secao">
                 <h2 class="ini-titulo">Atalhos</h2>
@@ -248,78 +300,65 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                         <h3 class="ini-card__titulo">Pomodoro</h3>
                         <p class="ini-card__desc">25 de foco, 5 de pausa.</p>
                     </a>
+
+                    <a class="ini-card" href="provas.php">
+                        <span class="ini-card__ico" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+                        </span>
+                        <h3 class="ini-card__titulo">Provas</h3>
+                        <p class="ini-card__desc">A contagem e o que cai.</p>
+                    </a>
                 </div>
-            </section>
-
-            <!-- ==========================================================
-                 PRÓXIMAS PROVAS
-
-                 Também nasce escondida: quem não cadastrou prova nenhuma
-                 não precisa de uma seção vazia explicando que está vazia.
-                 A contagem de dias vem pronta do servidor (DATEDIFF no
-                 MySQL) — o projeto tem PHP e MySQL em fusos diferentes, e
-                 data calculada no cliente erraria o dia da virada.
-                 ========================================================== -->
-            <section class="ini-secao" id="iniProvas">
-                <div class="ini-secao__cabeca">
-                    <h2 class="ini-titulo">Próximas provas</h2>
-                    <button class="dash-btn dash-btn--ghost dash-btn--pequeno"
-                            type="button" id="btnNovaProva">+ Prova</button>
-                </div>
-
-                <ul class="ini-provas" data-provas-lista></ul>
-
-                <!-- Sem prova cadastrada a seção CONTINUA visível, ao
-                     contrário do "Revisar hoje". A diferença: revisar
-                     depende de já ter cartões, e anunciar zero seria
-                     cobrança; cadastrar prova é uma ação que a pessoa pode
-                     fazer agora — esconder seria esconder o recurso. -->
-                <p class="ini-provas__vazio" data-provas-vazio>
-                    Cadastre suas provas e o Kosmos conta os dias para você.
-                </p>
             </section>
 
             <!-- ==========================================================
                  PRIMEIROS PASSOS
-                 Mantido como estava: é a única parte da tela que ensina o
-                 caminho a quem acabou de chegar.
+                 É a única parte da tela que ensina o caminho a quem acabou
+                 de chegar — e agora ela se marca sozinha: cada item é lido
+                 do que o usuário fez (ver o bloco $PASSOS no topo deste
+                 arquivo). Por isso o círculo é um <span> e não um <button>:
+                 não há nada para clicar, ele RELATA um estado.
                  ========================================================== -->
             <section class="ini-secao">
                 <div class="ini-card ini-passos">
                     <div class="ini-card__cabeca">
                         <h3>Primeiros passos</h3>
-                        <span class="ini-card__nota" id="iniPassosContador">0 de 3</span>
+                        <span class="ini-card__nota" id="iniPassosContador"><?=
+                            $PASSOS_FEITOS === $PASSOS_TOTAL
+                                ? 'tudo pronto ✦'
+                                : $PASSOS_FEITOS . ' de ' . $PASSOS_TOTAL
+                        ?></span>
                     </div>
-                    <progress id="iniPassosBarra" value="0" max="3"></progress>
+                    <progress id="iniPassosBarra" value="<?= $PASSOS_FEITOS ?>" max="<?= $PASSOS_TOTAL ?>"></progress>
                     <ul class="ini-passos__lista">
-                        <li class="ini-passo" data-passo="resumo">
-                            <button class="ini-passo__check" type="button" aria-pressed="false"
-                                    aria-label="Marcar como feito: criar seu primeiro resumo">
+                        <li class="ini-passo<?= passoFeito($PASSOS, 'resumo') ? ' feito' : '' ?>" data-passo="resumo">
+                            <span class="ini-passo__check" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </button>
+                            </span>
                             <a class="ini-passo__link" href="resumos.php">
                                 <strong>Criar seu primeiro resumo</strong>
                                 <span>Comece pela matéria que você viu hoje.</span>
+                                <span class="sr-only ini-passo__estado"><?= passoFeito($PASSOS, 'resumo') ? 'Concluído' : 'Ainda não feito' ?></span>
                             </a>
                         </li>
-                        <li class="ini-passo" data-passo="flashcards">
-                            <button class="ini-passo__check" type="button" aria-pressed="false"
-                                    aria-label="Marcar como feito: montar um baralho de flashcards">
+                        <li class="ini-passo<?= passoFeito($PASSOS, 'flashcards') ? ' feito' : '' ?>" data-passo="flashcards">
+                            <span class="ini-passo__check" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </button>
+                            </span>
                             <a class="ini-passo__link" href="flashcards.php">
                                 <strong>Montar um baralho</strong>
                                 <span>Transforme o resumo em perguntas curtas.</span>
+                                <span class="sr-only ini-passo__estado"><?= passoFeito($PASSOS, 'flashcards') ? 'Concluído' : 'Ainda não feito' ?></span>
                             </a>
                         </li>
-                        <li class="ini-passo" data-passo="pomodoro">
-                            <button class="ini-passo__check" type="button" aria-pressed="false"
-                                    aria-label="Marcar como feito: fazer uma sessão de foco">
+                        <li class="ini-passo<?= passoFeito($PASSOS, 'pomodoro') ? ' feito' : '' ?>" data-passo="pomodoro">
+                            <span class="ini-passo__check" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </button>
+                            </span>
                             <a class="ini-passo__link" href="pomodoro.php">
                                 <strong>Fazer 25 minutos de foco</strong>
                                 <span>Um ciclo de Pomodoro já conta para a sequência.</span>
+                                <span class="sr-only ini-passo__estado"><?= passoFeito($PASSOS, 'pomodoro') ? 'Concluído' : 'Ainda não feito' ?></span>
                             </a>
                         </li>
                     </ul>
@@ -329,13 +368,37 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
     </div>
 
-    <?php include __DIR__ . '/partes/modal-prova.php'; ?>
     <?php /* O confirmar() do dashboard.js precisa desta parte na página;
-             sem ela ele devolve `true` na hora e a prova some sem
+             sem ela ele devolve `true` na hora e a ação acontece sem
              perguntar nada. */ ?>
     <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
 
-    <?php if (empty($PREF['onboarding_completo'])): ?>
+    <?php if (!empty($PREF['mostrar_onboarding'])): ?>
+        <?php
+        /* Marca AQUI, no instante em que o modal entra na página, e não
+           no onboarding_salvar.php quando a pessoa envia as respostas.
+
+           É o que garante "uma vez e pronto": responder, pular, fechar a
+           aba no meio ou navegar para outra seção — o resultado é o
+           mesmo, as perguntas não voltam. Enquanto a marca dependia do
+           envio, quem saísse pelo meio revia tudo a cada visita à aba
+           Início, que era a reclamação original.
+
+           O onboarding_salvar.php continua gravando 1 no fim; é
+           redundante agora, e redundância aqui não custa nada. */
+        if (!$ERRO_BANCO && isset($pdo)) {
+            try {
+                $pdo->prepare('UPDATE usuario_preferencias
+                                  SET onboarding_completo = 1
+                                WHERE usuario_id = ?')
+                    ->execute([(int) $USUARIO['id']]);
+            } catch (PDOException $e) {
+                // Não deu para marcar: o modal aparece de novo na próxima
+                // visita. Preferível a esconder as perguntas de quem nunca
+                // as viu.
+            }
+        }
+        ?>
         <?php include __DIR__ . '/partes/modal-onboarding.php'; ?>
     <?php endif; ?>
 
@@ -345,7 +408,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <script src="./js/cursor.js"></script>
     <script src="../shared/mascote.js"></script>
     <script src="./js/intro.js"></script>
-    <?php if (empty($PREF['onboarding_completo'])): ?>
+    <?php if (!empty($PREF['mostrar_onboarding'])): ?>
         <script src="./js/onboarding.js"></script>
     <?php endif; ?>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta

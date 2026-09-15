@@ -65,16 +65,24 @@
     transition: width .35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* "Etapa 1 de 3" fica ao lado da barra de progresso, que já é a
+   cápsula arredondada dali. Duas cápsulas lado a lado brigavam
+   pela mesma leitura, então esta virou contador puro: sem fundo,
+   sem borda, só o texto.
+   tabular-nums porque o número troca a cada passo e, com números
+   proporcionais, o bloco inteiro pulava alguns pixels. */
 .onb-etapa-badge {
-    font-size: .78rem;
-    font-weight: 600;
-    letter-spacing: .06em;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .14em;
     text-transform: uppercase;
     color: #c97cff;
-    background: rgba(165, 65, 255, 0.14);
-    border: 1px solid rgba(165, 65, 255, 0.35);
-    padding: 3px 10px;
-    border-radius: 100px;
+    font-variant-numeric: tabular-nums;
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    white-space: nowrap;
 }
 
 /* ── Mascote Guia ── */
@@ -165,10 +173,26 @@
     box-shadow: 0 0 18px rgba(165, 65, 255, 0.35);
 }
 
+/* O ícone da opção. Era emoji (só font-size bastava); como SVG ele
+   ganha uma caixa redonda de apoio, que dá o mesmo peso visual em
+   qualquer sistema — emoji variava de tamanho de fonte para fonte. */
 .onb-opcao-icone {
-    font-size: 1.55rem;
-    line-height: 1;
     flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 1.35rem;
+    line-height: 1;
+    color: #c97cff;
+    background: rgba(165, 65, 255, 0.12);
+    border: 1px solid rgba(165, 65, 255, 0.22);
+}
+.onb-opcao-card input:checked ~ .onb-opcao-conteudo .onb-opcao-icone {
+    color: #fff;
+    background: rgba(165, 65, 255, 0.28);
+    border-color: rgba(165, 65, 255, 0.5);
 }
 
 .onb-opcao-textos {
@@ -189,16 +213,22 @@
     color: #b8a8cc;
 }
 
+/* O "Recomendado" vive DENTRO de uma opção clicável, que já é uma
+   caixa arredondada. Uma cápsula ali dentro virava caixa dentro de
+   caixa. Agora é uma marca de canto reto, presa por uma barra verde
+   à esquerda: lê como anotação sobre a opção, não como um segundo
+   botão dentro dela. */
 .onb-tag-destaque {
-    font-size: .7rem;
+    font-size: .68rem;
     font-weight: 700;
-    letter-spacing: .04em;
+    letter-spacing: .1em;
     text-transform: uppercase;
     color: #34d399;
-    background: rgba(52, 211, 153, 0.14);
-    border: 1px solid rgba(52, 211, 153, 0.35);
-    padding: 3px 8px;
-    border-radius: 100px;
+    background: linear-gradient(90deg, rgba(52, 211, 153, 0.16), rgba(52, 211, 153, 0));
+    border: none;
+    border-left: 2px solid #34d399;
+    padding: 3px 10px 3px 8px;
+    border-radius: 0;
     flex-shrink: 0;
 }
 

@@ -182,6 +182,9 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
     <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
     <?php include __DIR__ . '/partes/modal-caderno.php'; ?>
     <?php include __DIR__ . '/partes/modal-resumo.php'; ?>
+    <?php /* "Gerar flashcards" no menu ⋮ de cada resumo depende desta
+             parte estar na página: sem ela o item nem aparece. */ ?>
+    <?php include __DIR__ . '/partes/modal-flashcards.php'; ?>
 
     <script type="application/json" id="dadosCaderno"><?= json_encode($CADERNO, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
     <script type="application/json" id="dadosCadernos"><?= json_encode($CADERNOS, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
@@ -193,6 +196,9 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
     <script src="./js/resumo-mover.js"></script>
     <script src="./js/caderno-form.js"></script>
     <script src="./js/resumo-form.js"></script>
+    <!-- antes do caderno.js: é ele que pergunta se o módulo existe
+         para decidir se põe "Gerar flashcards" no menu ⋮ -->
+    <script src="./js/flashcards-gerar.js"></script>
     <script src="./js/caderno.js"></script>
     <script src="./js/cursor.js"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta

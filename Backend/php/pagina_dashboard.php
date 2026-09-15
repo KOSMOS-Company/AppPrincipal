@@ -81,6 +81,7 @@ $PREF = [
     'objetivo'            => '',
     'ano_escolar'         => '',
     'onboarding_completo' => false,
+    'mostrar_onboarding'  => false,
     'materias'            => [],
     'notif_lembrete'      => false,
     'notif_resumo'        => false,
@@ -156,6 +157,29 @@ try {
         $PREF['notif_lembrete']      = (bool) $p['notif_lembrete'];
         $PREF['notif_resumo']        = (bool) $p['notif_resumo'];
     }
+
+    // ---------- 4b) A pesquisa de perfil aparece? ----------
+    // A regra é uma só: o onboarding ainda não foi APRESENTADO a esta
+    // conta. Quem marca a flag é o index.php, no instante em que põe o
+    // modal na tela — não o envio das respostas. Assim ele aparece
+    // exatamente uma vez, tenha a pessoa respondido, pulado ou fechado
+    // a aba no meio.
+    //
+    // Duas tentativas anteriores falharam, e vale dizer por quê:
+    //
+    //   1ª) "mostrar enquanto onboarding_completo = 0", marcando só no
+    //       envio. Quem fechasse sem responder via as perguntas de novo
+    //       a cada visita à aba Início — era o bug original.
+    //
+    //   2ª) "mostrar quando ultimo_acesso IS NULL" (primeiro acesso).
+    //       Não funcionava para ninguém: o login.php chama
+    //       registrarAcesso() ANTES de o dashboard existir, então a data
+    //       de hoje já estava gravada quando esta linha rodava.
+    //
+    // Contas que já existiam quando isto entrou foram marcadas como
+    // vistas pela migração 2026-09-15_onboarding_visto.sql — elas não
+    // são novas e não devem receber as perguntas.
+    $PREF['mostrar_onboarding'] = !$PREF['onboarding_completo'];
 
     // ---------- 5) Números do que o usuário já produziu ----------
     $stmt = $pdo->prepare('SELECT COUNT(*) AS n FROM flashcard_decks WHERE usuario_id = ?');

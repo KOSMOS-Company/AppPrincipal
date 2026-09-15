@@ -25,6 +25,21 @@
             window.KosmosResumoForm?.abrir(resumo);
         });
 
+        /* Virar o resumo em flashcards. O botão sai da tela se o módulo
+           não estiver aqui (página sem o partes/modal-flashcards.php):
+           um botão que não faz nada é pior do que botão nenhum — a mesma
+           regra do "Modo revisão" logo ao lado. */
+        const btnFc = document.getElementById("btnFlashcards");
+        if (btnFc) {
+            if (window.KosmosGerarFlashcards) {
+                btnFc.addEventListener("click", () => {
+                    window.KosmosGerarFlashcards.abrir(resumo);
+                });
+            } else {
+                btnFc.hidden = true;
+            }
+        }
+
         // delegação: a galeria é redesenhada quando as imagens mudam
         galeria?.addEventListener("click", (e) => {
             const item = e.target.closest("[data-lupa]");

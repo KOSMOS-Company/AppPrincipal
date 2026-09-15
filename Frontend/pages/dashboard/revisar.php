@@ -62,7 +62,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                  falta de conteúdo: é a resposta certa, e a pessoa
                  precisa saber que terminou, não achar que quebrou. -->
             <div class="vazio" id="revVazio" hidden>
-                <span class="vazio__ico" aria-hidden="true">✅</span>
+                <span class="vazio__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M8 12.4 10.8 15.2 16 9.6"/></svg></span>
                 <h3>Nada para revisar agora</h3>
                 <p id="revVazioTexto">
                     Você está em dia. Os cartões voltam sozinhos quando chegar

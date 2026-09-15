@@ -7,7 +7,7 @@
      • 1.5s: Flash de estrela na lente dos óculos
      • 1.8s: Logo oficial K<o>smos se materializa com glow púrpura
      • 2.2s: Mascote dá piscadinha, ergue o capelo e balão de fala pop surge
-     • 2.4s: Ferramentas de estudo (⏱️, 🎴, 📝) entram em órbita ao redor dele
+     • 2.4s: Ferramentas de estudo (Pomodoro, Flashcards, Resumos) entram em órbita ao redor dele
      • 2.7s: Mascote abre sorrisão e tagline + saudação personalizada acendem
      • 3.0s: Modo interativo completo (pupilas seguem o cursor, supernovas no céu)
      • Saída: Mascote e universo saltam em dobra espacial (hyperspace dive)
@@ -206,7 +206,7 @@
                 mascoteEl.mascote.humor("feliz");
                 mascoteEl.mascote.piscar(280);
                 if (balao) {
-                    balao.textContent = "Vamos nessa! 🚀";
+                    balao.textContent = "Vamos nessa! ✦";
                     hero.classList.add("intro--balao-on");
                 }
                 setTimeout(function () {

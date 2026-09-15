@@ -8,20 +8,19 @@
 //    hoje     -> minutos estudados hoje
 //    meta     -> a meta diária salva em usuario_preferencias
 //    metricas -> resumos, flashcards e cartões vencidos para hoje
-//    provas   -> as próximas, já com os dias que faltam
+//    passos   -> os "primeiros passos" já cumpridos (booleanos)
 //
-//  Uma requisição e não cinco: são cinco consultas leves contra o
+//  Uma requisição e não quatro: são consultas leves contra o
 //  mesmo usuário, e o custo aqui é a ida e volta, não o SELECT.
 //
-//  TODA data sai do MySQL pronta — inclusive "quantos dias faltam"
-//  e a lista dos sete dias. O PHP não faz uma conta de data neste
+//  TODA data sai do MySQL pronta — inclusive a lista dos sete
+//  dias, dia a dia. O PHP não faz uma conta de data neste
 //  arquivo, de propósito: ele roda em Europe/Berlin e o MySQL em
 //  America/Sao_Paulo, e misturar os dois já colocou registro no dia
 //  errado neste projeto antes.
 // ============================================================
 
 require_once __DIR__ . '/estudo_comum.php';
-require_once __DIR__ . '/datas.php';   // dataCurtaPt() para o rótulo das provas
 
 $usuario = exigirLogin();
 $id      = (int) $usuario['id'];
@@ -79,10 +78,14 @@ try {
        `vencidos` é a fila de revisão: cartão nunca revisado
        (proxima_revisao NULL) ou com a data já chegada. É o mesmo
        critério do revisar_hoje.php — se mudar lá, muda aqui. */
-    /* Três `?` e o id passado três vezes, e não um `:u` reaproveitado:
+    /* Quatro `?` e o id passado quatro vezes, e não um `:u` reaproveitado:
        a conexão deste projeto usa ATTR_EMULATE_PREPARES => false, e com
        prepare de verdade o mesmo parâmetro nomeado não pode ser ligado
        mais de uma vez — o driver responde "Invalid parameter number". */
+    /* `fez_foco` é EXISTS e não COUNT: a pergunta dos "primeiros
+       passos" é "já aconteceu alguma vez?", e o EXISTS pode parar na
+       primeira linha em vez de varrer o histórico inteiro de quem
+       estuda há meses. */
     $stmt = $pdo->prepare(
         'SELECT
             (SELECT COUNT(*) FROM resumos WHERE usuario_id = ?)               AS resumos,
@@ -92,37 +95,11 @@ try {
             (SELECT COUNT(*) FROM flashcard_cartoes c
                JOIN flashcard_decks d ON d.id = c.deck_id
               WHERE d.usuario_id = ?
-                AND (c.proxima_revisao IS NULL OR c.proxima_revisao <= CURDATE())) AS vencidos'
+                AND (c.proxima_revisao IS NULL OR c.proxima_revisao <= CURDATE())) AS vencidos,
+            (SELECT EXISTS(SELECT 1 FROM pomodoro_sessoes WHERE usuario_id = ?)) AS fez_foco'
     );
-    $stmt->execute([$id, $id, $id]);
+    $stmt->execute([$id, $id, $id, $id]);
     $contagens = $stmt->fetch() ?: [];
-
-    /* ---- Próximas provas ----
-       DATEDIFF no MySQL: 0 = hoje, 1 = amanhã. Prova de ontem não
-       aparece mais. */
-    $provas = [];
-    $stmt = $pdo->prepare(
-        'SELECT id, titulo, materia,
-                DATE_FORMAT(data, "%Y-%m-%d") AS data,
-                DATEDIFF(data, CURDATE())     AS faltam,
-                DAY(data)                     AS dia,
-                MONTH(data)                   AS mes
-           FROM provas
-          WHERE usuario_id = ? AND data >= CURDATE()
-          ORDER BY data
-          LIMIT 4'
-    );
-    $stmt->execute([$id]);
-    foreach ($stmt as $p) {
-        $provas[] = [
-            'id'      => (int) $p['id'],
-            'titulo'  => $p['titulo'],
-            'materia' => $p['materia'],
-            'data'    => $p['data'],
-            'faltam'  => (int) $p['faltam'],
-            'quando'  => dataCurtaPt((int) $p['dia'], (int) $p['mes']),
-        ];
-    }
 
     estResponder([
         'semana'   => $semana,
@@ -133,7 +110,16 @@ try {
             'flashcards' => (int) ($contagens['cartoes'] ?? 0),
             'vencidos'   => (int) ($contagens['vencidos'] ?? 0),
         ],
-        'provas'   => $provas,
+        /* Os "primeiros passos" da Início. O index.php já pinta a lista
+           pelo servidor; isto aqui é para ela se corrigir sozinha sem
+           recarregar — o caso real é o Pomodoro fechando um ciclo com a
+           aba Início aberta. O CRITÉRIO de cada passo mora nos dois
+           lugares; se mudar um, mude o outro. */
+        'passos' => [
+            'resumo'     => ((int) ($contagens['resumos'] ?? 0)) > 0,
+            'flashcards' => ((int) ($contagens['cartoes'] ?? 0)) > 0,
+            'pomodoro'   => ((int) ($contagens['fez_foco'] ?? 0)) > 0,
+        ],
     ]);
 } catch (PDOException $e) {
     estErro('Não foi possível carregar os dados.', 500);

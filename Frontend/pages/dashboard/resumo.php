@@ -132,6 +132,17 @@ if ($id > 0 && !$ERRO_BANCO) {
                         PDF
                     </button>
 
+                    <!-- Gerar flashcards. Fica ao lado de "PDF" e não no
+                         fim: quem acabou de ler um resumo está no melhor
+                         momento possível para virá-lo em cartões, e o
+                         caminho de hoje (ir ao Flashcards, criar o
+                         baralho, redigitar tudo) é longo o bastante para
+                         ninguém percorrer. -->
+                    <button class="dash-btn dash-btn--outline" id="btnFlashcards" type="button">
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2.5" y="5.5" width="11" height="10" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 3.5H16a1.5 1.5 0 0 1 1.5 1.5v8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        Flashcards
+                    </button>
+
                     <button class="dash-btn dash-btn--primary" id="btnEditar">
                         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                         Editar
@@ -173,6 +184,8 @@ if ($id > 0 && !$ERRO_BANCO) {
 
     <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
     <?php include __DIR__ . '/partes/modal-resumo.php'; ?>
+    <?php /* O botão "Flashcards" do cabeçalho abre esta parte. */ ?>
+    <?php include __DIR__ . '/partes/modal-flashcards.php'; ?>
 
     <script type="application/json" id="dadosResumo"><?= json_encode([
         'id'         => $RESUMO['id'],
@@ -187,6 +200,7 @@ if ($id > 0 && !$ERRO_BANCO) {
     <script src="./js/dashboard.js"></script>
     <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/resumo-form.js"></script>
+    <script src="./js/flashcards-gerar.js"></script>
     <script src="./js/resumo.js"></script>
     <script src="./js/resumo-revisao.js"></script>
     <script src="./js/cursor.js"></script>

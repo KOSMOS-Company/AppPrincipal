@@ -13,3 +13,8 @@ Backend/php/conexao.php
 Thumbs.db
 .DS_Store
 .vscode/
+
+# Ferramentas de IA: as skills moram no perfil do usuário
+# (~/.claude/skills), não no repositório — são configuração de quem
+# desenvolve, não código do produto.
+.claude/

@@ -75,8 +75,18 @@
     font-weight: 800;
     color: #fff;
     text-transform: uppercase;
-    /* a cor vem de .avatar-cor--* (dashboard.css), escolhida pelo usuário */
-    background: linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%);
+    /* A cor vem de .avatar-cor--* (dashboard.css), escolhida pelo
+       usuário. O comentário já dizia isso, mas a linha de baixo
+       repetia o roxo no `background` — e como o conta.css carrega
+       DEPOIS do dashboard.css, com a mesma especificidade, era este
+       roxo que vencia. Resultado: trocar a cor mudava o avatar da
+       barra lateral e não mudava este aqui.
+
+       Agora o valor vem do token que a própria classe de cor publica,
+       então as duas regras dizem a mesma coisa e tanto faz qual vence.
+       Longhand de novo, para não zerar o background-size: cover do
+       .avatar--foto. */
+    background-image: var(--avatar-grad, linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%));
     box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
 }
 .conta-perfil__info { min-width: 0; }

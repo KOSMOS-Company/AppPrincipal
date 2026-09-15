@@ -755,4 +755,13 @@
 
     // ---------- Começo de tudo ----------
     carregarDecks();
+
+    /* `flashcards.php?deck=12` já abre os cartões daquele baralho.
+       É por aqui que chega quem clicou em "ver o baralho" depois de
+       gerar cartões de um resumo, e quem veio do material de estudo
+       de uma prova — sem isso as duas telas jogariam a pessoa na
+       estante inteira, para procurar de novo o que ela acabou de
+       apontar. */
+    const deckDaUrl = Number(new URLSearchParams(location.search).get("deck"));
+    if (deckDaUrl > 0) abrirCartoes(deckDaUrl);
 })();

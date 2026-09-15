@@ -1102,6 +1102,18 @@ em { font-style: normal; color: var(--accent-lt); }
 }
 .orion-passo:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* ── Ícone inline ──
+   Igual ao .ico da dashboard: os pictogramas deixaram de ser emoji
+   (que cada sistema desenha à sua maneira e que nunca herdou a cor
+   do tema) e viraram SVG de traço em currentColor. O tamanho segue
+   vindo do font-size de quem o contém. */
+.ico {
+    width: 1em;
+    height: 1em;
+    flex: none;
+    vertical-align: -.125em;
+}
+
 .orion-passo__ico {
     flex: none;
     display: grid;
@@ -2755,208 +2767,6 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 70
 
 
 /* ════════════════════════════════════════════════════════════════
-   A PRÉVIA DO PRODUTO, no hero
-
-   A página vendia atmosfera por três telas antes de mostrar um pixel
-   do app. Isto é o argumento que o fundo cósmico não faz.
-
-   Desenhada em CSS, sem imagem: acompanha os tokens, fica nítida em
-   qualquer densidade de tela, e não envelhece junto com uma captura
-   que ninguém lembra de refazer quando o dashboard muda. É a mesma
-   escolha que o projeto já faz no mascote (SVG por código).
-
-   Ela NÃO tenta ser o dashboard inteiro. Mostra as três coisas que
-   respondem "o que eu ganho": a sequência, o gráfico da semana e os
-   atalhos. Mock que copia tudo vira captura desatualizada.
-   ════════════════════════════════════════════════════════════════ */
-.mock {
-    width: 100%;
-    margin-top: 60px;
-    perspective: 1500px;
-    animation: fadeUp 1s ease .5s both;
-
-    position: relative;
-}
-
-.mock__janela {
-    display: grid;
-    grid-template-columns: 58px 1fr;
-    text-align: left;
-    border-radius: 14px 14px 0 0;
-    border: 1px solid rgba(165, 65, 255, .22);
-    border-bottom: 0;
-    background: linear-gradient(150deg, rgba(30, 6, 54, .94) 0%, rgba(13, 1, 24, .97) 100%);
-    box-shadow: 0 40px 90px rgba(0, 0, 0, .55), 0 0 90px rgba(165, 65, 255, .12);
-    overflow: hidden;
-
-    /* Inclinada para trás pelo topo: dá volume sem virar maquete de
-       feira. Mais que ~10deg e o texto de dentro começa a ficar ilegível. */
-    transform: rotateX(9deg);
-    transform-origin: top center;
-
-    /* Cortada por um degradê em vez de uma borda dura: a janela
-       "continua" para fora da dobra, o que convida a rolar. Borda reta
-       aqui parecia print recortado.
-
-       O degradê fica na JANELA, não no `.mock`: no `.mock` ele apagava o
-       Orion junto, e ele é justamente a parte que não pode desbotar. E
-       começa em 82% para os dois cards de baixo continuarem legíveis —
-       em 62% eles sumiam antes de serem lidos. */
-    mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
-    -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
-}
-
-/* ── a barra lateral ── */
-.mock__lateral {
-    background: rgba(18, 1, 31, .75);
-    border-right: 1px solid rgba(165, 65, 255, .14);
-    padding: 16px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 13px;
-}
-.mock__marca {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 1.1rem;
-    color: var(--accent-lt);
-    margin-bottom: 6px;
-}
-.mock__nav {
-    width: 22px; height: 22px;
-    border-radius: 7px;
-    background: rgba(165, 65, 255, .12);
-}
-.mock__nav--ativo { background: var(--accent); box-shadow: 0 0 16px rgba(165, 65, 255, .55); }
-
-/* ── a tela ── */
-.mock__tela { padding: 20px 22px 26px; }
-
-.mock__topo {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 18px;
-}
-.mock__ola {
-    display: block;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: var(--text);
-}
-.mock__sub { font-size: .78rem; color: var(--text-muted); }
-.mock__selo {
-    flex-shrink: 0;
-    font-size: .78rem;
-    font-weight: 500;
-    color: var(--accent-lt);
-    background: rgba(165, 65, 255, .12);
-    border: 1px solid rgba(165, 65, 255, .25);
-    border-radius: 999px;
-    padding: 5px 12px;
-}
-
-.mock__painel {
-    background: rgba(165, 65, 255, .05);
-    border: 1px solid rgba(165, 65, 255, .12);
-    border-radius: var(--radius-sm);
-    padding: 13px 15px 15px;
-    margin-bottom: 13px;
-}
-.mock__rotulo {
-    display: block;
-    font-size: .68rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 11px;
-}
-
-/* O gráfico da semana. As barras crescem do chão, com atraso por
-   irmã — `nth-child` em vez de uma classe por barra, senão são sete
-   regras quase iguais para manter. */
-.mock__semana {
-    display: flex;
-    align-items: flex-end;
-    gap: 7px;
-    /* 62px era pouco: a diferença entre a barra de 22% e a de 48% virava
-       4px e o gráfico lia como uma faixa. A variação é o assunto aqui. */
-    height: 84px;
-}
-.mock__semana i {
-    flex: 1;
-    height: var(--h, 40%);
-    border-radius: 4px 4px 2px 2px;
-    background: linear-gradient(180deg, var(--accent) 0%, var(--purple-md) 100%);
-    transform-origin: bottom;
-    animation: mockBarra .7s cubic-bezier(.4, 0, .2, 1) both;
-}
-.mock__semana i:nth-child(1) { animation-delay: .75s; }
-.mock__semana i:nth-child(2) { animation-delay: .82s; }
-.mock__semana i:nth-child(3) { animation-delay: .89s; }
-.mock__semana i:nth-child(4) { animation-delay: .96s; }
-.mock__semana i:nth-child(5) { animation-delay: 1.03s; }
-.mock__semana i:nth-child(6) { animation-delay: 1.10s; background: linear-gradient(180deg, var(--accent-lt) 0%, var(--accent) 100%); }
-.mock__semana i:nth-child(7) { animation-delay: 1.17s; }
-
-@keyframes mockBarra {
-    from { transform: scaleY(0); opacity: 0; }
-    to   { transform: scaleY(1); opacity: 1; }
-}
-
-.mock__cards { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
-.mock__card {
-    background: rgba(165, 65, 255, .05);
-    border: 1px solid rgba(165, 65, 255, .12);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-}
-.mock__card-ic { font-size: 1.05rem; }
-.mock__card b {
-    display: block;
-    font-size: .86rem;
-    font-weight: 500;
-    color: var(--text);
-    margin-top: 5px;
-}
-.mock__card-sub { font-size: .74rem; color: var(--text-muted); }
-
-/* O Orion espiando por cima da borda: ele mora no dashboard de verdade,
-   então aparece na prévia. Decoração — o mascote.js já o marca como
-   aria-hidden, e não há nada focável aqui. */
-/* Ele espia da QUINA de fora da janela. Antes estava em `bottom: 34%`,
-   que o punha em cima do gráfico da semana — parecia erro de
-   posicionamento, não companhia. */
-.mock__orion {
-    position: absolute;
-    right: -14px;
-    bottom: 8px;
-    --mascote-tam: 58px;
-    filter: drop-shadow(0 8px 22px rgba(0, 0, 0, .6));
-    pointer-events: none;
-}
-
-/* ── Celular ──
-   A janela encolhe, mas os dois cards de baixo saem: espremidos em
-   400px eles viram dois retângulos ilegíveis e roubam a atenção do
-   gráfico, que é o que de fato mostra o produto. */
-@media (max-width: 680px) {
-    .mock { margin-top: 44px; }
-    .mock__janela { grid-template-columns: 44px 1fr; transform: rotateX(7deg); }
-    .mock__tela { padding: 15px 15px 20px; }
-    .mock__ola { font-size: .95rem; }
-    .mock__nav { width: 18px; height: 18px; }
-    .mock__orion { --mascote-tam: 42px; right: 12px; }
-}
-@media (max-width: 440px) {
-    .mock__cards { display: none; }
-    .mock__selo { display: none; }
-}
-
-/* ════════════════════════════════════════════════════════════════
    RITMO: a seção "Experimente" ganha um palco
 
    A página inteira tinha a mesma densidade do topo ao rodapé — mesmo
@@ -2989,11 +2799,3 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 70
     .demo__vista::before { inset: 8px 10px; border-radius: var(--radius-md); }
 }
 
-/* ── Movimento reduzido ──
-   A prévia FICA, só não se monta sozinha: as barras já nascem na
-   altura final e a janela não sobe. */
-@media (prefers-reduced-motion: reduce) {
-    .mock,
-    .mock__semana i { animation: none !important; }
-    .mock__semana i { transform: none !important; opacity: 1 !important; }
-}

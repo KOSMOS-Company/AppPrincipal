@@ -5,7 +5,7 @@
 
    DADOS: vêm de Backend/php/inicio_dados.php numa requisição
    só — série da semana, minutos de hoje, meta diária, contagens
-   e próximas provas. O gráfico nasce em estado vazio e é
+   e a fila de revisão. O gráfico nasce em estado vazio e é
    repintado quando a resposta chega; se a rede falhar, o estado
    vazio permanece e nada quebra.
 
@@ -20,7 +20,6 @@
 (() => {
     "use strict";
 
-    const CHAVE_PASSOS = "kosmos_passos";   // localStorage: onboarding (sem backend)
     const DIAS_GRAFICO = 7;
 
     let graficoComDados = false;   // evita que o estado vazio apague dados já desenhados
@@ -31,7 +30,6 @@
 
         mostrarDataESaudacao();
         if (!graficoComDados) renderGrafico(null);   // desenha os 7 dias em estado vazio
-        iniciarPassos();
         carregarDados();
     });
 
@@ -185,37 +183,43 @@
     }
 
     /* ------------------------------------------------------------
-       Primeiros passos — checklist de onboarding
-       Guardado no localStorage (é preferência de exibição, não
-       dado de estudo; por isso não precisa de backend).
+       Primeiros passos
+       Não é mais uma checklist que a pessoa marca: cada item é lido
+       do que ela FEZ (tem resumo? tem cartão? já fechou um ciclo de
+       foco?). O index.php pinta a lista pelo servidor, então ela já
+       chega certa na primeira tela — esta função só reaplica quando
+       a resposta do inicio_dados.php traz `passos`.
+
+       Por que reaplicar, se a página já veio pronta: o pomodoro-aviso.js
+       roda em TODA aba e grava a sessão quando o ciclo fecha. Quem
+       deixa a Início aberta num monitor e o Pomodoro em outro veria a
+       lista velha até recarregar.
+
+       Ela nunca DESMARCA nada por conta de rede: `passos` ausente
+       (resposta antiga, erro, campo faltando) deixa como está.
        ------------------------------------------------------------ */
-    function iniciarPassos() {
+    function renderPassos(passos) {
+        if (!passos || typeof passos !== "object") return;
+
         const itens = [...document.querySelectorAll(".ini-passo")];
         if (!itens.length) return;
 
-        const feitos = new Set(lerPassos());
+        let feitos = 0;
 
         itens.forEach((item) => {
             const slug = item.dataset.passo;
-            const botao = item.querySelector(".ini-passo__check");
+            // passo que o servidor não conhece: mantém o que veio no HTML
+            const feito = slug in passos ? !!passos[slug] : item.classList.contains("feito");
 
-            aplicar(item, botao, feitos.has(slug));
+            item.classList.toggle("feito", feito);
 
-            botao?.addEventListener("click", () => {
-                const agoraFeito = !feitos.has(slug);
-                agoraFeito ? feitos.add(slug) : feitos.delete(slug);
-                aplicar(item, botao, agoraFeito);
-                gravarPassos([...feitos]);
-                atualizarProgresso(itens.length, feitos.size);
-            });
+            const estado = item.querySelector(".ini-passo__estado");
+            if (estado) estado.textContent = feito ? "Concluído" : "Ainda não feito";
+
+            if (feito) feitos++;
         });
 
-        atualizarProgresso(itens.length, feitos.size);
-    }
-
-    function aplicar(item, botao, feito) {
-        item.classList.toggle("feito", feito);
-        botao?.setAttribute("aria-pressed", String(feito));
+        atualizarProgresso(itens.length, feitos);
     }
 
     function atualizarProgresso(total, feitos) {
@@ -226,22 +230,6 @@
         if (contador) {
             contador.textContent = feitos === total ? "tudo pronto ✦" : `${feitos} de ${total}`;
         }
-    }
-
-    function lerPassos() {
-        try {
-            const bruto = localStorage.getItem(CHAVE_PASSOS);
-            const lista = bruto ? JSON.parse(bruto) : [];
-            return Array.isArray(lista) ? lista : [];
-        } catch {
-            return [];   // modo privado / storage bloqueado
-        }
-    }
-
-    function gravarPassos(lista) {
-        try {
-            localStorage.setItem(CHAVE_PASSOS, JSON.stringify(lista));
-        } catch { /* sem storage: vale só nesta visita */ }
     }
 
 
@@ -281,7 +269,7 @@
 
         renderMeta(dados.hoje, dados.meta);
         renderRevisar(dados.metricas?.vencidos);
-        renderProvas(dados.provas);
+        renderPassos(dados.passos);
     }
 
     /** A meta diária. Existia em usuario_preferencias desde agosto e
@@ -320,161 +308,8 @@
             n === 1 ? "cartão esperando revisão" : "cartões esperando revisão";
     }
 
-    /** As próximas provas. A contagem de dias vem PRONTA do servidor
-        (DATEDIFF no MySQL) — este arquivo não calcula data, porque o
-        PHP e o MySQL do projeto estão em fusos diferentes. */
-    function renderProvas(provas) {
-        const secao = document.getElementById("iniProvas");
-        if (!secao) return;
-
-        const lista = Array.isArray(provas) ? provas : [];
-        const alvo  = secao.querySelector("[data-provas-lista]");
-        const vazio = secao.querySelector("[data-provas-vazio]");
-
-        if (vazio) vazio.hidden = lista.length > 0;
-        alvo.innerHTML = "";
-        if (lista.length === 0) return;
-
-        lista.forEach((p) => {
-            const li = document.createElement("li");
-            li.className = "ini-prova";
-            if (p.faltam <= 7) li.classList.add("ini-prova--perto");
-
-            const quantos = document.createElement("strong");
-            quantos.textContent = p.faltam === 0 ? "hoje"
-                                : p.faltam === 1 ? "amanhã"
-                                : `${p.faltam} dias`;
-
-            const nome = document.createElement("span");
-            nome.className = "ini-prova__nome";
-            // textContent, não innerHTML: o título vem do que a pessoa digitou
-            nome.textContent = p.titulo;
-
-            const quando = document.createElement("span");
-            quando.className = "ini-prova__quando";
-            quando.textContent = p.quando;
-
-            const apagar = document.createElement("button");
-            apagar.type = "button";
-            apagar.className = "ini-prova__apagar";
-            apagar.setAttribute("aria-label", `Apagar a prova ${p.titulo}`);
-            apagar.textContent = "×";
-            apagar.addEventListener("click", () => excluirProva(p));
-
-            li.append(quantos, nome, quando, apagar);
-            alvo.appendChild(li);
-        });
-    }
-
-    /* ------------------------------------------------------------
-       PROVAS — cadastro e exclusão
-       ------------------------------------------------------------ */
-    const modal = {
-        caixa:    document.getElementById("modalProva"),
-        form:     document.getElementById("provaForm"),
-        nome:     document.getElementById("provaNome"),
-        materia:  document.getElementById("provaMateria"),
-        data:     document.getElementById("provaData"),
-        msg:      document.getElementById("provaMsg"),
-        salvar:   document.getElementById("provaSalvar"),
-    };
-
-    function abrirProva() {
-        if (!modal.caixa) return;
-
-        modal.form.reset();
-        modal.msg.hidden = true;
-
-        /* O `min` sai do relógio do NAVEGADOR, não do servidor (ver o
-           comentário em partes/modal-prova.php): o PHP deste projeto
-           roda em Europe/Berlin e à noite, no Brasil, bloquearia o dia
-           de hoje. `sv-SE` porque esse locale formata como YYYY-MM-DD,
-           que é o que o <input type="date"> espera — e faz isso no fuso
-           local, ao contrário de toISOString(), que converte para UTC e
-           erra o dia perto da meia-noite. */
-        modal.data.min = new Date().toLocaleDateString("sv-SE");
-
-        modal.caixa.classList.add("open");
-        modal.nome.focus();
-    }
-
-    function fecharProva() {
-        modal.caixa?.classList.remove("open");
-    }
-
-    function avisoProva(texto, erro = true) {
-        modal.msg.textContent = texto;
-        modal.msg.className = `msg ${erro ? "msg--erro" : "msg--sucesso"}`;
-        modal.msg.hidden = false;
-    }
-
-    async function salvarProva(e) {
-        e.preventDefault();
-
-        const titulo = modal.nome.value.trim();
-        if (!titulo)            return avisoProva("Dê um nome para a prova.");
-        if (!modal.data.value)  return avisoProva("Escolha a data da prova.");
-
-        modal.salvar.disabled = true;
-        try {
-            const r = await fetch("../../../Backend/php/provas.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "same-origin",
-                body: JSON.stringify({
-                    acao: "criar",
-                    titulo,
-                    materia: modal.materia.value,
-                    data: modal.data.value,
-                }),
-            });
-            const j = await r.json();
-
-            if (!j.ok) return avisoProva(j.msg || "Não foi possível salvar.");
-
-            // O servidor devolve a lista já atualizada: nada de recarregar
-            // a página nem de adivinhar onde a nova entra na ordem.
-            renderProvas(j.provas);
-            fecharProva();
-        } catch {
-            avisoProva("Sem conexão com o servidor.");
-        } finally {
-            modal.salvar.disabled = false;
-        }
-    }
-
-    async function excluirProva(prova) {
-        /* confirmar() é o modal compartilhado do dashboard.js. Apagar
-           é irreversível e um clique errado no "×" é fácil. */
-        const ok = window.confirmar
-            ? await window.confirmar({
-                  titulo: "Apagar prova",
-                  texto: `"${prova.titulo}" sai da sua lista. Isso não volta.`,
-                  botao: "Apagar",
-                  perigo: true,
-              })
-            : true;
-        if (!ok) return;
-
-        try {
-            const r = await fetch("../../../Backend/php/provas.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "same-origin",
-                body: JSON.stringify({ acao: "excluir", id: prova.id }),
-            });
-            const j = await r.json();
-            if (j.ok) renderProvas(j.provas);
-        } catch { /* a linha continua na tela; recarregar resolve */ }
-    }
-
-    document.getElementById("btnNovaProva")?.addEventListener("click", abrirProva);
-    document.getElementById("provaFechar")?.addEventListener("click", fecharProva);
-    document.getElementById("provaCancelar")?.addEventListener("click", fecharProva);
-    modal.form?.addEventListener("submit", salvarProva);
-
     /* ------------------------------------------------------------
        Ponte: outras telas podem repintar sem recarregar.
        ------------------------------------------------------------ */
-    window.KosmosInicio = { preencherMetricas, renderGrafico, carregarDados };
+    window.KosmosInicio = { preencherMetricas, renderGrafico, renderPassos, carregarDados };
 })();

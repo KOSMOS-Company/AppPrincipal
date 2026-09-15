@@ -108,6 +108,12 @@ if (!empty($PREF['avatar_url'])) {
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="nav__rotulo">Pomodoro</span>
                 </a>
+                <a href="provas.php" data-rotulo="Provas"<?= navAtivo('provas.php', $PAGINA) ?>>
+                    <!-- ícone de calendário com um dia marcado: o que a aba
+                         faz é apontar um dia no futuro e contar até ele -->
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+                    <span class="nav__rotulo">Provas</span>
+                </a>
 
                 <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile -->
                 <a href="conta.php" data-rotulo="Conta"<?= navAtivo('conta.php', $PAGINA) ?>>

@@ -94,8 +94,9 @@
 
     /**
      * Abre o menu de um cartão de resumo.
-     * `aoEditar` e `aoApagar` são opcionais: a página passa o que
-     * souber fazer, e o que não vier simplesmente não aparece.
+     * `aoEditar`, `aoApagar` e `aoFlashcards` são opcionais: a página
+     * passa o que souber fazer, e o que não vier simplesmente não
+     * aparece.
      */
     function abrirMenu(botao, resumo, acoes = {}) {
         // clicar de novo no mesmo botão fecha
@@ -127,8 +128,12 @@
                     ${aqui ? '<span class="rs-menu__aqui" aria-hidden="true">aqui</span>' : ""}
                 </button>`;
             }).join("") +
-            ((acoes.aoEditar || acoes.aoApagar) ? '<span class="rs-menu__linha" role="separator"></span>' : "") +
-            (acoes.aoEditar ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="editar"><span class="rs-menu__icone" aria-hidden="true">✏️</span><span class="rs-menu__nome">Editar resumo</span></button>' : "");
+            ((acoes.aoEditar || acoes.aoApagar || acoes.aoFlashcards) ? '<span class="rs-menu__linha" role="separator"></span>' : "") +
+            (acoes.aoEditar ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="editar"><span class="rs-menu__icone" aria-hidden="true">✏️</span><span class="rs-menu__nome">Editar resumo</span></button>' : "") +
+            /* "Gerar flashcards" só entra se a página souber fazer isso
+               (ou seja, se ela incluiu o modal e o js/flashcards-gerar.js).
+               Um item de menu que abre nada é pior do que item nenhum. */
+            (acoes.aoFlashcards ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="flashcards"><span class="rs-menu__icone" aria-hidden="true">🎴</span><span class="rs-menu__nome">Gerar flashcards</span></button>' : "");
 
         document.body.appendChild(menu);
         posicionar(menu, botao);
@@ -145,6 +150,12 @@
             if (item.dataset.acao === "editar") {
                 fecharMenu();
                 acoes.aoEditar?.();
+                return;
+            }
+
+            if (item.dataset.acao === "flashcards") {
+                fecharMenu();
+                acoes.aoFlashcards?.();
                 return;
             }
 

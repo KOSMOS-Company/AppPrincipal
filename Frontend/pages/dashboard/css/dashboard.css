@@ -24,6 +24,23 @@
    recolhe (lá o leitor de tela precisa continuar ouvindo
    "Biblioteca", não "link") e o label do campo de busca, que é
    óbvio pelo desenho e necessário para quem não o vê. */
+/* ── Ícone inline ──
+   Os pictogramas do app eram emoji, e emoji é texto: cada sistema
+   desenhava o seu (o mesmo 🔥 sai laranja no Windows, vermelho no
+   Android e cinza em quem não tem a fonte), nenhum deles herdava a
+   cor do tema e nada garantia o alinhamento. Agora são SVG de traço
+   que herdam `currentColor`.
+
+   O tamanho continua vindo do `font-size` do contexto — 1em — para
+   que as regras que já existiam (e que dimensionavam o emoji)
+   sigam mandando, sem precisar reescrever cada uma. */
+.ico {
+    width: 1em;
+    height: 1em;
+    flex: none;
+    vertical-align: -.125em;
+}
+
 .sr-only {
     position: absolute;
     width: 1px;
@@ -472,7 +489,10 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%);
+    /* longhand, e não o atalho `background`: o atalho zeraria o
+       background-size: cover que o .avatar--foto põe aqui quando a
+       pessoa tem foto. O fallback é a cor padrão (roxo). */
+    background-image: var(--avatar-grad, linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%));
     font-family: "Syne", sans-serif;
     font-size: .95rem;
     font-weight: 700;
@@ -645,7 +665,17 @@ progress::-webkit-progress-value {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    align-self: flex-start;      /* em card flex-column, senao estica a largura toda */
+    /* Este guard existe porque, em card flex-column, o padrão
+       `align-items: stretch` esticava a tag pela largura inteira do
+       card. A versão antiga resolvia com `align-self: flex-start` —
+       e aí quebrava todo lugar em que a tag divide uma LINHA com
+       texto (a meta do resumo, o topo do caderno, a meta da prova):
+       naquelas, flex-start é o topo, então a matéria subia e ficava
+       desalinhada do "1 resumo · 1 imagem · criado em…" ao lado.
+       `width: fit-content` mata o esticamento pelo outro caminho —
+       a largura deixa de ser `auto`, então o stretch não se aplica —
+       sem sequestrar o alinhamento vertical de ninguém. */
+    width: fit-content;
     font-family: "DM Sans", sans-serif;
     font-size: .72rem;
     font-weight: 500;
@@ -968,7 +998,7 @@ em { font-style: normal; color: var(--accent-lt); }
 .ini-selo__icone {
     font-size: 1.3rem;
     line-height: 1;
-    font-style: normal;          /* é um <i>, e emoji não se inclina */
+    font-style: normal;          /* é um <i>, e o ícone não se inclina */
 }
 
 /* O número e o rótulo empilhados. Antes isto era um <span> (inline) com
@@ -1237,6 +1267,11 @@ a.ini-card:hover .ini-card__ico {
 .ini-passos progress { margin: 0 0 22px; }
 .ini-passos__lista { list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .ini-passo { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; }
+/* O círculo do passo. Já foi um <button> que a pessoa clicava; hoje
+   o passo se marca sozinho pelo que ela fez no site, então isto é um
+   <span> que RELATA um estado. Por isso saíram daqui o cursor de
+   mão, o :hover e o :focus-visible: prometer clique no que não
+   responde a clique é pior do que não prometer nada. */
 .ini-passo__check {
     flex: 0 0 auto;
     display: grid;
@@ -1248,12 +1283,9 @@ a.ini-card:hover .ini-card__ico {
     border: 1.5px solid rgba(165,65,255,.4);
     background: transparent;
     color: #fff;
-    cursor: pointer;
     transition: var(--transition);
 }
 .ini-passo__check svg { width: 13px; height: 13px; opacity: 0; transition: opacity var(--transition); }
-.ini-passo__check:hover { border-color: var(--accent); background: rgba(165,65,255,.15); }
-.ini-passo__check:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ini-passo.feito .ini-passo__check { background: var(--accent); border-color: var(--accent); }
 .ini-passo.feito .ini-passo__check svg { opacity: 1; }
 .ini-passo__link { text-decoration: none; color: inherit; min-width: 0; }
@@ -1296,12 +1328,27 @@ a.ini-card:hover .ini-card__ico {
    Valem para o cartão da barra lateral e para o avatar grande
    da Conta. A classe é aplicada pelo JS a partir da preferência
    salva no banco. */
-.avatar-cor--roxo    { background: linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%); }
-.avatar-cor--azul    { background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%); }
-.avatar-cor--verde   { background: linear-gradient(135deg, #34d399 0%, #047857 100%); }
-.avatar-cor--laranja { background: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%); }
-.avatar-cor--rosa    { background: linear-gradient(135deg, #f472b6 0%, #be185d 100%); }
-.avatar-cor--ciano   { background: linear-gradient(135deg, #22d3ee 0%, #0e7490 100%); }
+/* ---- A paleta do avatar ----
+   Cada cor faz DUAS coisas: publica o degradê no token
+   `--avatar-grad` e se pinta com ele. O token existe porque a cor
+   escolhida precisa chegar em elementos cuja regra mora em OUTRO
+   arquivo (.conta-avatar, no conta.css) — e lá a disputa era só de
+   ordem de carregamento, com estas classes e as de lá tendo a mesma
+   especificidade. Era assim que a aba Conta continuava roxa: o
+   conta.css carrega depois do dashboard.css e o seu `background`
+   fixo ganhava do `.avatar-cor--azul` daqui.
+
+   Com o token, quem ganha a disputa deixou de importar: as duas
+   regras resolvem para o MESMO valor, o que a pessoa escolheu.
+
+   O `background` continua aqui porque as bolinhas de escolher cor
+   (.conta-cor, .cad-cor) usam estas classes para se pintar. */
+.avatar-cor--roxo    { --avatar-grad: linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%); background: var(--avatar-grad); }
+.avatar-cor--azul    { --avatar-grad: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%); background: var(--avatar-grad); }
+.avatar-cor--verde   { --avatar-grad: linear-gradient(135deg, #34d399 0%, #047857 100%); background: var(--avatar-grad); }
+.avatar-cor--laranja { --avatar-grad: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%); background: var(--avatar-grad); }
+.avatar-cor--rosa    { --avatar-grad: linear-gradient(135deg, #f472b6 0%, #be185d 100%); background: var(--avatar-grad); }
+.avatar-cor--ciano   { --avatar-grad: linear-gradient(135deg, #22d3ee 0%, #0e7490 100%); background: var(--avatar-grad); }
 /* ---- Avatar com foto ----
    Fica AQUI (e não no conta.css) porque o cartão da barra lateral
    usa isto em todas as abas — no conta.css a regra só existia na
@@ -1468,42 +1515,6 @@ a.ini-card:hover .ini-card__ico {
 }
 .ini-meta--batida .ini-meta__txt { color: var(--accent-lt); font-weight: 500; }
 
-/* ---- Próximas provas ---- */
-.ini-provas {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.ini-prova {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    padding: 13px 18px;
-    border-radius: var(--radius-sm);
-    background: var(--superficie);
-    border: 1px solid rgba(165,65,255,.12);
-}
-.ini-prova strong {
-    flex: none;
-    min-width: 62px;
-    font-family: "Syne", sans-serif;
-    font-weight: 800;
-    color: var(--text-dim);
-}
-.ini-prova__nome { flex: 1 1 auto; min-width: 0; }
-.ini-prova__quando { flex: none; font-size: .8rem; color: var(--text-muted); }
-
-/* Faltando uma semana ou menos, a contagem acende. É a única
-   diferença visual da lista — e a que importa. */
-.ini-prova--perto { border-color: rgba(165,65,255,.34); }
-.ini-prova--perto strong { color: var(--accent-lt); }
-
-@media (max-width: 560px) {
-    .ini-prova { flex-wrap: wrap; gap: 4px 12px; }
-    .ini-prova__nome { flex-basis: 100%; order: 3; }
-}
-
 /* ---- Cabeçalho de seção com ação ---- */
 .ini-secao__cabeca {
     display: flex;
@@ -1521,6 +1532,8 @@ a.ini-card:hover .ini-card__ico {
     font-size: .82rem;
 }
 
+/* O aviso de lista vazia. Nasceu no Início e ficou: a página
+   Provas usa a mesma caixa tracejada. */
 .ini-provas__vazio {
     font-size: .9rem;
     color: var(--text-muted);
@@ -1529,34 +1542,6 @@ a.ini-card:hover .ini-card__ico {
     border-radius: var(--radius-sm);
 }
 .ini-provas__vazio[hidden] { display: none; }
-
-/* O × de apagar. Só aparece no hover da linha e no foco — mas fica
-   SEMPRE visível onde não há hover (celular), senão não há como
-   apagar uma prova pelo telefone. */
-.ini-prova__apagar {
-    flex: none;
-    width: 26px;
-    height: 26px;
-    display: grid;
-    place-items: center;
-    padding: 0;
-    background: transparent;
-    border: 0;
-    border-radius: 50%;
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    line-height: 1;
-    cursor: pointer;
-    opacity: 0;
-    transition: var(--transition);
-}
-.ini-prova:hover .ini-prova__apagar,
-.ini-prova:focus-within .ini-prova__apagar { opacity: 1; }
-.ini-prova__apagar:hover { color: #ff6b8a; background: rgba(255,107,138,.12); }
-.ini-prova__apagar:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
-@media (hover: none) {
-    .ini-prova__apagar { opacity: 1; }
-}
 
 /* ---- Busca global ---- */
 .busca-campo { display: flex; gap: 10px; margin-bottom: 28px; }
@@ -1591,16 +1576,28 @@ a.ini-card:hover .ini-card__ico {
 .busca-item:hover { border-color: rgba(165,65,255,.4); transform: translateX(3px); }
 .busca-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .busca-item__topo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+/* O tipo do resultado, como TARJA e não como pílula.
+   Numa lista, a pílula tinha um problema prático: "CARTÃO" e
+   "BARALHO" têm larguras diferentes, então cada título começava
+   num ponto diferente e a coluna dançava linha a linha. A tarja
+   tem largura mínima fixa, então os títulos se alinham sozinhos,
+   e a barra vertical repete o gesto da borda do próprio item. */
 .busca-item__tipo {
     flex: none;
-    font-size: .66rem;
-    font-weight: 600;
-    letter-spacing: .1em;
+    min-width: 76px;
+    padding: 1px 0 1px 10px;
+    border-left: 2px solid var(--accent);
+    font-size: .64rem;
+    font-weight: 700;
+    letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--accent-lt);
-    background: rgba(165,65,255,.12);
-    border-radius: 999px;
-    padding: 3px 9px;
+    background: none;
+    border-radius: 0;
+}
+.busca-item:hover .busca-item__tipo {
+    border-left-color: var(--accent-lt);
+    color: #fff;
 }
 .busca-item__titulo { font-weight: 500; }
 .busca-item__trecho {
@@ -1616,4 +1613,54 @@ a.ini-card:hover .ini-card__ico {
     color: var(--text);
     border-radius: 3px;
     padding: 0 2px;
+}
+
+/* ============================================================
+   AVISO CURTO (sucesso / erro)
+
+   Morava no flashcards.css, mas a essa altura três telas o usam:
+   os flashcards, o mover resumo (js/resumo-mover.js) e as provas.
+   Nas duas últimas ele aparecia SEM ESTILO NENHUM — uma caixa
+   branca solta no canto — porque essas páginas não carregam aquele
+   arquivo. Vive aqui agora: é parte compartilhada, como os
+   .dash-btn e os modais.
+   ============================================================ */
+.fc-aviso {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 300;
+    max-width: min(340px, calc(100vw - 48px));
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    font-size: .88rem;
+    font-weight: 500;
+    background: rgba(52,211,153,.15);
+    color: #34d399;
+    border: 1px solid rgba(52,211,153,.25);
+    box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    animation: fcAviso .3s ease both;
+}
+.fc-aviso--erro {
+    background: rgba(239,68,68,.15);
+    color: #f87171;
+    border-color: rgba(239,68,68,.25);
+}
+@keyframes fcAviso {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* No celular o aviso sobe: a barra de navegação ocupa o rodapé. */
+@media (max-width: 768px) {
+    .fc-aviso {
+        left: 16px;
+        right: 16px;
+        bottom: calc(84px + env(safe-area-inset-bottom));
+        max-width: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fc-aviso { animation: none; }
 }
