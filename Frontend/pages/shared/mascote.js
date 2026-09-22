@@ -1,21 +1,17 @@
 /* ══════════════════════════════════════════════════════════════
-   MASCOTE KOSMOS — planetinha acadêmico (Render 3D Fiel)
-   100% em código puro (SVG vetorial + gradientes volumétricos 3D).
-   Fiel à arte oficial: iluminação esférica suave, capelo chanfrado
-   com rim light, óculos volumétricos com reflexos e anel 3D.
-
-   Reações interativas automáticas:
-     • As pupilas acompanham o cursor suavemente
-     • Pisca naturalmente de tempos em tempos
-     • Tapa os olhos quando o usuário digita a senha — e espia de
-       volta caso ele ative "mostrar senha"
-     • Sorriso aberto e sobrancelhas erguidas com e-mail válido
-     • Estado "confuso" na página 404 (data-mascote-humor="confuso")
-
-   Atributos no elemento HTML:
-     data-mascote             → ativa a montagem do SVG
-     data-mascote-humor="..." → "normal" | "feliz" | "confuso"
-     data-mascote-auto="0"    → desliga escuta automática dos campos
+   MASCOTE KOSMOS (ORION) — Sistema Completo de Expressões & Emoções
+   100% em código puro (SVG vetorial 3D + CSS interativo).
+   Fiel à arte oficial com suporte a emoções ricas para cada situação:
+     • normal       → neutro, simpático, repouso
+     • feliz        → sorriso aberto, acolhedor
+     • curioso      → sobrancelha arqueada, olhar inteligente
+     • foco         → olhar resoluto, sobrancelhas firmes
+     • comemorando  → olhinhos em arco, comemoração de vitória
+     • pensativo    → olhar para cima, formulando raciocínio
+     • sono         → descanso no Pomodoro, Zzz flutuantes
+     • timido       → bochechas rosadas de blush, olhar de lado
+     • confuso      → boca ondulada e interrogações no 404
+     • surpreso     → boca aberta em O, olhos arregalados
 
    API:
      elemento.mascote = { humor, piscar, olharPara, fecharOlhos }
@@ -28,6 +24,12 @@
     var seq = 0;
     var semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)');
     var ponteiroFino = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+    var HUMORES_LISTA = [
+        'feliz', 'confuso', 'curioso', 'pensativo', 'foco',
+        'determinado', 'comemorando', 'vitoria', 'sono',
+        'descanso', 'timido', 'surpreso'
+    ];
 
     /* ── Gera o SVG 3D com IDs únicos por instância ─────────────── */
     function desenho(u) {
@@ -46,7 +48,7 @@
       '<feGaussianBlur stdDeviation="2"/>' +
     '</filter>' +
 
-    /* Planeta: Esfera 3D iluminada no topo-esquerdo com sombra profunda */
+    /* Planeta 3D */
     '<radialGradient id="kgPlaneta' + u + '" cx="34%" cy="26%" r="76%">' +
       '<stop offset="0%" stop-color="#b673f8"/>' +
       '<stop offset="26%" stop-color="#933cf2"/>' +
@@ -55,14 +57,14 @@
       '<stop offset="100%" stop-color="#240747"/>' +
     '</radialGradient>' +
 
-    /* Rim Light no topo da esfera */
+    /* Rim Light */
     '<linearGradient id="kgRim' + u + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
       '<stop offset="0%" stop-color="#e9d5ff" stop-opacity="0.9"/>' +
       '<stop offset="35%" stop-color="#c084fc" stop-opacity="0.4"/>' +
       '<stop offset="70%" stop-color="#9333ea" stop-opacity="0"/>' +
     '</linearGradient>' +
 
-    /* Anel 3D: Frente e Trás */
+    /* Anel 3D */
     '<linearGradient id="kgAnelFrente' + u + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
       '<stop offset="0%" stop-color="#9d4edd"/>' +
       '<stop offset="30%" stop-color="#c084fc"/>' +
@@ -87,7 +89,7 @@
       '<stop offset="100%" stop-color="#10051c"/>' +
     '</linearGradient>' +
 
-    /* Borla Dourada 3D */
+    /* Borla 3D */
     '<linearGradient id="kgTassel' + u + '" x1="0%" y1="0%" x2="100%" y2="0%">' +
       '<stop offset="0%" stop-color="#d97706"/>' +
       '<stop offset="30%" stop-color="#fbbf24"/>' +
@@ -95,7 +97,7 @@
       '<stop offset="100%" stop-color="#b45309"/>' +
     '</linearGradient>' +
 
-    /* Armação dos Óculos 3D */
+    /* Óculos 3D */
     '<linearGradient id="kgAro' + u + '" x1="30%" y1="0%" x2="70%" y2="100%">' +
       '<stop offset="0%" stop-color="#38224d"/>' +
       '<stop offset="40%" stop-color="#211233"/>' +
@@ -108,10 +110,10 @@
     '<clipPath id="kgClipOlhoD' + u + '"><circle cx="146" cy="124" r="19"/></clipPath>' +
   '</defs>' +
 
-  /* 0. Sombra suave de contato no chão */
+  /* 0. Sombra suave de contato */
   '<ellipse cx="120" cy="208" rx="46" ry="7" fill="#05010a" opacity="0.6" filter="url(#kgShadow' + u + ')"/>' +
 
-  /* 1. Estrelas cósmicas cintilantes */
+  /* 1. Estrelas cintilantes */
   '<g class="mascote__estrelas">' +
     '<path class="mascote__estrela" style="--d:0s" d="M188 68 Q189 77 198 78 Q189 79 188 88 Q187 79 178 78 Q187 77 188 68 Z" fill="#d8b4fe" filter="url(#kgGlow' + u + ')"/>' +
     '<path class="mascote__estrela" style="--d:1.2s" d="M182 172 Q183 177 188 178 Q183 179 182 184 Q181 179 176 178 Q181 177 182 172 Z" fill="#c084fc"/>' +
@@ -121,13 +123,13 @@
     '<circle cx="42" cy="154" r="1.4" fill="#f3e8ff"/>' +
   '</g>' +
 
-  /* 2. Anel 3D — metade de trás (passa atrás do planeta) */
+  /* 2. Anel 3D — metade de trás */
   '<g transform="rotate(-21 120 137)">' +
     '<path d="M 28 137 A 92 28 0 0 1 212 137 L 186 137 A 66 19 0 0 0 54 137 Z" fill="url(#kgAnelTras' + u + ')"/>' +
     '<path d="M 54 137 A 66 19 0 0 1 186 137" fill="none" stroke="#260840" stroke-width="2.2"/>' +
   '</g>' +
 
-  /* 3. Corpo do planeta (Esfera 3D volumétrica) */
+  /* 3. Corpo do planeta */
   '<g class="mascote__corpo">' +
     '<circle cx="120" cy="130" r="54" fill="url(#kgPlaneta' + u + ')"/>' +
     '<g clip-path="url(#kgClipPlaneta' + u + ')">' +
@@ -145,31 +147,25 @@
   /* 4. Capelo acadêmico 3D */
   '<g class="mascote__capelo" transform="rotate(-11 118 66)">' +
     '<ellipse cx="118" cy="90" rx="36" ry="10" fill="#100221" opacity="0.45" filter="url(#kgOcclusion' + u + ')"/>' +
-    /* Cúpula */
     '<path d="M 76 62 C 76 62, 88 86, 118 86 C 148 86, 160 62, 160 62 L 154 52 L 82 52 Z" fill="url(#kgCapeloBase' + u + ')"/>' +
     '<path d="M 94 56 L 142 56 L 138 80 C 128 83, 108 83, 98 80 Z" fill="#361a52" opacity="0.7"/>' +
     '<path d="M 82 64 Q 118 83 154 64" fill="none" stroke="#4a2770" stroke-width="2.2" stroke-linecap="round"/>' +
 
-    /* Borda 3D chanfrada */
     '<polygon points="38,46 118,74 198,46 198,51 118,79 38,51" fill="#0c0317"/>' +
     '<path d="M 38 51 L 118 79 L 198 51" fill="none" stroke="#1d0a30" stroke-width="1.2"/>' +
 
-    /* Tampo do capelo */
     '<polygon points="118,18 198,46 118,74 38,46" fill="url(#kgCapeloTopo' + u + ')"/>' +
     '<path d="M 39 46 L 118 18 L 197 46" fill="none" stroke="#8c61ba" stroke-width="2.4" stroke-linecap="round"/>' +
     '<circle cx="118" cy="18" r="2.2" fill="#d8b4fe" filter="url(#kgGlow' + u + ')"/>' +
 
-    /* Botão central */
     '<ellipse cx="118" cy="46" rx="5.5" ry="3.8" fill="#fbbf24"/>' +
     '<ellipse cx="118" cy="45.2" rx="4" ry="2.6" fill="#fde047"/>' +
     '<ellipse cx="118" cy="47" rx="5.5" ry="2" fill="#d97706" opacity="0.6"/>' +
 
-    /* Cordão dourado */
     '<path d="M 118 46 C 88 43, 56 52, 46 68" fill="none" stroke="#d97706" stroke-width="4.2" stroke-linecap="round"/>' +
     '<path d="M 118 45.5 C 88 42.5, 56 51.5, 46 67.5" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>' +
     '<path d="M 118 45 C 88 42, 56 51, 46 67" fill="none" stroke="#fef08a" stroke-width="1.4" stroke-linecap="round"/>' +
 
-    /* Borla pendular */
     '<g transform="translate(46, 68)">' +
       '<g class="mascote__borla">' +
         '<circle cx="0" cy="5" r="4.2" fill="#d97706"/>' +
@@ -184,7 +180,7 @@
     '</g>' +
   '</g>' +
 
-  /* 5. Anel 3D — metade da frente (passa na frente da barriga) */
+  /* 5. Anel 3D — metade da frente */
   '<g transform="rotate(-21 120 137)">' +
     '<path d="M 28 137 A 92 28 0 0 0 212 137" fill="none" stroke="#120224" stroke-width="12" opacity="0.35" filter="url(#kgOcclusion' + u + ')"/>' +
     '<path d="M 28 137 A 92 28 0 0 0 212 137 L 186 137 A 66 19 0 0 1 54 137 Z" fill="url(#kgAnelFrente' + u + ')"/>' +
@@ -192,15 +188,19 @@
     '<path d="M 52 147 A 84 25 0 0 0 188 147" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.6" stroke-linecap="round"/>' +
   '</g>' +
 
-  /* 6. Rosto 3D */
+  /* 6. Rosto 3D com Sistema de Expressões */
   '<g class="mascote__rosto">' +
     '<ellipse cx="94" cy="126" rx="20" ry="18" fill="#140226" opacity="0.4" filter="url(#kgOcclusion' + u + ')"/>' +
     '<ellipse cx="146" cy="126" rx="20" ry="18" fill="#140226" opacity="0.4" filter="url(#kgOcclusion' + u + ')"/>' +
 
-    /* Sobrancelhas */
+    /* Manchas de Blush nas Bochechas (Tímido) */
+    '<ellipse class="mascote__blush mascote__blush--esq" cx="74" cy="138" rx="8.5" ry="4.5" fill="#f43f5e" opacity="0"/>' +
+    '<ellipse class="mascote__blush mascote__blush--dir" cx="166" cy="138" rx="8.5" ry="4.5" fill="#f43f5e" opacity="0"/>' +
+
+    /* Sobrancelhas Articuladas */
     '<g class="mascote__sobrancelhas">' +
-      '<path d="M 82 100 C 87 94, 97 94, 102 98" fill="none" stroke="#1d0633" stroke-width="4.2" stroke-linecap="round"/>' +
-      '<path d="M 138 98 C 143 94, 153 94, 158 100" fill="none" stroke="#1d0633" stroke-width="4.2" stroke-linecap="round"/>' +
+      '<path class="mascote__cenha mascote__cenha--esq" d="M 82 100 C 87 94, 97 94, 102 98" fill="none" stroke="#1d0633" stroke-width="4.2" stroke-linecap="round"/>' +
+      '<path class="mascote__cenha mascote__cenha--dir" d="M 138 98 C 143 94, 153 94, 158 100" fill="none" stroke="#1d0633" stroke-width="4.2" stroke-linecap="round"/>' +
     '</g>' +
 
     /* Olho Esquerdo */
@@ -233,7 +233,13 @@
       '</g>' +
     '</g>' +
 
-    /* Óculos 3D com aros chanfrados */
+    /* Olhos em Arco para Comemoração / Vitória (^ ^) */
+    '<g class="mascote__olhos-arco">' +
+      '<path class="mascote__olho-arco mascote__olho-arco--esq" d="M 82 125 Q 94 113 106 125" fill="none" stroke="#18042b" stroke-width="4.2" stroke-linecap="round"/>' +
+      '<path class="mascote__olho-arco mascote__olho-arco--dir" d="M 134 125 Q 146 113 158 125" fill="none" stroke="#18042b" stroke-width="4.2" stroke-linecap="round"/>' +
+    '</g>' +
+
+    /* Óculos 3D */
     '<circle cx="94" cy="124" r="19" fill="none" stroke="url(#kgAro' + u + ')" stroke-width="4.4"/>' +
     '<circle cx="94" cy="124" r="19" fill="none" stroke="#4a2868" stroke-width="1.2" opacity="0.6"/>' +
     '<path d="M 80 114 A 19 19 0 0 1 108 114" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.7" stroke-linecap="round"/>' +
@@ -248,16 +254,27 @@
     '<line x1="75" y1="124" x2="64" y2="128" stroke="url(#kgAro' + u + ')" stroke-width="4" stroke-linecap="round"/>' +
     '<line x1="165" y1="124" x2="176" y2="118" stroke="url(#kgAro' + u + ')" stroke-width="4" stroke-linecap="round"/>' +
 
-    /* Bocas */
-    '<path class="mascote__boca mascote__boca--padrao" d="M 114 138 Q 120 144 126 138" fill="none" stroke="#18042b" stroke-width="3.8" stroke-linecap="round"/>' +
-    '<path class="mascote__boca mascote__boca--feliz"  d="M 111 137 Q 120 148 129 137" fill="none" stroke="#18042b" stroke-width="4" stroke-linecap="round"/>' +
-    '<path class="mascote__boca mascote__boca--confusa" d="M 112 140 Q 116 136 120 140 T 128 139" fill="none" stroke="#18042b" stroke-width="3.8" stroke-linecap="round"/>' +
+    /* Bocas para cada Emoção */
+    '<path class="mascote__boca mascote__boca--padrao"   d="M 114 138 Q 120 144 126 138" fill="none" stroke="#18042b" stroke-width="3.8" stroke-linecap="round"/>' +
+    '<path class="mascote__boca mascote__boca--feliz"    d="M 111 137 Q 120 148 129 137" fill="none" stroke="#18042b" stroke-width="4" stroke-linecap="round"/>' +
+    '<path class="mascote__boca mascote__boca--confusa"  d="M 112 140 Q 116 136 120 140 T 128 139" fill="none" stroke="#18042b" stroke-width="3.8" stroke-linecap="round"/>' +
+    '<path class="mascote__boca mascote__boca--curiosa"  d="M 115 139 Q 120 141 126 137" fill="none" stroke="#18042b" stroke-width="3.8" stroke-linecap="round"/>' +
+    '<path class="mascote__boca mascote__boca--foco"     d="M 114 140 Q 120 139 126 140" fill="none" stroke="#18042b" stroke-width="3.8" stroke-linecap="round"/>' +
+    '<path class="mascote__boca mascote__boca--aberta"   d="M 111 136 Q 120 149 129 136 Z" fill="#18042b"/>' +
+    '<ellipse class="mascote__boca mascote__boca--surpresa" cx="120" cy="140" rx="4.5" ry="6" fill="#18042b"/>' +
+    '<path class="mascote__boca mascote__boca--sono"     d="M 115 139 Q 120 143 125 139" fill="none" stroke="#18042b" stroke-width="3.4" stroke-linecap="round"/>' +
   '</g>' +
 
-  /* 7. Interrogações flutuantes (404) */
+  /* 7. Letras Zzz flutuantes (Sono / Descanso) */
+  '<g class="mascote__sono">' +
+    '<text class="mascote__z" style="--d:0s"   x="186" y="102">z</text>' +
+    '<text class="mascote__z" style="--d:1.2s" x="198" y="86">Z</text>' +
+  '</g>' +
+
+  /* 8. Interrogações flutuantes (Confuso / 404) */
   '<g class="mascote__duvidas">' +
-    '<text class="mascote__duvida" style="--d:0s" x="198" y="112" text-anchor="middle">?</text>' +
-    '<text class="mascote__duvida" style="--d:1.4s" x="32" y="136" text-anchor="middle">?</text>' +
+    '<text class="mascote__duvida" style="--d:0s"   x="198" y="112" text-anchor="middle">?</text>' +
+    '<text class="mascote__duvida" style="--d:1.4s" x="32"  y="136" text-anchor="middle">?</text>' +
   '</g>' +
 '</svg>';
     }
@@ -300,8 +317,12 @@
         }
 
         function humor(nome) {
-            el.classList.remove('mascote--feliz', 'mascote--confuso');
-            if (nome && nome !== 'normal') el.classList.add('mascote--' + nome);
+            HUMORES_LISTA.forEach(function (h) {
+                el.classList.remove('mascote--' + h);
+            });
+            if (nome && nome !== 'normal') {
+                el.classList.add('mascote--' + nome);
+            }
         }
 
         function fecharOlhos(sim) {
@@ -328,7 +349,9 @@
                 if (pedido) return;
                 pedido = requestAnimationFrame(function () {
                     pedido = 0;
-                    if (!el.classList.contains('mascote--fechado')) {
+                    if (!el.classList.contains('mascote--fechado') &&
+                        !el.classList.contains('mascote--pensativo') &&
+                        !el.classList.contains('mascote--timido')) {
                         olharPara(alvoX, alvoY);
                     }
                 });
@@ -336,7 +359,7 @@
         } else {
             timers.push(setInterval(function () {
                 if (el.classList.contains('mascote--fechado')) return;
-                olharUnidades((Math.random() * 5 - 2.5), (Math.random() * 3.5 - 1.75));
+                olharUnidades((Math.random() * 5 - 2.5), (Math.random() * 3 - 1.5));
             }, 3200));
         }
 
@@ -355,13 +378,18 @@
     function ligarCampos(el) {
         if (el.dataset.mascoteAuto === '0') return;
 
-        /* Pálpebras descem ao digitar senha */
+        /* Pálpebras descem e bochechas coram ao digitar senha */
         var senhas = [].slice.call(document.querySelectorAll('input[type="password"]'));
         if (senhas.length) {
             var avaliar = function () {
                 var ativo = document.activeElement;
                 var cobrir = senhas.some(function (i) { return i === ativo && i.type === 'password'; });
                 el.classList.toggle('mascote--fechado', cobrir);
+                if (cobrir) {
+                    el.classList.add('mascote--timido');
+                } else {
+                    el.classList.remove('mascote--timido');
+                }
             };
             senhas.forEach(function (campo) {
                 campo.addEventListener('focus', avaliar);

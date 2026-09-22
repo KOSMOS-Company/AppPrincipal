@@ -56,27 +56,27 @@
     var FALAS = {
         sobre: {
             texto: 'Aqui contam por que a Kosmos nasceu. Spoiler: foi estudante como você que criou — pra resolver o próprio sufoco.',
-            humor: 'normal'
+            humor: 'curioso'
         },
         recursos: {
             texto: 'Essas são as ferramentas da casa. Dá uma olhada com calma — cada uma resolve um pedaço do estudo.',
-            humor: 'normal'
+            humor: 'foco'
         },
         demo: {
             texto: 'Aqui é pra testar de verdade: vira o flashcard, roda o pomodoro, responde a questão da IA. Vá fundo.',
-            humor: 'feliz'
+            humor: 'surpreso'
         },
         historia: {
             texto: 'Quatro estudantes, um TCC e várias noites viradas. A Kosmos nasceu da nossa própria necessidade.',
-            humor: 'normal'
+            humor: 'timido'
         },
         faq: {
             texto: 'Dúvida? Provavelmente alguém já teve. Dá uma olhada aqui — é rapidinho.',
-            humor: 'normal'
+            humor: 'pensativo'
         },
         fim: {
             texto: 'Chegamos ao fim do tour. Agora é sua vez: cria a conta e começa a organizar os estudos — de graça, pra sempre.',
-            humor: 'feliz'
+            humor: 'comemorando'
         }
     };
 

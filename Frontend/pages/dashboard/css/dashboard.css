@@ -1,4 +1,6 @@
-﻿/* ==== IDENTIDADE VISUAL - DASHBOARD ==== */
+﻿@import "./orion-chat.css";
+
+/* ==== IDENTIDADE VISUAL - DASHBOARD ==== */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #0d0118; }
 ::-webkit-scrollbar-thumb {
@@ -140,6 +142,20 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
     top: 0;
     align-self: flex-start;
 
+    /* ── Por que este z-index existe ──
+       `position: sticky` CRIA um contexto de empilhamento. Sem um
+       z-index aqui, esse contexto fica no andar 0 — e tudo o que está
+       dentro da barra fica preso nele, por maior que seja o z-index
+       interno. Os cards da página (.ini-card é `position: relative`)
+       vêm DEPOIS no HTML e, no mesmo andar, quem vem depois pinta por
+       cima: o menu da engrenagem aparecia atrás dos cards e os cliques
+       iam parar no card, não no link.
+
+       20 é acima do conteúdo e abaixo do que precisa cobrir a barra:
+       o selo do Pomodoro (60), a barra do celular (100) e os modais
+       (200). */
+    z-index: 20;
+
     /* Largura numa variável: é ela que a classe `.lateral-recolhida`
        troca, e é a única coisa que precisa mudar para a barra encolher.
        O resto (rótulos, grupos, logo) some por consequência. */
@@ -254,6 +270,10 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
     padding: 20px 14px 8px;
 }
 
+/* Botão mais e sheet mobile desligados no desktop */
+.nav-btn-mais,
+.sheet-overlay { display: none; }
+
 /* marcador que desliza (posicionado pelo dashboard.js) */
 .nav__marca {
     position: absolute;
@@ -267,11 +287,14 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
     border-radius: var(--radius-sm);
     opacity: 0;
     pointer-events: none;
-    transition: transform .32s cubic-bezier(.4,0,.2,1),
-                height .32s cubic-bezier(.4,0,.2,1),
-                opacity .2s ease;
+    transition: opacity .2s ease;
 }
 .nav__marca.pronta { opacity: 1; }
+.nav__marca.animada {
+    transition: transform .28s cubic-bezier(.4,0,.2,1),
+                height .28s cubic-bezier(.4,0,.2,1),
+                opacity .2s ease;
+}
 /* fiozinho luminoso na borda esquerda do marcador */
 .nav__marca::before {
     content: "";
@@ -314,6 +337,21 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
 .botoesL a.active .nav-icon {
     opacity: 1;
     filter: drop-shadow(0 0 6px rgba(165,65,255,.6));
+}
+
+.nav__tag-ia {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    line-height: 1.2;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #a541ff, #7203bd);
+    color: #fff;
+    margin-left: 6px;
+    letter-spacing: .06em;
+    box-shadow: 0 0 8px rgba(165, 65, 255, .4);
+    vertical-align: middle;
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -401,6 +439,10 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
     /* o rodapé guarda só o avatar */
     html.lateral-recolhida .contUsuario { flex-direction: column; gap: 10px; }
     html.lateral-recolhida .usuario { justify-content: center; padding: 6px; }
+    /* Recolhida, o rodapé é uma coluna estreita: ancorar o menu pela
+       direita o jogaria por cima da barra. Ele passa a sair pelo lado,
+       como as etiquetas dos ícones. */
+    html.lateral-recolhida .conf__menu { right: auto; left: calc(100% + 10px); bottom: 0; }
 
     /* ── A etiqueta que diz o que cada ícone é ──
        `content: attr(data-rotulo)` — CSS puro, sem JS e sem `title`
@@ -509,8 +551,17 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
     text-overflow: ellipsis;
 }
 .usuario__info span { font-size: .74rem; color: var(--text-muted); }
-.usuario__sair {
-    flex: 0 0 auto;
+/* ---- A engrenagem e o menu de configurações ----
+   Substituiu o botão de sair que ficava solto ao lado do cartão. Sair
+   é irreversível e estava a um clique de distância do avatar, sem
+   nada entre os dois; agora mora no fim de um menu, junto das outras
+   seções da Conta, onde chegar até ele é uma decisão e não um deslize.
+
+   A barra lateral já é `overflow: visible` (por causa da seta de
+   recolher e das etiquetas do estado recolhido), então o menu pode
+   escapar dela sem nenhum ajuste. */
+.conf { position: relative; flex: 0 0 auto; }
+.conf__botao {
     display: grid;
     place-items: center;
     width: 34px;
@@ -522,9 +573,70 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
     cursor: pointer;
     transition: var(--transition);
 }
-.usuario__sair svg { width: 17px; height: 17px; }
-.usuario__sair:hover { color: var(--accent-lt); border-color: rgba(165,65,255,.4); }
-.usuario__sair:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.conf__botao svg { width: 19px; height: 19px; transition: transform .35s cubic-bezier(.4,0,.2,1); }
+.conf__botao:hover { color: var(--accent-lt); border-color: rgba(165,65,255,.4); }
+.conf__botao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* a engrenagem gira ao abrir: diz que ela é a origem do menu */
+.conf__botao[aria-expanded="true"] {
+    color: var(--accent-lt);
+    border-color: rgba(165,65,255,.45);
+    background: rgba(165,65,255,.12);
+}
+/* 22.5deg e METADE de um dente (360/8/2): a roda para encaixada
+   entre dois dentes, o que lê como mecanismo girando. Um giro
+   qualquer deixaria a engrenagem só torta. */
+.conf__botao[aria-expanded="true"] svg { transform: rotate(22.5deg); }
+
+/* Abre para CIMA: o rodapé é a última coisa da barra, e para baixo o
+   menu sairia da tela. */
+.conf__menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    /* 80 > 60, o das etiquetas que a barra recolhida mostra ao lado
+       dos ícones: com 40 a etiqueta passava por cima do menu aberto. */
+    z-index: 80;
+    min-width: 208px;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    border: 1px solid rgba(165,65,255,.22);
+    box-shadow: 0 18px 44px rgba(0,0,0,.55);
+    animation: confSobe .18s cubic-bezier(.4,0,.2,1);
+}
+@keyframes confSobe {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+.conf__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    font: inherit;
+    font-size: .86rem;
+    text-align: left;
+    text-decoration: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.conf__item svg { flex: none; width: 17px; height: 17px; }
+.conf__item:hover { background: rgba(165,65,255,.14); color: var(--text); }
+.conf__item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.conf__divisor {
+    height: 1px;
+    margin: 6px 4px;
+    border: 0;
+    background: rgba(255,255,255,.08);
+}
+/* Sair é o único destrutivo da lista: cor própria, e só no fim. */
+.conf__item--sair { color: #f98a8a; }
+.conf__item--sair:hover { background: rgba(239,68,68,.16); color: #fecaca; }
 
 /* Barra de progresso (usada nos "primeiros passos") */
 progress {
@@ -795,31 +907,61 @@ progress::-webkit-progress-value {
         flex-direction: column;
     }
 
-    /* Topo: apenas o logo, centralizado */
+    /* Topo: apenas o logo, centralizado e com respiro */
     .contLateral {
         position: static;          /* no desktop e sticky em coluna */
+        z-index: auto;
         height: auto;
         width: 100%;
+        display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: center;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        padding: 14px 20px;
-        background: rgba(13,1,24,.6);
-        backdrop-filter: none;        /* libera o position:fixed da barra p/ ancorar na viewport */
-        -webkit-backdrop-filter: none;
+        padding: 16px 20px;
+        background: rgba(13,1,24,.95);
+        backdrop-filter: none !important;        /* libera o position:fixed da barra p/ ancorar na viewport */
+        -webkit-backdrop-filter: none !important;
     }
-    .contLogo { margin-bottom: 0; text-align: center; }
+    .contTopo {
+        margin: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+    .contLogo {
+        margin: 0 !important;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .contLogo .klogo {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -.01em;
+        line-height: 1.1;
+    }
+    .contLogo .klogo__o {
+        width: .64em;
+        height: .64em;
+        margin: 0 .14em;
+        transform: translateY(.075em);
+    }
 
-    /* No mobile o menu vira barra de ícones: sem rótulos de grupo,
-       sem marcador deslizante e sem o cartão da conta (que virou
-       o ícone Conta na barra de baixo). */
+    /* No mobile o menu vira barra de 5 ícones espaçosos (estritamente ícones, sem legendas ou tags) */
     .nav__grupo,
     .nav__marca,
-    .contUsuario { display: none; }
+    .nav__rotulo,
+    .nav__tag-ia,
+    .contUsuario { display: none !important; }
 
-    /* Nav vira barra inferior fixa (estilo Instagram, só ícones) */
+    /* Esconde os 5 itens secundários da barra inferior (vão para a gaveta Mais) */
+    .botoesL .nav-secundario-mobile { display: none !important; }
+
+    /* Nav vira barra inferior fixa e limpa */
     .botoesL {
         position: fixed;
         bottom: 0; left: 0; right: 0;
@@ -829,27 +971,178 @@ progress::-webkit-progress-value {
         align-items: center;
         gap: 0;
         flex-grow: 0;
-        padding: 10px 6px calc(10px + env(safe-area-inset-bottom));
-        background: rgba(13,1,24,.92);
+        padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+        background: rgba(13,1,24,.95);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border-top: 1px solid var(--border);
     }
-    .botoesL a {
-        font-size: 0;                 /* esconde o rótulo, mantém o ícone */
+    .botoesL a,
+    .botoesL .nav-btn-mais {
+        font-size: 0;                 /* esconde qualquer texto residual */
         flex: 1 1 0;                  /* cada item ocupa uma fatia igual da barra */
-        min-width: 0;                 /* permite encolher sem vazar */
-        flex-direction: column;
-        gap: 0;
-        padding: 8px 4px;
+        max-width: 58px;
+        height: 46px;
+        min-width: 0;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
         border: none !important;
-        background: none !important;
-        color: var(--text-muted);
+        background: transparent !important;
+        color: rgba(185, 145, 235, 0.6);
+        cursor: pointer;
+        position: relative;
+        transition: color .2s ease, transform .2s ease;
     }
-    .botoesL a .nav-icon { width: 24px; height: 24px; opacity: .65; }
-    .botoesL a:hover .nav-icon { opacity: 1; }
-    .botoesL a.active { color: var(--accent-lt); }
-    .botoesL a.active .nav-icon { opacity: 1; }
+    /* Ordem balanceada: Início (1), Biblioteca (2), Orion no Centro (3), Pomodoro (4), Mais (5) */
+    .botoesL a[href="index.php"]     { order: 1; }
+    .botoesL a[href="resumos.php"]   { order: 2; }
+    .botoesL a[href="orion.php"]     { order: 3; }
+    .botoesL a[href="pomodoro.php"]  { order: 4; }
+    .botoesL .nav-btn-mais           { order: 5; }
+
+    .botoesL a .nav-icon,
+    .botoesL .nav-btn-mais svg {
+        width: 23px;
+        height: 23px;
+        color: inherit;
+        opacity: 0.8;
+        transition: all .2s ease;
+    }
+    .botoesL a:hover,
+    .botoesL .nav-btn-mais:hover {
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+    .botoesL a:hover .nav-icon,
+    .botoesL .nav-btn-mais:hover svg {
+        opacity: 1;
+        color: #ffffff;
+    }
+    /* Item ativo: ícone destacado com neon roxo cósmico, sem linhas soltas e sem patches escuros */
+    .botoesL a.active,
+    .botoesL .nav-btn-mais.ativo {
+        color: var(--accent-lt) !important;
+        background: transparent !important;
+    }
+    .botoesL a.active .nav-icon,
+    .botoesL .nav-btn-mais.ativo svg {
+        opacity: 1;
+        color: var(--accent-lt);
+        filter: drop-shadow(0 0 8px rgba(165, 65, 255, 0.95)) drop-shadow(0 0 16px rgba(201, 124, 255, 0.7));
+    }
+
+    /* ── Bottom Sheet de Mais Ferramentas (Mobile) ── */
+    .sheet-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(5, 0, 11, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        opacity: 0;
+        pointer-events: none;
+        display: flex;
+        align-items: flex-end;
+        transition: opacity .25s ease;
+    }
+    .sheet-overlay.aberto {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    /* Oculta temporariamente o launcher do Orion quando o bottom sheet estiver aberto para não sobrepor os cards */
+    .sheet-overlay.aberto ~ #orionChatLauncher,
+    body:has(.sheet-overlay.aberto) #orionChatLauncher {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transform: scale(0.8) !important;
+    }
+    .sheet-painel {
+        width: 100%;
+        background: #130324;
+        border-top: 1px solid rgba(165, 65, 255, 0.42);
+        border-radius: 24px 24px 0 0;
+        padding: 14px 20px calc(24px + env(safe-area-inset-bottom));
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85), 0 0 35px rgba(130, 0, 219, 0.35);
+        transform: translateY(100%);
+        transition: transform .3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .sheet-overlay.aberto .sheet-painel {
+        transform: translateY(0);
+    }
+    .sheet-puxador {
+        width: 38px;
+        height: 4px;
+        border-radius: 100px;
+        background: rgba(255, 255, 255, 0.22);
+        margin: 0 auto 16px;
+    }
+    .sheet-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+    .sheet-titulo {
+        font-family: 'Syne', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+    }
+    .sheet-fechar {
+        background: rgba(255, 255, 255, 0.08);
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        color: #c97cff;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    .sheet-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .sheet-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(165, 65, 255, 0.22);
+        border-radius: 16px;
+        text-decoration: none;
+        color: #fff;
+        transition: all .18s ease;
+    }
+    .sheet-card:hover, .sheet-card:active, .sheet-card.ativo {
+        background: rgba(165, 65, 255, 0.16);
+        border-color: #a541ff;
+    }
+    .sheet-card__ico {
+        font-size: 1.35rem;
+        flex-shrink: 0;
+    }
+    .sheet-card__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .sheet-card__info strong {
+        font-size: .9rem;
+        font-weight: 600;
+        color: #fff;
+    }
+    .sheet-card__info span {
+        font-size: .72rem;
+        color: #8f7da8;
+    }
 
     /* Espaço para o conteúdo não ficar atrás da barra inferior */
     .contMeio {

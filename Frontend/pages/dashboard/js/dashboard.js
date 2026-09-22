@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ativarTransicoes();
     ativarMarcador();
     ativarRecolher();
+    ativarMenuConfig();
+    ativarMenuMaisMobile();
     ativarSair();
     ativarBrilhoNosCards();
 });
@@ -88,13 +90,26 @@ function ativarMarcador() {
 
     const ativo = () => nav.querySelector("a.active");
 
+    // Posiciona instantaneamente na aba ativa no carregamento (sem vir lá do teto)
+    mover(ativo());
+
+    // Ativa a transição suave apenas após o primeiro frame (para os próximos hovers)
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            marca.classList.add("animada");
+        });
+    });
+
     nav.querySelectorAll("a").forEach((a) => {
         a.addEventListener("mouseenter", () => mover(a));
     });
     nav.addEventListener("mouseleave", () => mover(ativo()));
 
-    mover(ativo());
-    window.addEventListener("resize", () => mover(ativo()));
+    window.addEventListener("resize", () => {
+        marca.classList.remove("animada");
+        mover(ativo());
+        requestAnimationFrame(() => marca.classList.add("animada"));
+    });
 }
 
 /* ------------------------------------------------------------
@@ -212,12 +227,84 @@ function confirmar({ titulo, texto, botao = "Confirmar", perigo = false }) {
 }
 
 /* ------------------------------------------------------------
-   Sair da conta (botão no rodapé do menu).
+   O menu da engrenagem (rodapé da barra lateral)
+
+   Guarda o que sobrou da Conta depois que o cartão do usuário passou
+   a levar direto ao Perfil: as outras seções e o sair.
+
+   Fecha por clique fora, por Escape e ao escolher um item. O Escape
+   devolve o foco à engrenagem — quem abriu por teclado precisa voltar
+   para onde estava, senão o foco cai no começo da página.
+   ------------------------------------------------------------ */
+function ativarMenuConfig() {
+    const botao = document.getElementById("btnConfig");
+    const menu  = document.getElementById("menuConfig");
+    if (!botao || !menu) return;
+
+    const aberto = () => botao.getAttribute("aria-expanded") === "true";
+
+    function abrir(sim) {
+        botao.setAttribute("aria-expanded", String(sim));
+        menu.hidden = !sim;
+    }
+
+    botao.addEventListener("click", (e) => {
+        e.stopPropagation();   // senão o clique fecha no mesmo instante
+        abrir(!aberto());
+    });
+
+    // Um item escolhido é uma decisão tomada: o menu sai da frente.
+    menu.addEventListener("click", (e) => {
+        if (e.target.closest(".conf__item")) abrir(false);
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!aberto()) return;
+        if (!menu.contains(e.target) && e.target !== botao) abrir(false);
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && aberto()) {
+            abrir(false);
+            botao.focus();
+        }
+    });
+}
+
+/* ------------------------------------------------------------
+   Menu "Mais Ferramentas" no Mobile (Bottom Sheet).
+   Abre a gaveta com Exercícios, Provas, Buscar e Conta
+   mantendo a barra inferior com apenas 5 botões limpos.
+   ------------------------------------------------------------ */
+function ativarMenuMaisMobile() {
+    const btn = document.getElementById("btnMaisMobile");
+    const sheet = document.getElementById("sheetMaisMobile");
+    const fechar = document.getElementById("btnFecharSheetMais");
+    if (!btn || !sheet) return;
+
+    const abrir = (sim) => {
+        sheet.classList.toggle("aberto", sim);
+        btn.setAttribute("aria-expanded", sim ? "true" : "false");
+        sheet.setAttribute("aria-hidden", sim ? "false" : "true");
+    };
+
+    btn.addEventListener("click", () => abrir(true));
+    if (fechar) fechar.addEventListener("click", () => abrir(false));
+    sheet.addEventListener("click", (e) => {
+        if (e.target === sheet) abrir(false);
+    });
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && sheet.classList.contains("aberto")) abrir(false);
+    });
+}
+
+/* ------------------------------------------------------------
+   Sair da conta (último item do menu da engrenagem).
    Mesmo caminho usado pela página Conta.
    ------------------------------------------------------------ */
 function ativarSair() {
     // seletor por classe: a página Conta tem o próprio botão com id="btnSair"
-    const botao = document.querySelector(".usuario__sair");
+    const botao = document.querySelector(".conf__item--sair");
     if (!botao) return;
 
     botao.addEventListener("click", async () => {
