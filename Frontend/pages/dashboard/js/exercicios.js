@@ -1,161 +1,142 @@
 /* ============================================================
    KOSMOS — exercicios.js
-   Frontend apenas: banco de questões mockado.
-   O "Gerar com IA" será ligado ao backend depois.
+   exercicios.php -> lista as matérias (estante)
    ============================================================ */
 
-// Banco de questões por matéria (correta = índice da alternativa certa)
-const BANCO = {
-    "Matemática": [
-        { enunciado: "Qual é o valor de x em 2x + 6 = 14?", alts: ["2", "4", "6", "10"], correta: 1 },
-        { enunciado: "A área de um quadrado de lado 5 é:", alts: ["10", "20", "25", "30"], correta: 2 },
-        { enunciado: "Quanto é 3! (fatorial de 3)?", alts: ["3", "6", "9", "12"], correta: 1 },
-        { enunciado: "O resultado de (-3)² é:", alts: ["-9", "-6", "6", "9"], correta: 3 },
-        { enunciado: "A raiz quadrada de 144 é:", alts: ["10", "11", "12", "14"], correta: 2 },
-    ],
-    "Física": [
-        { enunciado: "A unidade de força no SI é:", alts: ["Joule", "Watt", "Newton", "Pascal"], correta: 2 },
-        { enunciado: "Velocidade é a razão entre:", alts: ["força e massa", "espaço e tempo", "tempo e massa", "energia e tempo"], correta: 1 },
-        { enunciado: "Qual grandeza é vetorial?", alts: ["Massa", "Temperatura", "Tempo", "Aceleração"], correta: 3 },
-        { enunciado: "A aceleração da gravidade na Terra é cerca de:", alts: ["5 m/s²", "9,8 m/s²", "15 m/s²", "20 m/s²"], correta: 1 },
-        { enunciado: "Energia cinética depende da:", alts: ["altura", "velocidade", "cor", "carga"], correta: 1 },
-    ],
-    "Biologia": [
-        { enunciado: "A organela da respiração celular é a:", alts: ["Mitocôndria", "Ribossomo", "Lisossomo", "Vacúolo"], correta: 0 },
-        { enunciado: "O DNA fica armazenado, principalmente, no:", alts: ["Citoplasma", "Núcleo", "Membrana", "Ribossomo"], correta: 1 },
-        { enunciado: "Fotossíntese ocorre no(a):", alts: ["Mitocôndria", "Cloroplasto", "Núcleo", "Lisossomo"], correta: 1 },
-        { enunciado: "Seres procariontes NÃO possuem:", alts: ["Membrana", "Citoplasma", "Núcleo organizado", "Ribossomos"], correta: 2 },
-        { enunciado: "A unidade básica da vida é a:", alts: ["Molécula", "Célula", "Tecido", "Órgão"], correta: 1 },
-    ],
-};
-
 const LETRAS = ["A", "B", "C", "D"];
-
-// Caminho do backend (dashboard.js já usa "API"; usamos outro nome p/ não colidir)
 const BACKEND = "../../../Backend/php";
 
-let questoesAtuais = [];   // [{ ...questao, escolha: null }]
-let corrigido = false;
+/* ============================================================
+   ESTANTE (exercicios.php) — abre/fecha modal, escuta eventos
+   ============================================================ */
+const btnNovaMateria = document.getElementById("btnNovaMateria");
+const gridMaterias = document.getElementById("gridMaterias");
+const vazioMaterias = document.getElementById("vazioMaterias");
+const filtros = document.getElementById("filtros");
 
-const cont      = document.getElementById("questoes");
-const vazio     = document.getElementById("vazioEx");
-const rodape    = document.getElementById("exRodape");
-const placar    = document.getElementById("placar");
-const btnGerar  = document.getElementById("btnGerar");
-const btnCorrigir = document.getElementById("btnCorrigir");
-
-function embaralhar(arr) {
-    // cópia embaralhada (Fisher–Yates) — sem persistir o banco original
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
+if (btnNovaMateria) {
+    btnNovaMateria.addEventListener("click", () => {
+        window.KosmosExercicioMateriaForm?.abrir(null);
+    });
 }
 
-async function gerar() {
-    const materia     = document.getElementById("gMateria").value;
-    const dificuldade = document.getElementById("gDificuldade").value;
-    const qtd         = +document.getElementById("gQtd").value;
-
-    // ----- Estado de carregamento -----
-    btnGerar.disabled = true;
-    const htmlBtn = btnGerar.innerHTML;
-    btnGerar.textContent = "Gerando…";
-    cont.innerHTML = "";
-    rodape.hidden = true;
-    vazio.hidden = false;
-    vazio.querySelector("h3").textContent = "Gerando questões com IA…";
-    vazio.querySelector("p").textContent  = "Isso pode levar alguns segundos.";
-
+/* Cartões que já vêm do servidor (PHP) também precisam do lápis.
+   Delegação: um clique só, para todos — os novos, criados pelo JS,
+   repetem a chamada, mas o `?` do optional chaining segura. */
+gridMaterias?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-editar-exercicio-materia]");
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    const id = Number(btn.dataset.editarExercicioMateria);
+    const dados = document.getElementById("dadosExercicioMaterias");
+    if (!dados) return;
+    let lista = [];
     try {
-        const dados = new FormData();
-        dados.append("materia", materia);
-        dados.append("dificuldade", dificuldade);
-        dados.append("qtd", String(qtd));
+        lista = JSON.parse(dados.textContent) || [];
+    } catch (_) {
+        return;
+    }
+    const materia = lista.find((m) => m.id === id);
+    if (materia) {
+        window.KosmosExercicioMateriaForm?.abrir(materia);
+    }
+});
 
-        const resp = await fetch(`${BACKEND}/gerar_exercicios.php`, { method: "POST", body: dados });
-        const json = await resp.json();
-
-        if (!json.ok || !Array.isArray(json.questoes) || json.questoes.length === 0) {
-            throw new Error(json.msg || "Não foi possível gerar as questões.");
+document.addEventListener("exercicioMateria:salvo", (e) => {
+    const { materia, novo } = e.detail;
+    if (novo) {
+        // insere no começo da grade (ordem 1 = primeiro)
+        const card = criarCardMateria(materia);
+        if (vazioMaterias) vazioMaterias.hidden = true;
+        if (gridMaterias) gridMaterias.prepend(card);
+        atualizarContadorFiltro(materia.materia, 1);
+    } else {
+        // atualiza o card existente
+        const card = gridMaterias?.querySelector(`[data-id="${materia.id}"]`);
+        if (card) {
+            const novoCard = criarCardMateria(materia);
+            card.replaceWith(novoCard);
         }
+    }
+});
 
-        questoesAtuais = json.questoes.map((q) => ({ ...q, escolha: null }));
-        corrigido = false;
-        render();
-    } catch (err) {
-        vazio.hidden = false;
-        rodape.hidden = true;
-        vazio.querySelector("h3").textContent = "Ops, algo deu errado";
-        vazio.querySelector("p").textContent  = err.message;
-    } finally {
-        btnGerar.disabled = false;
-        btnGerar.innerHTML = htmlBtn;
+document.addEventListener("exercicioMateria:apagado", (e) => {
+    const { id } = e.detail;
+    const card = gridMaterias?.querySelector(`[data-id="${id}"]`);
+    if (card) {
+        const materia = card.dataset.materia;
+        card.remove();
+        atualizarContadorFiltro(materia, -1);
+        if (gridMaterias && gridMaterias.children.length === 0 && vazioMaterias) {
+            vazioMaterias.hidden = false;
+        }
+    }
+});
+
+/* Filtros por matéria (chips) */
+if (filtros) {
+    filtros.addEventListener("click", (e) => {
+        const chip = e.target.closest(".chip");
+        if (!chip) return;
+        filtros.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        const filtro = chip.dataset.materia;
+        gridMaterias?.querySelectorAll(".exercicio-materia-card").forEach(card => {
+            if (filtro === "todos" || card.dataset.materia === filtro) {
+                card.hidden = false;
+            } else {
+                card.hidden = true;
+            }
+        });
+    });
+}
+
+function criarCardMateria(m) {
+    const tpl = document.createElement("template");
+    tpl.innerHTML = `
+        <article class="exercicio-materia-card anim-in exercicio-materia-card--${m.cor}"
+                 data-id="${m.id}" data-materia="${m.materia}">
+            <a class="exercicio-materia-card__link" href="exercicio_materia.php?id=${m.id}" draggable="false">
+                <span class="exercicio-materia-card__lombada" aria-hidden="true"></span>
+                <div class="exercicio-materia-card__body">
+                    <div class="exercicio-materia-card__topo">
+                        ${m.icone ? `<span class="exercicio-materia-card__icone" aria-hidden="true">${m.icone}</span>` : ""}
+                        <span class="materia-tag">${m.materia}</span>
+                    </div>
+                    <h3 class="exercicio-materia-card__nome">${m.nome}</h3>
+                    ${m.descricao ? `<p class="exercicio-materia-card__desc">${m.descricao}</p>` : ""}
+                    <span class="exercicio-materia-card__abrir">Abrir →</span>
+                </div>
+            </a>
+            <button type="button" class="exercicio-materia-card__editar" data-editar-exercicio-materia="${m.id}"
+                    title="Personalizar esta matéria"
+                    aria-label="Personalizar a matéria ${m.nome}">
+                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </button>
+            <span class="exercicio-materia-card__solte" aria-hidden="true">Solte para guardar aqui</span>
+        </article>
+    `;
+    const card = tpl.content.firstElementChild;
+    card.querySelector("[data-editar-exercicio-materia]").addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        window.KosmosExercicioMateriaForm?.abrir(m);
+    });
+    return card;
+}
+
+function atualizarContadorFiltro(materia, delta) {
+    const chip = filtros?.querySelector(`[data-materia="${materia}"]`);
+    if (chip) {
+        const span = chip.querySelector(".rs-aba__n") || document.createElement("span");
+        if (!span.classList.contains("rs-aba__n")) {
+            span.className = "rs-aba__n";
+            chip.appendChild(span);
+        }
+        const atual = parseInt(span.textContent || "0", 10);
+        const novo = Math.max(0, atual + delta);
+        span.textContent = novo;
+        span.hidden = novo === 0;
     }
 }
-
-function render() {
-    vazio.hidden = true;
-    rodape.hidden = false;
-    placar.hidden = true;
-    btnCorrigir.disabled = false;
-    btnCorrigir.textContent = "Corrigir respostas";
-
-    cont.innerHTML = "";
-    questoesAtuais.forEach((q, qi) => {
-        const div = document.createElement("div");
-        div.className = "questao anim-in";
-        div.style.animationDelay = `${qi * 0.06}s`;
-        div.innerHTML = `
-            <div class="questao__num">Questão ${qi + 1}</div>
-            <p class="questao__enunciado">${q.enunciado}</p>
-            <div class="questao__alts">
-                ${q.alts.map((alt, ai) => `
-                    <div class="alt" data-q="${qi}" data-a="${ai}">
-                        <span class="alt__letra">${LETRAS[ai]}</span>
-                        <span>${alt}</span>
-                    </div>`).join("")}
-            </div>`;
-        cont.appendChild(div);
-    });
-}
-
-// Seleção de alternativa
-cont.addEventListener("click", (e) => {
-    if (corrigido) return;
-    const alt = e.target.closest(".alt");
-    if (!alt) return;
-
-    const qi = +alt.dataset.q;
-    const ai = +alt.dataset.a;
-    questoesAtuais[qi].escolha = ai;
-
-    alt.parentElement.querySelectorAll(".alt").forEach((a) => a.classList.remove("selecionada"));
-    alt.classList.add("selecionada");
-});
-
-// Correção
-btnCorrigir.addEventListener("click", () => {
-    let acertos = 0;
-
-    cont.querySelectorAll(".questao").forEach((qEl, qi) => {
-        const q = questoesAtuais[qi];
-        qEl.classList.add("corrigida");
-        qEl.querySelectorAll(".alt").forEach((alt, ai) => {
-            alt.classList.remove("selecionada");
-            if (ai === q.correta) alt.classList.add("certa");
-            else if (ai === q.escolha) alt.classList.add("errada");
-        });
-        if (q.escolha === q.correta) acertos++;
-    });
-
-    corrigido = true;
-    placar.hidden = false;
-    placar.innerHTML = `Você acertou <span>${acertos}</span> de <span>${questoesAtuais.length}</span> questões!`;
-    btnCorrigir.disabled = true;
-    btnCorrigir.textContent = "Corrigido";
-});
-
-btnGerar.addEventListener("click", gerar);

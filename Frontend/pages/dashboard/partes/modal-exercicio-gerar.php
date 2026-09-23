@@ -1,0 +1,101 @@
+<?php
+// ============================================================
+//  KOSMOS — Modal de gerar/salvar exercícios com IA
+//  Usado dentro de uma matéria (exercicio_materia.php).
+//  Quem abre, gera e salva é o js/exercicio-gerar-form.js.
+// ============================================================
+if (!isset($USUARIO, $PREF)) {
+    http_response_code(403);
+    exit('Esta página não é acessada direto.');
+}
+?>
+        <!-- ==========================================================
+             Gerar / Salvar exercícios com IA.
+             ========================================================== -->
+        <div class="modal" id="modalExercicioGerar" role="dialog" aria-modal="true" aria-labelledby="modalExercicioGerarTitulo">
+            <div class="modal__box modal__box--resumo">
+                <div class="modal__head">
+                    <h3 id="modalExercicioGerarTitulo">Gerar exercícios com IA</h3>
+                    <button class="modal__close" type="button" id="exercicioGerarFechar" aria-label="Fechar">&times;</button>
+                </div>
+
+                <form class="modal__form" id="formExercicioGerar">
+                    <input type="hidden" id="exercicioGerarMateriaId" value="">
+
+                    <!-- Etapa 1: Configuração -->
+                    <div class="ex-gerar-etapa" id="etapaConfig" data-etapa="1">
+                        <div class="campo">
+                            <label for="exGerarTitulo">Título da lista</label>
+                            <input id="exGerarTitulo" type="text" placeholder="Ex: Lista 1 — Derivadas" maxlength="140" required>
+                        </div>
+
+                        <div class="campo">
+                            <label for="exGerarConteudo">Conteúdo específico <span class="campo__opcional">(obrigatório)</span></label>
+                            <textarea id="exGerarConteudo" rows="4" placeholder="Descreva o tópico exato para gerar exercícios direcionados...&#10;Ex: Derivadas de funções polinomiais, regra da cadeia, derivadas de funções trigonométricas" required></textarea>
+                            <span class="campo__dica">Quanto mais específico, melhor a IA acerta no foco.</span>
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                            <div class="campo">
+                                <label for="exGerarDificuldade">Dificuldade</label>
+                                <select id="exGerarDificuldade">
+                                    <option value="Fácil">Fácil</option>
+                                    <option value="Médio" selected>Médio</option>
+                                    <option value="Difícil">Difícil</option>
+                                </select>
+                            </div>
+                            <div class="campo">
+                                <label for="exGerarQtd">Quantidade</label>
+                                <div class="qtd-stepper">
+                                    <button type="button" class="qtd-stepper__btn" id="exGerarQtdMenos" aria-label="Diminuir quantidade">
+                                        <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                    </button>
+                                    <input id="exGerarQtd" type="number" min="1" max="15" value="5" inputmode="numeric" aria-label="Quantidade de questões">
+                                    <button type="button" class="qtd-stepper__btn" id="exGerarQtdMais" aria-label="Aumentar quantidade">
+                                        <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                    </button>
+                                </div>
+                                <span class="campo__dica">Máximo de 15 questões por vez.</span>
+                            </div>
+                        </div>
+
+                        <div class="msg" id="msgExercicioGerar" hidden></div>
+
+                        <div class="modal__actions">
+                            <button type="button" class="dash-btn dash-btn--outline" id="exGerarCancelar">Cancelar</button>
+                            <button type="button" class="dash-btn dash-btn--primary" id="btnGerarComIA">
+                                Gerar com IA
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 2: Preview das questões geradas -->
+                    <div class="ex-gerar-etapa" id="etapaPreview" data-etapa="2" hidden>
+                        <div class="ex-gerar-preview-header">
+                            <div class="ex-gerar-preview-info">
+                                <strong id="previewTitulo">Título</strong>
+                                <span id="previewMeta" style="font-size:.8rem;color:var(--text-muted);"></span>
+                            </div>
+                            <button type="button" class="dash-btn dash-btn--ghost dash-btn--sm" id="btnVoltarConfig">
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true" style="margin-right:6px;"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                Ajustar
+                            </button>
+                        </div>
+
+                        <div class="ex-gerar-questoes" id="exGerarQuestoes" style="max-height:380px;overflow-y:auto;padding-right:4px;">
+                            <!-- Questões inseridas via JS -->
+                        </div>
+
+                        <div class="msg" id="msgExercicioGerarPreview" hidden></div>
+
+                        <div class="modal__actions">
+                            <button type="button" class="dash-btn dash-btn--outline" id="exGerarCancelar2">Cancelar</button>
+                            <button type="button" class="dash-btn dash-btn--primary" id="btnSalvarExercicio">
+                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                Salvar exercício
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>

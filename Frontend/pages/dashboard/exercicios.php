@@ -2,6 +2,40 @@
 // Porteiro + dados desta página (sem sessão, redireciona antes de
 // mandar qualquer HTML). Deixa $USUARIO, $PREF e $PAGINA prontos.
 require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
+require_once __DIR__ . '/../../../Backend/php/exercicios_util.php';
+
+/* Esta é a estante: mostra as MATÉRIAS DE EXERCÍCIOS.
+   Dentro de cada matéria ficam os exercícios (exercicio_materia.php).
+
+   Tudo já sai pronto daqui: a página chega montada, sem depender de
+   JS para aparecer. As ações (criar, renomear, apagar) continuam por
+   fetch nos endpoints exercicios_*.php. */
+$MATERIAS = [];
+
+if (!$ERRO_BANCO) {
+    try {
+        // a consulta das matérias (com cor, ícone, contagens e ordem)
+        // mora em Backend/php/exercicios_util.php, num lugar só
+        $MATERIAS = listarExercicioMaterias($pdo, (int) $USUARIO['id']);
+    } catch (PDOException $e) {
+        $MATERIAS = [];
+    }
+}
+
+$TOTAL_MATERIAS = count($MATERIAS);
+
+/* Só as matérias que aparecem viram filtro */
+$MATERIAS_USADAS = array_values(array_unique(array_column($MATERIAS, 'materia')));
+sort($MATERIAS_USADAS);
+
+/** Frase do cabeçalho: o que a pessoa tem hoje. */
+function resumoDaEstanteExercicios(int $materias): string {
+    if ($materias === 0) {
+        return 'Crie uma matéria para começar a gerar exercícios.';
+    }
+
+    return $materias . ($materias === 1 ? ' matéria' : ' matérias') . ' na sua conta.';
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -26,69 +60,64 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
     <div class="contGeral">
 
+        <!-- Sidebar -->
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
+        <!-- Main -->
         <main class="contMeio">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <span class="section-tag">Praticar</span>
-                    <h1>Exercícios com <span class="h-nome">IA</span></h1>
-                    <p>Gere questões personalizadas e teste seu conhecimento.</p>
+                    <h1>Suas <span class="h-nome">Matérias</span></h1>
+                    <p id="estanteResumo"><?= hesc(resumoDaEstanteExercicios($TOTAL_MATERIAS)) ?></p>
+                </div>
+                <div class="rs-acoes">
+                    <button class="dash-btn dash-btn--primary" id="btnNovaMateria">
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Nova matéria
+                    </button>
                 </div>
             </header>
 
-            <!-- Gerador -->
-            <div class="painel gerador">
-                <div class="gerador__campos">
-                    <div class="campo">
-                        <label for="gMateria">Matéria</label>
-                        <select id="gMateria">
-                            <option value="Matemática">Matemática</option>
-                            <option value="Física">Física</option>
-                            <option value="Biologia">Biologia</option>
-                        </select>
-                    </div>
-                    <div class="campo">
-                        <label for="gDificuldade">Dificuldade</label>
-                        <select id="gDificuldade">
-                            <option value="Fácil">Fácil</option>
-                            <option value="Médio" selected>Médio</option>
-                            <option value="Difícil">Difícil</option>
-                        </select>
-                    </div>
-                    <div class="campo">
-                        <label for="gQtd">Quantidade</label>
-                        <select id="gQtd">
-                            <option value="3">3 questões</option>
-                            <option value="5">5 questões</option>
-                        </select>
-                    </div>
-                </div>
-                <button class="dash-btn dash-btn--primary" id="btnGerar">
-                    <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 4.4L16 8l-4.2 1.6L10 14l-1.8-4.4L4 8l4.2-1.6L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-                    Gerar exercícios
-                </button>
+            <!-- Filtros: só as matérias que o usuário realmente tem -->
+<?php if (count($MATERIAS_USADAS) > 1): ?>
+            <div class="chips" id="filtros">
+                <button class="chip active" data-materia="todos">Todos</button>
+<?php foreach ($MATERIAS_USADAS as $mat): ?>
+                <button class="chip" data-materia="<?= hesc($mat) ?>"><?= hesc($mat) ?></button>
+<?php endforeach; ?>
+            </div>
+<?php else: ?>
+            <div class="chips" id="filtros" hidden></div>
+<?php endif; ?>
+
+            <!-- Grade de matérias: já vem pronta do servidor.
+                 Arrastar um cartão daqui reordena a estante. -->
+            <div class="exercicio-materias-grid" id="gridMaterias">
+<?php foreach ($MATERIAS as $i => $m): ?>
+<?php include __DIR__ . '/partes/exercicio-materia-card.php'; ?>
+<?php endforeach; ?>
             </div>
 
-            <!-- Resultado -->
-            <div id="questoes" class="questoes"></div>
-
-            <div class="vazio" id="vazioEx">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 11l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
-                <h3>Pronto para praticar?</h3>
-                <p>Escolha a matéria e a dificuldade, depois clique em "Gerar exercícios".</p>
-            </div>
-
-            <!-- Ações finais -->
-            <div class="ex-rodape" id="exRodape" hidden>
-                <div class="ex-placar" id="placar" hidden></div>
-                <button class="dash-btn dash-btn--primary" id="btnCorrigir">Corrigir respostas</button>
+            <!-- Estado vazio: nenhuma matéria -->
+            <div class="vazio" id="vazioMaterias"<?= $TOTAL_MATERIAS > 0 ? ' hidden' : '' ?>>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Z" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v18M12 8h5M12 12h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <h3>Nenhuma matéria por aqui</h3>
+                <p>Crie uma matéria para o conteúdo que você quer praticar e gere exercícios dentro dela.</p>
             </div>
         </main>
-    </div>
+
+        <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
+
+        <?php include __DIR__ . '/partes/modal-exercicio-materia.php'; ?>
+
+        <!-- os dados completos para a página se atualizar sem outra ida
+             ao servidor -->
+        <script type="application/json" id="dadosExercicioMaterias"><?= json_encode($MATERIAS, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 
     <script src="./js/dashboard.js"></script>
     <script src="./js/pomodoro-aviso.js"></script>
+    <script src="./js/exercicio-materia-form.js"></script>
     <script src="./js/exercicios.js"></script>
     <script src="./js/cursor.js"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta
