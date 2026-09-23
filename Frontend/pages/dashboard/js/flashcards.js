@@ -178,9 +178,9 @@
                     <span class="materia-tag">${esc(d.materia)}</span>
                     <div class="deck-card__acoes">
                         <button class="icone-btn" data-editar-deck="${d.id}"
-                                title="Renomear deck" aria-label="Renomear o deck ${esc(d.nome)}">${ICONE_EDITAR}</button>
+                                title="Renomear baralho" aria-label="Renomear o baralho ${esc(d.nome)}">${ICONE_EDITAR}</button>
                         <button class="icone-btn icone-btn--perigo" data-excluir-deck="${d.id}"
-                                title="Excluir deck" aria-label="Excluir o deck ${esc(d.nome)}">${ICONE_EXCLUIR}</button>
+                                title="Excluir baralho" aria-label="Excluir o baralho ${esc(d.nome)}">${ICONE_EXCLUIR}</button>
                     </div>
                 </div>
 
@@ -192,7 +192,7 @@
                 </span>
 
                 ${semCartoes ? "" : `<div class="deck-card__barra" role="img"
-                        aria-label="${dominio}% do deck dominado"><span style="width:${dominio}%"></span></div>`}
+                        aria-label="${dominio}% do baralho dominado"><span style="width:${dominio}%"></span></div>`}
 
                 <span class="deck-card__quando">${esc(d.quando)}</span>
 
@@ -208,12 +208,12 @@
         const nenhum = estado.decks.length === 0;
         vazio.hidden = lista.length > 0;
         if (!vazio.hidden) {
-            vazio.querySelector("h3").textContent = nenhum
-                ? "Nenhum deck por aqui"
-                : "Nenhum deck nesta matéria";
-            vazio.querySelector("p").textContent = nenhum
-                ? "Crie seu primeiro baralho e comece a escrever os cartões do jeito que você estuda."
-                : "Troque o filtro acima ou crie um deck para esta matéria.";
+        vazio.querySelector("h2").textContent = nenhum
+            ? "Nenhum baralho por aqui"
+            : "Nenhum baralho nesta matéria";
+        vazio.querySelector("p").textContent = nenhum
+            ? "Crie seu primeiro baralho e comece a escrever os cartões do jeito que você estuda."
+            : "Troque o filtro acima ou crie um baralho para esta matéria.";
         }
     }
 
@@ -291,7 +291,7 @@
         await abrirCartoes(deckId, false);
 
         if (!estado.cartoes.length) {
-            aviso("Este deck ainda não tem cartões.", true);
+            aviso("Este baralho ainda não tem cartões.", true);
             return;
         }
 
@@ -434,10 +434,24 @@
 
     function abrirModalDeck(deck) {
         deckEditando = deck ? deck.id : null;
-        $("#modalDeckTitulo").textContent = deck ? "Editar deck" : "Novo deck";
-        $("#btnSalvarDeck").textContent   = deck ? "Salvar" : "Criar deck";
-        $("#nomeDeck").value    = deck ? deck.nome : "";
-        $("#materiaDeck").value = deck ? deck.materia : "";
+        $("#modalDeckTitulo").textContent = deck ? "Editar baralho" : "Novo baralho";
+        $("#btnSalvarDeck").textContent   = deck ? "Salvar" : "Criar baralho";
+        $("#nomeDeck").value = deck ? deck.nome : "";
+
+        const materia = $("#materiaDeck");
+        if (deck) {
+            // baralho antigo pode ter matéria fora da lista: cria a opção
+            // na hora para não perder o valor ao editar
+            if (deck.materia && ![...materia.options].some((o) => o.value === deck.materia)) {
+                materia.add(new Option(deck.materia, deck.materia));
+            }
+            materia.value = deck.materia;
+        } else {
+            // começa na matéria favorita, se houver alguma marcada na Conta
+            const favorita = materia.querySelector("option[data-favorita]");
+            if (favorita) materia.value = favorita.value;
+        }
+
         abrirModal(modalDeck, $("#nomeDeck"));
     }
 
@@ -592,10 +606,10 @@
         if (alvo.dataset.editarDeck)  return abrirModalDeck(deck);
         if (alvo.dataset.excluirDeck) {
             confirmar(
-                "Excluir deck?",
+                "Excluir baralho?",
                 deck.cartoes === 0
-                    ? `O deck <strong>${esc(deck.nome)}</strong> será apagado. Não dá para desfazer.`
-                    : `O deck <strong>${esc(deck.nome)}</strong> e os seus ${deck.cartoes} `
+                    ? `O baralho <strong>${esc(deck.nome)}</strong> será apagado. Não dá para desfazer.`
+                    : `O baralho <strong>${esc(deck.nome)}</strong> e os seus ${deck.cartoes} `
                       + `${plural(deck.cartoes, "cartão", "cartões")} serão apagados. Não dá para desfazer.`,
                 () => excluirDeck(deck)
             );

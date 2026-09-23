@@ -63,7 +63,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                  precisa saber que terminou, não achar que quebrou. -->
             <div class="vazio" id="revVazio" hidden>
                 <span class="vazio__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M8 12.4 10.8 15.2 16 9.6"/></svg></span>
-                <h3>Nada para revisar agora</h3>
+                <h2>Nada para revisar agora</h2>
                 <p id="revVazioTexto">
                     Você está em dia. Os cartões voltam sozinhos quando chegar
                     a hora de cada um.
@@ -102,7 +102,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
                 <div class="estudo-nav">
                     <div class="estudo-progresso" role="progressbar"
-                         aria-label="Progresso da revisão" aria-valuemin="0" aria-valuemax="100">
+                         aria-label="Progresso da revisão" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                         <div class="estudo-progresso__bar" id="barEstudo"></div>
                     </div>
                 </div>

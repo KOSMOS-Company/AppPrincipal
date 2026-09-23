@@ -86,10 +86,13 @@
 .pomo__ciclos { font-size: .92rem; color: var(--text-dim); }
 .pomo__ciclos strong { color: var(--accent-lt); font-family: "Syne", sans-serif; }
 
+@media (max-width: 560px) {
+    .pomo__modos { flex-wrap: wrap; justify-content: center; }
+}
+
 @media (max-width: 480px) {
     .pomo__timer { width: 240px; height: 240px; }
     .pomo__tempo { font-size: 3rem; }
-    .pomo__modos { flex-wrap: wrap; justify-content: center; }
 }
 
 /* Meta diária (vem das preferências da aba Conta) */

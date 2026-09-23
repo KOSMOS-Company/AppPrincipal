@@ -75,7 +75,7 @@ curl_setopt_array($ch, [
         // Chat Trigger pode estar com auth none — header extra não atrapalha
         N8N_TOKEN_HEADER . ': ' . N8N_TOKEN_VALOR,
     ],
-    CURLOPT_TIMEOUT        => 90,  // a IA pode levar alguns segundos
+    CURLOPT_TIMEOUT        => 180,  // a IA pode levar alguns segundos
 ]);
 
 $resposta = curl_exec($ch);

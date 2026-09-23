@@ -177,7 +177,10 @@ $temFoto = !empty($PREF['avatar_url']);
                                 </div>
                                 <div class="msg" id="msgPerfil" hidden></div>
                                 <div class="conta-form__acoes">
-                                    <button type="submit" class="dash-btn dash-btn--primary">Salvar alterações</button>
+                                    <button type="submit" class="dash-btn dash-btn--primary">
+                                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        Salvar alterações
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -290,7 +293,7 @@ $temFoto = !empty($PREF['avatar_url']);
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Meta diária</h2>
                             <p class="painel__sub">Quantos minutos por dia você quer estudar.</p>
-                            <div class="campo" style="max-width:220px">
+                            <div class="campo campo--estreito">
                                 <label for="metaDiaria">Minutos por dia</label>
                                 <input id="metaDiaria" type="number" min="10" max="600" step="5" placeholder="60" value="<?= (int) $PREF['meta_diaria'] ?>">
                                 <span class="campo__dica">entre 10 e 600</span>
@@ -311,6 +314,7 @@ $temFoto = !empty($PREF['avatar_url']);
 
                         <div class="conta-acoes">
                             <button type="button" class="dash-btn dash-btn--primary" id="btnSalvarEstudo">
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 Salvar preferências
                             </button>
                             <div class="msg" id="msgEstudo" hidden></div>
@@ -444,7 +448,10 @@ $temFoto = !empty($PREF['avatar_url']);
                 <div class="modal__actions">
                     <button type="button" class="conta-enquadre__centro" id="centralizarFoto">Centralizar</button>
                     <button type="button" class="dash-btn dash-btn--outline" id="cancelarFoto">Cancelar</button>
-                    <button type="button" class="dash-btn dash-btn--primary" id="salvarPosFoto">Salvar posição</button>
+                    <button type="button" class="dash-btn dash-btn--primary" id="salvarPosFoto">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Salvar posição
+                </button>
                 </div>
             </div>
         </div>

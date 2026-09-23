@@ -62,7 +62,7 @@
 
             // Botão voltar
             if (btnVoltar) {
-                btnVoltar.style.display = (n > 1) ? 'inline-block' : 'none';
+                btnVoltar.hidden = (n <= 1);
             }
 
             // Texto do botão avançar

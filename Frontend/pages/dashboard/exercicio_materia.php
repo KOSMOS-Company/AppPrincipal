@@ -110,10 +110,10 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
 
             <!-- Lista de exercícios salvos -->
             <div class="exercicios-salvos" id="exerciciosSalvos">
-                <div class="vazio" id="vazioExerciciosSalvos" style="text-align:center; padding:60px 20px;">
-                    <svg viewBox="0 0 24 24" fill="none" style="width:64px;height:64px;margin:0 auto 16px;color:var(--text-muted);"><path d="M9 11l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <h3>Nenhum exercício salvo</h3>
-                    <p style="color:var(--text-muted); max-width:40ch; margin:0 auto;">Clique em "Gerar novo exercício" para criar e salvar exercícios com IA.</p>
+                <div class="vazio vazio--grande" id="vazioExerciciosSalvos">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 11l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+                    <h2>Nenhum exercício salvo</h2>
+                    <p>Clique em "Gerar novo exercício" para criar e salvar exercícios com IA.</p>
                 </div>
                 <div class="exercicios-grid" id="gridExerciciosSalvos" style="display:none;"></div>
             </div>
@@ -263,8 +263,6 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
 
             vazioExerciciosSalvos.style.display = 'none';
             gridExerciciosSalvos.style.display = 'grid';
-            gridExerciciosSalvos.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
-            gridExerciciosSalvos.style.gap = '16px';
 
             gridExerciciosSalvos.innerHTML = exercicios.map(ex => {
                 let qtdQuestoes = 0;
@@ -276,33 +274,24 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
                 const data = new Date(ex.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 
                 return `
-                    <article class="exercicio-salvo-card anim-in" style="
-                        background:var(--superficie);
-                        border:1px solid rgba(165,65,255,.12);
-                        border-radius:var(--radius-lg);
-                        padding:20px;
-                        display:flex;
-                        flex-direction:column;
-                        gap:12px;
-                        transition:var(--transition);
-                    " onmouseover="this.style.borderColor='rgba(165,65,255,.4)'" onmouseout="this.style.borderColor='rgba(165,65,255,.12)'">
-                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
-                            <div style="flex:1;min-width:0;">
-                                <h4 style="font-family:Syne,sans-serif;font-size:1rem;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(ex.titulo)}</h4>
-                                <p style="font-size:.8rem;color:var(--text-muted);margin-top:2px;">${qtdQuestoes} questão${qtdQuestoes!==1?'ões':''} · ${ex.dificuldade} · ${data}</p>
+                    <article class="exercicio-salvo-card anim-in">
+                        <div class="exercicio-salvo-card__topo">
+                            <div class="exercicio-salvo-card__info">
+                                <h4 class="exercicio-salvo-card__titulo">${escapeHtml(ex.titulo)}</h4>
+                                <p class="exercicio-salvo-card__meta">${qtdQuestoes} questão${qtdQuestoes!==1?'ões':''} · ${ex.dificuldade} · ${data}</p>
                             </div>
-                            <span style="background:rgba(165,65,255,.15);color:var(--accent-lt);padding:4px 10px;border-radius:999px;font-size:.7rem;font-weight:600;">${ex.dificuldade}</span>
+                            <span class="exercicio-salvo-card__badge">${ex.dificuldade}</span>
                         </div>
-                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="dash-btn dash-btn--outline" style="flex:1;padding:8px 12px;font-size:.8rem;" onclick="abrirExercicio(${ex.id})">
-                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true" style="margin-right:4px;vertical-align:middle;"><path d="M10 2l1.8 4.4L16 8l-4.2 1.6L10 14l-1.8-4.4L4 8l4.2-1.6L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                        <div class="exercicio-salvo-card__acoes">
+                            <button class="dash-btn dash-btn--outline" onclick="abrirExercicio(${ex.id})">
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2l1.8 4.4L16 8l-4.2 1.6L10 14l-1.8-4.4L4 8l4.2-1.6L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
                                 Praticar
                             </button>
-                            <button class="dash-btn dash-btn--ghost" style="padding:8px 12px;font-size:.8rem;" data-editar='${JSON.stringify({id: ex.id, titulo: ex.titulo, conteudo: ex.conteudo, dificuldade: ex.dificuldade}).replace(/'/g, '&apos;')}'>
-                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <button class="dash-btn dash-btn--ghost" data-editar='${JSON.stringify({id: ex.id, titulo: ex.titulo, conteudo: ex.conteudo, dificuldade: ex.dificuldade}).replace(/'/g, '&apos;')}' title="Editar">
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                             </button>
-                            <button class="dash-btn dash-btn--danger" style="padding:8px 12px;font-size:.8rem;" onclick="excluirExercicio(${ex.id})" title="Excluir">
-                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <button class="dash-btn dash-btn--danger" onclick="excluirExercicio(${ex.id})" title="Excluir">
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                             </button>
                         </div>
                     </article>

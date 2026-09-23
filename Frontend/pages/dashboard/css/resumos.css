@@ -86,8 +86,7 @@
     padding-bottom: 40px;
 }
 
-/* cartão é clicável: mostra isso */
-.resumo-card { cursor: pointer; }
+/* o corpo é um link; o cartão em si não é clicável (cursor vem de .resumo-card em :95) */
 .resumo-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* ---- Cartão: o corpo é um link para a leitura; mover, editar e
@@ -750,6 +749,12 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     box-shadow: 0 22px 60px rgba(0,0,0,.6);
     animation: rs-menu-entra .14s ease;
 }
+@media (max-width: 480px) {
+    .rs-menu {
+        min-width: 0;
+        width: min(280px, calc(100vw - 32px));
+    }
+}
 .rs-menu__titulo {
     display: block;
     padding: 6px 10px 8px;
@@ -798,7 +803,6 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 /* ============================================================
    MODAL DE PERSONALIZAR O CADERNO
    ============================================================ */
-.modal__box--caderno { max-width: 560px; }
 
 /* ---- A prévia: o cartão como vai ficar ---- */
 .cad-previa {

@@ -42,7 +42,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                     </div>
                     <button class="dash-btn dash-btn--primary" id="btnNovoDeck">
                         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        Novo deck
+                        Novo baralho
                     </button>
                 </header>
 
@@ -50,7 +50,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                 <div class="ini-stats fc-stats" id="fcStats">
                     <div class="ini-stat ini-stat--vazio">
                         <strong data-stat="decks">—</strong>
-                        <span>Decks</span>
+                        <span>Baralhos</span>
                     </div>
                     <span class="ini-stat__div" aria-hidden="true"></span>
                     <div class="ini-stat ini-stat--vazio">
@@ -74,11 +74,12 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
                 <div class="decks-grid" id="decksGrid" aria-busy="true"></div>
 
-                <div class="vazio" id="vazio" hidden>
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                    <h3>Nenhum deck por aqui</h3>
-                    <p>Crie seu primeiro baralho e comece a escrever os cartões do jeito que você estuda.</p>
-                </div>
+                        <h1 id="cartoesResumoTitulo" hidden></h1>
+                        <div class="vazio" id="vazio" hidden>
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                            <h2>Nenhum baralho por aqui</h2>
+                            <p>Crie seu primeiro baralho e comece a escrever os cartões do jeito que você estuda.</p>
+                        </div>
             </section>
 
             <!-- ============================================================
@@ -87,12 +88,12 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             <section id="viewCartoes" hidden>
                 <header class="contCabeca">
                     <div class="contCabeca__texto">
-                        <span class="section-tag" id="cartoesMateria">Deck</span>
-                        <h1 id="cartoesTitulo">Deck</h1>
+                        <span class="section-tag" id="cartoesMateria">Baralho</span>
+                        <h1 id="cartoesTitulo">Baralho</h1>
                         <p id="cartoesResumo">Nenhum cartão ainda.</p>
                     </div>
                     <div class="fc-acoes">
-                        <button class="dash-btn dash-btn--outline" data-voltar-decks>← Decks</button>
+                        <button class="dash-btn dash-btn--outline" data-voltar-decks>← Baralhos</button>
                         <button class="dash-btn dash-btn--ghost" id="btnEstudarDaqui">Estudar</button>
                         <button class="dash-btn dash-btn--primary" id="btnNovoCartao">
                             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -105,7 +106,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
                 <div class="vazio" id="cartoesVazio" hidden>
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                    <h3>Este deck ainda não tem cartões</h3>
+                        <h2>Este baralho ainda não tem cartões</h2>
                     <p>Adicione a primeira pergunta e resposta para poder estudar.</p>
                 </div>
             </section>
@@ -117,7 +118,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                 <header class="contCabeca">
                     <div class="contCabeca__texto">
                         <span class="section-tag">Estudando</span>
-                        <h1 id="estudoTitulo">Deck</h1>
+                        <h1 id="estudoTitulo">Baralho</h1>
                         <p id="estudoProgresso">Cartão 1 de 1</p>
                     </div>
                     <div class="fc-acoes">
@@ -155,7 +156,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                     <div class="estudo-nav">
                         <button class="dash-btn dash-btn--ghost" id="btnAnterior">← Anterior</button>
                         <div class="estudo-progresso" role="progressbar"
-                             aria-label="Progresso do estudo" aria-valuemin="0" aria-valuemax="100">
+                             aria-label="Progresso do estudo" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                             <div class="estudo-progresso__bar" id="barEstudo"></div>
                         </div>
                         <button class="dash-btn dash-btn--ghost" id="btnProximo">Pular →</button>
@@ -177,7 +178,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                             </div>
                         </div>
                         <div class="estudo-fim__acoes">
-                            <button class="dash-btn dash-btn--outline" data-voltar-decks>Voltar aos decks</button>
+                             <button class="dash-btn dash-btn--outline" data-voltar-decks>Voltar aos baralhos</button>
                             <button class="dash-btn dash-btn--primary" id="btnEstudarDeNovo">Estudar de novo</button>
                         </div>
                     </div>
@@ -193,37 +194,26 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <div class="modal" id="modalDeck" role="dialog" aria-modal="true" aria-labelledby="modalDeckTitulo">
         <div class="modal__box">
             <div class="modal__head">
-                <h3 id="modalDeckTitulo">Novo deck</h3>
+                        <h3 id="modalDeckTitulo">Novo baralho</h3>
                 <button class="modal__close" data-fechar-modal aria-label="Fechar">&times;</button>
             </div>
             <form class="modal__form" id="formDeck">
                 <div class="campo">
-                    <label for="nomeDeck">Nome do deck</label>
+                    <label for="nomeDeck">Nome do baralho</label>
                     <input id="nomeDeck" type="text" maxlength="120"
                            placeholder="Ex: Biologia — Genética" required>
                 </div>
                 <div class="campo">
                     <label for="materiaDeck">Matéria</label>
-                    <!-- lista aberta: pode escolher uma sugestão OU digitar a sua -->
-                    <input id="materiaDeck" type="text" maxlength="40" list="listaMaterias"
-                           placeholder="Ex: Biologia (ou escreva a sua)" required>
-                    <datalist id="listaMaterias">
-                        <option value="Matemática"></option>
-                        <option value="Física"></option>
-                        <option value="Química"></option>
-                        <option value="Biologia"></option>
-                        <option value="História"></option>
-                        <option value="Geografia"></option>
-                        <option value="Português"></option>
-                        <option value="Redação"></option>
-                        <option value="Inglês"></option>
-                        <option value="Filosofia"></option>
-                        <option value="Sociologia"></option>
-                    </datalist>
+                    <select id="materiaDeck" required>
+<?php foreach (MATERIAS_KOSMOS as $m): ?>
+                        <option value="<?= hesc($m) ?>"<?= in_array($m, $PREF['materias'], true) ? ' data-favorita="1"' : '' ?>><?= hesc($m) ?></option>
+<?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="modal__actions">
                     <button type="button" class="dash-btn dash-btn--outline" data-fechar-modal>Cancelar</button>
-                    <button type="submit" class="dash-btn dash-btn--primary" id="btnSalvarDeck">Criar deck</button>
+                    <button type="submit" class="dash-btn dash-btn--primary" id="btnSalvarDeck">Criar baralho</button>
                 </div>
             </form>
         </div>

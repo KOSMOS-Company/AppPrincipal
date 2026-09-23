@@ -59,7 +59,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
             <div class="vazio" id="buscaVazio" hidden>
                 <span class="vazio__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.6"/><path d="M15.9 15.9 20.6 20.6"/></svg></span>
-                <h3 id="buscaVazioTitulo">Nada encontrado</h3>
+                <h2 id="buscaVazioTitulo">Nada encontrado</h2>
                 <p id="buscaVazioTexto">Tente outra palavra.</p>
             </div>
         </main>

@@ -70,13 +70,13 @@
 
 /* Nas pausas o selo esfria: fica claro que não é tempo de foco. */
 .pomo-selo--pausa {
-    border-color: rgba(46, 204, 160, .4);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, .5), 0 0 28px rgba(46, 204, 160, .18);
+    border-color: rgba(52,211,153,.4);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .5), 0 0 28px rgba(52,211,153,.18);
 }
-.pomo-selo--pausa:hover { border-color: rgba(46, 204, 160, .7); }
+.pomo-selo--pausa:hover { border-color: rgba(52,211,153,.7); }
 .pomo-selo--pausa .pomo-selo__pulso {
-    background: #2ecca0;
-    box-shadow: 0 0 0 0 rgba(46, 204, 160, .6);
+    background: #34d399;
+    box-shadow: 0 0 0 0 rgba(52,211,153,.6);
 }
 
 @keyframes pomo-selo-entra {

@@ -390,6 +390,83 @@ em { font-style: normal; color: var(--accent-lt); }
 .kmodal__input:focus { border-color: #a541ff; box-shadow: 0 0 0 3px rgba(165,65,255,.15); }
 .kmodal__msg { padding: 9px 12px; border-radius: 8px; font-size: .85rem; margin-bottom: 12px; }
 
+/* ════════════════════════════════
+   PÁGINAS DE PASSAGEM (redefinir / criar senha)
+   ════════════════════════════════ */
+.page--min {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+}
+.form-card--estreito { width: 100%; max-width: 420px; }
+.form-card__title--espacado { margin-top: 18px; }
+
+/* Botão do Google: centralizado (migrado do estilo inline) */
+.google-btn-wrap { display: flex; justify-content: center; }
+
+/* Medidor de força de senha (criar-senha) — migrado do <style> inline */
+.senha-extra { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+.senha-barra {
+    height: 5px;
+    background: rgba(255,255,255,.07);
+    border-radius: 100px;
+    overflow: hidden;
+}
+.senha-barra__fill {
+    display: block;
+    height: 100%;
+    width: 0%;
+    border-radius: 100px;
+    background: #f87171;
+    transition: width .35s ease, background .35s ease;
+}
+.senha-reqs { display: flex; flex-wrap: wrap; gap: 6px; }
+.senha-req {
+    font-size: .72rem;
+    color: var(--text-muted);
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.09);
+    padding: 3px 10px;
+    border-radius: 100px;
+}
+.senha-req.ok {
+    color: #34d399;
+    background: rgba(52,211,153,.12);
+    border-color: rgba(52,211,153,.3);
+}
+
+/* Aviso do topo da tela "criar senha" */
+.aviso-google {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    font-size: .86rem;
+    line-height: 1.5;
+    color: var(--text-dim, #b8a8cc);
+    background: rgba(165,65,255,.08);
+    border: 1px solid rgba(165,65,255,.22);
+    border-radius: 12px;
+}
+.aviso-google svg { width: 18px; height: 18px; flex: 0 0 auto; margin-top: 1px; color: #a541ff; }
+
+.acao-sair {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: .85rem;
+    color: var(--text-muted, #7a6890);
+    cursor: pointer;
+    transition: color .25s ease;
+}
+.acao-sair:hover { color: #fff; }
+
 /* Keyframes */
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }

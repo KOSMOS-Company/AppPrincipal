@@ -40,7 +40,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 
 
 /* ── Header ── */
-.header-terms{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px;max-width:1120px;margin:0 auto;padding:24px 32px 0}
+.header-terms{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;max-width:1120px;margin:0 auto;padding:24px 32px 0}
 .logo{display:inline-flex;align-items:center;text-decoration:none}
 .logo__text{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:-.02em}
 .header-terms__link{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:12px;border:1px solid rgba(165,65,255,.25);color:var(--accent-lt);text-decoration:none;background:rgba(165,65,255,.08);font-weight:600;transition:transform .2s ease, background .2s ease, border-color .2s ease}

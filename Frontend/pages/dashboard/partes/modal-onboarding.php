@@ -8,7 +8,7 @@
 //    3. Meta diária de estudos
 // ============================================================
 ?>
-<div class="onb-overlay" id="onboardingModal" aria-modal="true" role="dialog" aria-labelledby="onbTitulo">
+<div class="onb-overlay" id="onboardingModal" aria-modal="true" role="dialog" aria-label="Pesquisa de perfil inicial">
     <div class="onb-card">
         <!-- Barra de Progresso Superior -->
         <div class="onb-topo">
@@ -159,7 +159,7 @@
 
             <!-- Rodapé de Ações do Modal -->
             <div class="onb-rodape">
-                <button type="button" class="onb-btn onb-btn--ghost" id="onbBtnVoltar" style="display: none;">
+                <button type="button" class="onb-btn onb-btn--ghost" id="onbBtnVoltar" hidden>
                     ← Voltar
                 </button>
                 <div class="onb-rodape-espaco"></div>

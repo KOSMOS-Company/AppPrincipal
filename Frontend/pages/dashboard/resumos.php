@@ -165,7 +165,7 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
             <!-- Estado vazio: nenhum caderno -->
             <div class="vazio" id="vazioCadernos"<?= $TOTAL_CADERNOS > 0 ? ' hidden' : '' ?>>
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Z" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v18M12 8h5M12 12h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                <h3>Nenhum caderno por aqui</h3>
+                <h2>Nenhum caderno por aqui</h2>
                 <p>Crie um caderno para a matéria que você está estudando e guarde os resumos dela dentro.</p>
             </div>
 
@@ -186,7 +186,7 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
                      aba, então precisa dizer alguma coisa mesmo vazia -->
                 <div class="vazio" id="vazioSoltos"<?= $TOTAL_SOLTOS > 0 ? ' hidden' : '' ?>>
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                    <h3>Nenhuma nota solta</h3>
+                    <h2>Nenhuma nota solta</h2>
                     <p>Está tudo guardado em algum caderno. Um resumo criado sem escolher caderno aparece aqui.</p>
                 </div>
 

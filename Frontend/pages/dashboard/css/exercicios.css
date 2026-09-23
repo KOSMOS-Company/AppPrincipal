@@ -275,6 +275,51 @@
 .cad-icone:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .cad-icone--nenhum { font-size: 1.5rem; font-weight: 300; color: var(--text-muted); }
 
+/* ============================================================
+   EXERCÍCIOS SALVOS — grid e cartão
+   ============================================================ */
+.exercicios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.exercicio-salvo-card {
+    background: var(--superficie);
+    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: var(--transition);
+}
+.exercicio-salvo-card:hover { border-color: rgba(165,65,255,.4); }
+.exercicio-salvo-card__topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.exercicio-salvo-card__info { flex: 1; min-width: 0; }
+.exercicio-salvo-card__titulo {
+    font-family: "Syne", sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.exercicio-salvo-card__meta { font-size: .8rem; color: var(--text-muted); margin-top: 2px; }
+.exercicio-salvo-card__badge {
+    background: rgba(165,65,255,.15);
+    color: var(--accent-lt);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.exercicio-salvo-card__acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.exercicio-salvo-card__acoes .dash-btn { padding: 8px 12px; font-size: .8rem; }
+.exercicio-salvo-card__acoes .dash-btn--outline { flex: 1; }
+.exercicio-salvo-card__acoes .dash-btn svg { width: 14px; height: 14px; }
+
 @media (max-width: 600px) {
     .gerador .dash-btn { width: 100%; justify-content: center; }
     .ex-rodape { flex-direction: column-reverse; align-items: stretch; }
@@ -302,6 +347,17 @@
 .ex-gerar-etapa { animation: fade-in .15s ease; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
+.ex-gerar-campos-dupla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.ex-gerar-questoes {
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
 .ex-gerar-preview-header {
     display: flex;
     justify-content: space-between;
@@ -312,7 +368,7 @@
     border-bottom: 1px solid rgba(165,65,255,.1);
 }
 .ex-gerar-preview-info strong { color: var(--text); font-size: 1rem; }
-.ex-gerar-preview-info span { display: block; margin-top: 2px; }
+.ex-gerar-preview-info span { display: block; margin-top: 2px; font-size: .8rem; color: var(--text-muted); }
 
 .dash-btn--sm { padding: 6px 12px; font-size: .8rem; }
 

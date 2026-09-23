@@ -354,6 +354,8 @@
 .modal__box--estreito { max-width: 380px; }
 /* o modal do cartão tem três botões: em tela estreita eles quebram a linha */
 .modal__actions { flex-wrap: wrap; }
+/* botão "Salvar e criar outro" sem ícone: o texto fica centralizado */
+#btnSalvarMais { justify-content: center; }
 .modal__texto {
     color: var(--text-dim);
     font-size: .95rem;

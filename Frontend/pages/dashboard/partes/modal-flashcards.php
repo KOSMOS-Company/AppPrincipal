@@ -70,7 +70,10 @@ if (!isset($USUARIO)) {
 
                     <div class="modal__actions">
                         <button type="button" class="dash-btn dash-btn--outline" id="gerarCancelar">Cancelar</button>
-                        <button type="submit" class="dash-btn dash-btn--primary" id="gerarSalvar" disabled>Criar cartões</button>
+                        <button type="submit" class="dash-btn dash-btn--primary" id="gerarSalvar" disabled>
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Criar cartões
+                        </button>
                     </div>
                 </form>
             </div>

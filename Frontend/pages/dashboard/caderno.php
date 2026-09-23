@@ -148,7 +148,7 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
             <!-- Estado vazio -->
             <div class="vazio" id="vazio"<?= $TOTAL > 0 ? ' hidden' : '' ?>>
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                <h3>Este caderno ainda está vazio</h3>
+                <h2>Este caderno ainda está vazio</h2>
                 <p>Escreva o primeiro tema, ou fotografe a página do seu caderno de papel e anexe aqui.</p>
             </div>
 <?php endif; ?>

@@ -312,6 +312,7 @@
     border: none;
     white-space: nowrap;
 }
+.onb-btn[hidden] { display: none; }
 
 .onb-btn--primary {
     background: linear-gradient(135deg, #9333ea, #7e22ce);

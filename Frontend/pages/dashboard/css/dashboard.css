@@ -703,11 +703,14 @@ progress::-webkit-progress-value {
     color: var(--text-muted);
 }
 .vazio svg { width: 48px; height: 48px; opacity: .5; margin-bottom: 16px; }
-.vazio h3 { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 6px; }
+.vazio h2 { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 6px; }
 .vazio p { font-size: .92rem; }
+.vazio--grande svg { width: 64px; height: 64px; opacity: .6; }
+.vazio--grande p { max-width: 40ch; margin: 0 auto; }
 
 /* Campos de formulário (reuso) */
 .campo { display: flex; flex-direction: column; gap: 7px; }
+.campo--estreito { max-width: 220px; }
 .campo label { font-size: .85rem; font-weight: 500; color: var(--text-dim); }
 .campo input, .campo select, .campo textarea {
     width: 100%;

@@ -35,7 +35,7 @@ if (!isset($USUARIO, $PREF)) {
                             <span class="campo__dica">Quanto mais específico, melhor a IA acerta no foco.</span>
                         </div>
 
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                        <div class="ex-gerar-campos-dupla">
                             <div class="campo">
                                 <label for="exGerarDificuldade">Dificuldade</label>
                                 <select id="exGerarDificuldade">
@@ -74,15 +74,15 @@ if (!isset($USUARIO, $PREF)) {
                         <div class="ex-gerar-preview-header">
                             <div class="ex-gerar-preview-info">
                                 <strong id="previewTitulo">Título</strong>
-                                <span id="previewMeta" style="font-size:.8rem;color:var(--text-muted);"></span>
+                                <span id="previewMeta"></span>
                             </div>
                             <button type="button" class="dash-btn dash-btn--ghost dash-btn--sm" id="btnVoltarConfig">
-                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true" style="margin-right:6px;"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 Ajustar
                             </button>
                         </div>
 
-                        <div class="ex-gerar-questoes" id="exGerarQuestoes" style="max-height:380px;overflow-y:auto;padding-right:4px;">
+                        <div class="ex-gerar-questoes" id="exGerarQuestoes">
                             <!-- Questões inseridas via JS -->
                         </div>
 
@@ -91,7 +91,7 @@ if (!isset($USUARIO, $PREF)) {
                         <div class="modal__actions">
                             <button type="button" class="dash-btn dash-btn--outline" id="exGerarCancelar2">Cancelar</button>
                             <button type="button" class="dash-btn dash-btn--primary" id="btnSalvarExercicio">
-                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 Salvar exercício
                             </button>
                         </div>

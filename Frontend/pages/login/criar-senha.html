@@ -12,67 +12,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-    <style>
-        /* Medidor de força — mesmas regras do cadastro (cadastro.css),
-           copiadas aqui para a página ficar autossuficiente. */
-        .senha-extra { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
-        .senha-barra {
-            height: 5px;
-            background: rgba(255,255,255,.07);
-            border-radius: 100px;
-            overflow: hidden;
-        }
-        .senha-barra__fill {
-            display: block;
-            height: 100%;
-            width: 0%;
-            border-radius: 100px;
-            background: #f87171;
-            transition: width .35s ease, background .35s ease;
-        }
-        .senha-reqs { display: flex; flex-wrap: wrap; gap: 6px; }
-        .senha-req {
-            font-size: .72rem;
-            color: var(--text-muted);
-            background: rgba(255,255,255,.05);
-            border: 1px solid rgba(255,255,255,.09);
-            padding: 3px 10px;
-            border-radius: 100px;
-        }
-        .senha-req.ok {
-            color: #34d399;
-            background: rgba(52,211,153,.12);
-            border-color: rgba(52,211,153,.3);
-        }
-
-        /* Aviso do topo: explica por que a tela apareceu */
-        .aviso-google {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 12px 14px;
-            font-size: .86rem;
-            line-height: 1.5;
-            color: var(--text-dim, #b8a8cc);
-            background: rgba(165,65,255,.08);
-            border: 1px solid rgba(165,65,255,.22);
-            border-radius: 12px;
-        }
-        .aviso-google svg { width: 18px; height: 18px; flex: 0 0 auto; margin-top: 1px; color: #a541ff; }
-
-        .acao-sair {
-            background: none;
-            border: none;
-            padding: 0;
-            font: inherit;
-            font-size: .85rem;
-            color: var(--text-muted, #7a6890);
-            cursor: pointer;
-            transition: color .25s ease;
-        }
-        .acao-sair:hover { color: #fff; }
-    </style>
     <link rel="stylesheet" href="../shared/cosmos.css">
 </head>
 <body>
@@ -83,13 +22,13 @@
     <canvas class="cosmos" id="cosmos" aria-hidden="true"></canvas>
     <div class="veu" aria-hidden="true"></div>
 
-    <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; position:relative; z-index:1;">
-        <div class="form-card" style="max-width:440px; width:100%;">
+    <div class="page--min">
+        <div class="form-card form-card--estreito">
             <div class="form-card__header">
                 <a href="../inicio/index.html" class="logo">
                     <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
                 </a>
-                <h2 class="form-card__title" style="margin-top:18px;">Crie sua senha</h2>
+                <h1 class="form-card__title form-card__title--espacado">Crie sua senha</h1>
                 <p class="form-card__sub" id="saudacao">Falta só um passo para terminar sua conta.</p>
             </div>
 

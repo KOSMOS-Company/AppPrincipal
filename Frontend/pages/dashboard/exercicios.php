@@ -102,7 +102,7 @@ function resumoDaEstanteExercicios(int $materias): string {
             <!-- Estado vazio: nenhuma matéria -->
             <div class="vazio" id="vazioMaterias"<?= $TOTAL_MATERIAS > 0 ? ' hidden' : '' ?>>
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Z" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v18M12 8h5M12 12h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                <h3>Nenhuma matéria por aqui</h3>
+                <h2>Nenhuma matéria por aqui</h2>
                 <p>Crie uma matéria para o conteúdo que você quer praticar e gere exercícios dentro dela.</p>
             </div>
         </main>
