@@ -47,6 +47,18 @@ if (!empty($PREF['avatar_url'])) {
                  na borda direita da barra (ver o CSS). Ficar ao lado da
                  marca a fazia disputar atenção com o próprio nome do app. -->
             <div class="contTopo">
+                <!-- Botão de ferramentas no mobile (posição azul no topo-esquerdo) -->
+                <?php $isFerramentasAtiva = in_array($PAGINA, ['pomodoro.php', 'flashcards.php', 'exercicios.php', 'provas.php'], true); ?>
+                <button type="button" class="topo-btn-ferramentas<?= $isFerramentasAtiva ? ' ativo' : '' ?>" id="btnMaisMobile"
+                        aria-label="Mais ferramentas" aria-haspopup="true" aria-expanded="false" title="Mais ferramentas">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
+                        <rect x="3" y="3" width="7" height="7" rx="1.8"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1.8"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1.8"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1.8"/>
+                    </svg>
+                </button>
+
                 <a class="contLogo" href="index.php">
                     <!-- Dois estados da marca, e o CSS escolhe qual aparece.
                          Aberta: a wordmark. Recolhida: o favicon — o mesmo
@@ -57,6 +69,9 @@ if (!empty($PREF['avatar_url'])) {
                     <img class="contLogo__icone" src="../shared/favicon.svg" alt="Kosmos"
                          width="34" height="34" decoding="async">
                 </a>
+
+                <!-- Espaçador óptico no mobile para manter o logo perfeitamente centralizado -->
+                <div class="topo-espacador-mobile" aria-hidden="true"></div>
             </div>
 
             <!-- Só no computador: no celular a navegação é a barra de baixo,
@@ -92,7 +107,7 @@ if (!empty($PREF['avatar_url'])) {
                     <span class="nav__rotulo">Orion <span class="nav__tag-ia">IA</span></span>
                 </a>
 
-                <a href="busca.php" data-rotulo="Buscar" class="nav-secundario-mobile"<?= navAtivo('busca.php', $PAGINA) ?>>
+                <a href="busca.php" data-rotulo="Buscar"<?= navAtivo('busca.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/><path d="M16 16 L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Buscar</span>
                 </a>
@@ -113,7 +128,7 @@ if (!empty($PREF['avatar_url'])) {
                 </a>
 
                 <span class="nav__grupo">Foco</span>
-                <a href="pomodoro.php" data-rotulo="Pomodoro"<?= navAtivo('pomodoro.php', $PAGINA) ?>>
+                <a href="pomodoro.php" data-rotulo="Pomodoro" class="nav-secundario-mobile"<?= navAtivo('pomodoro.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="nav__rotulo">Pomodoro</span>
                 </a>
@@ -124,18 +139,11 @@ if (!empty($PREF['avatar_url'])) {
                     <span class="nav__rotulo">Provas</span>
                 </a>
 
-                <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile -->
-                <a href="conta.php" data-rotulo="Conta" class="nav-secundario-mobile"<?= navAtivo('conta.php', $PAGINA) ?>>
+                <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile (posição amarela) -->
+                <a href="conta.php" data-rotulo="Conta" class="nav-somente-mobile"<?= navAtivo('conta.php', $PAGINA) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Conta</span>
                 </a>
-
-                <!-- No mobile: 5º botão limpo para abrir a gaveta de Mais Ferramentas -->
-                <?php $isSecundariaMobile = in_array($PAGINA, ['flashcards.php', 'exercicios.php', 'provas.php', 'busca.php', 'conta.php'], true); ?>
-                <button type="button" class="nav-btn-mais<?= $isSecundariaMobile ? ' ativo' : '' ?>" id="btnMaisMobile"
-                        aria-label="Mais ferramentas" aria-haspopup="true" aria-expanded="false" title="Mais ferramentas">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-                </button>
             </nav>
 
             <?php /* O rodapé faz DUAS coisas diferentes e agora elas estão
@@ -208,43 +216,44 @@ if (!empty($PREF['avatar_url'])) {
             <div class="sheet-painel" role="dialog" aria-labelledby="sheetMaisTitulo">
                 <div class="sheet-puxador"></div>
                 <div class="sheet-topo">
-                    <h3 class="sheet-titulo" id="sheetMaisTitulo">Mais Ferramentas</h3>
+                    <h3 class="sheet-titulo" id="sheetMaisTitulo">Outras Ferramentas</h3>
                     <button type="button" class="sheet-fechar" id="btnFecharSheetMais" aria-label="Fechar">✕</button>
                 </div>
                 <div class="sheet-grid">
+                    <a href="pomodoro.php" class="sheet-card<?= $PAGINA === 'pomodoro.php' ? ' ativo' : '' ?>">
+                        <span class="sheet-card__ico">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15"/></svg>
+                        </span>
+                        <div class="sheet-card__info">
+                            <strong>Pomodoro</strong>
+                            <span>Ciclos de foco e pausas</span>
+                        </div>
+                    </a>
                     <a href="flashcards.php" class="sheet-card<?= $PAGINA === 'flashcards.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">🎴</span>
+                        <span class="sheet-card__ico">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16"/></svg>
+                        </span>
                         <div class="sheet-card__info">
                             <strong>Flashcards</strong>
                             <span>Repetição espaçada</span>
                         </div>
                     </a>
                     <a href="exercicios.php" class="sheet-card<?= $PAGINA === 'exercicios.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">✍️</span>
+                        <span class="sheet-card__ico">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6 H20 M4 12 H20 M4 18 H14"/></svg>
+                        </span>
                         <div class="sheet-card__info">
                             <strong>Exercícios</strong>
                             <span>Simulados com IA</span>
                         </div>
                     </a>
                     <a href="provas.php" class="sheet-card<?= $PAGINA === 'provas.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">📅</span>
+                        <span class="sheet-card__ico">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+                        </span>
                         <div class="sheet-card__info">
                             <strong>Provas</strong>
                             <span>Contagem de dias</span>
-                        </div>
-                    </a>
-                    <a href="busca.php" class="sheet-card<?= $PAGINA === 'busca.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">🔍</span>
-                        <div class="sheet-card__info">
-                            <strong>Buscar</strong>
-                            <span>Pesquisa global</span>
-                        </div>
-                    </a>
-                    <a href="conta.php" class="sheet-card<?= $PAGINA === 'conta.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">⚙️</span>
-                        <div class="sheet-card__info">
-                            <strong>Conta</strong>
-                            <span>Perfil e ajustes</span>
                         </div>
                     </a>
                 </div>

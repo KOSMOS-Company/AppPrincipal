@@ -369,6 +369,13 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
    origem clássica de leitura duplicada.
    ════════════════════════════════════════════════════════════════ */
 @media (min-width: 769px) {
+    /* Elementos exclusivos do mobile (escondidos no desktop) */
+    .topo-btn-ferramentas,
+    .topo-espacador-mobile,
+    .botoesL a.nav-somente-mobile {
+        display: none !important;
+    }
+
     html.lateral-recolhida .contLateral {
         --lateral: 74px;
         padding-left: 12px;
@@ -907,7 +914,7 @@ progress::-webkit-progress-value {
         flex-direction: column;
     }
 
-    /* Topo: apenas o logo, centralizado e com respiro */
+    /* Topo: logo centralizado e botão de ferramentas à esquerda (posição azul) */
     .contLateral {
         position: static;          /* no desktop e sticky em coluna */
         z-index: auto;
@@ -919,18 +926,58 @@ progress::-webkit-progress-value {
         justify-content: center;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        padding: 16px 20px;
+        padding: 12px 18px;
         background: rgba(13,1,24,.95);
         backdrop-filter: none !important;        /* libera o position:fixed da barra p/ ancorar na viewport */
         -webkit-backdrop-filter: none !important;
     }
     .contTopo {
         margin: 0 !important;
-        display: flex;
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        position: relative;
+    }
+    /* Botão de Ferramentas no Topo (Posição Azul) */
+    .topo-btn-ferramentas {
+        display: flex !important;
         align-items: center;
         justify-content: center;
-        width: 100%;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(165, 65, 255, 0.22);
+        color: rgba(185, 145, 235, 0.85);
+        cursor: pointer;
+        padding: 0;
+        flex-shrink: 0;
+        transition: color .2s ease, border-color .2s ease, background .2s ease, transform .15s ease, box-shadow .2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
+    .topo-btn-ferramentas:active {
+        transform: scale(0.94);
+        background: rgba(165, 65, 255, 0.16);
+    }
+    .topo-btn-ferramentas.ativo {
+        color: var(--accent-lt);
+        border-color: var(--accent);
+        background: rgba(165, 65, 255, 0.14);
+        box-shadow: 0 0 16px rgba(165, 65, 255, 0.35);
+    }
+    .topo-btn-ferramentas svg {
+        width: 22px;
+        height: 22px;
+    }
+    .topo-espacador-mobile {
+        display: block !important;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        pointer-events: none;
+    }
+
     .contLogo {
         margin: 0 !important;
         text-align: center;
@@ -958,10 +1005,11 @@ progress::-webkit-progress-value {
     .nav__tag-ia,
     .contUsuario { display: none !important; }
 
-    /* Esconde os 5 itens secundários da barra inferior (vão para a gaveta Mais) */
+    /* Esconde os itens secundários da barra inferior (vão para a gaveta de Ferramentas) */
     .botoesL .nav-secundario-mobile { display: none !important; }
+    .botoesL .nav-somente-mobile    { display: flex !important; }
 
-    /* Nav vira barra inferior fixa e limpa */
+    /* Nav vira barra inferior fixa e limpa com os 5 botões fundamentais */
     .botoesL {
         position: fixed;
         bottom: 0; left: 0; right: 0;
@@ -977,8 +1025,7 @@ progress::-webkit-progress-value {
         -webkit-backdrop-filter: blur(20px);
         border-top: 1px solid var(--border);
     }
-    .botoesL a,
-    .botoesL .nav-btn-mais {
+    .botoesL a {
         font-size: 0;                 /* esconde qualquer texto residual */
         flex: 1 1 0;                  /* cada item ocupa uma fatia igual da barra */
         max-width: 58px;
@@ -994,40 +1041,44 @@ progress::-webkit-progress-value {
         cursor: pointer;
         position: relative;
         transition: color .2s ease, transform .2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
-    /* Ordem balanceada: Início (1), Biblioteca (2), Orion no Centro (3), Pomodoro (4), Mais (5) */
+    .botoesL a:active {
+        transform: scale(0.92);
+    }
+    /* Ordem mobile da barra inferior:
+       1: Início
+       2: Biblioteca (Resumos)
+       3: Orion IA (Centro)
+       4: Buscar (Posição Vermelha)
+       5: Conta (Posição Amarela) */
     .botoesL a[href="index.php"]     { order: 1; }
     .botoesL a[href="resumos.php"]   { order: 2; }
     .botoesL a[href="orion.php"]     { order: 3; }
-    .botoesL a[href="pomodoro.php"]  { order: 4; }
-    .botoesL .nav-btn-mais           { order: 5; }
+    .botoesL a[href="busca.php"]     { order: 4; }
+    .botoesL a[href="conta.php"]     { order: 5; }
 
-    .botoesL a .nav-icon,
-    .botoesL .nav-btn-mais svg {
+    .botoesL a .nav-icon {
         width: 23px;
         height: 23px;
         color: inherit;
         opacity: 0.8;
         transition: all .2s ease;
     }
-    .botoesL a:hover,
-    .botoesL .nav-btn-mais:hover {
+    .botoesL a:hover {
         color: #ffffff;
         transform: translateY(-1px);
     }
-    .botoesL a:hover .nav-icon,
-    .botoesL .nav-btn-mais:hover svg {
+    .botoesL a:hover .nav-icon {
         opacity: 1;
         color: #ffffff;
     }
     /* Item ativo: ícone destacado com neon roxo cósmico, sem linhas soltas e sem patches escuros */
-    .botoesL a.active,
-    .botoesL .nav-btn-mais.ativo {
+    .botoesL a.active {
         color: var(--accent-lt) !important;
         background: transparent !important;
     }
-    .botoesL a.active .nav-icon,
-    .botoesL .nav-btn-mais.ativo svg {
+    .botoesL a.active .nav-icon {
         opacity: 1;
         color: var(--accent-lt);
         filter: drop-shadow(0 0 8px rgba(165, 65, 255, 0.95)) drop-shadow(0 0 16px rgba(201, 124, 255, 0.7));
@@ -1126,8 +1177,26 @@ progress::-webkit-progress-value {
         border-color: #a541ff;
     }
     .sheet-card__ico {
-        font-size: 1.35rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(165, 65, 255, 0.12);
+        color: var(--accent-lt);
         flex-shrink: 0;
+        transition: background .18s ease, color .18s ease;
+    }
+    .sheet-card__ico svg {
+        width: 22px;
+        height: 22px;
+        color: currentColor;
+    }
+    .sheet-card:hover .sheet-card__ico,
+    .sheet-card.ativo .sheet-card__ico {
+        background: rgba(165, 65, 255, 0.25);
+        color: #fff;
     }
     .sheet-card__info {
         display: flex;
