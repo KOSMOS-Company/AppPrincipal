@@ -8,8 +8,8 @@
 .pomo-selo {
     position: fixed;
     right: 24px;
-    bottom: 24px;
-    z-index: 60;
+    bottom: 88px; /* Posicionado com folga acima do botão flutuante do Orion */
+    z-index: 850;
 
     display: flex;
     align-items: center;
@@ -88,12 +88,13 @@
     70%, 100% { box-shadow: 0 0 0 12px rgba(165, 65, 255, 0); }
 }
 
-/* No mobile a navegação é uma barra fixa embaixo: sobe o selo. */
+/* No mobile a navegação é uma barra fixa embaixo: sobe o selo acima do botão do Orion. */
 @media (max-width: 768px) {
     .pomo-selo {
-        right: 14px;
-        bottom: calc(84px + env(safe-area-inset-bottom));
+        right: 16px;
+        bottom: calc(140px + env(safe-area-inset-bottom));
         padding: 10px 15px 10px 13px;
+        z-index: 850;
     }
     .pomo-selo__tempo { font-size: .95rem; }
 }

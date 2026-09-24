@@ -20,10 +20,10 @@
 .klogo__o {
     position: relative;
     display: inline-block;
-    width: .62em;
-    height: .62em;
-    margin: 0 .03em;
-    transform: translateY(.065em);   /* senta na altura-x da Syne */
+    width: .64em;
+    height: .64em;
+    margin: 0 .14em;                 /* Respiro essencial para o anel inclinado não cortar o K nem o s */
+    transform: translateY(.075em);   /* senta na altura-x da Syne */
 }
 
 /* Planeta (mesmo gradiente do favicon/intro) */

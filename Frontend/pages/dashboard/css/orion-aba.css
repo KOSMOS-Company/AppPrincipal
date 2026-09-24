@@ -1,0 +1,581 @@
+/* ============================================================
+   KOSMOS — orion-aba.css
+   Layout e interface de Chatbot normal para o Orion.
+   - Zero rolagem de janela / body.
+   - Header fixo com identificação limpa.
+   - Área central com overflow-y: auto para mensagens e hero inicial.
+   - Barra de input FIXA no rodapé (sem saltos de tela ao digitar).
+   ============================================================ */
+
+/* Container geral da página do Orion dentro de .contMeio */
+.contMeio:has(.orion-chat-app) {
+    padding: 0 !important;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.orion-chat-app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+}
+
+/* ── 1. HEADER FIXO DO CHATBOT ── */
+.orion-chat-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(13, 1, 24, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    z-index: 15;
+}
+
+.orion-chat-header__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.orion-chat-header__avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(30, 6, 54, 0.85);
+    border: 1.5px solid rgba(165, 65, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(165, 65, 255, 0.3);
+}
+
+.orion-chat-header__avatar .mascote {
+    --mascote-tam: 34px;
+    width: 34px;
+    height: 34px;
+}
+
+.orion-chat-header__textos {
+    display: flex;
+    flex-direction: column;
+}
+
+.orion-chat-header__titulo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.orion-chat-header__tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+}
+
+.orion-chat-header__status {
+    font-size: 0.76rem;
+    color: #34d399;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.orion-chat-header__status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 6px #34d399;
+}
+
+.orion-chat-header__btn-limpar {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(165, 65, 255, 0.22);
+    color: var(--text-dim);
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all .2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.orion-chat-header__btn-limpar:hover {
+    color: #ff7676;
+    border-color: rgba(255, 118, 118, 0.4);
+    background: rgba(255, 118, 118, 0.1);
+}
+
+/* ── 2. ÁREA CENTRAL ROLÁVEL (MENSAGENS & PALCO INICIAL) ── */
+.orion-chat-corpo {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px 24px 16px;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+    position: relative;
+}
+
+/* Barra de rolagem estilizada */
+.orion-chat-corpo::-webkit-scrollbar {
+    width: 6px;
+}
+.orion-chat-corpo::-webkit-scrollbar-track {
+    background: transparent;
+}
+.orion-chat-corpo::-webkit-scrollbar-thumb {
+    background: rgba(165, 65, 255, 0.25);
+    border-radius: 10px;
+}
+.orion-chat-corpo::-webkit-scrollbar-thumb:hover {
+    background: rgba(165, 65, 255, 0.5);
+}
+
+/* Palco Inicial (quando ainda não há conversa ativa) */
+.orion-hero-inicial {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: 820px;
+    margin: auto auto;
+    width: 100%;
+    padding: 20px 0;
+    animation: orion-hero-entra .3s ease-out;
+}
+
+@keyframes orion-hero-entra {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.orion-hero-mascote-box {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.orion-hero-mascote-box::before {
+    content: "";
+    position: absolute;
+    inset: -16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(165, 65, 255, 0.3) 0%, rgba(130, 0, 219, 0.1) 60%, transparent 80%);
+    filter: blur(14px);
+    animation: orion-halo-pulsa 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.orion-hero-mascote-box .mascote {
+    --mascote-tam: 120px;
+    width: 120px;
+    height: 120px;
+    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 25px rgba(165, 65, 255, 0.35));
+    animation: orion-flutua-suave 4s ease-in-out infinite;
+}
+
+@keyframes orion-halo-pulsa {
+    0%, 100% { transform: scale(0.95); opacity: 0.6; }
+    50%      { transform: scale(1.12); opacity: 0.95; }
+}
+
+@keyframes orion-flutua-suave {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+/* Escrita limpa da tag (sem pílula, conforme pedido do usuário) */
+.orion-hero-inicial .section-tag {
+    margin-bottom: 8px;
+    display: inline-block;
+}
+
+.orion-hero-titulo {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.15rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin: 0 0 10px;
+    letter-spacing: -.02em;
+}
+
+.orion-hero-titulo .h-nome {
+    background: linear-gradient(135deg, #c97cff 0%, #a541ff 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 14px rgba(165, 65, 255, 0.5));
+}
+
+.orion-hero-desc {
+    font-size: 0.96rem;
+    color: var(--text-dim);
+    max-width: 540px;
+    line-height: 1.55;
+    margin: 0 auto 28px;
+}
+
+/* Cards de Sugestões de Estudo */
+.orion-sugestoes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.orion-card-sugestao {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 14px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(165, 65, 255, 0.22);
+    border-radius: 16px;
+    color: var(--text-dim);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.86rem;
+    line-height: 1.4;
+    transition: all .2s cubic-bezier(.2, .8, .2, 1);
+    backdrop-filter: blur(8px);
+}
+
+.orion-card-sugestao:hover {
+    background: rgba(165, 65, 255, 0.14);
+    border-color: var(--accent);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 16px rgba(165, 65, 255, 0.25);
+}
+
+.orion-card-sugestao__ico {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.orion-card-sugestao strong {
+    display: block;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.orion-card-sugestao span {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+}
+
+/* Área de Mensagens (quando há conversa) */
+.orion-lista-mensagens {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    padding-bottom: 20px;
+}
+
+.orion-msg-row {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    animation: orion-msg-surgir .25s ease-out;
+}
+
+@keyframes orion-msg-surgir {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.orion-msg-row--usuario {
+    justify-content: flex-end;
+}
+
+.orion-msg-row--orion {
+    justify-content: flex-start;
+}
+
+.orion-msg-avatar {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(30, 6, 54, 0.85);
+    border: 1.5px solid rgba(165, 65, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(165, 65, 255, 0.35);
+}
+
+.orion-msg-avatar .mascote {
+    --mascote-tam: 34px;
+    width: 34px;
+    height: 34px;
+}
+
+.orion-msg-balao {
+    max-width: 80%;
+    padding: 14px 18px;
+    border-radius: 20px;
+    font-size: 0.94rem;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.orion-msg-row--usuario .orion-msg-balao {
+    background: linear-gradient(135deg, rgba(130, 0, 219, 0.5) 0%, rgba(75, 10, 120, 0.6) 100%);
+    border: 1px solid rgba(165, 65, 255, 0.45);
+    border-bottom-right-radius: 6px;
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.orion-msg-row--orion .orion-msg-balao {
+    background: rgba(22, 4, 38, 0.88);
+    border: 1px solid rgba(165, 65, 255, 0.28);
+    border-bottom-left-radius: 6px;
+    color: #f1ebff;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+
+.orion-msg-balao p { margin: 0 0 10px; }
+.orion-msg-balao p:last-child { margin-bottom: 0; }
+.orion-msg-balao ul,
+.orion-msg-balao ol { margin: 8px 0 10px; padding-left: 20px; }
+.orion-msg-balao li { margin-bottom: 6px; }
+
+/* Indicador de digitação */
+.orion-digitando-balao {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 18px;
+    background: rgba(22, 4, 38, 0.85);
+    border: 1px solid rgba(165, 65, 255, 0.25);
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+    margin-left: 52px;
+}
+
+.orion-digitando-balao span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: orion-ponto-saltar 1.3s infinite ease-in-out;
+}
+
+.orion-digitando-balao span:nth-child(2) { animation-delay: .2s; }
+.orion-digitando-balao span:nth-child(3) { animation-delay: .4s; }
+
+@keyframes orion-ponto-saltar {
+    0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+    30%           { transform: translateY(-5px); opacity: 1; filter: drop-shadow(0 0 4px #a541ff); }
+}
+
+/* ── 3. BARRA DE INPUT FIXA NO RODAPÉ (ESTILO CHAT BOT NORMAL) ── */
+.orion-chat-rodape {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 14px 24px 20px;
+    background: rgba(13, 1, 24, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(165, 65, 255, 0.2);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.orion-chat-form {
+    width: 100%;
+    max-width: 820px;
+    display: flex;
+    align-items: center;
+    background: rgba(22, 4, 38, 0.85);
+    border: 1.5px solid rgba(165, 65, 255, 0.45);
+    border-radius: 20px;
+    padding: 6px 10px 6px 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(130, 0, 219, 0.2);
+    transition: all .2s ease;
+}
+
+.orion-chat-form:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), 0 0 30px rgba(165, 65, 255, 0.45);
+}
+
+.orion-chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: #fff;
+    line-height: 1.4;
+    resize: none;
+    height: 42px;
+    max-height: 120px;
+    padding: 10px 0;
+    overflow-y: hidden;
+}
+
+.orion-chat-input::placeholder {
+    color: rgba(185, 160, 215, 0.6);
+}
+
+.orion-chat-btn-enviar {
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #a541ff, #7203bd);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: 8px;
+    box-shadow: 0 4px 14px rgba(165, 65, 255, 0.45);
+    transition: all .2s ease;
+}
+
+.orion-chat-btn-enviar svg {
+    width: 18px;
+    height: 18px;
+    margin-left: 2px;
+}
+
+.orion-chat-btn-enviar:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 20px rgba(165, 65, 255, 0.7);
+    background: linear-gradient(135deg, #c97cff, #8200db);
+}
+
+.orion-chat-btn-enviar:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.orion-chat-rodape__info {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-align: center;
+}
+
+/* ── RESPONSIVIDADE MOBILE ── */
+@media (max-width: 768px) {
+    .contMeio:has(.orion-chat-app) {
+        height: calc(100vh - 58px);
+        max-height: calc(100vh - 58px);
+    }
+    .orion-chat-app {
+        height: calc(100vh - 58px);
+        max-height: calc(100vh - 58px);
+    }
+    .orion-chat-header {
+        padding: 12px 16px;
+    }
+    .orion-chat-header__avatar {
+        width: 32px;
+        height: 32px;
+    }
+    .orion-chat-header__avatar .mascote {
+        --mascote-tam: 28px;
+        width: 28px;
+        height: 28px;
+    }
+    .orion-chat-header__titulo {
+        font-size: 0.94rem;
+    }
+    .orion-chat-corpo {
+        padding: 16px 14px 12px;
+    }
+    .orion-hero-mascote-box {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 10px;
+    }
+    .orion-hero-mascote-box .mascote {
+        --mascote-tam: 90px;
+        width: 90px;
+        height: 90px;
+    }
+    .orion-hero-titulo {
+        font-size: 1.55rem;
+    }
+    .orion-hero-desc {
+        font-size: 0.86rem;
+        margin-bottom: 20px;
+    }
+    .orion-sugestoes-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .orion-chat-rodape {
+        /* Fica logo acima da barra inferior de navegação móvel */
+        padding: 8px 12px calc(70px + env(safe-area-inset-bottom));
+        border-top: 1px solid rgba(165, 65, 255, 0.2);
+    }
+    .orion-chat-form {
+        padding: 4px 6px 4px 14px;
+        border-radius: 16px;
+    }
+    .orion-chat-input {
+        font-size: 0.92rem;
+        height: 38px;
+    }
+    .orion-chat-btn-enviar {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+    .orion-msg-balao {
+        max-width: 88%;
+        font-size: 0.88rem;
+        padding: 10px 14px;
+    }
+    .orion-digitando-balao {
+        margin-left: 44px;
+        padding: 10px 14px;
+    }
+}

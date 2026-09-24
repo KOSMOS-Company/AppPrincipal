@@ -103,21 +103,21 @@
             fala: 'A Kosmos é seu QG de estudos: resumos, flashcards, pomodoro, exercícios com IA — tudo num lugar só, 100% grátis.',
             fazer: function () {
                 orion.fecharOlhos(false);
-                orion.humor('feliz');
+                orion.humor('comemorando');
             }
         },
         biblioteca: {
             fala: 'Na Biblioteca você organiza cadernos por matéria. Pode digitar ou só fotografar as páginas do seu caderno de papel.',
             fazer: function () {
                 orion.fecharOlhos(false);
-                orion.humor('normal');
+                orion.humor('curioso');
             }
         },
         revisao: {
             fala: 'Nos Flashcards você vira o cartão, testa a memória e diz se acertou. O resto — repetição espaçada, estatísticas — eu cuido.',
             fazer: function () {
                 orion.fecharOlhos(false);
-                orion.humor('normal');
+                orion.humor('pensativo');
                 orion.piscar();
             }
         },
@@ -125,13 +125,13 @@
             fala: 'Pomodoro: 25 min de foco, 5 de pausa. Eu conto o tempo e te aviso quando acaba. Sem celular na mão, só estudo.',
             fazer: function () {
                 orion.fecharOlhos(false);
-                orion.humor('normal');
+                orion.humor('foco');
             }
         },
         junto: {
             fala: 'Tô do seu lado em tudo. Na hora da senha, tapo os olhos — sua privacidade vem primeiro.',
             fazer: function () {
-                orion.humor('normal');
+                orion.humor('timido');
                 orion.fecharOlhos(true);
             }
         },

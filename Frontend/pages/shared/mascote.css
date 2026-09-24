@@ -1,10 +1,18 @@
 /* ══════════════════════════════════════════════════════════════
-   MASCOTE KOSMOS — planetinha acadêmico (Render 3D Fiel)
-   Recriado 100% em código puro (SVG vetorial + gradientes volumétricos 3D).
-   Fiel à arte de referência: capelo 3D chanfrado com rim light, óculos
-   volumétricos, anel cósmico 3D e borla dourada pendular.
-
-   Zero imagens externas (PNG/JPG). Escalável e interativo.
+   MASCOTE KOSMOS (ORION) — Sistema Completo de Expressões & Emoções
+   100% em código puro (SVG volumétrico 3D + CSS interativo).
+   
+   Emoções Suportadas:
+     .mascote--normal       → atento, simpático, repouso
+     .mascote--feliz        → sorriso aberto e acolhedor
+     .mascote--curioso      → sobrancelha arqueada, olhar analítico
+     .mascote--foco         → sobrancelhas firmes, olhar resoluto
+     .mascote--comemorando  → olhinhos em arco, sorrisão de vitória
+     .mascote--pensativo    → olhar para cima, formulando raciocínio
+     .mascote--sono         → pálpebras em descanso, Zzz flutuantes
+     .mascote--timido       → blush rosado nas bochechas, olhar de lado
+     .mascote--confuso      → boca ondulada, interrogações e tontura
+     .mascote--surpreso     → boca aberta em O, olhos arregalados
    ══════════════════════════════════════════════════════════════ */
 
 .mascote {
@@ -14,6 +22,7 @@
     transition: transform .32s cubic-bezier(.4, 0, .2, 1);
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    position: relative;
 }
 
 .mascote__svg {
@@ -45,7 +54,7 @@
 
 /* ── Olhos & Pálpebras 3D ── */
 .mascote__pupila {
-    transition: transform .09s ease-out;
+    transition: transform .1s ease-out;
 }
 
 .mascote__palpebra {
@@ -60,17 +69,31 @@
     transform: scaleY(1);
 }
 
-/* ── Sobrancelhas ── */
-.mascote__sobrancelhas {
-    transition: transform .26s cubic-bezier(.34, 1.56, .64, 1);
+/* ── Sobrancelhas Dinâmicas ── */
+.mascote__cenha {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform .25s cubic-bezier(.34, 1.56, .64, 1);
 }
-.mascote--feliz .mascote__sobrancelhas {
-    transform: translateY(-3px);
-}
+
+.mascote--feliz .mascote__cenha { transform: translateY(-3px); }
+.mascote--surpreso .mascote__cenha { transform: translateY(-6px); }
+.mascote--curioso .mascote__cenha--esq { transform: translateY(-5px) rotate(-6deg); }
+.mascote--curioso .mascote__cenha--dir { transform: translateY(2px) rotate(4deg); }
+.mascote--pensativo .mascote__cenha--esq { transform: translateY(-4px) rotate(-4deg); }
+.mascote--foco .mascote__cenha--esq,
+.mascote--determinado .mascote__cenha--esq { transform: translateY(3px) rotate(11deg); }
+.mascote--foco .mascote__cenha--dir,
+.mascote--determinado .mascote__cenha--dir { transform: translateY(3px) rotate(-11deg); }
 
 /* ── Bocas ── */
 .mascote__boca--feliz,
-.mascote__boca--confusa {
+.mascote__boca--confusa,
+.mascote__boca--curiosa,
+.mascote__boca--foco,
+.mascote__boca--aberta,
+.mascote__boca--surpresa,
+.mascote__boca--sono {
     display: none;
 }
 
@@ -80,13 +103,83 @@
 .mascote--confuso .mascote__boca--padrao { display: none; }
 .mascote--confuso .mascote__boca--confusa { display: block; }
 
-/* ── Humor confuso (404) ── */
+.mascote--curioso .mascote__boca--padrao { display: none; }
+.mascote--curioso .mascote__boca--curiosa { display: block; }
+
+.mascote--foco .mascote__boca--padrao,
+.mascote--determinado .mascote__boca--padrao { display: none; }
+.mascote--foco .mascote__boca--foco,
+.mascote--determinado .mascote__boca--foco { display: block; }
+
+.mascote--comemorando .mascote__boca--padrao,
+.mascote--vitoria .mascote__boca--padrao { display: none; }
+.mascote--comemorando .mascote__boca--aberta,
+.mascote--vitoria .mascote__boca--aberta { display: block; }
+
+.mascote--surpreso .mascote__boca--padrao { display: none; }
+.mascote--surpreso .mascote__boca--surpresa { display: block; }
+
+.mascote--sono .mascote__boca--padrao,
+.mascote--descanso .mascote__boca--padrao { display: none; }
+.mascote--sono .mascote__boca--sono,
+.mascote--descanso .mascote__boca--sono { display: block; }
+
+/* ── Olhos em Arco para Comemoração / Vitória ── */
+.mascote__olhos-arco { display: none; }
+.mascote--comemorando .mascote__olho,
+.mascote--vitoria .mascote__olho { display: none; }
+.mascote--comemorando .mascote__olhos-arco,
+.mascote--vitoria .mascote__olhos-arco { display: block; }
+
+.mascote--comemorando,
+.mascote--vitoria {
+    animation: mascotePulaVitoria 1.6s ease-in-out infinite;
+}
+.mascote--comemorando .mascote__capelo,
+.mascote--vitoria .mascote__capelo {
+    transform: rotate(-16deg) translateY(-6px);
+}
+
+/* ── Olhos Pensativos / Foco / Tímido ── */
+.mascote--pensativo .mascote__pupila {
+    transform: translate(2.8px, -2.8px) !important;
+}
+.mascote--timido .mascote__pupila {
+    transform: translate(-2.2px, 2.2px) !important;
+}
+
+/* ── Blush nas Bochechas (Tímido / Envergonhado) ── */
+.mascote__blush {
+    transition: opacity .3s ease;
+    pointer-events: none;
+}
+.mascote--timido .mascote__blush {
+    opacity: 0.55 !important;
+}
+
+/* ── Sono / Descanso (Pausa do Pomodoro) ── */
+.mascote--sono .mascote__palpebra,
+.mascote--descanso .mascote__palpebra {
+    transform: scaleY(0.55);
+}
+.mascote__sono { display: none; }
+.mascote--sono .mascote__sono,
+.mascote--descanso .mascote__sono { display: block; }
+.mascote__z {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    fill: #c97cff;
+    animation: mascoteZzz 2.6s ease-in-out infinite;
+    animation-delay: var(--d, 0s);
+}
+
+/* ── Confuso (404) ── */
 .mascote__duvidas { display: none; }
 .mascote--confuso .mascote__duvidas { display: block; }
 .mascote--confuso .mascote__svg {
     animation: mascoteTonto 4.8s ease-in-out infinite;
 }
-
 .mascote__duvida {
     font-family: 'Syne', sans-serif;
     font-size: 22px;
@@ -113,6 +206,12 @@
     50%      { transform: translateY(-7px) rotate(0.8deg); }
 }
 
+@keyframes mascotePulaVitoria {
+    0%, 100% { transform: translateY(0) scale(1); }
+    40%      { transform: translateY(-10px) scale(1.05); }
+    70%      { transform: translateY(2px) scale(0.98); }
+}
+
 @keyframes mascoteBorla {
     0%, 100% { transform: rotate(-6deg); }
     50%      { transform: rotate(6deg); }
@@ -135,7 +234,14 @@
     100% { transform: translateY(-16px) scale(1.05); opacity: 0; }
 }
 
-/* ══════════════ ACESSIBILIDADE / REDUCED MOTION ══════════════ */
+@keyframes mascoteZzz {
+    0%   { transform: translateY(4px) scale(.6); opacity: 0; }
+    35%  { opacity: 1; }
+    75%  { opacity: 1; }
+    100% { transform: translateY(-18px) scale(1.1); opacity: 0; }
+}
+
+/* ══════════════ ACESSIBILIDADE ══════════════ */
 @media (prefers-reduced-motion: reduce) {
     .mascote,
     .mascote__svg,
@@ -143,6 +249,7 @@
     .mascote__borla,
     .mascote__estrela,
     .mascote__duvida,
+    .mascote__z,
     .mascote--confuso .mascote__svg {
         animation: none !important;
         transition: none !important;
