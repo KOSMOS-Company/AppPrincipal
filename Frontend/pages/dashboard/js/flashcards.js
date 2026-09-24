@@ -440,16 +440,12 @@
 
         const materia = $("#materiaDeck");
         if (deck) {
-            // baralho antigo pode ter matéria fora da lista: cria a opção
-            // na hora para não perder o valor ao editar
-            if (deck.materia && ![...materia.options].some((o) => o.value === deck.materia)) {
-                materia.add(new Option(deck.materia, deck.materia));
-            }
-            materia.value = deck.materia;
+            // campo livre: qualquer matéria (inclusive a de baralho
+            // antigo, fora da lista) entra direto no input
+            materia.value = deck.materia || "";
         } else {
-            // começa na matéria favorita, se houver alguma marcada na Conta
-            const favorita = materia.querySelector("option[data-favorita]");
-            if (favorita) materia.value = favorita.value;
+            // vazio: quem cria o baralho é que escolhe a matéria
+            materia.value = "";
         }
 
         abrirModal(modalDeck, $("#nomeDeck"));

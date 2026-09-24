@@ -194,6 +194,7 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
     <script src="./js/dashboard.js"></script>
     <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/resumo-mover.js"></script>
+    <script src="./js/combo-materia.js"></script>
     <script src="./js/caderno-form.js"></script>
     <script src="./js/resumo-form.js"></script>
     <!-- antes do caderno.js: é ele que pergunta se o módulo existe

@@ -156,6 +156,7 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
 
     <script src="./js/dashboard.js"></script>
     <script src="./js/pomodoro-aviso.js"></script>
+    <script src="./js/combo-materia.js"></script>
     <script src="./js/exercicio-materia-form.js"></script>
     <script src="./js/exercicio-gerar-form.js"></script>
     <script src="./js/exercicio-praticar.js"></script>

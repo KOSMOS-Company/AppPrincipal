@@ -131,6 +131,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
     <script src="./js/dashboard.js"></script>
     <script src="./js/pomodoro-aviso.js"></script>
+    <script src="./js/combo-materia.js"></script>
     <script src="./js/provas.js"></script>
     <script src="./js/cursor.js"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta

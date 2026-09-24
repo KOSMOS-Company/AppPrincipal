@@ -41,6 +41,7 @@
         // prévia ao vivo
         el("exercicioMateriaNome")?.addEventListener("input", pintarPrevia);
         el("exercicioMateriaDescricao")?.addEventListener("input", pintarPrevia);
+        el("exercicioMateriaMateria")?.addEventListener("input", pintarPrevia);
         el("exercicioMateriaMateria")?.addEventListener("change", pintarPrevia);
 
         el("exercicioMateriaCores")?.addEventListener("click", (e) => {
@@ -50,6 +51,9 @@
             marcarEscolhido(el("exercicioMateriaCores"), botao);
             pintarPrevia();
         });
+
+        // grade de ícones guardada: abre só quando pede
+        el("exercicioMateriaIconesAbrir")?.addEventListener("click", alternarIcones);
 
         el("exercicioMateriaIcones")?.addEventListener("click", (e) => {
             const botao = e.target.closest("[data-icone]");
@@ -90,18 +94,16 @@
             el("exercicioMateriaSalvar").textContent = "Criar matéria";
             el("exercicioMateriaId").value = "";
             nome.value = "";
+            materiaSelect.value = "";   // vazio: quem cria escolhe a matéria
             desc.value = "";
             cor        = "roxo";
             icone      = "";
             el("exercicioMateriaApagar").hidden = true;
-
-            // começa na matéria favorita, se houver alguma marcada na Conta
-            const favorita = materiaSelect.querySelector("option[data-favorita]");
-            if (favorita) materiaSelect.value = favorita.value;
         }
 
         marcarEscolhido(el("exercicioMateriaCores"), el("exercicioMateriaCores")?.querySelector(`[data-cor="${cor}"]`));
         marcarEscolhido(el("exercicioMateriaIcones"), el("exercicioMateriaIcones")?.querySelector(`[data-icone="${cssEscape(icone)}"]`));
+        guardarLayoutIcones();   // modal abre com a grade guardada
         pintarPrevia();
 
         modal.classList.add("open");
@@ -116,6 +118,30 @@
     /* ------------------------------------------------------------
        Escolhas (cor e ícone)
        ------------------------------------------------------------ */
+
+    /* A grade de ícones fica guardada atrás do botão: a lista
+       inteira de uma vez poluem o modal — quem quer um, abre. */
+    function alternarIcones() {
+        const grade = el("exercicioMateriaIcones");
+        const botao = el("exercicioMateriaIconesAbrir");
+        if (!grade || !botao) return;
+        const abrindo = grade.hidden;
+        grade.hidden = !abrindo;
+        botao.setAttribute("aria-expanded", String(abrindo));
+        botao.textContent = abrindo ? "Fechar ícones" : "Escolher ícone";
+    }
+
+    /** Toda vez que o modal abre, a grade volta a ficar guardada. */
+    function guardarLayoutIcones() {
+        const grade = el("exercicioMateriaIcones");
+        const botao = el("exercicioMateriaIconesAbrir");
+        if (grade) grade.hidden = true;
+        if (botao) {
+            botao.setAttribute("aria-expanded", "false");
+            botao.textContent = "Escolher ícone";
+        }
+    }
+
     function marcarEscolhido(grupo, botao) {
         if (!grupo) return;
         grupo.querySelectorAll("[role='radio']").forEach((b) => {

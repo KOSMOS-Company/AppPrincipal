@@ -54,11 +54,15 @@ if (!isset($USUARIO, $PREF)) {
 
                     <div class="campo">
                         <label for="cadernoMateria">Matéria</label>
-                        <select id="cadernoMateria" required>
+                        <!-- input+datalist: escolhe da lista OU digita a sua -->
+                        <input id="cadernoMateria" type="text" list="listaMateriasCaderno"
+                               maxlength="40" required autocomplete="off"
+                               placeholder="Ex: Biologia (ou escreva a sua)">
+                        <datalist id="listaMateriasCaderno">
 <?php foreach (MATERIAS_KOSMOS as $m): ?>
-                            <option value="<?= hesc($m) ?>"<?= in_array($m, $PREF['materias'], true) ? ' data-favorita="1"' : '' ?>><?= hesc($m) ?></option>
+                            <option value="<?= hesc($m) ?>"<?= in_array($m, $PREF['materias'], true) ? ' data-favorita="1"' : '' ?>></option>
 <?php endforeach; ?>
-                        </select>
+                        </datalist>
                         <span class="campo__dica">Os resumos deste caderno vão herdar esta matéria.</span>
                     </div>
 
@@ -85,7 +89,12 @@ if (!isset($USUARIO, $PREF)) {
                     <!-- ---------- Ícone ---------- -->
                     <fieldset class="campo cad-escolha">
                         <legend>Ícone <span class="campo__opcional">(opcional)</span></legend>
-                        <div class="cad-icones" id="cadIcones" role="radiogroup" aria-label="Ícone do caderno">
+                        <!-- A grade fica guardada atrás do botão: a lista
+                             inteira de uma vez poluem o modal. -->
+                        <button type="button" class="cad-icone-abrir" id="cadIconesAbrir"
+                                aria-expanded="false" aria-controls="cadIcones">Escolher ícone</button>
+                        <div class="cad-icones" id="cadIcones" role="radiogroup"
+                             aria-label="Ícone do caderno" hidden>
                             <button type="button" class="cad-icone cad-icone--nenhum" data-icone=""
                                     role="radio" aria-checked="true" title="Sem ícone" aria-label="Sem ícone">—</button>
 <?php foreach (ICONES_CADERNO_KOSMOS as $ic): ?>

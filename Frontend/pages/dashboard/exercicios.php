@@ -117,6 +117,7 @@ function resumoDaEstanteExercicios(int $materias): string {
 
     <script src="./js/dashboard.js"></script>
     <script src="./js/pomodoro-aviso.js"></script>
+    <script src="./js/combo-materia.js"></script>
     <script src="./js/exercicio-materia-form.js"></script>
     <script src="./js/exercicios.js"></script>
     <script src="./js/cursor.js"></script>

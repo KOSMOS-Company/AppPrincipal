@@ -7,10 +7,38 @@
 //  existia solta no endpoint e o HTML era montado por JS.
 // ============================================================
 
+/* Em ordem alfabética (sem considerar acento): é ela que os
+   dropdowns de Matéria, os chips da Conta e o onboarding desenham,
+   na mesma ordem em todo o app. */
 const MATERIAS_KOSMOS = [
-    'Matemática', 'Física', 'Química', 'Biologia', 'História', 'Português',
-    'Geografia', 'Filosofia', 'Sociologia', 'Inglês', 'Redação',
+    'Biologia', 'Filosofia', 'Física', 'Geografia', 'História', 'Inglês',
+    'Literatura', 'Matemática', 'Português', 'Química', 'Redação',
+    'Sociologia',
 ];
+
+/**
+ * Aceita matéria pré-definida OU texto livre digitado pelo usuário.
+ *
+ * Se o texto bater com uma da lista (ignorando maiúsculas/minúsculas),
+ * devolve o valor canônico da lista — assim "biologia" e "Biologia"
+ * viram a MESMA matéria e os filtros continuam funcionando. Se não
+ * bater, devolve o texto como foi digitado (já aparado); o limite de
+ * tamanho é de quem chama (40 = coluna `materia` no banco).
+ */
+function materiaCanonica(string $materia): string {
+    $materia = trim($materia);
+    if ($materia === '') {
+        return '';
+    }
+
+    foreach (MATERIAS_KOSMOS as $conhecida) {
+        if (mb_strtolower($materia) === mb_strtolower($conhecida)) {
+            return $conhecida;
+        }
+    }
+
+    return $materia;
+}
 
 const CORES_AVATAR_KOSMOS = ['roxo', 'azul', 'verde', 'laranja', 'rosa', 'ciano'];
 

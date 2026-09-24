@@ -72,16 +72,16 @@ function apiId(string $campo): int {
     return $id === false ? 0 : (int) $id;
 }
 
-/** A matéria tem de estar na lista conhecida (materias.php). */
+/** A matéria vem da lista conhecida OU do que o usuário digitou. */
 function apiMateria(array &$erros): string {
-    $materia = trim((string) ($_POST['materia'] ?? ''));
+    $materia = materiaCanonica((string) ($_POST['materia'] ?? ''));
 
     if ($materia === '') {
         $erros[] = 'Escolha a matéria.';
         return '';
     }
-    if (!in_array($materia, MATERIAS_KOSMOS, true)) {
-        $erros[] = 'Matéria desconhecida.';
+    if (mb_strlen($materia) > RS_MAX_MATERIA) {
+        $erros[] = 'A matéria deve ter no máximo ' . RS_MAX_MATERIA . ' caracteres.';
         return '';
     }
 

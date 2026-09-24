@@ -222,13 +222,15 @@ function lerCampos(array $corpo): array {
         estErro('Dê um nome para a prova.', 422);
     }
 
-    /* A matéria precisa ser uma da lista do projeto. Campo livre aqui
-       viraria "Biologia", "biologia" e "Bio" como três matérias
-       diferentes — e é pela matéria que esta tela acha os cadernos e
-       os baralhos que servem de material de estudo. */
-    $materia = estTexto($corpo['materia'] ?? '', 40);
-    if ($materia !== '' && !in_array($materia, MATERIAS_KOSMOS, true)) {
-        estErro('Matéria desconhecida.', 422);
+    /* A matéria pode ser uma da lista do projeto ou texto livre do
+       usuário. O que materiaCanonica() faz é o caso importante: se o
+       texto bater com uma da lista (ignorando maiúsculas), grava o
+       valor canônico — "biologia" e "Biologia" viram a MESMA matéria,
+       e é pela matéria que esta tela acha os cadernos e baralhos que
+       servem de material de estudo. */
+    $materia = materiaCanonica(estTexto($corpo['materia'] ?? '', 40));
+    if (mb_strlen($materia) > 40) {
+        estErro('A matéria deve ter no máximo 40 caracteres.', 422);
     }
 
     /* A data chega do <input type="date">, sempre YYYY-MM-DD.

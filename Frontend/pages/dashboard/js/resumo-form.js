@@ -102,7 +102,7 @@
             if (caderno) caderno.value = resumo.caderno_id ? String(resumo.caderno_id) : "";
             // resumo solto guarda a própria matéria; num caderno, o
             // aplicarCaderno() esconde este campo de qualquer jeito
-            if (materia && resumo.materia) materia.value = resumo.materia;
+            if (materia) materia.value = resumo.materia || "";
         } else {
             el("modalTitulo").textContent = "Novo resumo";
             el("resumoId").value = "";
@@ -115,9 +115,8 @@
                 caderno.value = opcoes.caderno ? String(opcoes.caderno) : "";
             }
 
-            // começa na matéria favorita, se houver alguma marcada na Conta
-            const favorita = materia?.querySelector("option[data-favorita]");
-            if (favorita) materia.value = favorita.value;
+            // vazio: quem escreve o resumo solto é que escolhe a matéria
+            if (materia) materia.value = "";
         }
 
         el("contador").textContent = texto.value.length;

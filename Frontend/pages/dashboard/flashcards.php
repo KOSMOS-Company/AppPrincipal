@@ -205,11 +205,15 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                 </div>
                 <div class="campo">
                     <label for="materiaDeck">Matéria</label>
-                    <select id="materiaDeck" required>
+                    <!-- input+datalist: escolhe da lista OU digita a sua -->
+                    <input id="materiaDeck" type="text" list="listaMateriasDeck"
+                           maxlength="40" required autocomplete="off"
+                           placeholder="Ex: Biologia (ou escreva a sua)">
+                    <datalist id="listaMateriasDeck">
 <?php foreach (MATERIAS_KOSMOS as $m): ?>
-                        <option value="<?= hesc($m) ?>"<?= in_array($m, $PREF['materias'], true) ? ' data-favorita="1"' : '' ?>><?= hesc($m) ?></option>
+                        <option value="<?= hesc($m) ?>"<?= in_array($m, $PREF['materias'], true) ? ' data-favorita="1"' : '' ?>></option>
 <?php endforeach; ?>
-                    </select>
+                    </datalist>
                 </div>
                 <div class="modal__actions">
                     <button type="button" class="dash-btn dash-btn--outline" data-fechar-modal>Cancelar</button>
@@ -271,6 +275,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
     <script src="./js/dashboard.js"></script>
     <script src="./js/pomodoro-aviso.js"></script>
+    <script src="./js/combo-materia.js"></script>
     <script src="./js/flashcards.js"></script>
     <script src="./js/cursor.js"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta

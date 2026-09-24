@@ -9,10 +9,12 @@
 //  sozinha — um dia alguém mexe num e esquece o outro.
 //
 //  A lista de matérias vem de Backend/php/materias.php — a mesma
-//  que os cadernos e os baralhos usam. Campo livre aqui criaria
-//  "Biologia", "biologia" e "Bio" como três matérias diferentes, e
-//  a filtragem por matéria que já existe no app deixaria de
-//  funcionar — inclusive a que acha o material de estudo da prova.
+//  que os cadernos e os baralhos usam — mas o campo também aceita
+//  texto livre (input+datalist). Quem evita "Biologia"/"biologia"
+//  virarem duas matérias diferentes é materiaCanonica() no servidor,
+//  que normaliza para o valor canônico da lista quando os dois
+//  batem ignorando maiúsculas. Filtrar por matéria continua
+//  funcionando — inclusive a que acha o material de estudo da prova.
 // ============================================================
 if (!isset($USUARIO)) {
     http_response_code(403);
@@ -39,12 +41,16 @@ require_once __DIR__ . '/../../../../Backend/php/materias.php';
 
                     <div class="campo">
                         <label for="provaMateria">Matéria <span class="campo__opcional">(opcional)</span></label>
-                        <select id="provaMateria">
-                            <option value="">Sem matéria</option>
+                        <!-- input+datalist: escolhe da lista OU digita a sua.
+                             Vazio = "Sem matéria" (o campo é opcional). -->
+                        <input id="provaMateria" type="text" list="listaMateriasProva"
+                               maxlength="40" autocomplete="off"
+                               placeholder="Ex: Biologia (ou escreva a sua)">
+                        <datalist id="listaMateriasProva">
                             <?php foreach (MATERIAS_KOSMOS as $m): ?>
-                            <option value="<?= hesc($m) ?>"><?= hesc($m) ?></option>
+                            <option value="<?= hesc($m) ?>"></option>
                             <?php endforeach; ?>
-                        </select>
+                        </datalist>
                         <span class="campo__dica">Com a matéria escolhida, a prova já mostra seus cadernos e baralhos dela.</span>
                     </div>
 

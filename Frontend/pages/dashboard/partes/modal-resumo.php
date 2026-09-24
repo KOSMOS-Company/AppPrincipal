@@ -63,14 +63,18 @@ if (!isset($CADERNOS)) {
                     </div>
 
                     <!-- Só para resumo solto: dentro de um caderno a
-                         matéria vem dele (o JS esconde este campo). -->
+                         matéria vem dele (o JS esconde este campo).
+                         input+datalist: escolhe da lista OU digita a sua. -->
                     <div class="campo" id="campoMateria">
                         <label for="materia">Matéria</label>
-                        <select id="materia">
+                        <input id="materia" type="text" list="listaMateriasResumo"
+                               maxlength="40" autocomplete="off"
+                               placeholder="Ex: Biologia (ou escreva a sua)">
+                        <datalist id="listaMateriasResumo">
 <?php foreach (MATERIAS_KOSMOS as $m): ?>
-                            <option value="<?= hesc($m) ?>"<?= in_array($m, $PREF['materias'], true) ? ' data-favorita="1"' : '' ?>><?= hesc($m) ?></option>
+                            <option value="<?= hesc($m) ?>"<?= in_array($m, $PREF['materias'], true) ? ' data-favorita="1"' : '' ?>></option>
 <?php endforeach; ?>
-                        </select>
+                        </datalist>
                     </div>
 
                     <div class="campo">

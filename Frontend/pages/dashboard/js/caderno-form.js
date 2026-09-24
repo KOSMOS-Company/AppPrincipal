@@ -55,6 +55,7 @@
         // prévia ao vivo
         el("cadernoNome")?.addEventListener("input", pintarPrevia);
         el("cadernoDescricao")?.addEventListener("input", pintarPrevia);
+        el("cadernoMateria")?.addEventListener("input", pintarPrevia);
         el("cadernoMateria")?.addEventListener("change", pintarPrevia);
 
         el("cadCores")?.addEventListener("click", (e) => {
@@ -64,6 +65,9 @@
             marcarEscolhido(el("cadCores"), botao);
             pintarPrevia();
         });
+
+        // grade de ícones guardada: abre só quando pede
+        el("cadIconesAbrir")?.addEventListener("click", alternarIcones);
 
         el("cadIcones")?.addEventListener("click", (e) => {
             const botao = e.target.closest("[data-icone]");
@@ -110,19 +114,17 @@
             el("cadernoSalvar").textContent = "Criar caderno";
             el("cadernoId").value = "";
             nome.value = "";
+            materia.value = "";      // vazio: quem cria escolhe a matéria
             desc.value = "";
             cor        = "roxo";
             icone      = "";
             capaSalva  = null;
             el("cadernoApagar").hidden = true;
-
-            // começa na matéria favorita, se houver alguma marcada na Conta
-            const favorita = materia.querySelector("option[data-favorita]");
-            if (favorita) materia.value = favorita.value;
         }
 
         marcarEscolhido(el("cadCores"), el("cadCores")?.querySelector(`[data-cor="${cor}"]`));
         marcarEscolhido(el("cadIcones"), el("cadIcones")?.querySelector(`[data-icone="${cssEscape(icone)}"]`));
+        guardarLayoutIcones();   // modal abre com a grade guardada
         desenharCapa();
         pintarPrevia();
 
@@ -139,6 +141,30 @@
     /* ------------------------------------------------------------
        Escolhas (cor e ícone)
        ------------------------------------------------------------ */
+
+    /* A grade de ícones fica guardada atrás do botão: a lista
+       inteira de uma vez poluem o modal — quem quer um, abre. */
+    function alternarIcones() {
+        const grade = el("cadIcones");
+        const botao = el("cadIconesAbrir");
+        if (!grade || !botao) return;
+        const abrindo = grade.hidden;
+        grade.hidden = !abrindo;
+        botao.setAttribute("aria-expanded", String(abrindo));
+        botao.textContent = abrindo ? "Fechar ícones" : "Escolher ícone";
+    }
+
+    /** Toda vez que o modal abre, a grade volta a ficar guardada. */
+    function guardarLayoutIcones() {
+        const grade = el("cadIcones");
+        const botao = el("cadIconesAbrir");
+        if (grade) grade.hidden = true;
+        if (botao) {
+            botao.setAttribute("aria-expanded", "false");
+            botao.textContent = "Escolher ícone";
+        }
+    }
+
     function marcarEscolhido(grupo, botao) {
         if (!grupo) return;
         grupo.querySelectorAll("[role='radio']").forEach((b) => {
