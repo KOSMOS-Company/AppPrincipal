@@ -321,8 +321,18 @@ function ativarSair() {
 }
 
 /* Transição suave ao trocar de aba: faz o conteúdo sair (fade-out)
-   e só então navega. A entrada (fade-in) é feita por CSS em .contMeio. */
+   e só então navega. A entrada (fade-in) é feita por CSS em .contMeio.
+
+   Onde há View Transition entre páginas (o CSS liga com
+   @view-transition), o próprio navegador faz a saída — e segurar o
+   clique 260ms só somaria espera. Então este fade fica apenas para
+   os navegadores sem ela. `onpagereveal` chegou junto com esse
+   recurso, por isso serve de teste. */
 function ativarTransicoes() {
+    const nativa = "onpagereveal" in window;
+    const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (nativa || semMovimento) return;
+
     document.querySelectorAll(".botoesL a").forEach((a) => {
         a.addEventListener("click", (e) => {
             const href = a.getAttribute("href");

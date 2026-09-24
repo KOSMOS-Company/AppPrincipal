@@ -163,7 +163,7 @@ $temFoto = !empty($PREF['avatar_url']);
 
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Dados do perfil</h2>
-                            <p class="painel__sub">Altere seu nome ou o e-mail de acesso.</p>
+                            <p class="painel__sub">Altere seu nome, o e-mail de acesso ou a cor do avatar (acima) e salve aqui.</p>
                             <form class="conta-form" id="formPerfil" novalidate>
                                 <div class="conta-dupla">
                                     <div class="campo">
@@ -177,7 +177,8 @@ $temFoto = !empty($PREF['avatar_url']);
                                 </div>
                                 <div class="msg" id="msgPerfil" hidden></div>
                                 <div class="conta-form__acoes">
-                                    <button type="submit" class="dash-btn dash-btn--primary">
+                                    <!-- só acende quando algo mudou (conta.js) -->
+                                    <button type="submit" class="dash-btn dash-btn--primary" id="btnPerfil" disabled>
                                         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                         Salvar alterações
                                     </button>
@@ -313,7 +314,7 @@ $temFoto = !empty($PREF['avatar_url']);
                         </div>
 
                         <div class="conta-acoes">
-                            <button type="button" class="dash-btn dash-btn--primary" id="btnSalvarEstudo">
+                            <button type="button" class="dash-btn dash-btn--primary" id="btnSalvarEstudo" disabled>
                                 <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 Salvar preferências
                             </button>

@@ -26,6 +26,13 @@
        "salvei e voltou ao valor antigo"). */
     const tocado = new Set();
 
+    /* O que está gravado no servidor. Os botões "Salvar" só acendem
+       quando a tela difere disto — clicar sem ter mudado nada não
+       fazia nada de útil e dava a impressão de que o botão era
+       enfeite. Voltar um campo ao valor antigo apaga o botão de novo. */
+    let salvoPerfil = { nome: "", email: "", cor: "roxo" };
+    let corEscolhida = "roxo";
+
     document.addEventListener("DOMContentLoaded", () => {
         if (!document.querySelector(".conta-layout")) return;
 
@@ -46,6 +53,9 @@
         ativarCores();
         ativarMaterias();
         ativarEditorFoto();
+
+        atualizarPerfil();
+        atualizarEstudo();
     });
 
     /* ------------------------------------------------------------
@@ -83,6 +93,124 @@
             notif_lembrete:   document.getElementById("swLembrete").getAttribute("aria-checked") === "true",
             notif_resumo:     document.getElementById("swResumo").getAttribute("aria-checked") === "true",
         };
+
+        corEscolhida = prefs.avatar_cor;
+        salvoPerfil = {
+            nome:  document.getElementById("nome").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            cor:   prefs.avatar_cor,
+        };
+    }
+
+    /* ------------------------------------------------------------
+       Mudou alguma coisa? (acende/apaga os botões de salvar)
+       ------------------------------------------------------------ */
+    function perfilMudou() {
+        const nome  = document.getElementById("nome").value.trim();
+        const email = document.getElementById("email").value.trim();
+        return {
+            dados: nome !== salvoPerfil.nome || email !== salvoPerfil.email,
+            cor:   corEscolhida !== salvoPerfil.cor,
+        };
+    }
+
+    /* A pessoa mexeu de novo: o aviso do último "Salvar" (erro ou
+       sucesso) já não fala do que está na tela. */
+    function esconderMsg(id) {
+        const el = document.getElementById(id);
+        if (el) el.hidden = true;
+    }
+
+    function atualizarPerfil() {
+        const m = perfilMudou();
+        const sujo = m.dados || m.cor;
+        const btn = document.getElementById("btnPerfil");
+        if (btn && !btn.dataset.ocupado) btn.disabled = !sujo;
+        marcarPendente("perfil", sujo);
+    }
+
+    /* Os números do Pomodoro e da meta, como estão na tela */
+    const CAMPOS_ESTUDO = {
+        pomoFoco:       "pomo_foco",
+        pomoPausa:      "pomo_pausa",
+        pomoPausaLonga: "pomo_pausa_longa",
+        metaDiaria:     "meta_diaria",
+    };
+
+    function estudoMudou() {
+        if (!prefs) return false;
+        const numeros = Object.entries(CAMPOS_ESTUDO).some(([id, campo]) =>
+            document.getElementById(id).value.trim() !== String(prefs[campo]));
+        const salvas = new Set(prefs.materias || []);
+        const materias = salvas.size !== materiasEscolhidas.size ||
+            [...materiasEscolhidas].some((m) => !salvas.has(m));
+        return numeros || materias;
+    }
+
+    function atualizarEstudo() {
+        const sujo = estudoMudou();
+        const btn = document.getElementById("btnSalvarEstudo");
+        if (btn && !btn.dataset.ocupado) btn.disabled = !sujo;
+        marcarPendente("estudo", sujo);
+    }
+
+    /* ------------------------------------------------------------
+       Validação no navegador — as mesmas regras do servidor
+       (conta_perfil.php e conta_preferencias.php). O servidor
+       continua validando; aqui é para a pessoa saber na hora o que
+       está errado, em vez de o valor ser corrigido em silêncio.
+       ------------------------------------------------------------ */
+    const EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    function marcarInvalido(id, invalido) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (invalido) el.setAttribute("aria-invalid", "true");
+        else el.removeAttribute("aria-invalid");
+    }
+
+    function validarPerfil() {
+        const nome  = document.getElementById("nome").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const erros = [];
+
+        let nomeRuim = true;
+        if (nome === "") erros.push("O nome é obrigatório.");
+        else if (nome.length < 3) erros.push("O nome deve ter pelo menos 3 caracteres.");
+        else if (nome.length > 120) erros.push("O nome deve ter no máximo 120 caracteres.");
+        else nomeRuim = false;
+
+        let emailRuim = true;
+        if (email === "") erros.push("O e-mail é obrigatório.");
+        else if (!EMAIL_OK.test(email)) erros.push("Informe um e-mail válido.");
+        else if (email.length > 180) erros.push("E-mail muito longo.");
+        else emailRuim = false;
+
+        marcarInvalido("nome", nomeRuim);
+        marcarInvalido("email", emailRuim);
+        if (nomeRuim) document.getElementById("nome").focus();
+        else if (emailRuim) document.getElementById("email").focus();
+        return erros;
+    }
+
+    function validarEstudo() {
+        const erros = [];
+        let primeiro = null;
+        Object.keys(CAMPOS_ESTUDO).forEach((id) => {
+            const el = document.getElementById(id);
+            const rotulo = document.querySelector(`label[for="${id}"]`)?.textContent.trim() || id;
+            const min = Number(el.min), max = Number(el.max);
+            const txt = el.value.trim();
+            const n = Number(txt);
+            const ruim = txt === "" || !Number.isInteger(n) || n < min || n > max;
+            marcarInvalido(id, ruim);
+            if (ruim) {
+                erros.push(`${rotulo}: use um número inteiro entre ${min} e ${max}.`);
+                primeiro = primeiro || el;
+            }
+        });
+        if (primeiro) primeiro.focus();
+        return erros;
     }
 
     /* Liga os chips de matéria que já vieram no HTML */
@@ -95,7 +223,8 @@
                 marcado ? materiasEscolhidas.add(materia) : materiasEscolhidas.delete(materia);
                 chip.classList.toggle("active", marcado);
                 chip.setAttribute("aria-pressed", String(marcado));
-                marcarPendente("estudo");
+                esconderMsg("msgEstudo");
+                atualizarEstudo();
             });
         });
     }
@@ -109,8 +238,10 @@
         [...doPerfil, ...doEstudo].forEach((id) => {
             document.getElementById(id)?.addEventListener("input", () => {
                 tocado.add(id);
-                // marca que existe coisa digitada e ainda não salva
-                marcarPendente(doPerfil.includes(id) ? "perfil" : "estudo");
+                marcarInvalido(id, false);   // voltou a digitar: tira o vermelho
+                // acende o botão (ou apaga, se voltou ao valor salvo)
+                if (doPerfil.includes(id)) { esconderMsg("msgPerfil"); atualizarPerfil(); }
+                else { esconderMsg("msgEstudo"); atualizarEstudo(); }
             });
         });
 
@@ -189,26 +320,23 @@
         });
     }
 
-    /* Clicar na cor salva na hora (é uma mudança pequena e visível) */
-    async function escolherCor(cor) {
+    /* Clicar na cor só mostra a prévia no avatar grande. Ela é gravada
+       junto com o nome e o e-mail, no "Salvar alterações" — antes
+       salvava sozinha no clique e deixava o botão sem função. */
+    function escolherCor(cor) {
         tocado.add("cor");
-        if (prefs) prefs.avatar_cor = cor;
+        corEscolhida = cor;
         document.querySelectorAll(".conta-cor").forEach((b) => {
             b.classList.toggle("ativa", b.dataset.cor === cor);
         });
-        aplicarCorAvatar(cor);
-
-        const dados = new FormData();
-        dados.append("avatar_cor", cor);
-        try {
-            await fetch(`${BACKEND}/conta_preferencias.php`, { method: "POST", body: dados });
-        } catch (err) {
-            /* fica salvo na próxima tentativa */
-        }
+        aplicarCorAvatar(cor, false);
+        esconderMsg("msgPerfil");
+        atualizarPerfil();
     }
 
-    /* Aplica a cor no avatar grande e no cartão da barra lateral */
-    function aplicarCorAvatar(cor) {
+    /* Aplica a cor no avatar grande e, se já estiver salva, também no
+       cartão da barra lateral */
+    function aplicarCorAvatar(cor, naBarra = true) {
         const limpar = (el) => {
             [...el.classList].forEach((c) => {
                 if (c.startsWith("avatar-cor--")) el.classList.remove(c);
@@ -217,12 +345,20 @@
         };
         const grande = document.getElementById("contaAvatar");
         if (grande) limpar(grande);
-        document.querySelectorAll(".usuario__avatar").forEach(limpar);
+        if (naBarra) document.querySelectorAll(".usuario__avatar").forEach(limpar);
     }
 
     /* Salvar a seção "Estudo" (pomodoro + meta + matérias) */
     async function salvarEstudo() {
         const btn = document.getElementById("btnSalvarEstudo");
+        if (!estudoMudou()) return;
+
+        const erros = validarEstudo();
+        if (erros.length) {
+            msg("msgEstudo", erros.join(" "), "erro");
+            return;
+        }
+
         const dados = new FormData();
         dados.append("pomo_foco", document.getElementById("pomoFoco").value);
         dados.append("pomo_pausa", document.getElementById("pomoPausa").value);
@@ -244,12 +380,13 @@
                 valor("pomoPausa", prefs.pomo_pausa, true);
                 valor("pomoPausaLonga", prefs.pomo_pausa_longa, true);
                 valor("metaDiaria", prefs.meta_diaria, true);
-                marcarPendente("estudo", false);
+                materiasEscolhidas = new Set(prefs.materias || []);
             }
         } catch (err) {
             msg("msgEstudo", "Não foi possível conectar ao servidor.", "erro");
         } finally {
-            travar(btn, false, "Salvar preferências");
+            travar(btn, false);
+            atualizarEstudo();
         }
     }
 
@@ -284,16 +421,24 @@
        ------------------------------------------------------------ */
     async function salvarPerfil(e) {
         e.preventDefault();
-        const btn = e.target.querySelector('button[type="submit"]');
-        const dados = new FormData(e.target);
+        const btn = document.getElementById("btnPerfil");
+        const mudou = perfilMudou();
+        if (!mudou.dados && !mudou.cor) return;       // nada a salvar
+
+        if (mudou.dados) {
+            const erros = validarPerfil();
+            if (erros.length) {
+                msg("msgPerfil", erros.join(" "), "erro");
+                return;
+            }
+        }
 
         // trocar o e-mail muda o login: vale confirmar antes
-        const emailNovo = (document.getElementById("email").value || "").trim();
-        const emailAtual = (document.getElementById("contaEmail").textContent || "").trim();
-        if (emailNovo && emailAtual && emailNovo !== emailAtual) {
+        const emailNovo = document.getElementById("email").value.trim();
+        if (emailNovo !== salvoPerfil.email) {
             const ok = await confirmar({
                 titulo: "Trocar o e-mail de acesso?",
-                texto: `Você passará a entrar no Kosmos com ${emailNovo} em vez de ${emailAtual}. ` +
+                texto: `Você passará a entrar no Kosmos com ${emailNovo} em vez de ${salvoPerfil.email}. ` +
                        "Sua senha continua a mesma.",
                 botao: "Trocar e-mail",
             });
@@ -301,28 +446,50 @@
         }
 
         travar(btn, true, "Salvando…");
+        let erro = null;
         try {
-            const resp = await fetch(`${BACKEND}/conta_perfil.php`, { method: "POST", body: dados });
-            const json = await resp.json();
-            msg("msgPerfil", json.msg, json.ok ? "sucesso" : "erro");
-
-            if (json.ok) {
-                tocado.delete("nome");
-                tocado.delete("email");
-                preencher(json.nome, json.email, true);
-                document.querySelectorAll("[data-usuario]").forEach((el) => (el.textContent = json.nome));
-                const primeiro = json.nome.trim().split(" ")[0];
-                document.querySelectorAll("[data-usuario-primeiro]").forEach((el) => (el.textContent = primeiro));
-                document.querySelectorAll("[data-usuario-inicial]").forEach((el) => {
-                    el.textContent = (json.nome.trim()[0] || "?").toUpperCase();
-                });
-                sessionStorage.setItem("kosmos_usuario", json.nome);
-                marcarPendente("perfil", false);
+            if (mudou.dados) {
+                const resp = await fetch(`${BACKEND}/conta_perfil.php`, { method: "POST", body: new FormData(e.target) });
+                const json = await resp.json();
+                if (!json.ok) {
+                    erro = json.msg || "Não foi possível salvar as alterações.";
+                } else {
+                    tocado.delete("nome");
+                    tocado.delete("email");
+                    salvoPerfil.nome = json.nome;
+                    salvoPerfil.email = json.email;
+                    preencher(json.nome, json.email, true);
+                    document.querySelectorAll("[data-usuario]").forEach((el) => (el.textContent = json.nome));
+                    const primeiro = json.nome.trim().split(" ")[0];
+                    document.querySelectorAll("[data-usuario-primeiro]").forEach((el) => (el.textContent = primeiro));
+                    document.querySelectorAll("[data-usuario-inicial]").forEach((el) => {
+                        el.textContent = (json.nome.trim()[0] || "?").toUpperCase();
+                    });
+                    sessionStorage.setItem("kosmos_usuario", json.nome);
+                }
             }
+
+            if (!erro && mudou.cor) {
+                const cor = corEscolhida;
+                const dados = new FormData();
+                dados.append("avatar_cor", cor);
+                const resp = await fetch(`${BACKEND}/conta_preferencias.php`, { method: "POST", body: dados });
+                const json = await resp.json();
+                if (!json.ok) {
+                    erro = json.msg || "Não foi possível salvar a cor do avatar.";
+                } else {
+                    salvoPerfil.cor = cor;
+                    if (prefs) prefs.avatar_cor = cor;
+                    aplicarCorAvatar(cor);               // agora também na barra lateral
+                }
+            }
+
+            msg("msgPerfil", erro || "Perfil atualizado com sucesso!", erro ? "erro" : "sucesso");
         } catch (err) {
             msg("msgPerfil", "Não foi possível conectar ao servidor.", "erro");
         } finally {
-            travar(btn, false, "Salvar alterações");
+            travar(btn, false);
+            atualizarPerfil();
         }
     }
 
@@ -520,7 +687,6 @@
                 msg("msgFoto", "Não foi possível enviar a imagem.", "erro");
             } finally {
                 travar(btn, false, "Enviar foto");
-                btn.innerHTML = "Enviar foto";
             }
         });
 
@@ -838,10 +1004,24 @@
         el.hidden = false;
     }
 
+    /* Trava o botão com um texto de espera e, ao destravar, devolve o
+       conteúdo original (com o ícone — trocar só o texto o apagava). */
     function travar(btn, travado, textoBtn) {
         if (!btn) return;
         btn.disabled = travado;
-        btn.textContent = textoBtn;
+        if (travado) {
+            if (!btn.dataset.ocupado) btn.dataset.original = btn.innerHTML;
+            btn.dataset.ocupado = "1";
+            btn.textContent = textoBtn;
+            return;
+        }
+        delete btn.dataset.ocupado;
+        if (btn.dataset.original !== undefined) {
+            btn.innerHTML = btn.dataset.original;
+            delete btn.dataset.original;
+        } else if (textoBtn) {
+            btn.textContent = textoBtn;
+        }
     }
 
     /* "2026-06-25 13:57:17" ou "2026-06-25" -> "25 de junho de 2026"

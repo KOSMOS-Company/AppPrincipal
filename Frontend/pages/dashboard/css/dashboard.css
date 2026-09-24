@@ -857,6 +857,12 @@ progress::-webkit-progress-value {
     box-shadow: 0 0 0 3px rgba(165,65,255,.15);
 }
 .campo select option { background: var(--bg-nav); }
+/* campo recusado pela validação (o JS põe aria-invalid) */
+.campo input[aria-invalid="true"],
+.campo input[aria-invalid="true"]:focus {
+    border-color: rgba(239, 68, 68, .7);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, .15);
+}
 
 /* Entrada animada dos cartões */
 @keyframes dashFade {
@@ -1234,9 +1240,25 @@ progress::-webkit-progress-value {
 
 /* ============================================================
    TRANSIÇÃO ENTRE ABAS
-   Conteúdo entra suave ao carregar e sai suave ao navegar.
-   Só o .contMeio anima — a barra lateral fica fixa.
+   Cada aba é um arquivo .php, então trocar de aba é carregar uma
+   página nova. Antes, o dashboard.js apagava o conteúdo, esperava
+   260ms e só então navegava — e entre uma página e outra a tela
+   ficava vazia enquanto a nova carregava. Era essa a "travada".
+
+   Agora, onde o navegador sabe fazer (Chrome/Edge 126+, Safari
+   18.2+), a View Transition entre documentos segura a página
+   antiga na tela até a nova estar pronta e faz o cruzamento das
+   duas. Sem tela vazia e sem espera artificial. Nos outros, o
+   dashboard.js mantém o fade de saída antigo.
    ============================================================ */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: .22s;
+    animation-timing-function: ease;
+}
+
 .contMeio {
     animation: paginaEntra .42s cubic-bezier(.2, .7, .2, 1) both;
 }
@@ -1253,6 +1275,7 @@ body.saindo .contMeio {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
     .contMeio,
     body.saindo .contMeio { animation: none; }
     /* quem pediu menos movimento vê o modal já aberto, sem o fade */

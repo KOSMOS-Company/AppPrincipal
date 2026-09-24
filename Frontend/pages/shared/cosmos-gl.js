@@ -354,6 +354,52 @@
     var rolagem = 0, alvoMX = 0, alvoMY = 0, mx = 0, my = 0;
     var rodando = true, quadro = 0;
 
+    /* ------------------------------------------------------------
+       Um céu só, de página em página
+       Cada página liga o seu próprio canvas. Se o tempo do shader
+       começasse do zero a cada uma, trocar de aba no dashboard faria
+       o céu pular: a Via Láctea e o pulso das estrelas voltavam ao
+       ponto inicial, e o fundo corria até o lugar do mouse. Com a
+       View Transition cruzando as duas páginas, isso aparecia como
+       dois céus sobrepostos.
+
+       Então o relógio conta desde a PRIMEIRA página desta visita
+       (guardado no sessionStorage), e a posição do mouse passa de uma
+       página para a outra. Só onde o fragment shader tem highp: em
+       mediump, um tempo de horas perde precisão e as estrelas
+       travariam — lá cada página continua começando do zero.
+       ------------------------------------------------------------ */
+    var desvioMs = 0;
+    var precisao = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+    var altaPrecisao = !!precisao && precisao.precision >= 23;
+
+    function lerSessao(chave) {
+        try { return sessionStorage.getItem(chave); } catch (e) { return null; }
+    }
+    function gravarSessao(chave, valor) {
+        try { sessionStorage.setItem(chave, valor); } catch (e) { /* aba privada */ }
+    }
+
+    if (altaPrecisao && performance.timeOrigin) {
+        var inicio = Number(lerSessao('kosmos_ceu_t0'));
+        if (!inicio || inicio > performance.timeOrigin) {
+            inicio = performance.timeOrigin;
+            gravarSessao('kosmos_ceu_t0', String(inicio));
+        }
+        desvioMs = performance.timeOrigin - inicio;
+    }
+
+    if (ponteiroFino) {
+        var mouseSalvo = (lerSessao('kosmos_ceu_mouse') || '').split(',').map(Number);
+        if (mouseSalvo.length === 2 && isFinite(mouseSalvo[0]) && isFinite(mouseSalvo[1])) {
+            alvoMX = mx = mouseSalvo[0];
+            alvoMY = my = mouseSalvo[1];
+        }
+        window.addEventListener('pagehide', function () {
+            gravarSessao('kosmos_ceu_mouse', mx.toFixed(4) + ',' + my.toFixed(4));
+        });
+    }
+
     function medir() {
         L = window.innerWidth;
         A = window.innerHeight;
@@ -381,7 +427,7 @@
     }
 
     function desenhar(ms) {
-        gl.uniform1f(uTempo, ms * 0.001);
+        gl.uniform1f(uTempo, (ms + desvioMs) * 0.001);
         gl.uniform1f(uProg, Math.min(1, Math.max(0, rolagem / alturaDoc)));
         gl.uniform1f(uRolagem, rolagem);
         gl.uniform2f(uMouse, mx, my);
