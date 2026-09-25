@@ -371,7 +371,7 @@ html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
 @media (min-width: 769px) {
     /* Elementos exclusivos do mobile (escondidos no desktop) */
     .topo-btn-ferramentas,
-    .topo-espacador-mobile,
+    .topo-sequencia,
     .botoesL a.nav-somente-mobile {
         display: none !important;
     }
@@ -1028,14 +1028,18 @@ progress::-webkit-progress-value {
         backdrop-filter: none !important;        /* libera o position:fixed da barra p/ ancorar na viewport */
         -webkit-backdrop-filter: none !important;
     }
+    /* Grade de três colunas iguais nas pontas: o logo fica no centro
+       exato mesmo com o selo da direita mais largo que o botão da
+       esquerda (com space-between, "12" dias já o empurrava). */
     .contTopo {
         margin: 0 !important;
-        display: flex !important;
+        display: grid !important;
+        grid-template-columns: 1fr auto 1fr;
         align-items: center;
-        justify-content: space-between;
         width: 100%;
         position: relative;
     }
+    .contTopo > .topo-btn-ferramentas { justify-self: start; }
     /* Botão de Ferramentas no Topo (Posição Azul) */
     .topo-btn-ferramentas {
         display: flex !important;
@@ -1067,12 +1071,33 @@ progress::-webkit-progress-value {
         width: 22px;
         height: 22px;
     }
-    .topo-espacador-mobile {
-        display: block !important;
-        width: 42px;
+    /* Sequência de dias no canto direito: mesma altura e mesmo
+       contorno do botão de ferramentas, para os dois lados do logo
+       parecerem um par. */
+    .topo-sequencia {
+        justify-self: end;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         height: 42px;
-        flex-shrink: 0;
-        pointer-events: none;
+        min-width: 42px;
+        padding: 0 12px 0 10px;
+        border-radius: 12px;
+        background: rgba(165, 65, 255, 0.1);
+        border: 1px solid rgba(165, 65, 255, 0.26);
+        color: var(--accent-lt);
+    }
+    .topo-sequencia svg { width: 18px; height: 18px; flex: none; }
+    .topo-sequencia strong {
+        font-family: "Syne", sans-serif;
+        font-size: 1.05rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+    .topo-sequencia--vazia {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
     }
 
     .contLogo {
@@ -1095,10 +1120,18 @@ progress::-webkit-progress-value {
         transform: translateY(.075em);
     }
 
-    /* No mobile o menu vira barra de 5 ícones espaçosos (estritamente ícones, sem legendas ou tags) */
+    /* Onde a pílula de navegação termina (altura 60px + a folga de
+       baixo). Tudo que precisa ficar acima dela — conteúdo, botão do
+       Orion, avisos — soma a partir daqui, em vez de repetir números. */
+    :root { --barra-mobile: calc(60px + max(10px, env(safe-area-inset-bottom))); }
+
+    /* No mobile o menu vira uma pílula flutuante de 5 itens. O item
+       ativo é um "chip" preenchido com o gradiente da marca, ícone num
+       disco claro e o nome ao lado; os outros ficam só no ícone (ou
+       ícone + nome, quando a tela tem largura para isso — ver 560px).
+       O selo "IA" do Orion não cabe aqui: some. */
     .nav__grupo,
     .nav__marca,
-    .nav__rotulo,
     .nav__tag-ia,
     .contUsuario { display: none !important; }
 
@@ -1106,43 +1139,58 @@ progress::-webkit-progress-value {
     .botoesL .nav-secundario-mobile { display: none !important; }
     .botoesL .nav-somente-mobile    { display: flex !important; }
 
-    /* Nav vira barra inferior fixa e limpa com os 5 botões fundamentais */
+    /* A pílula: descolada das bordas, para ler como um controle e não
+       como o rodapé da página. Em aparelhos com barra de gestos ela
+       sobe o que o sistema pedir (safe-area); nos outros, 10px. */
     .botoesL {
         position: fixed;
-        bottom: 0; left: 0; right: 0;
+        left: 12px;
+        right: 12px;
+        bottom: max(10px, env(safe-area-inset-bottom));
         z-index: 100;
+        max-width: 460px;
+        margin: 0 auto;
         flex-direction: row;
-        justify-content: space-around;
         align-items: center;
-        gap: 0;
+        gap: 4px;
         flex-grow: 0;
-        padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
-        background: rgba(13,1,24,.95);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid var(--border);
+        padding: 6px;
+        border-radius: 999px;
+        background: rgba(18, 1, 31, .86);
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+        border: 1px solid rgba(165, 65, 255, .22);
+        box-shadow:
+            0 14px 34px -10px rgba(0, 0, 0, .75),
+            0 0 0 1px rgba(0, 0, 0, .35),
+            inset 0 1px 0 rgba(255, 255, 255, .05);
     }
     .botoesL a {
-        font-size: 0;                 /* esconde qualquer texto residual */
-        flex: 1 1 0;                  /* cada item ocupa uma fatia igual da barra */
-        max-width: 58px;
-        height: 46px;
+        flex: 1 1 0;                  /* os inativos dividem o que sobra */
         min-width: 0;
+        height: 48px;
+        padding: 0;                   /* em 320px cada fatia tem ~33px: padding estouraria o ícone */
         display: flex !important;
         align-items: center;
         justify-content: center;
-        border-radius: 12px;
-        border: none !important;
-        background: transparent !important;
-        color: rgba(185, 145, 235, 0.6);
+        gap: 8px;
+        border-radius: 999px;
+        border: none;
+        background: transparent;
+        color: #9a86b8;
+        font-size: .86rem;
+        font-weight: 600;
+        white-space: nowrap;
         cursor: pointer;
         position: relative;
-        transition: color .2s ease, transform .2s ease;
+        transition: color .2s ease, background-color .2s ease, transform .16s ease;
         -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
     }
-    .botoesL a:active {
-        transform: scale(0.92);
-    }
+    .botoesL a:active { transform: scale(.94); }
+    .botoesL a:focus-visible { outline: 2px solid var(--accent-lt); outline-offset: 2px; }
+
     /* Ordem mobile da barra inferior:
        1: Início
        2: Biblioteca (Resumos)
@@ -1156,29 +1204,77 @@ progress::-webkit-progress-value {
     .botoesL a[href="conta.php"]     { order: 5; }
 
     .botoesL a .nav-icon {
-        width: 23px;
-        height: 23px;
-        color: inherit;
-        opacity: 0.8;
-        transition: all .2s ease;
+        flex: none;
+        width: 22px;
+        height: 22px;
+        opacity: .9;
+        filter: none;
+        transition: opacity .2s ease;
     }
-    .botoesL a:hover {
-        color: #ffffff;
-        transform: translateY(-1px);
+    /* Nome do item: no celular estreito só o ativo mostra */
+    .botoesL a .nav__rotulo {
+        display: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    .botoesL a:hover .nav-icon {
-        opacity: 1;
-        color: #ffffff;
+
+    /* Hover só onde existe ponteiro de verdade — no toque ele "gruda"
+       depois do tap e deixa o item aceso por engano. */
+    @media (hover: hover) {
+        .botoesL a:not(.active):hover {
+            color: #fff;
+            background: rgba(165, 65, 255, .1);
+        }
     }
-    /* Item ativo: ícone destacado com neon roxo cósmico, sem linhas soltas e sem patches escuros */
+
+    /* Item ativo: o chip preenchido da referência, nas cores da Kosmos */
     .botoesL a.active {
-        color: var(--accent-lt) !important;
-        background: transparent !important;
+        flex: 0 0 auto;               /* cresce o quanto o nome pedir */
+        padding: 0 16px 0 6px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--purple) 0%, var(--accent) 100%);
+        box-shadow:
+            0 6px 18px -6px rgba(130, 0, 219, .85),
+            inset 0 1px 0 rgba(255, 255, 255, .22);
+        animation: navChipEntra .38s cubic-bezier(.2, .8, .2, 1) both;
     }
+    /* o ícone ganha um disco claro — o "1" dentro do círculo da referência */
     .botoesL a.active .nav-icon {
+        width: 36px;
+        height: 36px;
+        padding: 8px;
+        border-radius: 50%;
+        background: #fff;
+        color: var(--purple);
         opacity: 1;
-        color: var(--accent-lt);
-        filter: drop-shadow(0 0 8px rgba(165, 65, 255, 0.95)) drop-shadow(0 0 16px rgba(201, 124, 255, 0.7));
+        filter: none;                 /* o brilho neon do desktop borraria o disco */
+        box-shadow: 0 2px 8px rgba(47, 10, 75, .35);
+    }
+    .botoesL a.active .nav__rotulo {
+        display: inline;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 700;
+        letter-spacing: .01em;
+        animation: navRotuloEntra .38s .06s cubic-bezier(.2, .8, .2, 1) both;
+    }
+
+    @keyframes navChipEntra {
+        from { opacity: .4; transform: scale(.92); }
+        to   { opacity: 1;  transform: scale(1); }
+    }
+    @keyframes navRotuloEntra {
+        from { opacity: 0; transform: translateX(-4px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Tablet em pé / celular deitado: há largura para todos os nomes,
+       então os inativos também mostram o seu — como na referência. */
+    @media (min-width: 560px) {
+        .botoesL { max-width: 600px; }
+        .botoesL a { flex: 1 1 auto; padding: 0 12px; }
+        .botoesL a .nav__rotulo { display: inline; }
+        .botoesL a .nav-icon { width: 20px; height: 20px; }
+        .botoesL a.active .nav-icon { width: 36px; height: 36px; }
     }
 
     /* ── Bottom Sheet de Mais Ferramentas (Mobile) ── */
@@ -1312,7 +1408,7 @@ progress::-webkit-progress-value {
 
     /* Espaço para o conteúdo não ficar atrás da barra inferior */
     .contMeio {
-        padding: 24px 20px calc(70px + env(safe-area-inset-bottom));
+        padding: 24px 20px calc(var(--barra-mobile) + 28px);
     }
 
     .contCabeca h1 {
@@ -1780,7 +1876,11 @@ a.ini-card:hover .ini-card__ico {
     .ini-duas { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-    .ini-hero { margin-bottom: 56px; }
+    /* No celular a sequência mora no topo do app (partes/sidebar.php,
+       .topo-sequencia), à direita do logo. Repetir o selo aqui seria o
+       mesmo número duas vezes na mesma tela. */
+    .ini-hero { display: block; margin-bottom: 24px; }
+    .ini-selo { display: none; }
     .ini-secao { margin-bottom: 56px; }
     .ini-hero__cta { margin-bottom: 36px; }
     .ini-hero__cta .dash-btn { flex: 1 1 auto; justify-content: center; }
@@ -2133,7 +2233,7 @@ a.ini-card:hover .ini-card__ico {
     .fc-aviso {
         left: 16px;
         right: 16px;
-        bottom: calc(84px + env(safe-area-inset-bottom));
+        bottom: calc(var(--barra-mobile) + 14px);
         max-width: none;
     }
 }

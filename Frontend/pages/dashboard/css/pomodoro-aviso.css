@@ -92,7 +92,7 @@
 @media (max-width: 768px) {
     .pomo-selo {
         right: 16px;
-        bottom: calc(140px + env(safe-area-inset-bottom));
+        bottom: calc(var(--barra-mobile, 70px) + 80px);
         padding: 10px 15px 10px 13px;
         z-index: 850;
     }
