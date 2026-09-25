@@ -12,9 +12,13 @@ if (!isset($USUARIO, $PREF, $PAGINA)) {
     exit('Esta página não é acessada direto.');
 }
 
-/** Marca o link da página atual (o JS só posiciona o marcador). */
-function navAtivo(string $arquivo, string $atual): string {
-    return $arquivo === $atual ? ' class="active"' : '';
+/** Marca o link da página atual (o JS só posiciona o marcador).
+ *  Recebe as classes fixas do link e devolve UM atributo class: antes
+ *  elas iam num class="" separado, o link saía com dois atributos e o
+ *  navegador descartava o segundo — a Conta nunca aparecia ativa. */
+function navAtivo(string $arquivo, string $atual, string $classes = ''): string {
+    $lista = trim($classes . ($arquivo === $atual ? ' active' : ''));
+    return $lista === '' ? '' : ' class="' . $lista . '"';
 }
 
 // Classes e estilo do avatar: cor escolhida e, se houver, a foto
@@ -70,8 +74,17 @@ if (!empty($PREF['avatar_url'])) {
                          width="34" height="34" decoding="async">
                 </a>
 
-                <!-- Espaçador óptico no mobile para manter o logo perfeitamente centralizado -->
-                <div class="topo-espacador-mobile" aria-hidden="true"></div>
+                <!-- Sequência de dias (só no mobile, no canto direito do topo).
+                     Ocupa o lugar do antigo espaçador que só existia para
+                     centralizar o logo — e fica em todas as páginas, porque
+                     a sequência é da pessoa, não da aba Início. -->
+                <?php $seq = (int) $USUARIO['sequencia']; ?>
+                <span class="topo-sequencia<?= $seq === 0 ? ' topo-sequencia--vazia' : '' ?>" role="img"
+                      aria-label="Sequência: <?= $seq ?> <?= $seq === 1 ? 'dia seguido' : 'dias seguidos' ?>"
+                      title="<?= $seq ?> <?= $seq === 1 ? 'dia seguido' : 'dias seguidos' ?>">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.2a5.6 5.6 0 0 0 5.6-5.6c0-4.6-5.6-9.2-5.6-9.2S6.4 11 6.4 15.6A5.6 5.6 0 0 0 12 21.2Z"/><path d="M12 21.2a2.4 2.4 0 0 0 2.4-2.4c0-2-2.4-4.1-2.4-4.1s-2.4 2.1-2.4 4.1a2.4 2.4 0 0 0 2.4 2.4Z"/></svg>
+                    <strong><?= $seq ?></strong>
+                </span>
             </div>
 
             <!-- Só no computador: no celular a navegação é a barra de baixo,
@@ -118,21 +131,21 @@ if (!empty($PREF['avatar_url'])) {
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m18.4 6.2 2.2 13.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Biblioteca</span>
                 </a>
-                <a href="flashcards.php" data-rotulo="Flashcards" class="nav-secundario-mobile"<?= navAtivo('flashcards.php', $PAGINA) ?>>
+                <a href="flashcards.php" data-rotulo="Flashcards"<?= navAtivo('flashcards.php', $PAGINA, 'nav-secundario-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Flashcards</span>
                 </a>
-                <a href="exercicios.php" data-rotulo="Exercícios" class="nav-secundario-mobile"<?= navAtivo('exercicios.php', $PAGINA) ?>>
+                <a href="exercicios.php" data-rotulo="Exercícios"<?= navAtivo('exercicios.php', $PAGINA, 'nav-secundario-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Exercícios</span>
                 </a>
 
                 <span class="nav__grupo">Foco</span>
-                <a href="pomodoro.php" data-rotulo="Pomodoro" class="nav-secundario-mobile"<?= navAtivo('pomodoro.php', $PAGINA) ?>>
+                <a href="pomodoro.php" data-rotulo="Pomodoro"<?= navAtivo('pomodoro.php', $PAGINA, 'nav-secundario-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="nav__rotulo">Pomodoro</span>
                 </a>
-                <a href="provas.php" data-rotulo="Provas" class="nav-secundario-mobile"<?= navAtivo('provas.php', $PAGINA) ?>>
+                <a href="provas.php" data-rotulo="Provas"<?= navAtivo('provas.php', $PAGINA, 'nav-secundario-mobile') ?>>
                     <!-- ícone de calendário com um dia marcado: o que a aba
                          faz é apontar um dia no futuro e contar até ele -->
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
@@ -140,7 +153,7 @@ if (!empty($PREF['avatar_url'])) {
                 </a>
 
                 <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile (posição amarela) -->
-                <a href="conta.php" data-rotulo="Conta" class="nav-somente-mobile"<?= navAtivo('conta.php', $PAGINA) ?>>
+                <a href="conta.php" data-rotulo="Conta"<?= navAtivo('conta.php', $PAGINA, 'nav-somente-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Conta</span>
                 </a>

@@ -553,7 +553,7 @@
     }
     .orion-chat-rodape {
         /* Fica logo acima da barra inferior de navegação móvel */
-        padding: 8px 12px calc(70px + env(safe-area-inset-bottom));
+        padding: 8px 12px calc(var(--barra-mobile, 70px) + 12px);
         border-top: 1px solid rgba(165, 65, 255, 0.2);
     }
     .orion-chat-form {

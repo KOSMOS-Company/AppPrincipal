@@ -976,7 +976,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 .rs-soltos__dica { display: block; margin-top: 4px; color: var(--text-dim); }
 
 @media (max-width: 768px) {
-    .doca { bottom: 78px; padding: 12px; }
+    .doca { bottom: calc(var(--barra-mobile, 70px) + 12px); padding: 12px; }
     .doca__alvos { max-height: 26vh; }
     .cad-cor { width: 32px; height: 32px; }
     /* arrastar não existe no toque: a dica só confundiria */
