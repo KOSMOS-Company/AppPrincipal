@@ -21,7 +21,7 @@
         sai pelo mesmo caminho; no celular ele vira folha de baixo;
      5. Topo do celular fixo, o conteúdo passa por baixo, e em vez
         de fio divisório um "scroll edge" que só aparece ao rolar;
-     6. Chip da barra de baixo que viaja de uma aba para a outra;
+     6. (a pílula que viaja entre as abas é do dashboard.js);
      7. Tipografia com espaçamento por tamanho;
      8. Menos movimento / menos transparência / mais contraste.
    A gaveta "Outras ferramentas" ainda ganha arrasto 1:1 com
@@ -306,13 +306,10 @@ h3 { letter-spacing: -.012em; }
             0 16px 36px -10px rgba(0, 0, 0, .8),
             inset 0 1px 0 rgba(255, 255, 255, .1);
     }
-    /* O chip ativo VIAJA entre as abas. Cada aba é uma página nova,
-       mas a View Transition entre documentos casa o chip da página
-       que sai com o da que entra (mesmo nome) e anima posição e
-       largura de um para o outro. A entrada própria dele sai de cena
-       para não animar duas vezes. */
+    /* O chip ativo viaja entre as abas pelo ativarTrocaDeAba() do
+       dashboard.js. Aqui só sai de cena a entrada própria dele (o
+       "pulinho" a cada página), que a viagem já torna redundante. */
     .botoesL a.active {
-        view-transition-name: apple-nav-chip;
         animation: none;
     }
     .botoesL a.active .nav__rotulo { animation: none; }
@@ -358,26 +355,6 @@ h3 { letter-spacing: -.012em; }
         height: 30px;
         color: var(--text-dim);
     }
-}
-
-/* O chip que viaja: tamanho e posição numa mola. As duas imagens
-   (a que sai e a que entra) ficam presas à esquerda, na altura
-   inteira — esticadas na largura, o texto sairia amassado. */
-::view-transition-group(apple-nav-chip) {
-    animation-duration: .5s;
-    animation-timing-function: linear(0, 0.07, 0.214, 0.372, 0.515, 0.636, 0.731, 0.804, 0.859, 0.9, 0.929, 0.95, 0.965, 0.976, 0.983, 0.989, 0.992, 0.995, 0.996, 0.997, 1);
-    border-radius: 999px;
-    overflow: clip;
-}
-::view-transition-old(apple-nav-chip),
-::view-transition-new(apple-nav-chip) {
-    height: 100%;
-    width: auto;
-    left: 0;
-    right: auto;
-    object-fit: none;
-    object-position: left center;
-    animation-duration: .3s;
 }
 
 /* ============================================================

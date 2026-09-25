@@ -13,6 +13,12 @@
 // Caminho do backend a partir de /Frontend/pages/dashboard/
 const API = "../../../Backend/php";
 
+/* A troca de aba roda JÁ, e não no DOMContentLoaded: o deslize da pílula
+   tem de estar montado antes da primeira pintura — senão a barra aparece
+   no lugar final e depois pula para trás para animar. Este script vem no
+   fim do <body>, então a barra de baixo já existe aqui. */
+ativarTrocaDeAba();
+
 document.addEventListener("DOMContentLoaded", () => {
     ativarTransicoes();
     ativarMarcador();
@@ -21,7 +27,222 @@ document.addEventListener("DOMContentLoaded", () => {
     ativarMenuMaisMobile();
     ativarSair();
     ativarBrilhoNosCards();
+    ativarTopoRecolhivel();
 });
+
+/* ------------------------------------------------------------
+   Troca de aba na barra de baixo (só no celular)
+
+   Cada aba é uma página nova, então não há "a mesma barra" para
+   animar de um estado a outro. O truque é o FLIP entre páginas:
+     1. ao tocar numa aba, guarda onde estava cada item da barra;
+     2. na página nova, antes de pintar, põe cada item onde ESTAVA
+        (transform) e o solta para o lugar novo.
+   A pílula ativa parte da aba anterior e viaja até a nova; os outros
+   ícones escorregam para abrir espaço. Só transform, via WAAPI — roda
+   no compositor, sem biblioteca.
+
+   Trocar de aba acontece dezenas de vezes por dia: curto (280 ms),
+   ease-out forte, sem quique. Quem pediu menos movimento não vê nada
+   disso — a barra simplesmente já está no lugar.
+   ------------------------------------------------------------ */
+/** Onde está cada item visível da barra, relativo à própria barra. */
+function medirBarra(nav) {
+    const base = nav.getBoundingClientRect();
+    const itens = {};
+    nav.querySelectorAll("a[href]").forEach((a) => {
+        if (!a.offsetWidth) return;                       // os secundários ficam escondidos no celular
+        const caixa = a.getBoundingClientRect();
+        const icone = (a.querySelector(".nav-icon") || a).getBoundingClientRect();
+        itens[a.getAttribute("href")] = {
+            x: caixa.left - base.left,                    // a pílula anda pela caixa inteira
+            ico: icone.left + icone.width / 2 - base.left // os ícones soltos, pelo centro
+        };
+    });
+    return itens;
+}
+
+function ativarTrocaDeAba() {
+    // A chave mora aqui dentro (e não num const lá fora) porque esta função
+    // é chamada no topo do arquivo, antes de um const de fora existir.
+    const CHAVE_ABA = "kosmos_aba_anterior";
+    const nav = document.querySelector(".botoesL");
+    if (!nav) return;
+    const celular = window.matchMedia("(max-width: 768px)");
+    const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // 1) Tocou numa aba: guarda como a barra estava
+    nav.addEventListener("click", (e) => {
+        const a = e.target.closest("a[href]");
+        if (!a || !celular.matches || a.classList.contains("active")) return;
+        const ativo = nav.querySelector("a.active");
+        try {
+            sessionStorage.setItem(CHAVE_ABA, JSON.stringify({
+                t: Date.now(),
+                largura: window.innerWidth,
+                de: ativo ? ativo.getAttribute("href") : null,
+                itens: medirBarra(nav),
+            }));
+        } catch (err) { /* navegação privada: troca sem animação */ }
+    });
+
+    // 2) Página nova: parte de como a barra estava e desliza para o lugar
+    let antes = null;
+    try {
+        antes = JSON.parse(sessionStorage.getItem(CHAVE_ABA));
+        sessionStorage.removeItem(CHAVE_ABA);
+    } catch (err) { return; }
+
+    // Só vale para a navegação que acabou de acontecer, na mesma largura
+    // (voltar pelo histórico horas depois, ou girar a tela, não animam)
+    if (!antes || Date.now() - antes.t > 3000 || antes.largura !== window.innerWidth) return;
+    if (!celular.matches || semMovimento.matches) return;
+
+    const ativo = nav.querySelector("a.active");
+    const origemPilula = antes.de && antes.itens[antes.de];
+    const opcoes = { duration: 280, easing: "cubic-bezier(0.23, 1, 0.32, 1)" };
+
+    // Fica na barra até a próxima página: desliga a entrada própria do chip
+    // (se a classe saísse no fim, a animação de entrada rodaria DEPOIS do
+    // deslize, e o chip daria um pulo) e o põe por cima dos vizinhos.
+    nav.classList.add("nav--deslizando");
+
+    /* Cada item parte de onde estava. Devolve as animações criadas. */
+    function montar() {
+        const agora = medirBarra(nav);
+        const criadas = [];
+        nav.querySelectorAll("a[href]").forEach((a) => {
+            const href = a.getAttribute("href");
+            const novo = agora[href];
+            if (!novo) return;
+
+            const dx = a === ativo && origemPilula
+                ? origemPilula.x - novo.x                                  // a pílula vem da aba anterior
+                : (antes.itens[href] ? antes.itens[href].ico - novo.ico : 0); // cada ícone, do lugar dele
+            if (Math.abs(dx) < 1) return;
+
+            criadas.push(a.animate([{ transform: `translateX(${dx}px)` }, { transform: "none" }], opcoes));
+        });
+        return criadas;
+    }
+
+    /* As posições dependem da largura do rótulo ("Biblioteca"), e ela
+       muda quando a fonte da página termina de carregar. Medir antes
+       disso faria a pílula partir fora do lugar. Então: com a fonte
+       pronta, desliza já; sem ela, segura a barra no ponto de partida
+       (animação pausada no começo — já é o que a primeira pintura mostra),
+       e quando a fonte chegar, mede de novo e solta. Rede lenta não
+       prende a barra: 150 ms depois solta de qualquer jeito. */
+    if (!document.fonts || document.fonts.status === "loaded") {
+        montar();
+        return;
+    }
+    const segurando = montar();
+    segurando.forEach((an) => an.pause());
+    let soltou = false;
+    const soltar = () => {
+        if (soltou) return;
+        soltou = true;
+        segurando.forEach((an) => an.cancel());
+        montar();
+    };
+    document.fonts.ready.then(soltar);
+    setTimeout(soltar, 150);
+}
+
+/* ------------------------------------------------------------
+   Topo que some ao rolar (só no celular), como no Instagram
+
+   Rolou para baixo: o topo sai junto com o conteúdo, 1:1 com o dedo.
+   Rolou para cima (qualquer quantidade): ele volta, também 1:1. Quando
+   a rolagem para no meio do caminho, ele termina o movimento na direção
+   em que a pessoa rolava — subindo, abre; descendo, fecha. Nunca fica
+   meio topo pendurado, e uma rolada curta para cima já basta para vê-lo.
+
+   Como: o topo é `position: sticky` e escondê-lo é pôr um `top`
+   negativo. Sticky com top = -X fica na maior entre a posição normal
+   e -X, então no alto da página ele rola naturalmente e depois fica
+   exatamente X pixels escondido. Nada de transform — ver o comentário
+   do .contLateral no dashboard.css (a barra de baixo mora dentro dele).
+   ------------------------------------------------------------ */
+function ativarTopoRecolhivel() {
+    const topo = document.querySelector(".contLateral");
+    if (!topo) return;
+
+    const celular = window.matchMedia("(max-width: 768px)");
+    const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    let altura = 0;        // quanto o topo precisa subir para sumir inteiro
+    let escondido = 0;     // 0 = todo visível ... altura = todo escondido
+    let ultimoY = 0;
+    let subindo = false;   // a direção da última rolada decide o encaixe
+    let agendado = false;
+    let parou = 0;
+
+    const aplicar = () => { topo.style.top = escondido ? -escondido + "px" : ""; };
+    const medir = () => { altura = topo.offsetHeight; };
+
+    // O painel do chip (sequência + nível) não pode ficar boiando sozinho
+    const avisarQueSumiu = () => document.dispatchEvent(new CustomEvent("kosmos:topo-escondido"));
+
+    function assentar(alvo) {
+        if (!semMovimento.matches) {
+            topo.classList.add("topo--assentando");
+            setTimeout(() => topo.classList.remove("topo--assentando"), 280);
+        }
+        escondido = alvo;
+        aplicar();
+        if (alvo) avisarQueSumiu();
+    }
+
+    function aoRolar() {
+        agendado = false;
+        if (!celular.matches) return;
+
+        // Rubber band do iOS (y < 0 ou além do fim) não conta como rolagem
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const y = Math.min(Math.max(window.scrollY, 0), Math.max(max, 0));
+        const delta = y - ultimoY;
+        ultimoY = y;
+        if (!delta) return;
+        subindo = delta < 0;
+
+        topo.classList.remove("topo--assentando");
+        const antes = escondido;
+        escondido = Math.min(Math.max(escondido + delta, 0), altura);
+        if (escondido !== antes) {
+            aplicar();
+            if (escondido > 0 && antes === 0) avisarQueSumiu();
+        }
+
+        // Parou no meio? Termina o movimento na direção em que rolava.
+        clearTimeout(parou);
+        parou = setTimeout(() => {
+            if (escondido > 0 && escondido < altura) {
+                // no alto da página não há o que esconder: fica aberto
+                assentar(subindo || window.scrollY < altura ? 0 : altura);
+            }
+        }, 140);
+    }
+
+    window.addEventListener("scroll", () => {
+        if (!agendado) { agendado = true; requestAnimationFrame(aoRolar); }
+    }, { passive: true });
+
+    // Quem navega por teclado e entra no topo precisa enxergá-lo
+    topo.addEventListener("focusin", () => { if (escondido) assentar(0); });
+
+    const reiniciar = () => {
+        clearTimeout(parou);
+        escondido = 0;
+        aplicar();                 // no computador o topo é a barra lateral: sem `top` inline
+        medir();
+        ultimoY = Math.max(window.scrollY, 0);
+    };
+    celular.addEventListener("change", reiniciar);
+    window.addEventListener("resize", medir);
+    reiniciar();
+}
 
 /* ------------------------------------------------------------
    Recolher a barra lateral (só no computador)

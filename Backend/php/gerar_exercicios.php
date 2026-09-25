@@ -187,7 +187,25 @@ if (!$questoes) {
 
 $questoes = aplicarDificuldades($questoes, $plano);
 
-echo json_encode(['ok' => true, 'questoes' => $questoes], JSON_UNESCAPED_UNICODE);
+/* XP de "estudo com o Orion": a IA respondeu com questões de verdade.
+   Até 3 vezes por dia (teto no ProgressoService). A conexão com o banco
+   só abre aqui — o resto deste arquivo não precisa dele. */
+require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/ProgressoService.php';
+$progresso = null;
+if ($questoes) {
+    try {
+        $progresso = progressoRegistrar(conectar(), (int) $usuario['id'], [[
+            'acao'     => 'orion_ia',
+            'xp'       => ProgressoService::XP['orion_ia'],
+            'detalhes' => ['questoes' => count($questoes)],
+        ]]);
+    } catch (PDOException $e) {
+        $progresso = null;   // sem banco, sem XP — as questões saem do mesmo jeito
+    }
+}
+
+echo json_encode(['ok' => true, 'questoes' => $questoes, 'progresso' => $progresso], JSON_UNESCAPED_UNICODE);
 
 /* ============================================================
    Helpers

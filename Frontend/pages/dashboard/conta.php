@@ -14,7 +14,7 @@ function dataBonita(?string $sql): string {
 }
 
 // avatar grande: cor, e a foto no enquadramento salvo (se existir)
-$avatarClasse = 'conta-avatar avatar-cor--' . hesc($PREF['avatar_cor']);
+$avatarClasse = 'conta-avatar avatar-cor--' . hesc($PREF['avatar_cor']) . avatarClassesRecompensa($PREF);
 $avatarStyle  = '';
 if (!empty($PREF['avatar_url'])) {
     $avatarClasse .= ' avatar--foto';
@@ -158,6 +158,11 @@ $temFoto = !empty($PREF['avatar_url']);
                                     <button type="button" class="conta-cor avatar-cor--rosa<?= $PREF['avatar_cor'] === 'rosa' ? ' ativa' : '' ?>" data-cor="rosa" title="Usar a cor rosa" aria-label="Usar a cor rosa"></button>
                                     <button type="button" class="conta-cor avatar-cor--ciano<?= $PREF['avatar_cor'] === 'ciano' ? ' ativa' : '' ?>" data-cor="ciano" title="Usar a cor ciano" aria-label="Usar a cor ciano"></button>
                                 </div>
+                                <?php if (!empty($PROGRESSO['disponivel'])): ?>
+                                <!-- Cores, molduras e emblemas exclusivos vêm do nível:
+                                     quem equipa é a trilha, na página de conquistas. -->
+                                <a class="conta-trilha" href="conquistas.php#trilha">Molduras, emblemas e cores exclusivas na trilha de recompensas</a>
+                                <?php endif; ?>
                             </div>
                         </div>
 

@@ -14,12 +14,16 @@
 
 require_once __DIR__ . '/flashcards_comum.php';
 require_once __DIR__ . '/flashcards_srs.php';   // fcProximaRevisao()
+require_once __DIR__ . '/ProgressoService.php';
 
 $usuario = exigirLogin();
 fcExigirPost();
 
 /** Teto de segurança: uma sessão não tem centenas de cartões. */
 const FC_MAX_RESPOSTAS = 500;
+
+/** Sessão que vale o bônus: pelo menos isto de cartões (ou o deck todo, se for menor). */
+const FC_MIN_CARTOES_SESSAO_XP = 5;
 
 try {
     $pdo  = conectar();
@@ -43,16 +47,22 @@ try {
        calculada a partir do intervalo e da facilidade que o cartão já
        tem, então precisamos deles aqui — uma consulta para o deck
        inteiro, não uma por cartão respondido. */
+    /* `revisado_hoje` é para o XP: um cartão rende uma vez por dia.
+       Revisar o mesmo deck dez vezes seguidas é estudo, mas não pode
+       ser fábrica de XP. Sai do relógio do MySQL, como as outras datas. */
     $stmt = $pdo->prepare(
-        'SELECT id, intervalo, facilidade FROM flashcard_cartoes WHERE deck_id = ?'
+        'SELECT id, intervalo, facilidade,
+                (ultima_revisao IS NOT NULL AND ultima_revisao >= CURDATE()) AS revisado_hoje
+           FROM flashcard_cartoes WHERE deck_id = ?'
     );
     $stmt->execute([$deck['id']]);
 
     $doDeck = [];
     foreach ($stmt as $c) {
         $doDeck[(int) $c['id']] = [
-            'intervalo'  => (int) $c['intervalo'],
-            'facilidade' => (float) $c['facilidade'],
+            'intervalo'     => (int) $c['intervalo'],
+            'facilidade'    => (float) $c['facilidade'],
+            'revisado_hoje' => (bool) $c['revisado_hoje'],
         ];
     }
 
@@ -76,16 +86,22 @@ try {
 
     $acertos = 0;
     $erros   = 0;
+    $acertosComXp = 0;   // acertos em cartões que ainda não renderam XP hoje
+    $vistos  = [];       // o mesmo id duas vezes na lista conta uma só
 
     foreach ($respostas as $resposta) {
         $id = filter_var($resposta['id'] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 
-        if ($id === false || !isset($doDeck[(int) $id])) {
-            continue; // id inválido ou de outro deck: ignora em silêncio
+        if ($id === false || !isset($doDeck[(int) $id]) || isset($vistos[(int) $id])) {
+            continue; // id inválido, de outro deck ou repetido: ignora em silêncio
         }
+        $vistos[(int) $id] = true;
 
         $acertou = !empty($resposta['acertou']);
         $acertou ? $acertos++ : $erros++;
+        if ($acertou && !$doDeck[(int) $id]['revisado_hoje']) {
+            $acertosComXp++;
+        }
 
         $antes = $doDeck[(int) $id];
         $agora = fcProximaRevisao($antes['intervalo'], $antes['facilidade'], $acertou);
@@ -115,11 +131,30 @@ try {
 
     $pdo->commit();
 
+    // XP, depois do commit: a revisão já está salva aconteça o que acontecer aqui
+    $itens = [];
+    if ($acertosComXp > 0) {
+        $itens[] = [
+            'acao'     => 'flashcard_acerto',
+            'xp'       => $acertosComXp * ProgressoService::XP['flashcard_acerto'],
+            'rotulo'   => $acertosComXp === 1 ? '1 cartão certo' : "{$acertosComXp} cartões certos",
+            'detalhes' => ['deck' => (int) $deck['id'], 'cartoes' => $acertosComXp],
+        ];
+    }
+    if ($acertos + $erros >= min(FC_MIN_CARTOES_SESSAO_XP, count($doDeck))) {
+        $itens[] = [
+            'acao'     => 'sessao_flashcards',
+            'xp'       => ProgressoService::XP['sessao_flashcards'],
+            'detalhes' => ['deck' => (int) $deck['id'], 'respostas' => $acertos + $erros],
+        ];
+    }
+
     fcResponder([
-        'ok'      => true,
-        'acertos' => $acertos,
-        'erros'   => $erros,
-        'msg'     => 'Revisão registrada!',
+        'ok'        => true,
+        'acertos'   => $acertos,
+        'erros'     => $erros,
+        'msg'       => 'Revisão registrada!',
+        'progresso' => progressoRegistrar($pdo, (int) $usuario['id'], $itens),
     ]);
 } catch (PDOException $e) {
     if (isset($pdo) && $pdo->inTransaction()) {

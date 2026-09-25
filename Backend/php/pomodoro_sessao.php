@@ -23,6 +23,13 @@
 // ============================================================
 
 require_once __DIR__ . '/estudo_comum.php';
+require_once __DIR__ . '/ProgressoService.php';
+
+/* XP: um ciclo curto demais não é um Pomodoro (um timer de 1 minuto
+   viraria fábrica de XP), e ciclos não podem se sobrepor no tempo —
+   duas sessões "terminando" em horários que se cruzam não são duas
+   sessões de estudo, são uma forjada. */
+const POMO_MIN_MINUTOS_XP = 15;
 
 $usuario = exigirLogin();
 estExigirPost();
@@ -74,9 +81,36 @@ try {
     );
     $hoje->execute([$usuario['id']]);
 
+    $novo = $stmt->rowCount() === 1;   // 2 = já existia e foi atualizada
+    $minutosHoje = (int) $hoje->fetchColumn();
+
+    // XP só na PRIMEIRA gravação do ciclo (a segunda aba que descobre o
+    // mesmo fim não ganha de novo) e só se ele não se cruza com outro.
+    // A folga de 1 minuto em cada ponta absorve relógio impreciso.
+    $progresso = null;
+    if ($novo && $minutos >= POMO_MIN_MINUTOS_XP) {
+        $cruza = $pdo->prepare(
+            'SELECT COUNT(*) FROM pomodoro_sessoes
+              WHERE usuario_id = ?
+                AND fim_em <> FROM_UNIXTIME(?)
+                AND fim_em > FROM_UNIXTIME(?) - INTERVAL ? MINUTE + INTERVAL 1 MINUTE
+                AND fim_em - INTERVAL minutos MINUTE < FROM_UNIXTIME(?) - INTERVAL 1 MINUTE'
+        );
+        $cruza->execute([$usuario['id'], $fim, $fim, $minutos, $fim]);
+
+        if ((int) $cruza->fetchColumn() === 0) {
+            $progresso = progressoRegistrar($pdo, (int) $usuario['id'], [[
+                'acao'     => 'pomodoro_concluido',
+                'xp'       => ProgressoService::XP['pomodoro_concluido'],
+                'detalhes' => ['minutos' => $minutos, 'fim' => $fim],
+            ]]);
+        }
+    }
+
     estResponder([
-        'minutos_hoje' => (int) $hoje->fetchColumn(),
-        'novo'         => $stmt->rowCount() === 1,   // 2 = já existia e foi atualizada
+        'minutos_hoje' => $minutosHoje,
+        'novo'         => $novo,
+        'progresso'    => $progresso,
     ]);
 } catch (PDOException $e) {
     estErro('Não foi possível registrar a sessão.', 500);

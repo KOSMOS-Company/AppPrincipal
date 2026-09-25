@@ -162,10 +162,26 @@
             msg(`Você errou. A resposta certa era a ${letraDe(q.correta)}.`, "erro");
         }
 
+        registrarResposta(atual, indice);
+
         const ultima = atual === questoes.length - 1;
         const prox = el("praticarProxima");
         prox.textContent = ultima ? "Ver resultado" : "Próxima questão →";
         prox.hidden = false;
+    }
+
+    /* A correção acima é a da tela — imediata, sem esperar a rede. Esta
+       manda a resposta para o servidor corrigir DE NOVO com o gabarito
+       do banco: é o que vale XP (o cliente poderia dizer que acertou
+       tudo). O "+20 XP" aparece sozinho: o js/progresso.js percebe o
+       `progresso` na resposta. Se a rede falhar, o quiz segue igual. */
+    function registrarResposta(questao, escolhida) {
+        if (!exercicio || !exercicio.id) return;
+        const dados = new FormData();
+        dados.append("exercicio", exercicio.id);
+        dados.append("questao", questao);
+        dados.append("escolhida", escolhida);
+        fetch(`${BACKEND}/exercicios_responder.php`, { method: "POST", body: dados }).catch(() => {});
     }
 
     function proxima() {

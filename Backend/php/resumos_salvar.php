@@ -20,9 +20,15 @@
 // ============================================================
 
 require_once __DIR__ . '/resumos_comum.php';
+require_once __DIR__ . '/ProgressoService.php';
+
+/** Resumo que vale XP: pelo menos isto de texto (sem contar as tags). */
+const RESUMO_MIN_CARACTERES_XP = 200;
 
 $usuario = exigirLogin();
 apiExigirPost();
+
+$progresso = null;
 
 $erros  = [];
 $id     = apiId('id');                                      // 0 = novo
@@ -81,6 +87,19 @@ try {
 
         $id  = (int) $pdo->lastInsertId();
         $msg = 'Resumo salvo!';
+
+        /* XP só na criação, e só para resumo com corpo de verdade: um
+           título com duas palavras não é um "resumo estruturado", e
+           criar-apagar-criar não pode virar fábrica (o teto diário do
+           ProgressoService segura o resto). */
+        if (mb_strlen(trim(strip_tags($corpo))) >= RESUMO_MIN_CARACTERES_XP) {
+            $progresso = progressoRegistrar($pdo, $usuarioId, [[
+                'acao'     => 'conteudo_criado',
+                'xp'       => ProgressoService::XP['conteudo_criado'],
+                'rotulo'   => 'Novo resumo',
+                'detalhes' => ['resumo' => $id],
+            ]]);
+        }
     }
 
     // Devolve o resumo como ele ficou, para a tela atualizar sem recarregar
@@ -93,8 +112,9 @@ try {
     $imagens = imagensDoResumo($pdo, $id);
 
     apiResponder([
-        'ok'     => true,
-        'msg'    => $msg,
+        'ok'        => true,
+        'msg'       => $msg,
+        'progresso' => $progresso,
         'resumo' => [
             'id'         => (int) $r['id'],
             'titulo'     => $r['titulo'],

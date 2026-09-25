@@ -95,6 +95,8 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
      mysql -u root kosmos < 2026-09-11_caderno_personalizacao.sql  # cor, ícone e capa
      mysql -u root kosmos < 2026-09-13_estudo.sql       # sessões, repetição espaçada, provas, busca
      mysql -u root kosmos < 2026-09-14_provas.sql       # assuntos que caem, anotações e nota
+     mysql -u root kosmos < 2026-09-25_progresso.sql    # XP, níveis, conquistas (+ XP retroativo)
+     mysql -u root kosmos < 2026-09-25_recompensas.sql  # trilha de recompensas do avatar
      ```
      Todas usam `IF NOT EXISTS`, então rodar de novo por engano não quebra nada.
 
