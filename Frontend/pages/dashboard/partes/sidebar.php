@@ -45,6 +45,10 @@ if (!empty($PREF['avatar_url'])) {
                 }
             } catch (e) { /* navegação privada: segue aberta, sem drama */ }
         </script>
+        <!-- Camada "Apple" (molas, materiais, gestos). Aqui e não no <head>
+             de cada aba de propósito: carregada depois do CSS da página,
+             ela vence os empates sem precisar de !important. -->
+        <link rel="stylesheet" href="./css/apple.css">
 
         <aside class="contLateral">
             <!-- A seta de recolher NÃO mora aqui dentro: ela é posicionada
@@ -272,6 +276,8 @@ if (!empty($PREF['avatar_url'])) {
                 </div>
             </div>
         </div>
+
+        <script src="./js/apple.js" defer></script>
 
         <?php if ($PAGINA !== 'orion.php'): ?>
             <?php include __DIR__ . '/orion-chat.php'; ?>

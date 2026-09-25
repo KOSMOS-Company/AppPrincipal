@@ -1,0 +1,423 @@
+/* ============================================================
+   KOSMOS — Camada "Apple" do dashboard
+
+   Uma camada POR CIMA do dashboard.css (e do CSS de cada aba): é
+   carregada depois deles, dentro de partes/sidebar.php, então vence
+   os empates de especificidade sem precisar de !important.
+
+   Nasceu de um comparativo entre três visuais (Kosmos, Apple, Emil);
+   ficou o Apple. Os princípios vêm das palestras de design da Apple
+   na WWDC (sobretudo Designing Fluid Interfaces), traduzidos para a
+   web. Componente novo no dashboard deve seguir a mesma linha: usar
+   as molas (--mola), os materiais e o feedback no pressionar daqui.
+
+   O que muda, e de onde vem (WWDC — Designing Fluid Interfaces e
+   afins, traduzido para a web):
+     1. Molas no lugar de curvas com duração fixa;
+     2. Resposta no toque — feedback no pressionar, não no soltar;
+     3. Materiais translúcidos com peso de hierarquia (barra lateral
+        mais "grossa", menus mais leves), borda clara no topo;
+     4. Origem espacial: o menu nasce da engrenagem; o modal entra e
+        sai pelo mesmo caminho; no celular ele vira folha de baixo;
+     5. Topo do celular fixo, o conteúdo passa por baixo, e em vez
+        de fio divisório um "scroll edge" que só aparece ao rolar;
+     6. Chip da barra de baixo que viaja de uma aba para a outra;
+     7. Tipografia com espaçamento por tamanho;
+     8. Menos movimento / menos transparência / mais contraste.
+   A gaveta "Outras ferramentas" ainda ganha arrasto 1:1 com
+   velocidade e projeção de impulso — isso está no apple.js.
+   ============================================================ */
+
+/* ── Molas ──
+   Curvas calculadas da equação de uma mola real (não aproximadas
+   com cubic-bezier). Como a forma de uma mola não depende da
+   resposta, só a duração muda.
+   --mola          amortecimento 1.0 — assenta sem passar do ponto.
+                   O padrão para quase tudo.
+   --mola-quique   amortecimento 0.8 — passa ~1.5% e volta. Só onde
+                   houve impulso (soltar um arrasto). */
+:root {
+    --mola: linear(0, 0.07, 0.214, 0.372, 0.515, 0.636, 0.731, 0.804, 0.859, 0.9, 0.929, 0.95, 0.965, 0.976, 0.983, 0.989, 0.992, 0.995, 0.996, 0.997, 1);
+    --mola-t: .55s;       /* resposta 0.4 */
+    --mola-rapida-t: .48s;/* resposta 0.35 */
+    --mola-quique: linear(0, 0.036, 0.124, 0.238, 0.362, 0.482, 0.592, 0.689, 0.771, 0.837, 0.89, 0.931, 0.961, 0.982, 0.997, 1.006, 1.012, 1.014, 1.015, 1.015, 1.013, 1.011, 1.01, 1.008, 1.006, 1.005, 1.003, 1.002, 1);
+    --mola-quique-t: .4s; /* resposta 0.3 */
+
+    /* Vibrância: sobre vidro o cinza chapado some. Os dois tons
+       secundários sobem um degrau de contraste. */
+    --text-dim: #c7b9da;
+    --text-muted: #9280ab;
+
+    /* Materiais. O grosso separa regiões (barra lateral, topo); o
+       fino chama atenção para o que se toca (menus, folhas). */
+    --material-grosso: rgba(16, 2, 30, .62);
+    --material-fino: rgba(34, 8, 60, .88);
+    --material-desfoque: blur(28px) saturate(170%);
+    --realce-topo: inset 0 1px 0 rgba(255, 255, 255, .08);
+    --fio-claro: rgba(255, 255, 255, .08);
+}
+
+/* ============================================================
+   TIPOGRAFIA
+   Espaçamento depende do tamanho: título grande aperta, texto
+   pequeno abre um fio. Entrelinha segue ao contrário.
+   ============================================================ */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-optical-sizing: auto;
+}
+.contCabeca h1,
+.ini-hero__titulo {
+    letter-spacing: -.038em;
+    line-height: 1.04;
+}
+h2 { letter-spacing: -.022em; }
+h3 { letter-spacing: -.012em; }
+:is(.contCabeca p, .ini-hero__desc, .ini-card__desc, .painel__sub) {
+    line-height: 1.55;
+}
+:is(.sheet-card__info span, .usuario__info span, .ini-card__nota, .campo__dica) {
+    letter-spacing: .012em;
+}
+
+/* ============================================================
+   RESPOSTA NO TOQUE
+   O retorno acontece no PRESSIONAR (100ms, saída rápida) e a volta
+   é uma mola. Esperar o "click" para reagir é o que faz uma tela
+   parecer morta. `manipulation` corta o atraso de toque duplo.
+   ============================================================ */
+:is(a, button, .chip, .sheet-card, .dash-btn) {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+:is(.dash-btn, .chip, .conf__botao, .topo-btn-ferramentas, .sheet-card,
+                          .modal__close, .sheet-fechar, a.ini-card, .resumo-card, .deck-card,
+                          .caderno-card, .exercicio-materia-card) {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: .2s, .2s, .2s, .2s, .2s, var(--mola-t);
+    transition-timing-function: ease, ease, ease, ease, ease, var(--mola);
+}
+:is(.dash-btn, .conf__botao, .topo-btn-ferramentas, .modal__close, .sheet-fechar):active:not(:disabled) {
+    transform: scale(.96);
+    transition-duration: .1s;
+    transition-timing-function: ease-out;
+}
+:is(.sheet-card, .chip, a.ini-card, .resumo-card, .deck-card,
+                          .caderno-card, .exercicio-materia-card):active {
+    transform: scale(.98);
+    transition-duration: .1s;
+    transition-timing-function: ease-out;
+}
+/* Apple não "levanta" botão no hover: o hover é cor, a física é do toque */
+.dash-btn--primary:hover {
+    transform: none;
+    box-shadow: 0 6px 20px -6px rgba(165, 65, 255, .6);
+}
+.dash-btn--primary {
+    box-shadow: var(--realce-topo);
+}
+
+/* Sublinhado das abas (chips) e marcador do menu: mola, sem quique */
+.chip::after {
+    transition: width var(--mola-t) var(--mola);
+}
+.nav__marca.animada {
+    transition: transform var(--mola-t) var(--mola),
+                height var(--mola-t) var(--mola),
+                opacity .2s ease;
+}
+
+/* ============================================================
+   COMPUTADOR — barra lateral como material grosso
+   ============================================================ */
+@media (min-width: 769px) {
+    .contLateral {
+        background: var(--material-grosso);
+        -webkit-backdrop-filter: var(--material-desfoque);
+        backdrop-filter: var(--material-desfoque);
+        border-right: 1px solid var(--fio-claro);
+        box-shadow: inset -1px 0 0 rgba(165, 65, 255, .06);
+        transition: width var(--mola-t) var(--mola);
+    }
+    .nav__marca {
+        background: rgba(255, 255, 255, .07);
+        border-color: var(--fio-claro);
+        box-shadow: var(--realce-topo);
+    }
+}
+
+/* ── Menu da engrenagem ──
+   Nasce DA engrenagem (origem no canto de baixo à direita, onde ela
+   está) e "materializa": escala e desfoque juntos, não só opacidade. */
+.conf__menu {
+    transform-origin: calc(100% - 17px) calc(100% + 25px);
+    border-radius: 16px;
+    background: var(--material-fino);
+    -webkit-backdrop-filter: var(--material-desfoque);
+    backdrop-filter: var(--material-desfoque);
+    border: 1px solid var(--fio-claro);
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .75), var(--realce-topo);
+    animation: appleMaterializa var(--mola-t) var(--mola) both;
+}
+.conf__item { border-radius: 10px; }
+.conf__botao svg {
+    transition: transform var(--mola-t) var(--mola);
+}
+@keyframes appleMaterializa {
+    from { opacity: 0; transform: scale(.88); filter: blur(6px); }
+    40%  { opacity: 1; }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* ============================================================
+   MODAIS
+   Escurecer para focar + a caixa entra e SAI pelo mesmo caminho.
+   A saída funciona só com CSS e sem mexer no JS de cada aba: o modal
+   fica sempre em `display: flex`, e quem o esconde é `visibility`,
+   que só vira "hidden" DEPOIS que a caixa terminou de voltar (o
+   atraso de .5s na transição). Escondido por visibility, ele não
+   recebe clique nem foco — igual ao display: none de antes.
+   ============================================================ */
+.modal {
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
+    background: rgba(4, 0, 10, .55);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    backdrop-filter: blur(10px) saturate(120%);
+    transition: opacity .28s ease, visibility 0s linear .5s;
+}
+.modal.open {
+    visibility: visible;
+    opacity: 1;
+    animation: none;
+    transition: opacity .28s ease, visibility 0s;
+}
+.modal__box {
+    background: linear-gradient(180deg, rgba(40, 10, 70, .9) 0%, rgba(24, 4, 44, .94) 100%);
+    border: 1px solid var(--fio-claro);
+    box-shadow: 0 40px 90px -20px rgba(0, 0, 0, .8), var(--realce-topo);
+    border-radius: 24px;
+    opacity: 0;
+    transform: translateY(18px) scale(.96);
+    transition: transform var(--mola-t) var(--mola), opacity .22s ease;
+}
+.modal.open .modal__box {
+    opacity: 1;
+    transform: none;
+}
+.modal__close {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .08);
+    font-size: 1.2rem;
+}
+
+/* No celular o modal vira folha que sobe de baixo — o gesto que o
+   polegar já conhece. Entra por baixo, sai por baixo. */
+@media (max-width: 600px) {
+    .modal {
+        align-items: flex-end;
+        padding: calc(24px + env(safe-area-inset-top)) 0 0;
+    }
+    .modal__box {
+        max-width: none;
+        max-height: calc(100dvh - 48px);
+        border-radius: 28px 28px 0 0;
+        border-bottom: 0;
+        padding: 22px 20px calc(28px + env(safe-area-inset-bottom));
+        opacity: 1;
+        transform: translateY(100%);
+        transition: transform var(--mola-rapida-t) var(--mola);
+    }
+    .modal__actions { flex-wrap: wrap; }
+    /* O botão do Orion (z 800) ficaria em cima da folha, junto do X */
+    body:has(.modal.open) #orionChatLauncher {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .modal__actions .dash-btn { flex: 1 1 auto; justify-content: center; }
+}
+
+/* ============================================================
+   CELULAR — topo, barra de baixo, gaveta
+   ============================================================ */
+@media (max-width: 768px) {
+    /* Topo fixo de vidro; o conteúdo rola por baixo. O desfoque mora
+       num pseudo-elemento: no próprio topo ele viraria o "bloco de
+       contenção" da barra de baixo (que é filha dele) e a tiraria do
+       rodapé da tela. */
+    .contLateral {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: transparent;
+        border-bottom-color: transparent;
+        padding-top: max(12px, env(safe-area-inset-top));
+    }
+    .contLateral::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: rgba(13, 1, 24, .58);
+        -webkit-backdrop-filter: var(--material-desfoque);
+        backdrop-filter: var(--material-desfoque);
+        pointer-events: none;
+    }
+    /* Scroll edge: em vez de fio fixo, uma sombra suave que só existe
+       quando há conteúdo passando por baixo (html.apple-rolou). */
+    .contLateral::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        height: 20px;
+        background: linear-gradient(180deg, rgba(4, 0, 10, .5), rgba(4, 0, 10, 0));
+        opacity: 0;
+        transition: opacity .25s ease;
+        pointer-events: none;
+    }
+    html.apple-rolou .contLateral::after { opacity: 1; }
+
+    :is(.topo-btn-ferramentas, .topo-sequencia) {
+        background: rgba(255, 255, 255, .06);
+        border-color: var(--fio-claro);
+        box-shadow: var(--realce-topo);
+    }
+    .topo-sequencia:not(.topo-sequencia--vazia) {
+        background: rgba(165, 65, 255, .14);
+        border-color: rgba(201, 124, 255, .22);
+    }
+
+    /* Barra de baixo: material mais leve e borda de luz no topo */
+    .botoesL {
+        background: rgba(20, 3, 36, .6);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        border-color: var(--fio-claro);
+        box-shadow:
+            0 16px 36px -10px rgba(0, 0, 0, .8),
+            inset 0 1px 0 rgba(255, 255, 255, .1);
+    }
+    /* O chip ativo VIAJA entre as abas. Cada aba é uma página nova,
+       mas a View Transition entre documentos casa o chip da página
+       que sai com o da que entra (mesmo nome) e anima posição e
+       largura de um para o outro. A entrada própria dele sai de cena
+       para não animar duas vezes. */
+    .botoesL a.active {
+        view-transition-name: apple-nav-chip;
+        animation: none;
+    }
+    .botoesL a.active .nav__rotulo { animation: none; }
+    .botoesL a:active { transition-duration: .1s; }
+
+    /* Gaveta "Outras ferramentas": escurece para focar; o painel é
+       quase sólido — dentro de um fundo já desfocado, um segundo vidro
+       só enxergaria o primeiro. O arrasto é do apple.js; --sheet-p
+       (0 a 1) é o quanto ela está aberta, e o escuro acompanha o dedo. */
+    .sheet-overlay {
+        background: rgba(4, 0, 10, calc(.55 * var(--sheet-p, 1)));
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        transition: opacity .3s ease;
+    }
+    .sheet-painel {
+        background: linear-gradient(180deg, rgba(38, 9, 66, .96) 0%, rgba(22, 4, 40, .98) 100%);
+        border-top: 1px solid rgba(255, 255, 255, .12);
+        border-radius: 28px 28px 0 0;
+        box-shadow: 0 -24px 60px -12px rgba(0, 0, 0, .75), var(--realce-topo);
+        transition: transform var(--mola-rapida-t) var(--mola);
+        touch-action: none;           /* o arrasto é nosso, não da rolagem */
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    .sheet-puxador {
+        width: 36px;
+        height: 5px;
+        background: rgba(255, 255, 255, .28);
+        cursor: grab;
+    }
+    .sheet-card {
+        background: rgba(255, 255, 255, .05);
+        border-color: var(--fio-claro);
+        box-shadow: var(--realce-topo);
+    }
+    .sheet-card.ativo {
+        background: rgba(165, 65, 255, .2);
+        border-color: rgba(201, 124, 255, .45);
+    }
+    .sheet-fechar {
+        width: 30px;
+        height: 30px;
+        color: var(--text-dim);
+    }
+}
+
+/* O chip que viaja: tamanho e posição numa mola. As duas imagens
+   (a que sai e a que entra) ficam presas à esquerda, na altura
+   inteira — esticadas na largura, o texto sairia amassado. */
+::view-transition-group(apple-nav-chip) {
+    animation-duration: .5s;
+    animation-timing-function: linear(0, 0.07, 0.214, 0.372, 0.515, 0.636, 0.731, 0.804, 0.859, 0.9, 0.929, 0.95, 0.965, 0.976, 0.983, 0.989, 0.992, 0.995, 0.996, 0.997, 1);
+    border-radius: 999px;
+    overflow: clip;
+}
+::view-transition-old(apple-nav-chip),
+::view-transition-new(apple-nav-chip) {
+    height: 100%;
+    width: auto;
+    left: 0;
+    right: auto;
+    object-fit: none;
+    object-position: left center;
+    animation-duration: .3s;
+}
+
+/* ============================================================
+   ACESSIBILIDADE
+   ============================================================ */
+/* Menos movimento: nada de deslizar nem de mola — só cruzar opacidade */
+@media (prefers-reduced-motion: reduce) {
+    .modal__box,
+    .sheet-painel {
+        transform: none !important;
+        transition: opacity .2s ease !important;
+    }
+    .modal:not(.open) .modal__box { opacity: 0; }
+    .sheet-overlay:not(.aberto) .sheet-painel { opacity: 0; }
+    .conf__menu { animation: appleSoOpacidade .2s ease both; }
+    :is(a, button, .chip, .sheet-card, .dash-btn):active { transform: none !important; }
+    @keyframes appleSoOpacidade { from { opacity: 0; } }
+}
+/* Menos transparência: os vidros viram superfície sólida */
+@media (prefers-reduced-transparency: reduce) {
+    :is(.contLateral, .botoesL, .conf__menu, .modal, .sheet-overlay),
+    .contLateral::before {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+    :is(.conf__menu, .botoesL) { background: #1d0536; }
+    .contLateral::before { background: #0d0118; }
+    @media (min-width: 769px) {
+        .contLateral { background: #12011f; }
+    }
+}
+/* Mais contraste: fundos quase sólidos e bordas definidas */
+@media (prefers-contrast: more) {
+    :root {
+        --fio-claro: rgba(255, 255, 255, .35);
+        --text-dim: #e4dbef;
+        --text-muted: #b9a9cf;
+    }
+    :is(.conf__menu, .botoesL, .modal__box, .sheet-painel) {
+        background: #1d0536;
+        border-color: rgba(255, 255, 255, .4);
+    }
+}
