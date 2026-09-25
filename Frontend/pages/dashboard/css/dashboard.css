@@ -1920,6 +1920,7 @@ a.ini-card:hover .ini-card__ico {
 
 /* O modal de confirmação é estreito: é só uma pergunta */
 .modal__box--confirma { max-width: 400px; }
+.modal__box--pede { max-width: 400px; }
 
 /* ════════════════════════════════════════════════════════════════
    INÍCIO — os blocos que dependem de dados reais

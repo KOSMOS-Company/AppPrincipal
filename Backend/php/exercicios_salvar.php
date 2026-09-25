@@ -43,7 +43,7 @@ try {
             if (json_last_error() !== JSON_ERROR_NONE) {
                 apiErro('Conteúdo inválido (não é JSON).', 422);
             }
-            if (!in_array($dificuldade, ['Fácil', 'Médio', 'Difícil'], true)) {
+            if (!in_array($dificuldade, ['Fácil', 'Médio', 'Difícil', 'Misto'], true)) {
                 $dificuldade = 'Médio';
             }
 
@@ -89,7 +89,7 @@ try {
             if (json_last_error() !== JSON_ERROR_NONE) {
                 apiErro('Conteúdo inválido (não é JSON).', 422);
             }
-            if (!in_array($dificuldade, ['Fácil', 'Médio', 'Difícil'], true)) {
+            if (!in_array($dificuldade, ['Fácil', 'Médio', 'Difícil', 'Misto'], true)) {
                 $dificuldade = 'Médio';
             }
 

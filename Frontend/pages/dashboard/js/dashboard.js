@@ -227,6 +227,72 @@ function confirmar({ titulo, texto, botao = "Confirmar", perigo = false }) {
 }
 
 /* ------------------------------------------------------------
+   Pedir um texto (compartilhada por todas as abas)
+   Abre a mini caixa com um campo e devolve uma promessa: o texto
+   (já aparado) se a pessoa salvou, null se desistiu. Um vazio não
+   fecha — avisa dentro do próprio modal, sem alert nativo.
+   Serve para renomear sem sair da página (ex.: título de lista).
+   O HTML do modal vem de partes/modal-pede.php; se a página não
+   o incluir, cai no prompt nativo para não travar a ação.
+   ------------------------------------------------------------ */
+function pedir({ titulo, rotulo, valor = "", botao = "Salvar" }) {
+    const modal = document.getElementById("modalPede");
+    const input = document.getElementById("pedeInput");
+    const erro = document.getElementById("pedeErro");
+    const sim = document.getElementById("pedeSim");
+    const nao = document.getElementById("pedeNao");
+    const fechar = document.getElementById("pedeFechar");
+
+    // sem o modal na página (outra aba), usa o prompt nativo
+    if (!modal || !sim) {
+        const resposta = window.prompt(rotulo, valor);
+        return Promise.resolve(resposta === null ? null : resposta.trim());
+    }
+
+    document.getElementById("pedeTitulo").textContent = titulo;
+    document.getElementById("pedeRotulo").textContent = rotulo;
+    input.value = valor;
+    erro.hidden = true;
+    erro.textContent = "";
+    sim.textContent = botao;
+    modal.classList.add("open");
+    input.focus();
+    input.select();
+
+    return new Promise((resolve) => {
+        const encerrar = (resposta) => {
+            modal.classList.remove("open");
+            sim.onclick = null;
+            nao.onclick = null;
+            fechar.onclick = null;
+            modal.onclick = null;
+            input.onkeydown = null;
+            document.removeEventListener("keydown", noEsc);
+            resolve(resposta);
+        };
+        const noEsc = (e) => { if (e.key === "Escape") encerrar(null); };
+        const salvar = () => {
+            const texto = input.value.trim();
+            if (!texto) {
+                erro.textContent = "O título não pode ficar vazio.";
+                erro.className = "msg msg--erro";
+                erro.hidden = false;
+                input.focus();
+                return;
+            }
+            encerrar(texto);
+        };
+
+        sim.onclick = salvar;
+        nao.onclick = () => encerrar(null);
+        fechar.onclick = () => encerrar(null);
+        modal.onclick = (e) => { if (e.target === modal) encerrar(null); };
+        input.onkeydown = (e) => { if (e.key === "Enter") salvar(); };
+        document.addEventListener("keydown", noEsc);
+    });
+}
+
+/* ------------------------------------------------------------
    O menu da engrenagem (rodapé da barra lateral)
 
    Guarda o que sobrou da Conta depois que o cartão do usuário passou

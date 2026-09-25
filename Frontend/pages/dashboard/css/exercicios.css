@@ -380,13 +380,96 @@
 /* ============================================================
    MODAL GERAR EXERCÍCIOS — Preview styles
    ============================================================ */
-.ex-gerar-etapa { animation: fade-in .15s ease; }
+/* A etapa é UM filho do .modal__form, então o gap de 16px dele não
+   alcança o que está dentro dela — aqui o ritmo é o mesmo, 16px
+   entre cada bloco. O [hidden] precisa de regra própria: author
+   CSS vence o display:none do UA e as duas etapas apareceriam. */
+.ex-gerar-etapa {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fade-in .15s ease;
+}
+.ex-gerar-etapa[hidden] { display: none; }
+
+/* O modal reusa a classe --resumo (620px), mas seu textarea não: 200px
+   deixa um vazio enorme no meio do formulário e empurra os botões
+   para fora da tela. 150px cobre o placeholder inteiro com folga. */
+#modalExercicioGerar textarea { min-height: 150px; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-.ex-gerar-campos-dupla {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+/* .campo é display:flex (author) e vence o display:none do UA —
+   sem esta regra, os campos escondidos do modal apareceriam. */
+#modalExercicioGerar .campo[hidden] { display: none; }
+
+/* Tempo estimado da geração: linha minimalista sob os botões,
+   só visível enquanto a IA trabalha (contagem regressiva). */
+.ex-gerar-estimativa {
+    margin-top: -6px;
+    text-align: right;
+    font-size: .8rem;
+    color: var(--text-muted);
+}
+
+/* ---- Chips de dificuldade e de distribuição (toggle) ---- */
+.ex-dif { display: flex; flex-wrap: wrap; gap: 8px; }
+.ex-dif__opcao {
+    font-family: "DM Sans", sans-serif;
+    font-size: .85rem;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.12);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.ex-dif__opcao:hover {
+    background: rgba(165,65,255,.14);
+    border-color: rgba(165,65,255,.4);
+    color: var(--text-dim);
+}
+.ex-dif__opcao[aria-pressed="true"] {
+    background: rgba(165,65,255,.22);
+    border-color: var(--accent);
+    color: var(--text);
+    box-shadow: 0 0 0 3px rgba(165,65,255,.12);
+}
+.ex-dif__opcao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- "Quantas de cada": uma linha por dificuldade marcada ---- */
+.ex-qtd-dif { display: flex; flex-direction: column; gap: 10px; }
+.ex-qtd-dif__linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    animation: fade-in .15s ease;
+}
+.ex-qtd-dif__nome { font-size: .9rem; font-weight: 500; color: var(--text-dim); }
+.ex-qtd-dif .qtd-stepper { width: 190px; flex: none; }
+.campo__dica--erro { color: #ef4444; }
+
+/* ---- Badge da dificuldade em cada questão da prévia ---- */
+.ex-gerar-questao__topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--accent-lt);
+}
+.ex-gerar-questao__dif {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(165,65,255,.15);
+    border: 1px solid rgba(165,65,255,.3);
+    color: var(--accent-lt);
 }
 .ex-gerar-questoes {
     max-height: 380px;
@@ -399,7 +482,8 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 12px;
-    margin-bottom: 16px;
+    /* sem margin-bottom: o gap do .ex-gerar-etapa cuida do espaço
+       (com as duas, a lista de questões ficaria 32px mais abaixo) */
     padding-bottom: 12px;
     border-bottom: 1px solid rgba(165,65,255,.1);
 }
@@ -523,6 +607,7 @@
     border-color: var(--accent);
 }
 .ex-praticar__dica-botao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ex-praticar__dica-botao svg { width: 14px; height: 14px; flex: none; }
 
 /* Texto da dica: transição suave ao invés de display:none, pra ter
    animação de verdade (o [hidden] global cortaria no display). */
@@ -552,7 +637,7 @@
 }
 
 /* ---- Alternativas ---- */
-.ex-praticar__alts { display: flex; flex-direction: column; gap: 10px; }
+.ex-praticar__alts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
 
 .ex-praticar-alt {
     display: flex;
@@ -613,6 +698,16 @@
 }
 .ex-praticar-alt.errada .ex-praticar-alt__letra { color: #f87171; }
 
+/* Feedback de certo/errado: respiro das alternativas e dos botões,
+   com ícone inline (substitui o emoji). */
+.ex-praticar .msg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.ex-praticar .msg svg { width: 16px; height: 16px; flex: none; }
+
 /* Depois de responder a questão fica travada: só dá para olhar */
 .ex-praticar__alts.bloqueado .ex-praticar-alt {
     pointer-events: none;
@@ -623,9 +718,30 @@
 /* ---- Resultado ---- */
 .ex-praticar-resultado { text-align: center; }
 .ex-praticar-resultado__badge {
-    font-size: 2.6rem;
-    line-height: 1;
-    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 2px solid rgba(165,65,255,.45);
+    background: rgba(165,65,255,.1);
+    color: var(--accent-lt);
+    font-family: "Syne", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+}
+.ex-praticar-resultado__badge[data-nivel="otimo"],
+.ex-praticar-resultado__badge[data-nivel="bom"] {
+    border-color: rgba(52,211,153,.55);
+    background: rgba(52,211,153,.12);
+    color: #34d399;
+}
+.ex-praticar-resultado__badge[data-nivel="fraco"] {
+    border-color: rgba(239,68,68,.5);
+    background: rgba(239,68,68,.1);
+    color: #f87171;
 }
 .ex-praticar-resultado__titulo {
     font-family: "Syne", sans-serif;
@@ -667,6 +783,7 @@
 }
 .ex-praticar-resumo-item.certo  .ex-praticar-resumo__status { background: rgba(52,211,153,.2);  color: #34d399; }
 .ex-praticar-resumo-item.errado .ex-praticar-resumo__status { background: rgba(239,68,68,.2);   color: #f87171; }
+.ex-praticar-resumo__status svg { width: 12px; height: 12px; }
 
 .ex-praticar-resumo__q { font-weight: 600; }
 .ex-praticar-resumo__resp {

@@ -32,31 +32,45 @@ if (!isset($USUARIO, $PREF)) {
                         <div class="campo">
                             <label for="exGerarConteudo">Conteúdo específico <span class="campo__opcional">(obrigatório)</span></label>
                             <textarea id="exGerarConteudo" rows="4" placeholder="Descreva o tópico exato para gerar exercícios direcionados...&#10;Ex: Derivadas de funções polinomiais, regra da cadeia, derivadas de funções trigonométricas" required></textarea>
-                            <span class="campo__dica">Quanto mais específico, melhor a IA acerta no foco.</span>
+                            <span class="campo__dica">Quanto mais específico você for, melhor a IA acerta no foco.</span>
                         </div>
 
-                        <div class="ex-gerar-campos-dupla">
-                            <div class="campo">
-                                <label for="exGerarDificuldade">Dificuldade</label>
-                                <select id="exGerarDificuldade">
-                                    <option value="Fácil">Fácil</option>
-                                    <option value="Médio" selected>Médio</option>
-                                    <option value="Difícil">Difícil</option>
-                                </select>
+                        <div class="campo">
+                            <label id="exGerarDificuldadeLbl">Dificuldade</label>
+                            <div class="ex-dif" id="exGerarDificuldades" role="group" aria-labelledby="exGerarDificuldadeLbl">
+                                <button type="button" class="ex-dif__opcao" data-dificuldade="Fácil" aria-pressed="false">Fácil</button>
+                                <button type="button" class="ex-dif__opcao" data-dificuldade="Médio" aria-pressed="true">Médio</button>
+                                <button type="button" class="ex-dif__opcao" data-dificuldade="Difícil" aria-pressed="false">Difícil</button>
                             </div>
-                            <div class="campo">
-                                <label for="exGerarQtd">Quantidade</label>
-                                <div class="qtd-stepper">
-                                    <button type="button" class="qtd-stepper__btn" id="exGerarQtdMenos" aria-label="Diminuir quantidade">
-                                        <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                                    </button>
-                                    <input id="exGerarQtd" type="number" min="1" max="15" value="5" inputmode="numeric" aria-label="Quantidade de questões">
-                                    <button type="button" class="qtd-stepper__btn" id="exGerarQtdMais" aria-label="Aumentar quantidade">
-                                        <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                                    </button>
-                                </div>
-                                <span class="campo__dica">Máximo de 15 questões por vez.</span>
+                            <span class="campo__dica">Pode marcar mais de uma — as questões saem misturadas.</span>
+                        </div>
+
+                        <div class="campo">
+                            <label id="exGerarModoLbl">Distribuição</label>
+                            <div class="ex-dif" id="exGerarModo" role="group" aria-labelledby="exGerarModoLbl">
+                                <button type="button" class="ex-dif__opcao" data-modo="fixo" aria-pressed="true">Por dificuldade</button>
+                                <button type="button" class="ex-dif__opcao" data-modo="aleatorio" aria-pressed="false">Aleatória</button>
                             </div>
+                        </div>
+
+                        <div class="campo" id="exGerarPorDificuldade">
+                            <label>Quantas de cada</label>
+                            <div class="ex-qtd-dif" id="exGerarQtdsDif"></div>
+                            <span class="campo__dica" id="exGerarTotalDif">Total: 5 de 15 questões.</span>
+                        </div>
+
+                        <div class="campo" id="exGerarTotalAleatorio" hidden>
+                            <label for="exGerarQtd">Quantidade total</label>
+                            <div class="qtd-stepper">
+                                <button type="button" class="qtd-stepper__btn" id="exGerarQtdMenos" aria-label="Diminuir quantidade">
+                                    <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                </button>
+                                <input id="exGerarQtd" type="number" min="1" max="15" value="5" inputmode="numeric" aria-label="Quantidade de questões">
+                                <button type="button" class="qtd-stepper__btn" id="exGerarQtdMais" aria-label="Aumentar quantidade">
+                                    <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                </button>
+                            </div>
+                            <span class="campo__dica">A IA divide o total entre as dificuldades marcadas. Máximo de 15 questões por vez.</span>
                         </div>
 
                         <div class="msg" id="msgExercicioGerar" hidden></div>
@@ -67,6 +81,9 @@ if (!isset($USUARIO, $PREF)) {
                                 Gerar com IA
                             </button>
                         </div>
+
+                        <!-- Contagem regressiva da estimativa (aparece só durante a geração) -->
+                        <div class="ex-gerar-estimativa" id="exGerarEstimativa" hidden></div>
                     </div>
 
                     <!-- Etapa 2: Preview das questões geradas -->

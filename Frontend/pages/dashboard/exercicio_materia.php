@@ -146,6 +146,7 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
     </div>
 
     <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
+    <?php include __DIR__ . '/partes/modal-pede.php'; ?>
     <?php include __DIR__ . '/partes/modal-exercicio-materia.php'; ?>
     <?php include __DIR__ . '/partes/modal-exercicio-gerar.php'; ?>
     <?php include __DIR__ . '/partes/modal-exercicio-praticar.php'; ?>
@@ -330,10 +331,14 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
             } catch (_) {}
         });
 
-        window.editarExercicio = (id, titulo, conteudo, dificuldade) => {
-            const novoTitulo = prompt('Editar título:', titulo);
+        window.editarExercicio = async (id, titulo, conteudo, dificuldade) => {
+            const novoTitulo = await pedir({
+                titulo: 'Editar exercício',
+                rotulo: 'Título da lista',
+                valor: titulo,
+                botao: 'Salvar'
+            });
             if (novoTitulo === null) return;
-            if (!novoTitulo.trim()) return alert('Título não pode ser vazio.');
 
             fetch('../../../Backend/php/exercicios_salvar.php', {
                 method: 'POST',
@@ -341,7 +346,7 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
                 body: new URLSearchParams({
                     acao: 'editar',
                     id: id,
-                    titulo: novoTitulo.trim(),
+                    titulo: novoTitulo,
                     conteudo: conteudo,
                     dificuldade: dificuldade
                 })
@@ -354,8 +359,15 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
             });
         };
 
-        window.excluirExercicio = (id) => {
-            if (!confirm('Excluir este exercício?')) return;
+        window.excluirExercicio = async (id) => {
+            const ok = await confirmar({
+                titulo: 'Excluir exercício',
+                texto: 'As questões salvas serão apagadas. Esta ação não pode ser desfeita.',
+                botao: 'Excluir',
+                perigo: true
+            });
+            if (!ok) return;
+
             fetch('../../../Backend/php/exercicios_salvar.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

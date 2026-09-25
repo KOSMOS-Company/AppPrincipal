@@ -155,11 +155,11 @@
         if (indice === q.correta) {
             acertos++;
             btn.classList.add("correta");
-            msg("Certo! 🎉", "sucesso");
+            msg("Você acertou!", "sucesso");
         } else {
             btn.classList.add("errada");
             botoes[q.correta]?.classList.add("escolhida", "correta");
-            msg(`Não foi dessa vez — a certa era a ${letraDe(q.correta)}.`, "erro");
+            msg(`Você errou. A resposta certa era a ${letraDe(q.correta)}.`, "erro");
         }
 
         const ultima = atual === questoes.length - 1;
@@ -202,10 +202,12 @@
         const frac  = total > 0 ? acertos / total : 0;
 
         el("praticarResultadoTitulo").textContent = `Você acertou ${acertos} de ${total}`;
-        el("praticarResultadoBadge").textContent =
-            frac === 1            ? "🏆" :
-            frac >= 0.7           ? "🎉" :
-            frac >= 0.5           ? "💪" : "📚";
+        const badge = el("praticarResultadoBadge");
+        badge.textContent = Math.round(frac * 100) + "%";
+        badge.dataset.nivel =
+            frac === 1   ? "otimo" :
+            frac >= 0.7  ? "bom" :
+            frac >= 0.5  ? "medio" : "fraco";
 
         const resumo = el("praticarResumo");
         resumo.innerHTML = "";
@@ -222,7 +224,7 @@
                 : `Resposta certa: ${letraDe(q.correta)} · sua: ${letraDe(r?.escolhida)}`;
 
             item.innerHTML = `
-                <span class="ex-praticar-resumo__status">${certa ? "✓" : "✗"}</span>
+                <span class="ex-praticar-resumo__status">${certa ? ICONE_OK : ICONE_ERRO}</span>
                 <span class="ex-praticar-resumo__q">Questão ${i + 1}</span>
                 <span class="ex-praticar-resumo__resp">${detalhe}</span>
             `;
@@ -253,10 +255,14 @@
         return String(str).replace(/[&<>"']/g, (c) => map[c]);
     }
 
+    /* Ícones inline do feedback (no lugar de emojis) */
+    const ICONE_OK = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const ICONE_ERRO = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+
     function msg(texto, tipo) {
         const m = el("praticarFeedback");
         if (!m) return;
-        m.textContent = texto;
+        m.innerHTML = (tipo === "sucesso" ? ICONE_OK : ICONE_ERRO) + `<span>${escapeHtml(texto)}</span>`;
         m.className = "msg msg--" + tipo;
         m.hidden = false;
     }

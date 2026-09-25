@@ -31,7 +31,7 @@ if (!isset($USUARIO, $PREF)) {
                     <h4 class="ex-praticar__enunciado" id="praticarEnunciado"></h4>
 
                     <div class="ex-praticar__dica" id="praticarDicaBloco" hidden>
-                        <button type="button" class="ex-praticar__dica-botao" id="praticarDicaBtn">💡 Ver dica</button>
+                        <button type="button" class="ex-praticar__dica-botao" id="praticarDicaBtn"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.75a4.75 4.75 0 0 0-2.7 8.65c.55.4.95 1.05.95 1.85h3.5c0-.8.4-1.45.95-1.85A4.75 4.75 0 0 0 10 2.75zM8.75 15.75h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Ver dica</button>
                         <div class="ex-praticar__dica-texto" id="praticarDica" role="note"></div>
                     </div>
 

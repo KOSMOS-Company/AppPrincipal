@@ -2,8 +2,11 @@
 // ============================================================
 //  KOSMOS — Gerar exercícios com IA (via n8n Chat Trigger)
 //  Arquivo: backend/php/gerar_exercicios.php
-//  POST (protegido): recebe materia/dificuldade/qtd/conteudo,
-//  manda um chatInput pro n8n e devolve { questoes: [ ... ] }.
+//  POST (protegido): recebe materia/conteudo + plano
+//  (JSON [{dificuldade, qtd}...]) e manda um chatInput pro n8n,
+//  devolvendo { questoes: [ ... ] } com cada questão já
+//  rotulada da dificuldade pedida.
+//  Legado (orion-chat): materia/dificuldade/qtd/conteudo.
 //  O navegador NUNCA vê a URL do n8n — só este PHP.
 //
 //  O workflow do n8n é um Chat Trigger: pede JSON puro no prompt
@@ -25,10 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // ---------- Lê e valida a entrada ----------
-$materia     = trim($_POST['materia']     ?? '');
-$dificuldade = trim($_POST['dificuldade'] ?? 'Médio');
-$qtd         = (int) ($_POST['qtd']       ?? 3);
-$conteudo    = trim($_POST['conteudo']    ?? '');
+$materia  = trim($_POST['materia']  ?? '');
+$conteudo = trim($_POST['conteudo'] ?? '');
 
 if ($materia === '') {
     echo json_encode(['ok' => false, 'msg' => 'Escolha uma matéria.']);
@@ -38,25 +39,84 @@ if ($conteudo === '') {
     echo json_encode(['ok' => false, 'msg' => 'Descreva o conteúdo específico.']);
     exit;
 }
-if ($qtd < 1) {
-    echo json_encode(['ok' => false, 'msg' => 'Escolha pelo menos 1 questão.']);
-    exit;
-}
-if ($qtd > 15) {
-    echo json_encode(['ok' => false, 'msg' => 'Máximo de 15 questões por vez.']);
-    exit;
-}
-if (!in_array($dificuldade, ['Fácil', 'Médio', 'Difícil'], true)) {
-    $dificuldade = 'Médio';
+
+// Plano novo: [{dificuldade, qtd}...] — 1+ níveis, soma até 15.
+// Legado (orion-chat): uma dificuldade única + qtd.
+$planoJson = trim($_POST['plano'] ?? '');
+$plano = [];
+
+if ($planoJson !== '') {
+    $bruto = json_decode($planoJson, true);
+    if (is_array($bruto)) {
+        $porNivel = [];
+        foreach ($bruto as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $d = trim((string) ($item['dificuldade'] ?? ''));
+            $q = (int) ($item['qtd'] ?? 0);
+            if (!in_array($d, ['Fácil', 'Médio', 'Difícil'], true) || $q < 1) {
+                continue;
+            }
+            $porNivel[$d] = ($porNivel[$d] ?? 0) + $q;
+        }
+        // ordem canônica: Fácil → Médio → Difícil (mesma do prompt)
+        foreach (['Fácil', 'Médio', 'Difícil'] as $d) {
+            if (isset($porNivel[$d])) {
+                $plano[] = ['dificuldade' => $d, 'qtd' => $porNivel[$d]];
+            }
+        }
+    }
+    if (!$plano) {
+        echo json_encode(['ok' => false, 'msg' => 'Escolha pelo menos uma dificuldade.']);
+        exit;
+    }
+    $qtd = array_sum(array_column($plano, 'qtd'));
+    if ($qtd > 15) {
+        echo json_encode(['ok' => false, 'msg' => 'Máximo de 15 questões por vez.']);
+        exit;
+    }
+} else {
+    $dificuldade = trim($_POST['dificuldade'] ?? 'Médio');
+    $qtd         = (int) ($_POST['qtd']       ?? 3);
+    if ($qtd < 1) {
+        echo json_encode(['ok' => false, 'msg' => 'Escolha pelo menos 1 questão.']);
+        exit;
+    }
+    if ($qtd > 15) {
+        echo json_encode(['ok' => false, 'msg' => 'Máximo de 15 questões por vez.']);
+        exit;
+    }
+    if (!in_array($dificuldade, ['Fácil', 'Médio', 'Difícil'], true)) {
+        $dificuldade = 'Médio';
+    }
+    $plano = [['dificuldade' => $dificuldade, 'qtd' => $qtd]];
 }
 
 // ---------- Monta o prompt (JSON puro, sem markdown) ----------
-$chatInput = 'Gere ' . $qtd . ' exercicios de ' . $materia
-    . ' nivel ' . $dificuldade . ' sobre: ' . $conteudo
-    . '. Responda apenas com JSON no formato: '
-    . '{"questoes":[{"enunciado":"...","alts":["...","...","...","...","..."],"correta":0,"dica":"..."}]}'
-    . '. alts com 5 alternativas; correta e o indice 0-4 da alternativa correta;'
-    . ' dica e uma frase curta que ajuda a pensar SEM entregar a resposta (opcional, pode vir vazia).';
+if (count($plano) === 1) {
+    // Nível único: prompt original — a dificuldade é aplicada em PHP.
+    $chatInput = 'Gere ' . $qtd . ' exercicios de ' . $materia
+        . ' nivel ' . $plano[0]['dificuldade'] . ' sobre: ' . $conteudo
+        . '. Responda apenas com JSON no formato: '
+        . '{"questoes":[{"enunciado":"...","alts":["...","...","...","...","..."],"correta":0,"dica":"..."}]}'
+        . '. alts com 5 alternativas; correta e o indice 0-4 da alternativa correta;'
+        . ' dica e uma frase curta que ajuda a pensar SEM entregar a resposta (opcional, pode vir vazia).';
+} else {
+    // Vários níveis: UMA chamada, com a distribuição no prompt e o
+    // rótulo por questão — o PHP confere/aplica os totais depois.
+    $partes = [];
+    foreach ($plano as $p) {
+        $partes[] = $p['qtd'] . ' de nivel ' . $p['dificuldade'];
+    }
+    $chatInput = 'Gere ' . $qtd . ' exercicios de ' . $materia . ' sobre: ' . $conteudo
+        . '. Distribuicao: ' . implode(', ', $partes) . ' (nesta ordem).'
+        . '. Responda apenas com JSON no formato: '
+        . '{"questoes":[{"enunciado":"...","alts":["...","...","...","...","..."],"correta":0,"dica":"...","dificuldade":"..."}]}'
+        . '. alts com 5 alternativas; correta e o indice 0-4 da alternativa correta;'
+        . ' dica e uma frase curta que ajuda a pensar SEM entregar a resposta (opcional, pode vir vazia);'
+        . ' dificuldade e exatamente uma de: Facil, Medio, Dificil, seguindo a distribuicao acima na mesma ordem.';
+}
 
 $payload = json_encode([
     'action'    => 'sendMessage',
@@ -98,25 +158,26 @@ if ($resposta === false || $httpCode >= 400) {
 $dados = json_decode($resposta, true);
 
 // Formato Chat Trigger: { "output": "..." } — o JSON pode estar lá dentro
+$questoes = null;
 $texto = '';
 if (is_array($dados)) {
     if (!empty($dados['questoes']) && is_array($dados['questoes'])) {
         $questoes = $dados['questoes'];
-        echo json_encode(['ok' => true, 'questoes' => normalizarQuestoes($questoes)], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-    if (isset($dados['output']) && is_string($dados['output'])) {
+    } elseif (isset($dados['output']) && is_string($dados['output'])) {
         $texto = $dados['output'];
     }
 }
 
-if (indicioDeLimiteDiario($texto)) {
-    http_response_code(429);
-    echo json_encode(['ok' => false, 'msg' => 'limite diario atingido']);
-    exit;
+if ($questoes === null) {
+    if (indicioDeLimiteDiario($texto)) {
+        http_response_code(429);
+        echo json_encode(['ok' => false, 'msg' => 'limite diario atingido']);
+        exit;
+    }
+    $questoes = extrairQuestoes($texto);
 }
 
-$questoes = extrairQuestoes($texto);
+$questoes = normalizarQuestoes($questoes);
 
 if (!$questoes) {
     http_response_code(502);
@@ -124,7 +185,9 @@ if (!$questoes) {
     exit;
 }
 
-echo json_encode(['ok' => true, 'questoes' => normalizarQuestoes($questoes)], JSON_UNESCAPED_UNICODE);
+$questoes = aplicarDificuldades($questoes, $plano);
+
+echo json_encode(['ok' => true, 'questoes' => $questoes], JSON_UNESCAPED_UNICODE);
 
 /* ============================================================
    Helpers
@@ -249,4 +312,52 @@ function normalizarQuestoes(array $questoes): array {
         $fora[] = $questao;
     }
     return $fora;
+}
+
+/**
+ * Cada questão fica com a dificuldade pedida no plano.
+ * O que a IA já rotulou (e ainda cabe no saldo) vale; o resto
+ * é preenchido na ordem do plano (Fácil → Médio → Difícil), então
+ * os totais por nível batem com o que o usuário escolheu.
+ */
+function aplicarDificuldades(array $questoes, array $plano): array {
+    $ordem = array_column($plano, 'dificuldade');
+    if (!$ordem) {
+        return $questoes;
+    }
+    $saldo = [];
+    foreach ($plano as $p) {
+        $saldo[$p['dificuldade']] = (int) $p['qtd'];
+    }
+
+    // 1) valida o rótulo vindo da IA e consome o saldo
+    foreach ($questoes as $k => $q) {
+        $d = (string) ($q['dificuldade'] ?? '');
+        if (!in_array($d, $ordem, true)) {
+            $questoes[$k]['dificuldade'] = '';
+        } elseif ($saldo[$d] > 0) {
+            $saldo[$d] -= 1;
+        }
+        // rótulo válido acima do plano: mantém (excedente)
+    }
+
+    // 2) preenche as sem rótulo na ordem do plano
+    foreach ($questoes as $k => $q) {
+        if (($q['dificuldade'] ?? '') !== '') {
+            continue;
+        }
+        foreach ($ordem as $d) {
+            if ($saldo[$d] > 0) {
+                $questoes[$k]['dificuldade'] = $d;
+                $saldo[$d] -= 1;
+                break;
+            }
+        }
+        if (($questoes[$k]['dificuldade'] ?? '') === '') {
+            // plano esgotado (IA devolveu a mais): neutro
+            $questoes[$k]['dificuldade'] = 'Médio';
+        }
+    }
+
+    return $questoes;
 }
