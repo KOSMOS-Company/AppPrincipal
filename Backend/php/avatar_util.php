@@ -111,3 +111,22 @@ function limitarTamanho(string $caminho, int $tipo, int $lado): void {
     imagedestroy($novo);
     imagedestroy($origem);
 }
+
+/**
+ * Classes das recompensas equipadas no avatar (moldura e emblema), para
+ * somar às classes de cor/foto que cada tela já monta. O desenho é todo
+ * CSS (Frontend/pages/dashboard/css/recompensas.css). Só entra valor
+ * de lista segura — letras minúsculas, dígitos e hífen — para nada
+ * gravado no banco virar HTML.
+ */
+function avatarClassesRecompensa(array $pref): string
+{
+    $classes = '';
+    foreach (['moldura' => 'avatar_moldura', 'emblema' => 'avatar_emblema'] as $tipo => $campo) {
+        $valor = (string) ($pref[$campo] ?? '');
+        if ($valor !== '' && preg_match('/^[a-z0-9-]{1,30}$/', $valor)) {
+            $classes .= " avatar-{$tipo}--{$valor}";
+        }
+    }
+    return $classes;
+}

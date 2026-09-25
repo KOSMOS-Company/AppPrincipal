@@ -20,9 +20,13 @@
 //      $USUARIO  (id, nome, primeiro, inicial, email, criado_em,
 //                 ultimo_acesso, sequencia, tem_senha, tem_google,
 //                 decks, cartoes, resumos)
-//      $PREF     (avatar_cor, avatar_url, avatar_pos_x, avatar_pos_y,
+//      $PREF     (avatar_cor, avatar_moldura, avatar_emblema,
+//                 avatar_url, avatar_pos_x, avatar_pos_y,
 //                 pomo_foco, pomo_pausa, pomo_pausa_longa,
 //                 meta_diaria, materias[], notif_lembrete, notif_resumo)
+//      $PROGRESSO (nivel, titulo, xp_total, xp_nivel_atual,
+//                 xp_proximo_nivel, progresso_pct, streak_dias,
+//                 disponivel) — a barra de XP, ver ProgressoService
 //      $PAGINA   (nome do arquivo atual, ex.: "resumos.php")
 //      hesc()    (atalho de htmlspecialchars para imprimir com segurança)
 // ============================================================
@@ -34,6 +38,7 @@ require_once __DIR__ . '/resumo_imagem_util.php';
 require_once __DIR__ . '/cadernos_util.php';
 require_once __DIR__ . '/materias.php';
 require_once __DIR__ . '/datas.php';
+require_once __DIR__ . '/ProgressoService.php';
 
 /** Escapa texto para imprimir no HTML. */
 function hesc(?string $texto): string {
@@ -71,6 +76,8 @@ $USUARIO = [
 
 $PREF = [
     'avatar_cor'          => 'roxo',
+    'avatar_moldura'      => null,
+    'avatar_emblema'      => null,
     'avatar_url'          => null,
     'avatar_pos_x'        => 50,
     'avatar_pos_y'        => 50,
@@ -85,6 +92,19 @@ $PREF = [
     'materias'            => [],
     'notif_lembrete'      => false,
     'notif_resumo'        => false,
+];
+
+// Progressão: com `disponivel` falso (migração ainda não rodada, banco
+// fora) a barra de XP simplesmente não aparece — a página abre igual.
+$PROGRESSO = [
+    'disponivel'       => false,
+    'nivel'            => 1,
+    'titulo'           => 'Poeira Estelar',
+    'xp_total'         => 0,
+    'xp_nivel_atual'   => 0,
+    'xp_proximo_nivel' => 100,
+    'progresso_pct'    => 0,
+    'streak_dias'      => 0,
 ];
 
 $ERRO_BANCO = false;
@@ -158,6 +178,20 @@ try {
         $PREF['notif_resumo']        = (bool) $p['notif_resumo'];
     }
 
+    // ---------- 4a) Recompensas equipadas (moldura e emblema) ----------
+    // Consulta à parte: as colunas vêm da migração de recompensas, e um
+    // banco que ainda não a rodou não pode perder as preferências todas.
+    try {
+        $stmt = $pdo->prepare('SELECT avatar_moldura, avatar_emblema FROM usuario_preferencias WHERE usuario_id = ?');
+        $stmt->execute([$USUARIO['id']]);
+        if ($r = $stmt->fetch()) {
+            $PREF['avatar_moldura'] = $r['avatar_moldura'];
+            $PREF['avatar_emblema'] = $r['avatar_emblema'];
+        }
+    } catch (PDOException $e) {
+        // sem as colunas: avatar como sempre foi
+    }
+
     // ---------- 4b) A pesquisa de perfil aparece? ----------
     // A regra é uma só: o onboarding ainda não foi APRESENTADO a esta
     // conta. Quem marca a flag é o index.php, no instante em que põe o
@@ -199,6 +233,14 @@ try {
 
     // daqui para frente não escrevemos mais na sessão: solta o lock
     liberarSessao();
+
+    // ---------- 6) Progressão (XP, nível) ----------
+    // Num try próprio: se as tabelas ainda não existem, só a barra some.
+    try {
+        $PROGRESSO = ['disponivel' => true] + (new ProgressoService($pdo))->estado($USUARIO['id']);
+    } catch (Throwable $e) {
+        error_log('[KOSMOS progresso] ' . $e->getMessage());
+    }
 } catch (PDOException $e) {
     // Banco fora do ar: a página abre com os padrões acima e avisa.
     $ERRO_BANCO = true;

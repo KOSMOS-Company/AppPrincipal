@@ -1,0 +1,298 @@
+/* ============================================================
+   KOSMOS — Página de conquistas (conquistas.php)
+   A barra de XP, o selo e os avisos vêm do progresso.css (que o
+   sidebar carrega em todas as abas); aqui só o que é desta página.
+
+   Cada categoria tem um degradê próprio — sempre dentro do céu roxo
+   do app, só puxando o tom: foco para o magenta, memória para o
+   azul-violeta, exercícios para o rosa, constância para o âmbar
+   de uma estrela quente. Colorida = conquistada; silhueta = falta.
+   ============================================================ */
+
+.cq-secao--foco       { --cq-grad: linear-gradient(145deg, #d98bff 0%, #8200db 100%); --cq-cor: #d98bff; }
+.cq-secao--memoria    { --cq-grad: linear-gradient(145deg, #8fa8ff 0%, #6a3df0 100%); --cq-cor: #9fb3ff; }
+.cq-secao--exercicios { --cq-grad: linear-gradient(145deg, #ff8ad8 0%, #a541ff 100%); --cq-cor: #ff9ee0; }
+.cq-secao--constancia { --cq-grad: linear-gradient(145deg, #ffcf7a 0%, #e0612f 100%); --cq-cor: #ffcf7a; }
+
+/* O <main> é item de uma linha flex (barra lateral | conteúdo), e item
+   flex não encolhe abaixo do conteúdo mais largo dele por padrão. A
+   fileira da trilha tem dezenas de cartões lado a lado — sem isto a
+   página inteira esticava junto (3.900px num notebook) em vez de a
+   fileira rolar dentro dela. */
+.contMeio { min-width: 0; }
+
+/* ── Nível atual ── */
+.cq-hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 48px;
+}
+
+.cq-anel {
+    position: relative;
+    width: 148px;
+    height: 148px;
+}
+.cq-anel svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);          /* o arco começa no topo */
+    overflow: visible;
+}
+.cq-anel__trilho {
+    fill: none;
+    stroke: rgba(255, 255, 255, .08);
+    stroke-width: 9;
+}
+.cq-anel__arco {
+    fill: none;
+    stroke: url(#cqAnelGrad);
+    stroke-width: 9;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 8px rgba(165, 65, 255, .7));
+    animation: cqAnel 1.2s cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes cqAnel { from { stroke-dashoffset: 326.73; } }   /* 2π·52: nasce vazio e enche */
+.cq-anel__miolo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.cq-anel__rotulo {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.cq-anel__miolo strong {
+    margin-top: 4px;
+    font: 800 3rem/1 "Syne", sans-serif;
+    letter-spacing: -.04em;
+    background: linear-gradient(180deg, #fff 0%, #e7b8ff 55%, #a541ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-variant-numeric: tabular-nums;
+}
+
+.cq-hero__texto { min-width: 0; }
+.cq-hero__titulo {
+    margin: 0 0 6px;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1.05;
+}
+.cq-hero__xp {
+    margin: 0 0 14px;
+    color: var(--text-dim);
+    font-size: .95rem;
+}
+.cq-hero__barra { height: 10px; }
+
+.cq-numeros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    margin: 22px 0 0;
+}
+.cq-numeros div { min-width: 0; }
+.cq-numeros dt {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.cq-numeros dd {
+    margin: 4px 0 0;
+    font: 700 1.2rem/1.1 "Syne", sans-serif;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Seções ── */
+.cq-secao { margin-bottom: 44px; }
+.cq-secao__cabeca {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    margin-bottom: 18px;
+}
+.cq-secao__cabeca h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+}
+.cq-secao__conta {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .08);
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--cq-cor, var(--accent-lt));
+    font-variant-numeric: tabular-nums;
+}
+.cq-secao__cabeca p {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: .88rem;
+    color: var(--text-muted);
+}
+
+/* ── Cartões das conquistas ── */
+.cq-grade {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.cq-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 20px;
+    background: var(--superficie);
+    border: 1px solid rgba(165, 65, 255, .14);
+}
+.cq-card:not(.cq-card--travada) {
+    border-color: color-mix(in srgb, var(--cq-cor, #c97cff) 30%, transparent);
+    box-shadow: 0 0 28px -14px var(--cq-cor, #c97cff);
+}
+
+.cq-card__ico {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 17px;                /* "squircle", o formato de ícone de app */
+    background: var(--cq-grad, linear-gradient(145deg, #c97cff, #6a00c9));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 8px 20px -8px var(--cq-cor, #c97cff);
+    color: #fff;
+}
+.cq-card__ico > svg { width: 26px; height: 26px; }
+
+.cq-card__texto { min-width: 0; flex: 1 1 auto; }
+.cq-card h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+.cq-card p {
+    margin: 0;
+    font-size: .84rem;
+    line-height: 1.45;
+    color: var(--text-dim);
+}
+.cq-card__rodape,
+.cq-card__progresso {
+    display: flex;
+    flex-wrap: wrap;              /* sem espaço, o bônus desce — nunca sai do cartão */
+    align-items: center;
+    gap: 6px 10px;
+    margin-top: 12px;
+    font-size: .75rem;
+}
+.cq-card__data { color: var(--text-muted); white-space: nowrap; }
+.cq-card__bonus {
+    margin-left: auto;
+    flex: none;
+    font: 800 .75rem/1 "Syne", sans-serif;
+    color: var(--cq-cor, var(--accent-lt));
+}
+.cq-card__progresso .xp__barra {
+    flex: 1 1 60px;
+    height: 5px;
+}
+.cq-card__conta {
+    flex: none;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Ainda não conquistada: silhueta apagada + cadeado */
+.cq-card--travada .cq-card__ico {
+    background: rgba(255, 255, 255, .04);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+    color: rgba(255, 255, 255, .22);
+}
+.cq-card--travada h3 { color: var(--text-dim); }
+.cq-card--travada p { color: var(--text-muted); }
+.cq-card--travada .cq-card__bonus { color: var(--text-muted); }
+.cq-card--travada .xp__preench {
+    background: linear-gradient(90deg, rgba(165, 65, 255, .5), rgba(201, 124, 255, .7));
+    box-shadow: none;
+}
+.cq-card__cadeado {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #1d0536;
+    border: 1px solid rgba(165, 65, 255, .35);
+    color: var(--accent-lt);
+}
+.cq-card__cadeado svg { width: 12px; height: 12px; }
+
+/* ── Como ganhar XP ── */
+.cq-regras {
+    margin: 0;
+    padding: 8px 24px;
+    list-style: none;
+}
+.cq-regras li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "acao xp" "limite xp";
+    align-items: center;
+    gap: 2px 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+.cq-regras li:last-child { border-bottom: 0; }
+.cq-regras__acao { grid-area: acao; font-weight: 500; }
+.cq-regras__limite { grid-area: limite; font-size: .8rem; color: var(--text-muted); }
+.cq-regras__xp {
+    grid-area: xp;
+    font: 800 .95rem/1 "Syne", sans-serif;
+    color: var(--accent-lt);
+    white-space: nowrap;
+}
+
+/* ── Celular ── */
+@media (max-width: 640px) {
+    .cq-hero {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 20px;
+        text-align: center;
+    }
+    .cq-hero__texto { width: 100%; }
+    .cq-numeros { justify-content: center; gap: 12px 24px; }
+    .cq-grade { grid-template-columns: 1fr; }
+    .cq-regras { padding: 4px 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cq-anel__arco { animation: none; }
+}

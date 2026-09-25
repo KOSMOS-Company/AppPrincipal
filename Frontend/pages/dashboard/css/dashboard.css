@@ -1011,10 +1011,24 @@ progress::-webkit-progress-value {
         flex-direction: column;
     }
 
-    /* Topo: logo centralizado e botão de ferramentas à esquerda (posição azul) */
+    /* Topo: logo centralizado e botão de ferramentas à esquerda (posição azul)
+
+       Fica grudado no alto e SAI conforme se rola para baixo, voltando a
+       qualquer rolada para cima (como no Instagram) — quem mexe é o
+       ativarTopoRecolhivel() do dashboard.js.
+
+       Ele esconde mexendo no `top` do sticky, e NUNCA com transform: a
+       barra de navegação de baixo (position: fixed) mora dentro deste
+       mesmo <aside>, e um transform aqui viraria o "bloco de contenção"
+       dela — a barra sairia do rodapé da tela e iria junto com o topo.
+       Pelo mesmo motivo o backdrop-filter continua desligado abaixo.
+
+       z-index 50: acima do conteúdo que rola por baixo, abaixo dos
+       modais (200). A barra de baixo, filha daqui, sobe junto. */
     .contLateral {
-        position: static;          /* no desktop e sticky em coluna */
-        z-index: auto;
+        position: sticky;
+        top: 0;
+        z-index: 50;
         height: auto;
         width: 100%;
         display: flex;
@@ -1027,6 +1041,11 @@ progress::-webkit-progress-value {
         background: rgba(13,1,24,.95);
         backdrop-filter: none !important;        /* libera o position:fixed da barra p/ ancorar na viewport */
         -webkit-backdrop-filter: none !important;
+    }
+    /* O encaixe final (aberto ou fechado) quando a rolagem para. Durante
+       a rolagem não há transição: o topo anda 1:1 com o dedo. */
+    .contLateral.topo--assentando {
+        transition: top .26s cubic-bezier(.2, .8, .2, 1);
     }
     /* Grade de três colunas iguais nas pontas: o logo fica no centro
        exato mesmo com o selo da direita mais largo que o botão da
@@ -1267,6 +1286,16 @@ progress::-webkit-progress-value {
         to   { opacity: 1; transform: translateX(0); }
     }
 
+    /* Troca de aba: a pílula desliza da aba anterior até a nova
+       (ativarTrocaDeAba, no dashboard.js). Enquanto ela desliza, a
+       entrada própria do chip sai de cena — senão ele cresceria E
+       viajaria ao mesmo tempo — e ele passa por cima dos ícones que
+       escorregam para abrir espaço. */
+    .botoesL.nav--deslizando a.active {
+        animation: none;
+        z-index: 2;
+    }
+
     /* Tablet em pé / celular deitado: há largura para todos os nomes,
        então os inativos também mostram o seu — como na referência. */
     @media (min-width: 560px) {
@@ -1442,6 +1471,18 @@ progress::-webkit-progress-value {
     animation-duration: .22s;
     animation-timing-function: ease;
 }
+
+/* A barra de baixo fica FORA do cruzamento das páginas. Sem isto a
+   barra velha esmaeceria por cima da nova e a pílula apareceria em
+   dois lugares. Com um nome próprio, ela sai do "root": a antiga some
+   na hora e a nova (que é ao vivo, não uma foto) mostra o deslize da
+   pílula que o dashboard.js já começou. */
+@media (max-width: 768px) {
+    .botoesL { view-transition-name: kosmos-nav; }
+}
+::view-transition-group(kosmos-nav),
+::view-transition-new(kosmos-nav) { animation: none; }
+::view-transition-old(kosmos-nav) { animation: none; opacity: 0; }
 
 .contMeio {
     animation: paginaEntra .42s cubic-bezier(.2, .7, .2, 1) both;

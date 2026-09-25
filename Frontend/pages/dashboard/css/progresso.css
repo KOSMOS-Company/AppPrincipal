@@ -1,0 +1,723 @@
+/* ============================================================
+   KOSMOS — Progressão: barra de XP, avisos e subida de nível
+   Carregado por partes/sidebar.php em todas as abas. O que mexe
+   aqui é o js/progresso.js; os números vêm do ProgressoService.
+
+   As curvas usam as molas da camada Apple (--mola) quando ela está
+   presente, e caem para um ease-out forte quando não está.
+   ============================================================ */
+
+:root {
+    --xp-grad: linear-gradient(90deg, #6a00c9 0%, #a541ff 55%, #e7b8ff 100%);
+    --xp-brilho: 0 0 12px rgba(165, 65, 255, .75);
+    --xp-curva: var(--mola, cubic-bezier(.2, .8, .2, 1));
+    --xp-curva-quique: var(--mola-quique, cubic-bezier(.34, 1.4, .64, 1));
+}
+
+/* ── O selo do nível (número num disco) ── */
+.xp__nivel {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .35), transparent 45%),
+        linear-gradient(145deg, #a541ff 0%, #6a00c9 100%);
+    box-shadow: 0 0 0 1px rgba(201, 124, 255, .45), 0 4px 14px -4px rgba(165, 65, 255, .8);
+    color: #fff;
+    font: 800 .92rem/1 "Syne", sans-serif;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── A barra: trilho escuro, preenchimento em degradê neon ── */
+.xp__barra {
+    position: relative;
+    display: block;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .08);
+    overflow: hidden;
+}
+.xp__preench {
+    position: relative;
+    display: block;
+    height: 100%;
+    width: var(--xp-pct, 0%);
+    border-radius: inherit;
+    background: var(--xp-grad);
+    box-shadow: var(--xp-brilho);
+    transition: width .9s var(--xp-curva);
+}
+/* Reflexo que atravessa a barra quando ela enche (classe posta pelo JS) */
+.xp__preench::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, .7) 50%, transparent 100%);
+    transform: translateX(-100%);
+    opacity: 0;
+}
+.xp--ganhou .xp__preench::after {
+    animation: xpReflexo 1s ease-out .35s;
+}
+@keyframes xpReflexo {
+    0%   { transform: translateX(-100%); opacity: 1; }
+    100% { transform: translateX(100%);  opacity: 0; }
+}
+
+/* ============================================================
+   COMPUTADOR — o bloco na barra lateral
+   ============================================================ */
+.xp {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid rgba(255, 255, 255, .06);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color .2s ease, border-color .2s ease, transform .16s ease-out;
+}
+.xp:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.xp:active { transform: scale(.98); }
+.xp.ativa {
+    background: rgba(165, 65, 255, .12);
+    border-color: rgba(165, 65, 255, .28);
+}
+@media (hover: hover) and (pointer: fine) {
+    .xp:hover { background: rgba(165, 65, 255, .08); border-color: rgba(165, 65, 255, .2); }
+}
+.xp__info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.xp__info .xp__barra { margin-top: 6px; }
+.xp__titulo {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .84rem;
+    font-weight: 600;
+    color: var(--text);
+}
+.xp__rotulo {
+    font-size: .64rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* A dica "XP atual / XP do próximo nível". Aparece no hover e no foco
+   de teclado — `title` só surgiria depois de um segundo parado. */
+.xp__dica {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 8px);
+    z-index: 70;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--bg-card);
+    border: 1px solid rgba(165, 65, 255, .28);
+    box-shadow: 0 14px 30px -8px rgba(0, 0, 0, .6);
+    color: var(--text-dim);
+    font-size: .76rem;
+    line-height: 1.35;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity .16s ease, transform .2s ease-out;
+}
+.xp:focus-visible .xp__dica { opacity: 1; transform: none; }
+@media (hover: hover) and (pointer: fine) {
+    .xp:hover .xp__dica { opacity: 1; transform: none; }
+}
+
+@media (min-width: 769px) {
+    /* Barra recolhida: fica só o selo, e o nome sai numa etiqueta
+       ao lado — igual aos ícones do menu. */
+    html.lateral-recolhida .xp {
+        justify-content: center;
+        padding: 6px;
+        background: transparent;
+        border-color: transparent;
+    }
+    html.lateral-recolhida .xp__info,
+    html.lateral-recolhida .xp__dica {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+    html.lateral-recolhida .xp::after {
+        content: attr(data-rotulo);
+        position: absolute;
+        left: calc(100% + 14px);
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 60;
+        padding: 7px 11px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-card);
+        border: 1px solid rgba(165, 65, 255, .28);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+        color: var(--text);
+        font-size: .85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .16s ease;
+    }
+    html.lateral-recolhida .xp:hover::after,
+    html.lateral-recolhida .xp:focus-visible::after { opacity: 1; }
+}
+
+/* ============================================================
+   CELULAR — o chip de sequência + nível e o painel dele
+   O chip reaproveita a casca do .topo-sequencia (dashboard.css:
+   altura, borda, cor, e some no computador) e soma o anel do nível.
+   ============================================================ */
+@media (max-width: 768px) {
+    .xp { display: none; }
+
+    /* Largura contada: o logo fica no centro EXATO (grade 1fr auto 1fr),
+       então o chip só tem a sobra ao lado dele — ~95px num celular de
+       390px. Por isso ele é enxuto e encolhe mais nas telas estreitas. */
+    .topo-status {
+        gap: 6px;
+        padding: 0 4px 0 8px;
+        font: inherit;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        transition: transform .16s ease-out, background-color .2s ease, border-color .2s ease;
+    }
+    .topo-status:active { transform: scale(.96); }
+    .topo-status:focus-visible { outline: 2px solid var(--accent-lt); outline-offset: 2px; }
+    .topo-status[aria-expanded="true"] {
+        background: rgba(165, 65, 255, .22);
+        border-color: rgba(201, 124, 255, .55);
+    }
+    .topo-status__seq {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding-right: 6px;
+        border-right: 1px solid rgba(201, 124, 255, .25);
+    }
+    .topo-status__nivel {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+    }
+    /* (0,2,1) para vencer o `.topo-sequencia svg` de 18px do dashboard.css */
+    .topo-status .topo-status__nivel svg {
+        position: absolute;
+        inset: 0;
+        width: 28px;
+        height: 28px;
+        transform: rotate(-90deg);     /* o arco começa no topo */
+    }
+    .topo-status__trilho {
+        fill: rgba(20, 3, 36, .55);
+        stroke: rgba(255, 255, 255, .12);
+        stroke-width: 3;
+    }
+    .topo-status__arco {
+        fill: none;
+        stroke: #c97cff;
+        stroke-width: 3;
+        stroke-linecap: round;
+        filter: drop-shadow(0 0 3px rgba(165, 65, 255, .9));
+        transition: stroke-dashoffset .9s var(--xp-curva);
+    }
+    .topo-status__nivel span {
+        position: relative;
+        font: 800 .78rem/1 "Syne", sans-serif;
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+    }
+    /* Sequência zerada: a chama apaga, o nível continua aceso */
+    .topo-status.topo-sequencia--vazia .topo-status__seq { color: var(--text-muted); }
+
+    /* O painel sai do chip (origem no canto dele) e fica por cima do
+       conteúdo. Ele mora dentro do .contTopo, que é `relative` aqui. */
+    .status-painel {
+        position: absolute;
+        top: calc(100% + 16px);
+        right: 0;
+        z-index: 150;
+        width: min(320px, calc(100vw - 32px));
+        padding: 16px;
+        border-radius: 20px;
+        background: rgba(28, 6, 50, .97);
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        backdrop-filter: blur(20px) saturate(160%);
+        border: 1px solid rgba(201, 124, 255, .28);
+        box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .08);
+        text-align: left;
+        transform-origin: calc(100% - 44px) -10px;
+        animation: statusAbre .42s var(--xp-curva) both;
+    }
+    @keyframes statusAbre {
+        from { opacity: 0; transform: translateY(-6px) scale(.95); }
+    }
+    /* a setinha apontando para o chip */
+    .status-painel::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        right: 40px;
+        width: 12px;
+        height: 12px;
+        background: rgba(28, 6, 50, .97);
+        border-left: 1px solid rgba(201, 124, 255, .28);
+        border-top: 1px solid rgba(201, 124, 255, .28);
+        transform: rotate(45deg);
+    }
+    .status-painel__titulo {
+        margin: 0 0 4px;
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+    .status-painel__item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+    }
+    .status-painel__item + .status-painel__item { border-top: 1px solid rgba(255, 255, 255, .06); }
+    .status-painel__ico {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: rgba(165, 65, 255, .16);
+        color: var(--accent-lt);
+    }
+    .status-painel__ico svg { width: 18px; height: 18px; }
+    .status-painel__ico--apagado { background: rgba(255, 255, 255, .05); color: var(--text-muted); }
+    .status-painel__txt {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .status-painel__txt strong { font-size: .92rem; font-weight: 600; color: var(--text); }
+    .status-painel__txt > span:not(.xp__barra) { font-size: .78rem; line-height: 1.4; color: var(--text-dim); }
+    .status-painel__txt .xp__barra { margin: 4px 0 2px; }
+    .status-painel__proxima {
+        margin: 4px 0 14px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(165, 65, 255, .1);
+        border: 1px solid rgba(165, 65, 255, .18);
+        font-size: .8rem;
+        line-height: 1.45;
+        color: var(--text-dim);
+    }
+    .status-painel__proxima strong { color: #fff; font-weight: 600; }
+    .status-painel__cta { width: 100%; justify-content: center; }
+
+    /* Telas estreitas: o logo cede um pouco, o topo aperta a margem e
+       o chip encolhe a chama e o anel. */
+    @media (max-width: 400px) {
+        .contLogo .klogo { font-size: 1.4rem; }
+    }
+    @media (max-width: 360px) {
+        .contLateral { padding-left: 12px; padding-right: 12px; }
+        .contLogo .klogo { font-size: 1.25rem; }
+        .topo-status { gap: 4px; padding-left: 6px; }
+        .topo-status__seq { padding-right: 4px; gap: 2px; }
+        .topo-status .topo-status__seq svg { width: 15px; height: 15px; }
+        .topo-status__nivel,
+        .topo-status .topo-status__nivel svg { width: 26px; height: 26px; }
+    }
+    @media (max-width: 340px) {
+        .contLogo .klogo { font-size: 1.18rem; }
+    }
+}
+@media (min-width: 769px) {
+    .status-painel { display: none !important; }
+}
+
+/* ============================================================
+   AVISOS — "+50 XP · Pomodoro concluído"
+   Pílula que materializa (escala + desfoque), empilhada no pé da
+   tela; no celular, acima da barra de navegação.
+   ============================================================ */
+.xp-avisos {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 950;               /* acima dos modais (200) e do Orion (800) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+@media (max-width: 768px) {
+    .xp-avisos { bottom: calc(var(--barra-mobile, 70px) + 12px); }
+}
+
+.xp-aviso {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    padding: 8px 16px 8px 8px;
+    border-radius: 999px;
+    background: rgba(28, 6, 50, .9);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(201, 124, 255, .3);
+    box-shadow: 0 16px 36px -10px rgba(0, 0, 0, .75), inset 0 1px 0 rgba(255, 255, 255, .08);
+    color: var(--text);
+    font: 500 .88rem/1.2 "DM Sans", sans-serif;
+    animation: xpAvisoEntra .55s var(--xp-curva) both;
+}
+.xp-aviso--saindo { animation: xpAvisoSai .28s ease-in both; }
+.xp-aviso--simples { padding-left: 16px; }
+.xp-aviso--simples .xp-aviso__xp { margin-left: -8px; }
+@keyframes xpAvisoEntra {
+    from { opacity: 0; transform: translateY(14px) scale(.94); filter: blur(4px); }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes xpAvisoSai {
+    to { opacity: 0; transform: translateY(-6px) scale(.97); }
+}
+.xp-aviso__xp {
+    flex: none;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #8200db 0%, #a541ff 100%);
+    box-shadow: 0 0 14px rgba(165, 65, 255, .55), inset 0 1px 0 rgba(255, 255, 255, .25);
+    color: #fff;
+    font: 800 .8rem/1 "Syne", sans-serif;
+    letter-spacing: .01em;
+    white-space: nowrap;
+}
+.xp-aviso__txt {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Conquista: ícone da badge e duas linhas */
+.xp-aviso--conquista {
+    padding: 8px 18px 8px 8px;
+    border-color: rgba(231, 184, 255, .5);
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, .8), 0 0 30px -6px rgba(165, 65, 255, .6),
+                inset 0 1px 0 rgba(255, 255, 255, .1);
+}
+.xp-aviso__ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #c97cff 0%, #6a00c9 100%);
+    color: #fff;
+}
+.xp-aviso__ico svg { width: 18px; height: 18px; }
+.xp-aviso__linhas { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.xp-aviso__sobre {
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+}
+.xp-aviso__nome {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+.xp-aviso__bonus {
+    flex: none;
+    margin-left: 4px;
+    font: 800 .78rem/1 "Syne", sans-serif;
+    color: #e7b8ff;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   SUBIU DE NÍVEL — o modal cinematográfico
+   ============================================================ */
+.lvl {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    overflow-y: auto;
+}
+.lvl__fundo {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 42%, rgba(130, 0, 219, .38) 0%, rgba(4, 0, 10, .88) 62%);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    animation: lvlFundo .4s ease-out both;
+}
+.lvl--saindo .lvl__fundo { animation: lvlFundoSai .3s ease-in both; }
+.lvl--saindo .lvl__caixa { animation: lvlCaixaSai .3s ease-in both; }
+@keyframes lvlFundo    { from { opacity: 0; } }
+@keyframes lvlFundoSai { to   { opacity: 0; } }
+
+.lvl__caixa {
+    position: relative;
+    width: min(400px, 100%);
+    margin-top: 72px;           /* espaço para o Orion sair por cima da caixa */
+    padding: 76px 24px 24px;
+    border-radius: 28px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(46, 11, 80, .97) 0%, rgba(20, 3, 38, .98) 100%);
+    border: 1px solid rgba(201, 124, 255, .35);
+    box-shadow:
+        0 40px 100px -20px rgba(0, 0, 0, .85),
+        0 0 90px -10px rgba(165, 65, 255, .45),
+        inset 0 1px 0 rgba(255, 255, 255, .1);
+    animation: lvlCaixa .75s var(--xp-curva-quique) both;
+}
+@keyframes lvlCaixa {
+    from { opacity: 0; transform: translateY(24px) scale(.9); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes lvlCaixaSai {
+    to { opacity: 0; transform: translateY(12px) scale(.96); }
+}
+
+/* Raios girando devagar atrás do Orion */
+.lvl__raios {
+    position: absolute;
+    left: 50%;
+    top: -60px;
+    width: 280px;
+    height: 280px;
+    margin-left: -140px;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from 0deg, rgba(201, 124, 255, .22) 0deg 8deg, transparent 8deg 22deg);
+    -webkit-mask: radial-gradient(circle, #000 20%, transparent 68%);
+    mask: radial-gradient(circle, #000 20%, transparent 68%);
+    animation: lvlGira 14s linear infinite;
+    pointer-events: none;
+}
+@keyframes lvlGira { to { transform: rotate(360deg); } }
+
+.lvl__orion {
+    position: absolute;
+    left: 50%;
+    top: -70px;
+    width: 140px;
+    height: 140px;
+    margin-left: -70px;
+    display: grid;
+    place-items: center;
+    animation: lvlOrion .9s var(--xp-curva-quique) .15s both;
+}
+.lvl__orion .mascote {
+    --mascote-tam: 140px;
+    width: 140px;
+    height: 140px;
+}
+/* Sem o mascote (aba do Orion carrega o dela), uma estrela no lugar */
+.lvl__estrela {
+    display: grid;
+    place-items: center;
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .4), transparent 45%),
+                linear-gradient(145deg, #c97cff, #6a00c9);
+    box-shadow: 0 0 50px rgba(165, 65, 255, .7);
+    color: #fff;
+}
+.lvl__estrela svg { width: 52px; height: 52px; }
+@keyframes lvlOrion {
+    from { opacity: 0; transform: translateY(30px) scale(.6); }
+    to   { opacity: 1; transform: none; }
+}
+
+.lvl__selo {
+    margin: 0 0 6px;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+}
+.lvl__nivel {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+    font-family: "Syne", sans-serif;
+    line-height: 1;
+}
+.lvl__nivel span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dim);
+}
+.lvl__nivel strong {
+    font-size: clamp(3.6rem, 16vw, 4.6rem);
+    font-weight: 800;
+    letter-spacing: -.04em;
+    background: linear-gradient(180deg, #ffffff 0%, #e7b8ff 45%, #a541ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 18px rgba(165, 65, 255, .6));
+    font-variant-numeric: tabular-nums;
+    animation: lvlNumero .7s var(--xp-curva-quique) .35s both;
+}
+@keyframes lvlNumero {
+    from { opacity: 0; transform: scale(.6); }
+    to   { opacity: 1; transform: none; }
+}
+.lvl__titulo {
+    margin: 12px 0 4px;
+    font: 700 1.3rem/1.2 "Syne", sans-serif;
+    letter-spacing: -.01em;
+    color: #fff;
+}
+.lvl__novo {
+    display: inline-block;
+    margin-bottom: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(165, 65, 255, .2);
+    border: 1px solid rgba(201, 124, 255, .4);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #e7b8ff;
+}
+.lvl__recompensa {
+    margin: 4px 0 0;
+    font-size: .92rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+.lvl__xp {
+    margin: 14px 0 20px;
+    font-size: .78rem;
+    color: var(--text-muted);
+}
+.lvl__acoes { display: flex; gap: 10px; }
+.lvl__acoes .dash-btn { flex: 1 1 0; justify-content: center; }
+
+/* O que o nível destravou: prévia no avatar + nome */
+.lvl__premios {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+.lvl__premios li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px 8px 8px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(201, 124, 255, .25);
+    text-align: left;
+}
+.lvl__premios .tr-avatar--mini { width: 40px; height: 40px; font-size: 1rem; --moldura-folga: 3px; }
+.lvl__premio-txt { display: flex; flex-direction: column; gap: 2px; }
+.lvl__premio-txt small {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+}
+.lvl__premio-txt strong { font-size: .88rem; }
+
+/* Partículas: faíscas que explodem do centro (o JS espalha os ângulos) */
+.lvl__particulas {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.lvl__p {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--s, 6px);
+    height: var(--s, 6px);
+    margin: calc(var(--s, 6px) / -2);
+    border-radius: 50%;
+    background: var(--c, #c97cff);
+    box-shadow: 0 0 8px var(--c, #c97cff);
+    opacity: 0;
+    animation: lvlFaisca var(--dur, 1.3s) cubic-bezier(.15, .75, .3, 1) var(--t, 0s) both;
+}
+.lvl__p--estrela {
+    border-radius: 0;
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+}
+@keyframes lvlFaisca {
+    0%   { opacity: 0; transform: rotate(var(--a)) translateX(0) scale(.4); }
+    12%  { opacity: 1; }
+    100% { opacity: 0; transform: rotate(var(--a)) translateX(var(--d)) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .xp__preench, .topo-status__arco { transition: none; }
+    .xp--ganhou .xp__preench::after { animation: none; }
+    .status-painel { animation: none; }
+    .xp-aviso { animation: xpSoOpacidade .2s ease both; }
+    .xp-aviso--saindo { animation: xpSoOpacidade .2s ease reverse both; }
+    .lvl__caixa, .lvl__orion, .lvl__nivel strong { animation: xpSoOpacidade .25s ease both; }
+    .lvl__raios { animation: none; }
+    .lvl__particulas { display: none; }
+    @keyframes xpSoOpacidade { from { opacity: 0; } }
+}
+@media (prefers-reduced-transparency: reduce) {
+    .xp-aviso, .lvl__fundo { -webkit-backdrop-filter: none; backdrop-filter: none; }
+    .xp-aviso { background: #1d0536; }
+}

@@ -23,7 +23,7 @@ function navAtivo(string $arquivo, string $atual, string $classes = ''): string 
 
 // Classes e estilo do avatar: cor escolhida e, se houver, a foto
 // já no enquadramento salvo — nada disso depende de JS agora.
-$avatarClasses = 'usuario__avatar avatar-cor--' . hesc($PREF['avatar_cor']);
+$avatarClasses = 'usuario__avatar avatar-cor--' . hesc($PREF['avatar_cor']) . avatarClassesRecompensa($PREF);
 $avatarEstilo  = '';
 if (!empty($PREF['avatar_url'])) {
     $avatarClasses .= ' avatar--foto';
@@ -31,6 +31,19 @@ if (!empty($PREF['avatar_url'])) {
                     . 'background-position:' . (int) $PREF['avatar_pos_x'] . '% '
                     . (int) $PREF['avatar_pos_y'] . '%;';
 }
+
+// Barra de XP (ver Backend/php/ProgressoService.php). Os data-xp-* são
+// os ganchos que o js/progresso.js atualiza quando a pessoa ganha XP
+// sem recarregar a página — o HTML daqui é só o estado inicial.
+$xpTem    = !empty($PROGRESSO['disponivel']);
+$xpPct    = (int) ($PROGRESSO['progresso_pct'] ?? 0);
+$xpDica   = $xpTem ? progressoDica($PROGRESSO) : '';
+$xpRotulo = 'Nível ' . (int) $PROGRESSO['nivel'] . ' · ' . $PROGRESSO['titulo'];
+
+// Anel do nível no chip do celular: circunferência de r=13
+$xpAnelC     = 2 * M_PI * 13;
+$xpAnelResto = $xpAnelC * (1 - $xpPct / 100);
+$xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
 ?>
         <!-- Restaura a barra recolhida ANTES de o <aside> ser lido pelo
              navegador. Se isso rodasse junto com o resto do JS, a barra
@@ -45,6 +58,13 @@ if (!empty($PREF['avatar_url'])) {
                 }
             } catch (e) { /* navegação privada: segue aberta, sem drama */ }
         </script>
+        <link rel="stylesheet" href="./css/progresso.css">
+        <link rel="stylesheet" href="./css/recompensas.css">
+        <!-- Síncrono e antes de qualquer outro script da página: ele
+             embrulha o fetch para perceber o `progresso` que os
+             endpoints devolvem e mostrar o "+50 XP" — em qualquer aba,
+             sem cada tela precisar lembrar de chamar nada. -->
+        <script src="./js/progresso.js"></script>
 
         <aside class="contLateral">
             <!-- A seta de recolher NÃO mora aqui dentro: ela é posicionada
@@ -74,17 +94,70 @@ if (!empty($PREF['avatar_url'])) {
                          width="34" height="34" decoding="async">
                 </a>
 
-                <!-- Sequência de dias (só no mobile, no canto direito do topo).
-                     Ocupa o lugar do antigo espaçador que só existia para
-                     centralizar o logo — e fica em todas as páginas, porque
-                     a sequência é da pessoa, não da aba Início. -->
-                <?php $seq = (int) $USUARIO['sequencia']; ?>
+                <!-- Sequência + nível (só no celular, canto direito do topo).
+                     Dois números num chip só: a chama com os dias seguidos e o
+                     anel do nível (o anel É a barra de XP, enrolada). Tocar
+                     abre o painel que explica os dois — número solto no canto
+                     não diz o que é. Sem a progressão disponível, fica só a
+                     sequência, como antes. -->
+                <?php $seq = (int) $USUARIO['sequencia'];
+                      $seqTexto = $seq . ' ' . ($seq === 1 ? 'dia seguido' : 'dias seguidos'); ?>
+                <?php if ($xpTem): ?>
+                <button type="button" class="topo-sequencia topo-status<?= $seq === 0 ? ' topo-sequencia--vazia' : '' ?>" id="btnStatus"
+                        aria-haspopup="dialog" aria-expanded="false" aria-controls="statusPainel"
+                        aria-label="<?= $seqTexto ?>, nível <?= (int) $PROGRESSO['nivel'] ?>. Ver progresso">
+                    <span class="topo-status__seq">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.2a5.6 5.6 0 0 0 5.6-5.6c0-4.6-5.6-9.2-5.6-9.2S6.4 11 6.4 15.6A5.6 5.6 0 0 0 12 21.2Z"/><path d="M12 21.2a2.4 2.4 0 0 0 2.4-2.4c0-2-2.4-4.1-2.4-4.1s-2.4 2.1-2.4 4.1a2.4 2.4 0 0 0 2.4 2.4Z"/></svg>
+                        <strong><?= $seq ?></strong>
+                    </span>
+                    <span class="topo-status__nivel" aria-hidden="true">
+                        <svg viewBox="0 0 32 32">
+                            <circle class="topo-status__trilho" cx="16" cy="16" r="13"/>
+                            <circle class="topo-status__arco" cx="16" cy="16" r="13" data-xp-anel
+                                    stroke-dasharray="<?= round($xpAnelC, 2) ?>" stroke-dashoffset="<?= round($xpAnelResto, 2) ?>"/>
+                        </svg>
+                        <span data-xp-nivel><?= (int) $PROGRESSO['nivel'] ?></span>
+                    </span>
+                </button>
+
+                <div class="status-painel" id="statusPainel" role="dialog" aria-labelledby="statusTitulo" hidden>
+                    <p class="status-painel__titulo" id="statusTitulo">Seu progresso</p>
+
+                    <div class="status-painel__item">
+                        <span class="status-painel__ico<?= $seq === 0 ? ' status-painel__ico--apagado' : '' ?>"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.2a5.6 5.6 0 0 0 5.6-5.6c0-4.6-5.6-9.2-5.6-9.2S6.4 11 6.4 15.6A5.6 5.6 0 0 0 12 21.2Z"/><path d="M12 21.2a2.4 2.4 0 0 0 2.4-2.4c0-2-2.4-4.1-2.4-4.1s-2.4 2.1-2.4 4.1a2.4 2.4 0 0 0 2.4 2.4Z"/></svg></span>
+                        <span class="status-painel__txt">
+                            <strong><?= $seqTexto ?></strong>
+                            <span data-status-hoje><?= !empty($PROGRESSO['estudou_hoje'])
+                                ? 'Você já estudou hoje. Sequência garantida.'
+                                : 'Estude hoje: o primeiro estudo do dia vale +' . ProgressoService::STREAK_BASE . ' XP.' ?></span>
+                        </span>
+                    </div>
+
+                    <div class="status-painel__item">
+                        <span class="xp__nivel" data-xp-nivel><?= (int) $PROGRESSO['nivel'] ?></span>
+                        <span class="status-painel__txt">
+                            <strong>Nível <span data-xp-nivel><?= (int) $PROGRESSO['nivel'] ?></span> · <span data-xp-titulo><?= hesc($PROGRESSO['titulo']) ?></span></strong>
+                            <span class="xp__barra" aria-hidden="true"><span class="xp__preench" data-xp-pct style="--xp-pct: <?= $xpPct ?>%"></span></span>
+                            <span class="status-painel__dica" data-xp-dica><?= hesc($xpDica) ?></span>
+                        </span>
+                    </div>
+
+                    <p class="status-painel__proxima" data-status-proxima<?= $xpProxima ? '' : ' hidden' ?>>
+                        <?php if ($xpProxima): ?>
+                        Próxima recompensa: <strong><?= hesc($xpProxima['nome']) ?></strong>
+                        (<?= hesc(mb_strtolower($xpProxima['tipo_nome'])) ?>) no nível <?= (int) $xpProxima['nivel'] ?>
+                        <?php endif; ?>
+                    </p>
+
+                    <a class="dash-btn dash-btn--primary status-painel__cta" href="conquistas.php#trilha">Trilha e conquistas</a>
+                </div>
+                <?php else: ?>
                 <span class="topo-sequencia<?= $seq === 0 ? ' topo-sequencia--vazia' : '' ?>" role="img"
-                      aria-label="Sequência: <?= $seq ?> <?= $seq === 1 ? 'dia seguido' : 'dias seguidos' ?>"
-                      title="<?= $seq ?> <?= $seq === 1 ? 'dia seguido' : 'dias seguidos' ?>">
+                      aria-label="Sequência: <?= $seqTexto ?>" title="<?= $seqTexto ?>">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.2a5.6 5.6 0 0 0 5.6-5.6c0-4.6-5.6-9.2-5.6-9.2S6.4 11 6.4 15.6A5.6 5.6 0 0 0 12 21.2Z"/><path d="M12 21.2a2.4 2.4 0 0 0 2.4-2.4c0-2-2.4-4.1-2.4-4.1s-2.4 2.1-2.4 4.1a2.4 2.4 0 0 0 2.4 2.4Z"/></svg>
                     <strong><?= $seq ?></strong>
                 </span>
+                <?php endif; ?>
             </div>
 
             <!-- Só no computador: no celular a navegação é a barra de baixo,
@@ -158,6 +231,24 @@ if (!empty($PREF['avatar_url'])) {
                     <span class="nav__rotulo">Conta</span>
                 </a>
             </nav>
+
+            <?php if ($xpTem): ?>
+            <!-- Nível e XP (só no computador; no celular é o fio do topo e o
+                 cartão da gaveta). Leva à página de conquistas. -->
+            <a class="xp<?= $PAGINA === 'conquistas.php' ? ' ativa' : '' ?>" href="conquistas.php"
+               data-xp data-rotulo="<?= hesc($xpRotulo) ?>" aria-describedby="xpDica">
+                <span class="xp__nivel" data-xp-nivel><?= (int) $PROGRESSO['nivel'] ?></span>
+                <span class="xp__info">
+                    <span class="xp__rotulo">Nível <span data-xp-nivel><?= (int) $PROGRESSO['nivel'] ?></span></span>
+                    <strong class="xp__titulo" data-xp-titulo><?= hesc($PROGRESSO['titulo']) ?></strong>
+                    <span class="xp__barra" role="progressbar" aria-label="Progresso do nível"
+                          aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= $xpPct ?>" data-xp-barra>
+                        <span class="xp__preench" data-xp-pct style="--xp-pct: <?= $xpPct ?>%"></span>
+                    </span>
+                </span>
+                <span class="xp__dica" id="xpDica" role="tooltip" data-xp-dica><?= hesc($xpDica) ?></span>
+            </a>
+            <?php endif; ?>
 
             <?php /* O rodapé faz DUAS coisas diferentes e agora elas estão
                      separadas: o cartão é a pessoa (leva ao Perfil e só a

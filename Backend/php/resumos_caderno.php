@@ -21,6 +21,8 @@ require_once __DIR__ . '/resumos_comum.php';
 $usuario = exigirLogin();
 apiExigirPost();
 
+require_once __DIR__ . '/ProgressoService.php';
+
 $acao = $_POST['acao'] ?? '';
 
 try {
@@ -39,10 +41,19 @@ try {
                            VALUES (?, ?, ?, ?, ?, ?)')
                 ->execute([$usuario['id'], $nome, $materia, $cor, $icone, $descricao]);
 
+            $cadernoId = (int) $pdo->lastInsertId();
+
             apiResponder([
-                'ok'      => true,
-                'msg'     => 'Caderno criado!',
-                'caderno' => cadernoParaTela($pdo, (int) $pdo->lastInsertId(), (int) $usuario['id']),
+                'ok'        => true,
+                'msg'       => 'Caderno criado!',
+                'caderno'   => cadernoParaTela($pdo, $cadernoId, (int) $usuario['id']),
+                // Mesmo orçamento dos resumos novos (teto diário no ProgressoService)
+                'progresso' => progressoRegistrar($pdo, (int) $usuario['id'], [[
+                    'acao'     => 'conteudo_criado',
+                    'xp'       => ProgressoService::XP['conteudo_criado'],
+                    'rotulo'   => 'Novo caderno',
+                    'detalhes' => ['caderno' => $cadernoId],
+                ]]),
             ]);
         }
 
