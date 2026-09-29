@@ -1,5 +1,65 @@
 /* ==== EXERCÍCIOS ==== */
 
+/* ============================================================
+   DIFICULDADE — tokens por nível
+   Um par (cor + fundo + linha) por dificuldade, exposto em
+   [data-dificuldade] (chips e cápsulas) e [data-dif] (linhas de
+   distribuição). Base única: qualquer elemento que carregue um
+   desses atributos já herda as variáveis --dif*.
+   ============================================================ */
+[data-dificuldade],
+[data-dif] {
+    --dif: #c97cff;
+    --dif-fundo: rgba(165,65,255,.13);
+    --dif-linha: rgba(165,65,255,.30);
+}
+[data-dificuldade="Fácil"], [data-dif="Fácil"] {
+    --dif: #4ade80;
+    --dif-fundo: rgba(74,222,128,.12);
+    --dif-linha: rgba(74,222,128,.30);
+}
+[data-dificuldade="Médio"], [data-dif="Médio"] {
+    --dif: #fbbf24;
+    --dif-fundo: rgba(251,191,36,.12);
+    --dif-linha: rgba(251,191,36,.30);
+}
+[data-dificuldade="Difícil"], [data-dif="Difícil"] {
+    --dif: #f87171;
+    --dif-fundo: rgba(248,113,113,.12);
+    --dif-linha: rgba(248,113,113,.30);
+}
+[data-dificuldade="Misto"], [data-dif="Misto"] {
+    --dif: #60a5fa;
+    --dif-fundo: rgba(96,165,250,.12);
+    --dif-linha: rgba(96,165,250,.30);
+}
+
+/* ============================================================
+   DIFICULDADE NA INTERFACE
+   Sem cápsula: um ponto de 5px na cor do nível + o texto na
+   mesma cor. Só a cor muda entre Fácil/Médio/Difícil/Misto —
+   o formato é sempre o mesmo e não emite brilho.
+   ============================================================ */
+.dif-capsula {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--dif);
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    line-height: 1.7;
+    white-space: nowrap;
+}
+.dif-capsula::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--dif);
+    flex: none;
+}
+
 /* ---- Grade de matérias ---- */
 .exercicio-materias-grid {
     display: grid;
@@ -342,15 +402,9 @@
     white-space: nowrap;
 }
 .exercicio-salvo-card__meta { font-size: .8rem; color: var(--text-muted); margin-top: 2px; }
-.exercicio-salvo-card__badge {
-    background: rgba(165,65,255,.15);
-    color: var(--accent-lt);
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: .7rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
+/* O selo da dificuldade usa .dif-capsula (ver topo do arquivo);
+   aqui só o encaixe no topo flexível do cartão. */
+.exercicio-salvo-card__badge { flex: none; }
 .exercicio-salvo-card__acoes { display: flex; gap: 8px; flex-wrap: wrap; }
 .exercicio-salvo-card__acoes .dash-btn { padding: 8px 12px; font-size: .8rem; }
 .exercicio-salvo-card__acoes .dash-btn--outline { flex: 1; }
@@ -438,6 +492,39 @@
 }
 .ex-dif__opcao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* Os chips de dificuldade já nascem com a cor do seu nível
+   ([data-dificuldade]): no hover adiantam a cor, ao marcar
+   assumem por completo. Os chips de modo (data-modo) continuam
+   roxos, como o resto do projeto. */
+.ex-dif__opcao[data-dificuldade] {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--dif);
+    border-color: var(--dif-linha);
+}
+.ex-dif__opcao[data-dificuldade]:hover {
+    background: var(--dif-fundo);
+    border-color: var(--dif);
+}
+.ex-dif__opcao[data-dificuldade][aria-pressed="true"] {
+    background: var(--dif-fundo);
+    border-color: var(--dif);
+    color: var(--dif);
+    box-shadow: 0 0 0 3px var(--dif-linha);
+}
+.ex-dif__opcao[data-dificuldade]::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--dif);
+    box-shadow: 0 0 4px var(--dif-linha);
+    opacity: .5;
+    transition: opacity var(--transition);
+}
+.ex-dif__opcao[data-dificuldade][aria-pressed="true"]::before { opacity: 1; }
+
 /* ---- "Quantas de cada": uma linha por dificuldade marcada ---- */
 .ex-qtd-dif { display: flex; flex-direction: column; gap: 10px; }
 .ex-qtd-dif__linha {
@@ -447,7 +534,25 @@
     gap: 12px;
     animation: fade-in .15s ease;
 }
-.ex-qtd-dif__nome { font-size: .9rem; font-weight: 500; color: var(--text-dim); }
+/* O nome da linha herda --dif do [data-dif] do próprio <div>:
+   mesmo ponto de 5px da cápsula, sem virar uma segunda tag. */
+.ex-qtd-dif__nome {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .9rem;
+    font-weight: 500;
+    color: var(--text-dim);
+}
+.ex-qtd-dif__nome::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--dif);
+    box-shadow: 0 0 4px var(--dif-linha);
+    flex: none;
+}
 .ex-qtd-dif .qtd-stepper { width: 190px; flex: none; }
 .campo__dica--erro { color: #ef4444; }
 
@@ -461,16 +566,10 @@
     font-weight: 600;
     color: var(--accent-lt);
 }
-.ex-gerar-questao__dif {
-    font-size: .7rem;
-    font-weight: 700;
-    letter-spacing: .03em;
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: rgba(165,65,255,.15);
-    border: 1px solid rgba(165,65,255,.3);
-    color: var(--accent-lt);
-}
+/* ---- Selo da dificuldade em cada questão da prévia ----
+   Mesmo .dif-capsula do cartão salvo; aqui só o encaixe na linha
+   "Questão N" à esquerda e a tag à direita. */
+.ex-gerar-questao__dif { flex: none; }
 .ex-gerar-questoes {
     max-height: 380px;
     overflow-y: auto;
