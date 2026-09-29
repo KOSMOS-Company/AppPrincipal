@@ -418,7 +418,7 @@
             });
 
             const badgeDif = q.dificuldade
-                ? `<span class="ex-gerar-questao__dif">${esc(q.dificuldade)}</span>`
+                ? `<span class="ex-gerar-questao__dif dif-capsula" data-dificuldade="${esc(q.dificuldade)}">${esc(q.dificuldade)}</span>`
                 : "";
 
             div.innerHTML = `

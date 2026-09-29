@@ -21,6 +21,19 @@ function navAtivo(string $arquivo, string $atual, string $classes = ''): string 
     return $lista === '' ? '' : ' class="' . $lista . '"';
 }
 
+/* Sub-abas não têm link próprio no menu — elas nascem de uma seção.
+   Sem isto, `$PAGINA` ("exercicio_materia.php") não batia com nenhum
+   href e a página ficava sem item ativo: o marcador do menu não
+   aparecia e todos os rótulos ficavam com o mesmo brilho, como se
+   estivessem todos selecionados. */
+$PAGINA_SECAO = [
+    'exercicio_materia.php' => 'exercicios.php',
+    'resumo.php'            => 'resumos.php',
+    'caderno.php'           => 'resumos.php',
+    'revisar.php'           => 'index.php',
+];
+$secaoAtual = $PAGINA_SECAO[$PAGINA] ?? $PAGINA;
+
 // Classes e estilo do avatar: cor escolhida e, se houver, a foto
 // já no enquadramento salvo — nada disso depende de JS agora.
 $avatarClasses = 'usuario__avatar avatar-cor--' . hesc($PREF['avatar_cor']) . avatarClassesRecompensa($PREF);
@@ -73,7 +86,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
         <aside class="contLateral">
             <div class="contTopo">
                 <!-- Botão de ferramentas no mobile (posição azul no topo-esquerdo) -->
-                <?php $isFerramentasAtiva = in_array($PAGINA, ['pomodoro.php', 'flashcards.php', 'exercicios.php', 'provas.php'], true); ?>
+                <?php $isFerramentasAtiva = in_array($secaoAtual, ['pomodoro.php', 'flashcards.php', 'exercicios.php', 'provas.php'], true); ?>
                 <button type="button" class="topo-btn-ferramentas<?= $isFerramentasAtiva ? ' ativo' : '' ?>" id="btnMaisMobile"
                         aria-label="Mais ferramentas" aria-haspopup="true" aria-expanded="false" title="Mais ferramentas">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
@@ -184,12 +197,12 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                      ícone quando a barra está recolhida. É CSS puro
                      (content: attr), então funciona no teclado também — não
                      depende de hover. -->
-                <a href="index.php" data-rotulo="Início"<?= navAtivo('index.php', $PAGINA) ?>>
+                <a href="index.php" data-rotulo="Início"<?= navAtivo('index.php', $secaoAtual) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="nav__rotulo">Início</span>
                 </a>
 
-                <a href="orion.php" data-rotulo="Orion"<?= navAtivo('orion.php', $PAGINA) ?>>
+                <a href="orion.php" data-rotulo="Orion"<?= navAtivo('orion.php', $secaoAtual) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5.5"/>
                         <path d="M3.5 13.5 C5 9.5 12 7 17.5 9 C20.5 10 21 11.5 20.5 12.5 C19 14.5 12 17 6.5 15 C3.5 14 3 12.5 3.5 11.5"/>
@@ -198,32 +211,32 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     <span class="nav__rotulo">Orion <span class="nav__tag-ia">IA</span></span>
                 </a>
 
-                <a href="busca.php" data-rotulo="Buscar"<?= navAtivo('busca.php', $PAGINA) ?>>
+                <a href="busca.php" data-rotulo="Buscar"<?= navAtivo('busca.php', $secaoAtual) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/><path d="M16 16 L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Buscar</span>
                 </a>
 
                 <span class="nav__grupo">Estudar</span>
-                <a href="resumos.php" data-rotulo="Biblioteca"<?= navAtivo('resumos.php', $PAGINA) ?>>
+                <a href="resumos.php" data-rotulo="Biblioteca"<?= navAtivo('resumos.php', $secaoAtual) ?>>
                     <!-- ícone de estante: a aba guarda cadernos, não folhas soltas -->
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m18.4 6.2 2.2 13.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Biblioteca</span>
                 </a>
-                <a href="flashcards.php" data-rotulo="Flashcards"<?= navAtivo('flashcards.php', $PAGINA, 'nav-secundario-mobile') ?>>
+                <a href="flashcards.php" data-rotulo="Flashcards"<?= navAtivo('flashcards.php', $secaoAtual, 'nav-secundario-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Flashcards</span>
                 </a>
-                <a href="exercicios.php" data-rotulo="Exercícios"<?= navAtivo('exercicios.php', $PAGINA, 'nav-secundario-mobile') ?>>
+                <a href="exercicios.php" data-rotulo="Exercícios"<?= navAtivo('exercicios.php', $secaoAtual, 'nav-secundario-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Exercícios</span>
                 </a>
 
                 <span class="nav__grupo">Foco</span>
-                <a href="pomodoro.php" data-rotulo="Pomodoro"<?= navAtivo('pomodoro.php', $PAGINA, 'nav-secundario-mobile') ?>>
+                <a href="pomodoro.php" data-rotulo="Pomodoro"<?= navAtivo('pomodoro.php', $secaoAtual, 'nav-secundario-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="nav__rotulo">Pomodoro</span>
                 </a>
-                <a href="provas.php" data-rotulo="Provas"<?= navAtivo('provas.php', $PAGINA, 'nav-secundario-mobile') ?>>
+                <a href="provas.php" data-rotulo="Provas"<?= navAtivo('provas.php', $secaoAtual, 'nav-secundario-mobile') ?>>
                     <!-- ícone de calendário com um dia marcado: o que a aba
                          faz é apontar um dia no futuro e contar até ele -->
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
@@ -231,7 +244,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                 </a>
 
                 <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile (posição amarela) -->
-                <a href="conta.php" data-rotulo="Conta"<?= navAtivo('conta.php', $PAGINA, 'nav-somente-mobile') ?>>
+                <a href="conta.php" data-rotulo="Conta"<?= navAtivo('conta.php', $secaoAtual, 'nav-somente-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Conta</span>
                 </a>
@@ -329,7 +342,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     <button type="button" class="sheet-fechar" id="btnFecharSheetMais" aria-label="Fechar">✕</button>
                 </div>
                 <div class="sheet-grid">
-                    <a href="pomodoro.php" class="sheet-card<?= $PAGINA === 'pomodoro.php' ? ' ativo' : '' ?>">
+                    <a href="pomodoro.php" class="sheet-card<?= $secaoAtual === 'pomodoro.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15"/></svg>
                         </span>
@@ -338,7 +351,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                             <span>Ciclos de foco e pausas</span>
                         </div>
                     </a>
-                    <a href="flashcards.php" class="sheet-card<?= $PAGINA === 'flashcards.php' ? ' ativo' : '' ?>">
+                    <a href="flashcards.php" class="sheet-card<?= $secaoAtual === 'flashcards.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16"/></svg>
                         </span>
@@ -347,7 +360,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                             <span>Repetição espaçada</span>
                         </div>
                     </a>
-                    <a href="exercicios.php" class="sheet-card<?= $PAGINA === 'exercicios.php' ? ' ativo' : '' ?>">
+                    <a href="exercicios.php" class="sheet-card<?= $secaoAtual === 'exercicios.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6 H20 M4 12 H20 M4 18 H14"/></svg>
                         </span>
@@ -356,7 +369,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                             <span>Simulados com IA</span>
                         </div>
                     </a>
-                    <a href="provas.php" class="sheet-card<?= $PAGINA === 'provas.php' ? ' ativo' : '' ?>">
+                    <a href="provas.php" class="sheet-card<?= $secaoAtual === 'provas.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
                         </span>

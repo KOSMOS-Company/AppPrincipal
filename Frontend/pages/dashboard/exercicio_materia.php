@@ -278,15 +278,16 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
 
                 // "YYYY-MM-DD HH:MM:SS" do MySQL não é ISO: o Safari devolve Invalid Date sem o "T"
                 const data = new Date(String(ex.criado_em).replace(' ', 'T')).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                const dificuldade = ex.dificuldade || "Médio";
 
                 return `
                     <article class="exercicio-salvo-card anim-in">
                         <div class="exercicio-salvo-card__topo">
                             <div class="exercicio-salvo-card__info">
                                 <h4 class="exercicio-salvo-card__titulo">${escapeHtml(ex.titulo)}</h4>
-                                <p class="exercicio-salvo-card__meta">${qtdQuestoes} ${qtdQuestoes === 1 ? 'questão' : 'questões'} · ${escapeHtml(ex.dificuldade)} · ${data}</p>
+                                <p class="exercicio-salvo-card__meta">${qtdQuestoes} ${qtdQuestoes === 1 ? 'questão' : 'questões'} · ${data}</p>
                             </div>
-                            <span class="exercicio-salvo-card__badge">${escapeHtml(ex.dificuldade)}</span>
+                            <span class="exercicio-salvo-card__badge dif-capsula" data-dificuldade="${escapeHtml(dificuldade)}">${escapeHtml(dificuldade)}</span>
                         </div>
                         <div class="exercicio-salvo-card__acoes">
                             <button class="dash-btn dash-btn--outline" onclick="abrirExercicio(${ex.id})">
