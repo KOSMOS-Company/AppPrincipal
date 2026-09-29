@@ -9,6 +9,7 @@
 //    meta     -> a meta diária salva em usuario_preferencias
 //    metricas -> resumos, flashcards e cartões vencidos para hoje
 //    passos   -> os "primeiros passos" já cumpridos (booleanos)
+//    missoes  -> as missões da semana (ver missoes.php), ou null
 //
 //  Uma requisição e não quatro: são consultas leves contra o
 //  mesmo usuário, e o custo aqui é a ida e volta, não o SELECT.
@@ -21,6 +22,7 @@
 // ============================================================
 
 require_once __DIR__ . '/estudo_comum.php';
+require_once __DIR__ . '/missoes.php';
 
 $usuario = exigirLogin();
 $id      = (int) $usuario['id'];
@@ -101,6 +103,17 @@ try {
     $stmt->execute([$id, $id, $id, $id]);
     $contagens = $stmt->fetch() ?: [];
 
+    /* Questões certas: consulta à parte porque a tabela vem da migração
+       de progresso — sem ela o número fica em "—" e o resto segue. */
+    $exercicios = null;
+    try {
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM exercicio_respostas WHERE usuario_id = ? AND acertou = 1');
+        $stmt->execute([$id]);
+        $exercicios = (int) $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        $exercicios = null;
+    }
+
     estResponder([
         'semana'   => $semana,
         'hoje'     => (int) $linha['hoje'],
@@ -109,6 +122,7 @@ try {
             'resumos'    => (int) ($contagens['resumos'] ?? 0),
             'flashcards' => (int) ($contagens['cartoes'] ?? 0),
             'vencidos'   => (int) ($contagens['vencidos'] ?? 0),
+            'exercicios' => $exercicios,
         ],
         /* Os "primeiros passos" da Início. O index.php já pinta a lista
            pelo servidor; isto aqui é para ela se corrigir sozinha sem
@@ -120,6 +134,8 @@ try {
             'flashcards' => ((int) ($contagens['cartoes'] ?? 0)) > 0,
             'pomodoro'   => ((int) ($contagens['fez_foco'] ?? 0)) > 0,
         ],
+        // Depois dos primeiros passos: as missões da semana (null antes disso)
+        'missoes' => missoesEstado($pdo, $id),
     ]);
 } catch (PDOException $e) {
     estErro('Não foi possível carregar os dados.', 500);

@@ -55,8 +55,90 @@ try {
     }
     unset($deck);
 
+    // Consulta de uma seção da exportação. Tabelas de features mais novas
+    // podem não existir num banco que ainda não rodou a migração: aí a
+    // seção sai vazia em vez de derrubar a exportação inteira.
+    $secao = function (string $sql, array $params) use ($pdo): array {
+        try {
+            $st = $pdo->prepare($sql);
+            $st->execute($params);
+            return $st->fetchAll();
+        } catch (PDOException $e) {
+            return [];
+        }
+    };
+
+    // Colunas JSON guardadas como texto saem como objeto no arquivo,
+    // para a pessoa conseguir ler (se não for JSON válido, vai como está)
+    $decodificar = function (array $linhas, string $coluna): array {
+        foreach ($linhas as &$l) {
+            if (isset($l[$coluna]) && is_string($l[$coluna])) {
+                $v = json_decode($l[$coluna], true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $l[$coluna] = $v;
+                }
+            }
+        }
+        unset($l);
+        return $linhas;
+    };
+
+    // ---------- Resumos e cadernos ----------
+    $cadernos = $secao('SELECT id, nome, materia, cor, icone, descricao, ordem, criado_em
+                          FROM resumo_cadernos WHERE usuario_id = ? ORDER BY ordem, id', [$id]);
+    $resumos  = $secao('SELECT id, caderno_id, titulo, materia, corpo, criado_em, atualizado_em
+                          FROM resumos WHERE usuario_id = ? ORDER BY id', [$id]);
+
+    // ---------- Provas (+ tópicos) ----------
+    $provas = $secao('SELECT id, titulo, materia, data, anotacoes, nota, concluida_em, criado_em
+                        FROM provas WHERE usuario_id = ? ORDER BY data, id', [$id]);
+    // Tópicos não têm usuario_id: o dono vem pela prova (join)
+    $topicos = $secao('SELECT t.prova_id, t.texto, t.feito, t.ordem, t.criado_em
+                         FROM prova_topicos t
+                         JOIN provas p ON p.id = t.prova_id
+                        WHERE p.usuario_id = ?
+                        ORDER BY t.prova_id, t.ordem, t.id', [$id]);
+    $topicosPorProva = [];
+    foreach ($topicos as $t) {
+        $topicosPorProva[$t['prova_id']][] = $t;
+    }
+    foreach ($provas as &$p) {
+        $p['topicos'] = $topicosPorProva[$p['id']] ?? [];
+    }
+    unset($p);
+
+    // ---------- Exercícios ----------
+    $exMaterias  = $secao('SELECT id, nome, materia, cor, icone, descricao, ordem, criado_em
+                             FROM exercicio_materias WHERE usuario_id = ? ORDER BY ordem, id', [$id]);
+    $exercicios  = $decodificar($secao('SELECT id, materia_id, titulo, conteudo, dificuldade,
+                                               criado_em, atualizado_em
+                                          FROM exercicios WHERE usuario_id = ? ORDER BY id', [$id]),
+                                'conteudo');
+    $exRespostas = $secao('SELECT exercicio_id, questao, escolhida, acertou, dia, respondido_em
+                             FROM exercicio_respostas WHERE usuario_id = ?
+                            ORDER BY respondido_em, id', [$id]);
+
+    // ---------- Estudo e progressão ----------
+    $pomodoros  = $secao('SELECT minutos, materia, fim_em, dia
+                            FROM pomodoro_sessoes WHERE usuario_id = ? ORDER BY fim_em', [$id]);
+    $progresso  = $secao('SELECT xp_atual, nivel_atual, titulo_atual, streak_dias,
+                                 ultimo_dia_ativo, atualizado_em
+                            FROM usuario_progresso WHERE usuario_id = ? LIMIT 1', [$id]);
+    $historico  = $decodificar($secao('SELECT quantidade_xp, origem_acao, detalhes_json, criado_em
+                                         FROM historico_xp WHERE usuario_id = ?
+                                        ORDER BY criado_em, id', [$id]),
+                               'detalhes_json');
+    $conquistas = $secao('SELECT c.slug, c.nome, uc.desbloqueado_em
+                            FROM usuario_conquistas uc
+                            JOIN conquistas c ON c.id = uc.conquista_id
+                           WHERE uc.usuario_id = ?
+                           ORDER BY uc.desbloqueado_em', [$id]);
+
+    // Data da exportação pelo relógio do MySQL (o PHP roda em outro fuso)
+    $agora = $pdo->query('SELECT NOW() AS agora, CURDATE() AS hoje')->fetch();
+
     $dados = [
-        'exportado_em' => date('c'),
+        'exportado_em' => $agora['agora'],
         'aplicativo'   => 'Kosmos',
         'perfil' => [
             'nome'          => $u['nome'],
@@ -69,11 +151,25 @@ try {
         ],
         'preferencias' => $pref,
         'flashcards'   => $decks,
-        'observacao'   => 'Resumos e exercícios ainda não são salvos no servidor, '
-                        . 'por isso não aparecem aqui.',
+        'resumos' => [
+            'cadernos' => $cadernos,
+            'resumos'  => $resumos,
+        ],
+        'provas' => $provas,
+        'exercicios' => [
+            'materias'   => $exMaterias,
+            'listas'     => $exercicios,
+            'respostas'  => $exRespostas,
+        ],
+        'pomodoro_sessoes' => $pomodoros,
+        'progresso' => [
+            'resumo'       => $progresso[0] ?? null,
+            'historico_xp' => $historico,
+            'conquistas'   => $conquistas,
+        ],
     ];
 
-    $nomeArquivo = 'kosmos-meus-dados-' . date('Y-m-d') . '.json';
+    $nomeArquivo = 'kosmos-meus-dados-' . $agora['hoje'] . '.json';
 
     header('Content-Type: application/json; charset=utf-8');
     header('Content-Disposition: attachment; filename="' . $nomeArquivo . '"');

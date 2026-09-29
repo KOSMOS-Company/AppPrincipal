@@ -9,12 +9,10 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
  
 // ---------- Configurações do banco ----------
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'kosmos');
-define('DB_USER', 'root');   // usuário padrão do XAMPP
-define('DB_PASS', '');       // senha padrão do XAMPP (vazia)
-define('DB_PORT', 3306);
- 
+// Credenciais ficam só no conexao.php (fora do git, ver conexao.example.php),
+// como nos outros endpoints — antes estavam repetidas aqui.
+require_once __DIR__ . '/conexao.php';
+
 // ---------- Só aceita POST ----------
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -58,12 +56,7 @@ if (!empty($erros)) {
  
 // ---------- Conecta ao banco ----------
 try {
-    $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
-    $pdo = new PDO($dsn, DB_USER, DB_PASS, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
-    ]);
+    $pdo = conectar();
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Erro ao conectar ao banco de dados. Verifique se o MySQL está rodando.']);

@@ -284,6 +284,7 @@
         }
 
         Mover?.definirCadernos(cadernos);
+        window.KosmosResumoForm?.definirCadernos(cadernos);   // o select do modal de resumo
         desenhar();
     });
 
@@ -293,6 +294,7 @@
 
         cadernos = cadernos.filter((c) => c.id !== id);
         Mover?.definirCadernos(cadernos);
+        window.KosmosResumoForm?.definirCadernos(cadernos);
 
         /* Os resumos do caderno não foram apagados — voltaram para
            "Sem caderno". A tela não os tem em memória (só o caderno
@@ -433,7 +435,9 @@
         if (vazioCadernos.hidden) return;
 
         const nenhum = cadernos.length === 0;
-        vazioCadernos.querySelector("h3").textContent = nenhum
+        // o estado vazio do resumos.php usa <h2>; só "h3" dava null e
+        // derrubava o resto do desenho (contagens, abas, alvos de arraste)
+        vazioCadernos.querySelector("h2, h3").textContent = nenhum
             ? "Nenhum caderno por aqui"
             : "Nenhum caderno nesta matéria";
         vazioCadernos.querySelector("p").textContent = nenhum

@@ -44,6 +44,25 @@ if (!$ERRO_BANCO && isset($pdo)) {
 $PASSOS_TOTAL  = count($PASSOS);
 $PASSOS_FEITOS = count(array_filter($PASSOS));
 
+// ============================================================
+//  MISSÕES DA SEMANA
+//  Com os três primeiros passos feitos, o cartão vira "Semana 1",
+//  "Semana 2"... com quatro missões lidas do que a pessoa fez na
+//  semana (ver Backend/php/missoes.php). Antes disso, null.
+// ============================================================
+require_once __DIR__ . '/../../../Backend/php/missoes.php';
+$MISSOES = null;
+if ($PASSOS_FEITOS === $PASSOS_TOTAL && !$ERRO_BANCO && isset($pdo)) {
+    $MISSOES = missoesEstado($pdo, (int) $USUARIO['id']);
+}
+
+/** "termina hoje" / "termina amanhã" / "faltam N dias" */
+function missoesPrazo(int $dias): string {
+    if ($dias === 0) return 'termina hoje';
+    if ($dias === 1) return 'termina amanhã';
+    return "faltam {$dias} dias";
+}
+
 /** Este passo já está cumprido? (usado três vezes na lista abaixo) */
 function passoFeito(array $passos, string $slug): bool {
     return !empty($passos[$slug]);
@@ -319,6 +338,67 @@ function passoFeito(array $passos, string $slug): bool {
                  arquivo). Por isso o círculo é um <span> e não um <button>:
                  não há nada para clicar, ele RELATA um estado.
                  ========================================================== -->
+            <?php if ($MISSOES): ?>
+            <!-- ==========================================================
+                 MISSÕES DA SEMANA
+                 Toma o lugar dos primeiros passos quando eles terminam.
+                 Cada missão se marca sozinha (o js/inicio.js repinta com
+                 a resposta do inicio_dados.php, chave `missoes`).
+                 ========================================================== -->
+            <section class="ini-secao">
+                <div class="ini-card ini-passos ini-missoes<?= $MISSOES['completa'] ? ' ini-missoes--completa' : '' ?>" id="iniMissoes">
+                    <div class="ini-card__cabeca ini-missoes__cabeca">
+                        <div class="ini-missoes__titulo">
+                            <span class="ini-missoes__semana" data-missoes-semana>Semana <?= (int) $MISSOES['semana'] ?></span>
+                            <h3>Missões da semana <span class="ini-missoes__nome" data-missoes-nome>· <?= hesc($MISSOES['nome']) ?></span></h3>
+                        </div>
+                        <span class="ini-card__nota" id="iniMissoesContador"><?=
+                            $MISSOES['completa']
+                                ? 'semana completa ✦'
+                                : $MISSOES['feitas'] . ' de ' . $MISSOES['total'] . ' · ' . missoesPrazo($MISSOES['dias_restantes'])
+                        ?></span>
+                    </div>
+                    <progress id="iniMissoesBarra" value="<?= (int) $MISSOES['feitas'] ?>" max="<?= (int) $MISSOES['total'] ?>"></progress>
+
+                    <ul class="ini-passos__lista">
+                        <?php foreach ($MISSOES['missoes'] as $m):
+                            $pct = (int) floor(100 * $m['valor'] / max(1, $m['alvo'])); ?>
+                        <li class="ini-passo ini-missao<?= $m['feita'] ? ' feito' : '' ?>" data-missao="<?= hesc($m['slug']) ?>">
+                            <span class="ini-passo__check" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <a class="ini-passo__link ini-missao__link" href="<?= hesc($m['href']) ?>">
+                                <strong data-missao-titulo><?= hesc($m['titulo']) ?></strong>
+                                <span data-missao-dica><?= hesc($m['dica']) ?></span>
+                                <span class="sr-only ini-passo__estado"><?= $m['feita'] ? 'Concluída' : 'Em andamento' ?></span>
+                            </a>
+                            <span class="ini-missao__prog">
+                                <span class="ini-missao__num" data-missao-prog><?= hesc($m['progresso']) ?></span>
+                                <span class="ini-missao__barra" aria-hidden="true"><span data-missao-pct style="--pct: <?= $pct ?>%"></span></span>
+                            </span>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+
+                    <?php if ($MISSOES['historico']): ?>
+                    <!-- As semanas anteriores, da mais antiga para a atual -->
+                    <ol class="ini-missoes__historico" aria-label="Semanas anteriores">
+                        <?php foreach ($MISSOES['historico'] as $h): ?>
+                        <li class="ini-missoes__marco<?= $h['completa'] ? ' ini-missoes__marco--ok' : '' ?>"
+                            title="Semana <?= (int) $h['semana'] ?>: <?= (int) $h['feitas'] ?> de <?= (int) $h['total'] ?> missões">
+                            <span class="sr-only">Semana <?= (int) $h['semana'] ?>: <?= $h['completa'] ? 'completa' : (int) $h['feitas'] . ' de ' . (int) $h['total'] . ' missões' ?></span>
+                            <span aria-hidden="true">S<?= (int) $h['semana'] ?><?= $h['completa'] ? ' ✓' : ' · ' . (int) $h['feitas'] . '/' . (int) $h['total'] ?></span>
+                        </li>
+                        <?php endforeach; ?>
+                        <li class="ini-missoes__marco ini-missoes__marco--atual" aria-current="true">
+                            <span class="sr-only">Semana <?= (int) $MISSOES['semana'] ?>, atual</span>
+                            <span aria-hidden="true">S<?= (int) $MISSOES['semana'] ?> · agora</span>
+                        </li>
+                    </ol>
+                    <?php endif; ?>
+                </div>
+            </section>
+            <?php else: ?>
             <section class="ini-secao">
                 <div class="ini-card ini-passos">
                     <div class="ini-card__cabeca">
@@ -362,8 +442,10 @@ function passoFeito(array $passos, string $slug): bool {
                             </a>
                         </li>
                     </ul>
+                    <p class="ini-passos__depois">Concluindo os três, começam as <strong>missões da semana</strong>.</p>
                 </div>
             </section>
+            <?php endif; ?>
         </main>
 
     </div>
@@ -406,7 +488,7 @@ function passoFeito(array $passos, string $slug): bool {
     <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/inicio.js"></script>
     <script src="./js/cursor.js"></script>
-    <script src="../shared/mascote.js"></script>
+    <?php /* o mascote.js já vem do partes/sidebar.php (antes deste ponto) */ ?>
     <script src="./js/intro.js"></script>
     <?php if (!empty($PREF['mostrar_onboarding'])): ?>
         <script src="./js/onboarding.js"></script>

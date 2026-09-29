@@ -150,7 +150,13 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
     <script src="./js/dashboard.js"></script>
     <script src="../shared/mascote.js"></script>
     <script src="./js/orion-aba.js"></script>
+    <!-- O fundo tenta WebGL (cosmos-gl.js); se a máquina não tem ou o shader
+         não compila, ele desiste em silêncio e o cosmos.js (Canvas 2D) assume.
+         Os dois com defer aqui: scripts defer rodam na ordem do HTML, então o
+         cosmos.js continua rodando DEPOIS do cosmos-gl.js, como nas outras
+         páginas — sem defer ele rodaria antes e nunca veria o WebGL ligado. -->
     <script src="../shared/cosmos-gl.js" defer></script>
+    <script src="../shared/cosmos.js" defer></script>
     <script src="./js/cursor.js" defer></script>
     <script src="./js/pomodoro-aviso.js"></script>
 </body>

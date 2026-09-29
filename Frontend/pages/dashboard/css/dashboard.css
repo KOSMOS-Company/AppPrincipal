@@ -181,8 +181,10 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
 .contTopo {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0 8px 34px;
+    gap: 4px;
+    /* à direita sem margem: o botão de recolher encosta no canto e a
+       wordmark (~157px) cabe inteira sem encostar nele */
+    margin: 0 -4px 34px 8px;
 }
 .contLogo {
     flex: 1 1 auto;
@@ -194,45 +196,46 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
    recolhido). Aberta, quem manda é a wordmark. */
 .contLogo__icone { display: none; }
 
-/* ── A seta de recolher ──
-   Mora na BORDA direita da barra, meio dentro e meio fora, na altura do
-   primeiro item. Ao lado da marca ela disputava atenção com o próprio
-   nome do app; aqui ela fica onde a ação acontece — na linha que se
-   move.
+/* ── O botão de recolher ──
+   Mora no canto direito do topo, na mesma linha da marca — o lugar
+   onde apps de barra lateral põem esse controle. O ícone é o de
+   "painel": um quadro com a coluna da esquerda e uma setinha que mostra
+   o que o clique vai fazer (não o estado em que a barra está).
 
-   Discreta, não escondida: 40% de opacidade parada, cheia quando o
-   ponteiro entra na barra ou quando ela recebe foco. Sumir de vez até o
-   hover é o jeito clássico de ninguém descobrir que o recurso existe. */
+   Discreto, não escondido: 55% de opacidade parado, cheio quando o
+   ponteiro entra na barra ou ele recebe foco. */
 .lateral__aperta {
-    position: absolute;
-    top: 92px;
-    right: -13px;
-    z-index: 5;
-    width: 26px;
-    height: 26px;
+    flex: none;
+    width: 34px;
+    height: 34px;
     display: grid;
     place-items: center;
     padding: 0;
-    background: var(--bg-card);
-    border: 1px solid rgba(165, 65, 255, .28);
-    border-radius: 50%;
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid rgba(165, 65, 255, .16);
+    border-radius: 10px;
     color: var(--text-dim);
     cursor: pointer;
-    opacity: .4;
+    opacity: .7;
     transition: opacity var(--transition), color var(--transition),
-                border-color var(--transition), transform var(--transition);
+                background-color var(--transition), border-color var(--transition);
 }
-.lateral__aperta svg { width: 15px; height: 15px; }
+.lateral__aperta svg { width: 20px; height: 20px; }
+.lateral__aperta-seta {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform var(--transition);
+}
 .contLateral:hover .lateral__aperta,
 .lateral__aperta:focus-visible { opacity: 1; }
 .lateral__aperta:hover {
     color: var(--accent-lt);
-    border-color: var(--accent);
+    background: rgba(165, 65, 255, .1);
+    border-color: rgba(165, 65, 255, .22);
 }
+.lateral__aperta:active { transform: scale(.94); }
 
-/* Recolhida, a seta aponta para o outro lado — ela mostra o que vai
-   acontecer, não o estado em que está. */
-html.lateral-recolhida .lateral__aperta { transform: rotate(180deg); }
+html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
 .lateral__aperta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* No celular ele SOME. A navegação ali é a barra de baixo, e todas as
@@ -1911,6 +1914,114 @@ a.ini-card:hover .ini-card__ico {
 .ini-passo__link span { font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
 .ini-passo__link:hover strong { color: var(--accent-lt); }
 .ini-passo.feito .ini-passo__link strong { color: var(--text-muted); text-decoration: line-through; }
+.ini-passos__depois {
+    margin: 14px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    font-size: .8rem;
+    color: var(--text-muted);
+}
+.ini-passos__depois strong { color: var(--accent-lt); font-weight: 600; }
+
+/* ---- Missões da semana ----
+   Mesma casca dos primeiros passos (.ini-passos, .ini-passo), mais o
+   selo da semana, uma barrinha por missão e a fileira das semanas
+   anteriores. */
+.ini-missoes__cabeca { align-items: flex-start; gap: 12px; }
+.ini-missoes__titulo { min-width: 0; }
+.ini-missoes__semana {
+    display: inline-block;
+    margin-bottom: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--purple), var(--accent));
+    font: 700 .68rem/1.4 "Syne", sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #fff;
+}
+.ini-missoes__nome { color: var(--text-muted); font-weight: 500; }
+.ini-missoes--completa .ini-missoes__semana {
+    background: linear-gradient(135deg, #34d399, #0e9f6e);
+}
+.ini-missao { align-items: center; }
+.ini-missao__link { flex: 1 1 auto; }
+.ini-missao__prog {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: 92px;
+}
+.ini-missao__num {
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+.ini-missao__barra {
+    position: relative;
+    width: 92px;
+    height: 5px;
+    border-radius: 5px;
+    background: rgba(255,255,255,.07);
+    overflow: hidden;
+}
+.ini-missao__barra > span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--pct, 0%);
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--purple-md), var(--accent-lt));
+    transition: width .6s var(--mola, cubic-bezier(.4,0,.2,1));
+}
+.ini-missao.feito .ini-missao__num { color: #6ee7b7; }
+.ini-missao.feito .ini-missao__barra > span { background: linear-gradient(90deg, #10b981, #6ee7b7); }
+
+.ini-missoes__historico {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 14px 0 0;
+    border-top: 1px solid rgba(255,255,255,.06);
+    list-style: none;
+}
+.ini-missoes__marco {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.03);
+    font-size: .72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.ini-missoes__marco--ok { color: #6ee7b7; border-color: rgba(52,211,153,.3); background: rgba(52,211,153,.08); }
+.ini-missoes__marco--atual { color: var(--accent-lt); border-color: rgba(165,65,255,.45); background: rgba(165,65,255,.12); }
+
+@media (max-width: 560px) {
+    /* A barrinha desce para baixo do texto: lado a lado, o título da
+       missão ficava espremido em duas ou três linhas. */
+    .ini-missao { flex-wrap: wrap; align-items: flex-start; }
+    .ini-missao__link { flex-basis: calc(100% - 36px); }
+    .ini-missao__prog {
+        flex: 1 1 100%;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        padding-left: 36px;
+        min-width: 0;
+    }
+    .ini-missao__barra { flex: 1 1 auto; width: auto; }
+    .ini-missoes__cabeca { flex-direction: column; gap: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ini-missao__barra > span { transition: none; }
+}
 
 /* ---- Responsivo ---- */
 @media (max-width: 1100px) {
@@ -1972,11 +2083,22 @@ a.ini-card:hover .ini-card__ico {
    aba Conta e nas outras a foto aparecia crua, com a inicial em cima.
    A imagem entra por style.backgroundImage (JS) e a posição por
    style.backgroundPosition (enquadramento escolhido pelo usuário). */
-.avatar--foto {
+/* O seletor é reforçado (duas classes) de propósito. Com uma classe só,
+   perdia a disputa para quem carrega depois com a mesma força:
+   - o `.conta-avatar { color: #fff }` do conta.css devolvia a INICIAL
+     por cima da foto;
+   - as cores exclusivas do recompensas.css usam o atalho `background`,
+     que zera o background-size para `auto` e o repeat para `repeat` —
+     a foto aparecia pequena, cortada e repetida em mosaico. */
+.avatar--foto,
+:is(.usuario__avatar, .conta-avatar, .tr-avatar, .cp-avatar).avatar--foto {
     background-size: cover;
     background-position: 50% 50%;
     background-repeat: no-repeat;
+    background-origin: border-box;
     color: transparent;
+    text-shadow: none;
+    overflow: visible;
 }
 /* moldura discreta para separar a foto do fundo escuro */
 .conta-avatar.avatar--foto { box-shadow: 0 8px 24px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.12); }

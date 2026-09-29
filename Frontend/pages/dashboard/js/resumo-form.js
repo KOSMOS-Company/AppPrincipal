@@ -82,9 +82,12 @@
 
     /* resumo = null -> novo; com resumo -> edita.
        opcoes.caderno = caderno já escolhido (novo resumo dentro dele) */
+    let cadernoOriginal = null;        // o caderno salvo do resumo em edição
+
     function abrir(resumo, opcoes = {}) {
         esconderMsg();
         limparPendentes();
+        cadernoOriginal = resumo?.caderno_id ? Number(resumo.caderno_id) : null;
 
         const titulo  = el("titulo");
         const caderno = el("resumoCaderno");
@@ -493,7 +496,9 @@
                     titulo: el("titulo").value.trim(),
                     materia: el("materia")?.value || "",
                     corpo: el("conteudo").value,
-                    caderno_id: el("resumoCaderno")?.value ? Number(el("resumoCaderno").value) : null,
+                    // o caderno GRAVADO, não o do select: a pessoa pode ter
+                    // trocado sem salvar, e isto aqui não salva o caderno
+                    caderno_id: cadernoOriginal,
                     imagens: salvas,
                     fotos: salvas.length,
                 },
@@ -521,5 +526,28 @@
         return div.innerHTML;
     }
 
-    window.KosmosResumoForm = { abrir, fechar };
+    /* A lista de cadernos do select nasce no PHP (partes/modal-resumo.php).
+       Criar, renomear ou apagar um caderno sem recarregar deixava o
+       select velho: o caderno novo não aparecia e o apagado ainda
+       podia ser escolhido (o servidor respondia 404). As telas que
+       mexem em cadernos chamam isto com a lista atual. */
+    function definirCadernos(lista) {
+        const sel = el("resumoCaderno");
+        if (!sel || !Array.isArray(lista)) return;
+        const atual = sel.value;
+
+        [...sel.options].forEach((o) => { if (o.value !== "") o.remove(); });
+        lista.forEach((c) => {
+            const o = document.createElement("option");
+            o.value = String(c.id);
+            o.dataset.materia = c.materia || "";
+            o.textContent = (c.icone ? c.icone + " " : "") + c.nome + " · " + (c.materia || "");
+            sel.appendChild(o);
+        });
+        // o escolhido some se o caderno foi apagado: volta para "Sem caderno"
+        sel.value = [...sel.options].some((o) => o.value === atual) ? atual : "";
+        aplicarCaderno();
+    }
+
+    window.KosmosResumoForm = { abrir, fechar, definirCadernos };
 })();

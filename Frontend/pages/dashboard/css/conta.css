@@ -7,7 +7,7 @@
 
 .conta-layout {
     display: grid;
-    grid-template-columns: 212px 1fr;
+    grid-template-columns: 212px minmax(0, 1fr);
     gap: 26px;
     align-items: start;
 }
@@ -259,7 +259,12 @@
 /* ---- Responsivo ---- */
 @media (max-width: 900px) {
     /* A sub-navegação vira uma faixa de atalhos rolável no topo */
-    .conta-layout { grid-template-columns: 1fr; gap: 20px; }
+    /* minmax(0, 1fr) e não 1fr: `1fr` tem mínimo `auto`, e a faixa de
+       atalhos rolável abaixo tem como largura mínima a fileira inteira
+       — a coluna esticava até ela e a página toda passava da tela no
+       celular (cartões cortados na direita). */
+    .conta-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .conta-layout > * { min-width: 0; }
     .conta-nav {
         position: static;
         flex-direction: row;
@@ -396,6 +401,148 @@
 @media (max-width: 480px) {
     .recorte { max-width: 240px; }
     .modal__actions { flex-wrap: wrap; }
+}
+
+/* ---- Estilo do avatar (molduras, emblemas, cores especiais) ---- */
+.conta-estilo .painel__sub a { color: var(--accent-lt); text-underline-offset: 3px; }
+.conta-estilo__abas {
+    display: flex;
+    gap: 6px;
+    margin: 18px 0 16px;
+    padding: 4px;
+    border-radius: 14px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.06);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.conta-estilo__abas::-webkit-scrollbar { display: none; }
+.conta-estilo__aba {
+    flex: 1 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    font: 500 .88rem "DM Sans", sans-serif;
+    color: var(--text-dim);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition), color var(--transition);
+}
+.conta-estilo__aba:hover { color: var(--text); }
+.conta-estilo__aba[aria-selected="true"] {
+    background: rgba(165,65,255,.18);
+    color: var(--accent-lt);
+    font-weight: 600;
+}
+.conta-estilo__aba:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.conta-estilo__n {
+    font-size: .72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.conta-estilo__nota {
+    margin: 0 0 14px;
+    font-size: .8rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+.conta-estilo__grade {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 10px;
+}
+.conta-estilo__opcao {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 16px 8px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.07);
+    background: rgba(255,255,255,.025);
+    color: var(--text-dim);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color var(--transition), background-color var(--transition), transform .2s var(--mola, ease);
+}
+.conta-estilo__opcao:hover { border-color: rgba(165,65,255,.35); background: rgba(165,65,255,.06); }
+.conta-estilo__opcao:active { transform: scale(.97); }
+.conta-estilo__opcao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.conta-estilo__opcao.ativa {
+    border-color: var(--accent);
+    background: rgba(165,65,255,.12);
+    color: var(--text);
+    box-shadow: 0 0 0 3px rgba(165,65,255,.18);
+}
+/* selo de "em uso" no canto */
+.conta-estilo__opcao.ativa::after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223.2%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 12.5l5 5 9-10%22/%3E%3C/svg%3E") center / 10px no-repeat;
+}
+.conta-estilo__opcao.travada { cursor: not-allowed; }
+.conta-estilo__opcao.travada .cp-avatar { opacity: .4; filter: saturate(.35); }
+.conta-estilo__opcao.travada .conta-estilo__nome { color: var(--text-muted); }
+.conta-estilo__nome {
+    max-width: 100%;
+    font-size: .8rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+.conta-estilo__nivel {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: -4px;
+    font-size: .7rem;
+    color: var(--text-muted);
+}
+.conta-estilo__nivel svg { width: 11px; height: 11px; }
+.conta-estilo.salvando .conta-estilo__grade { pointer-events: none; opacity: .75; }
+.conta-estilo .msg { margin-top: 14px; }
+
+/* A prévia: um avatar pequeno com as mesmas classes do de verdade */
+.cp-avatar {
+    --moldura-folga: 4px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-image: var(--avatar-grad, linear-gradient(135deg, var(--accent) 0%, var(--purple-md) 100%));
+    font: 800 1.3rem/1 "Syne", sans-serif;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+@media (max-width: 480px) {
+    .conta-estilo__grade { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .conta-estilo__opcao { padding: 14px 4px 10px; }
+    .cp-avatar { width: 46px; height: 46px; font-size: 1.15rem; }
+    /* as três abas cabem sem rolar: o contador sai (a grade já mostra os cadeados) */
+    .conta-estilo__aba { flex: 1 1 auto; padding: 8px 6px; font-size: .82rem; }
+    .conta-estilo__n { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .conta-estilo__opcao { transition: none; }
+    .conta-estilo__opcao:active { transform: none; }
 }
 
 /* ---- Aviso de alterações não salvas ---- */

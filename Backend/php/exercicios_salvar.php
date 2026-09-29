@@ -4,7 +4,7 @@
 //  Arquivo: backend/php/exercicios_salvar.php
 //  POST (protegido), campo "acao":
 //    criar   -> materia_id, titulo, conteudo (JSON), dificuldade
-//    editar  -> id, titulo, conteudo (JSON), dificuldade
+//    editar  -> id, titulo, dificuldade (conteudo é ignorado)
 //    excluir -> id
 // ============================================================
 
@@ -74,29 +74,26 @@ try {
                 apiErro('Exercício não encontrado.', 404);
             }
 
+            /* Editar mexe só no título e na dificuldade. As questões (com o
+               gabarito) nascem da IA e ficam como estão: aceitar `conteudo`
+               aqui deixava o cliente reescrever as respostas certas e farmar
+               XP na prática. A tela de edição nunca muda as questões — ela
+               só reenviava o que tinha lido —, então ignorar não tira nada. */
             $erros      = [];
             $titulo     = apiTexto('titulo', 'Título', 140, $erros);
-            $conteudo   = trim((string) ($_POST['conteudo'] ?? ''));
-            $dificuldade = trim((string) ($_POST['dificuldade'] ?? 'Médio'));
+            $dificuldade = trim((string) ($_POST['dificuldade'] ?? ''));
 
             if ($erros) {
                 apiErro($erros[0], 422);
             }
-            if ($conteudo === '') {
-                apiErro('Conteúdo vazio.', 422);
-            }
-            json_decode($conteudo);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                apiErro('Conteúdo inválido (não é JSON).', 422);
-            }
             if (!in_array($dificuldade, ['Fácil', 'Médio', 'Difícil', 'Misto'], true)) {
-                $dificuldade = 'Médio';
+                $dificuldade = $exercicio['dificuldade'];   // sem valor válido, mantém a atual
             }
 
             $pdo->prepare('UPDATE exercicios
-                               SET titulo = ?, conteudo = ?, dificuldade = ?
+                               SET titulo = ?, dificuldade = ?
                              WHERE id = ? AND usuario_id = ?')
-                ->execute([$titulo, $conteudo, $dificuldade, $id, $usuario['id']]);
+                ->execute([$titulo, $dificuldade, $id, $usuario['id']]);
 
             apiResponder([
                 'ok'        => true,

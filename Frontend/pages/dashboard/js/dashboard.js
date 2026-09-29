@@ -263,6 +263,7 @@ function ativarRecolher() {
         raiz.classList.toggle("lateral-recolhida", recolhida);
         botao.setAttribute("aria-expanded", String(!recolhida));
         botao.setAttribute("aria-label", recolhida ? "Expandir menu" : "Recolher menu");
+        botao.title = recolhida ? "Expandir menu" : "Recolher menu";
 
         try {
             localStorage.setItem("kosmos_lateral", recolhida ? "recolhida" : "aberta");

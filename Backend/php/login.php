@@ -43,6 +43,9 @@ try {
     // O PHP envia um cookie (PHPSESSID) e, nas próximas requisições,
     // conseguimos recuperar o id sem pedir e-mail/senha de novo.
     iniciarSessao();
+    // Troca o ID da sessão no momento do login: se alguém tiver conseguido
+    // fixar um ID na vítima antes, ele não vale mais depois de autenticar
+    session_regenerate_id(true);
     $_SESSION['usuario_id']   = $user['id'];
     $_SESSION['usuario_nome'] = $user['nome'];
 

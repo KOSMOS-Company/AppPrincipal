@@ -23,6 +23,45 @@ if (!empty($PREF['avatar_url'])) {
                    . (int) $PREF['avatar_pos_y'] . '%;';
 }
 $temFoto = !empty($PREF['avatar_url']);
+
+// ---- Estilo do avatar (molduras, emblemas e cores especiais) ----
+// O catálogo inteiro com o status desta pessoa: as do nível 1 vêm
+// liberadas; as outras mostram cadeado e o nível que falta. Quem
+// confere o nível ao equipar é o servidor (recompensas_equipar.php).
+$ESTILOS = ['moldura' => [], 'emblema' => [], 'cor' => []];
+if (!empty($PROGRESSO['disponivel']) && isset($pdo)) {
+    try {
+        foreach ((new ProgressoService($pdo))->recompensas((int) $USUARIO['id']) as $r) {
+            $ESTILOS[$r['tipo']][] = $r;
+        }
+    } catch (Throwable $e) {
+        error_log('[KOSMOS conta estilos] ' . $e->getMessage());
+    }
+}
+$temEstilos = $ESTILOS['moldura'] || $ESTILOS['emblema'] || $ESTILOS['cor'];
+
+/** Classes da prévia de uma opção: a própria recompensa em cima do avatar atual. */
+function estiloPrevia(array $PREF, string $tipo, ?string $valor): string {
+    $cor     = $tipo === 'cor' ? $valor : $PREF['avatar_cor'];
+    $moldura = $tipo === 'moldura' ? $valor : null;
+    $emblema = $tipo === 'emblema' ? $valor : ($tipo === 'moldura' ? $PREF['avatar_emblema'] : null);
+    $classes = 'cp-avatar avatar-cor--' . hesc((string) $cor);
+    if ($moldura) $classes .= ' avatar-moldura--' . hesc($moldura);
+    if ($emblema) $classes .= ' avatar-emblema--' . hesc($emblema);
+    // A moldura vale com ou sem foto: a prévia dela mostra a foto também
+    $estilo = '';
+    if ($tipo === 'moldura' && !empty($PREF['avatar_url'])) {
+        $classes .= ' avatar--foto';
+        $estilo = ' style="background-image:url(&quot;' . hesc($PREF['avatar_url']) . '&quot;);background-position:'
+                . (int) $PREF['avatar_pos_x'] . '% ' . (int) $PREF['avatar_pos_y'] . '%;"';
+    }
+    return 'class="' . $classes . '"' . $estilo;
+}
+$ESTILO_ABAS = [
+    'moldura' => ['Molduras', 'Nenhuma'],
+    'emblema' => ['Emblemas', 'Inicial'],
+    'cor'     => ['Cores especiais', null],   // a cor básica sai escolhendo uma acima
+];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -54,6 +93,9 @@ $temFoto = !empty($PREF['avatar_url']);
         <main class="contMeio pagina-conta"
               data-tem-senha="<?= $USUARIO['tem_senha'] ? '1' : '0' ?>"
               data-tem-google="<?= $USUARIO['tem_google'] ? '1' : '0' ?>"
+              data-avatar-cor="<?= hesc((string) $PREF['avatar_cor']) ?>"
+              data-avatar-moldura="<?= hesc((string) $PREF['avatar_moldura']) ?>"
+              data-avatar-emblema="<?= hesc((string) $PREF['avatar_emblema']) ?>"
               data-avatar-url="<?= hesc((string) $PREF['avatar_url']) ?>"
               data-avatar-pos-x="<?= (int) $PREF['avatar_pos_x'] ?>"
               data-avatar-pos-y="<?= (int) $PREF['avatar_pos_y'] ?>">
@@ -158,13 +200,81 @@ $temFoto = !empty($PREF['avatar_url']);
                                     <button type="button" class="conta-cor avatar-cor--rosa<?= $PREF['avatar_cor'] === 'rosa' ? ' ativa' : '' ?>" data-cor="rosa" title="Usar a cor rosa" aria-label="Usar a cor rosa"></button>
                                     <button type="button" class="conta-cor avatar-cor--ciano<?= $PREF['avatar_cor'] === 'ciano' ? ' ativa' : '' ?>" data-cor="ciano" title="Usar a cor ciano" aria-label="Usar a cor ciano"></button>
                                 </div>
-                                <?php if (!empty($PROGRESSO['disponivel'])): ?>
-                                <!-- Cores, molduras e emblemas exclusivos vêm do nível:
-                                     quem equipa é a trilha, na página de conquistas. -->
-                                <a class="conta-trilha" href="conquistas.php#trilha">Molduras, emblemas e cores exclusivas na trilha de recompensas</a>
-                                <?php endif; ?>
                             </div>
                         </div>
+
+                        <?php if ($temEstilos): ?>
+                        <!-- ==========================================================
+                             ESTILO DO AVATAR
+                             Molduras, emblemas e cores especiais, equipados daqui
+                             mesmo (antes só pela trilha, na página de conquistas).
+                             Cada clique já grava (recompensas_equipar.php, que
+                             confere o nível) e troca o avatar em toda a página.
+                             ========================================================== -->
+                        <div class="ini-card conta-cartao conta-estilo" id="contaEstilo">
+                            <h2 class="painel__titulo">Estilo do avatar</h2>
+                            <p class="painel__sub">Escolha uma moldura, um emblema ou uma cor especial. As com cadeado liberam com o nível — <a class="conta-estilo__trilha" href="conquistas.php#trilha">ver a trilha</a>.</p>
+
+                            <div class="conta-estilo__abas" role="tablist" aria-label="Tipo de estilo">
+                                <?php $primeira = true; foreach ($ESTILO_ABAS as $tipo => [$rotulo]):
+                                    if (!$ESTILOS[$tipo]) continue;
+                                    $livres = count(array_filter($ESTILOS[$tipo], fn($r) => $r['liberada'])); ?>
+                                <button type="button" class="conta-estilo__aba" role="tab" id="abaEstilo-<?= $tipo ?>"
+                                        aria-controls="painelEstilo-<?= $tipo ?>" aria-selected="<?= $primeira ? 'true' : 'false' ?>"
+                                        tabindex="<?= $primeira ? '0' : '-1' ?>" data-aba-estilo="<?= $tipo ?>">
+                                    <?= $rotulo ?> <span class="conta-estilo__n"><?= $livres ?>/<?= count($ESTILOS[$tipo]) ?></span>
+                                </button>
+                                <?php $primeira = false; endforeach; ?>
+                            </div>
+
+                            <?php $primeira = true; foreach ($ESTILO_ABAS as $tipo => [$rotulo, $nenhum]):
+                                if (!$ESTILOS[$tipo]) continue;
+                                $equipadoTipo = $tipo === 'cor' ? $PREF['avatar_cor'] : $PREF['avatar_' . $tipo]; ?>
+                            <div class="conta-estilo__painel" role="tabpanel" id="painelEstilo-<?= $tipo ?>"
+                                 aria-labelledby="abaEstilo-<?= $tipo ?>"<?= $primeira ? '' : ' hidden' ?>>
+                                <?php if ($tipo === 'emblema'): ?>
+                                <p class="conta-estilo__nota" data-nota-foto<?= $temFoto ? '' : ' hidden' ?>>Com foto de perfil, o emblema fica guardado e aparece quando você remover a foto.</p>
+                                <?php elseif ($tipo === 'cor'): ?>
+                                <p class="conta-estilo__nota">Para voltar a uma cor básica, escolha uma das bolinhas acima e salve.</p>
+                                <?php endif; ?>
+
+                                <div class="conta-estilo__grade">
+                                    <?php if ($nenhum !== null): ?>
+                                    <button type="button" class="conta-estilo__opcao<?= empty($equipadoTipo) ? ' ativa' : '' ?>"
+                                            data-estilo-tipo="<?= $tipo ?>" data-estilo-slug="" data-estilo-valor=""
+                                            data-estilo-nome="<?= $nenhum ?>" aria-pressed="<?= empty($equipadoTipo) ? 'true' : 'false' ?>">
+                                        <span <?= estiloPrevia($PREF, $tipo, null) ?> data-previa="<?= $tipo ?>" data-previa-valor=""
+                                              aria-hidden="true"><?= hesc($USUARIO['inicial']) ?></span>
+                                        <span class="conta-estilo__nome"><?= $nenhum ?></span>
+                                    </button>
+                                    <?php endif; ?>
+
+                                    <?php foreach ($ESTILOS[$tipo] as $r):
+                                        $ativa = $equipadoTipo === $r['valor']; ?>
+                                    <button type="button" class="conta-estilo__opcao<?= $ativa ? ' ativa' : '' ?><?= $r['liberada'] ? '' : ' travada' ?>"
+                                            data-estilo-tipo="<?= $tipo ?>" data-estilo-slug="<?= hesc($r['slug']) ?>"
+                                            data-estilo-valor="<?= hesc($r['valor']) ?>" data-estilo-nome="<?= hesc($r['nome']) ?>"
+                                            aria-pressed="<?= $ativa ? 'true' : 'false' ?>"
+                                            <?= $r['liberada'] ? '' : 'aria-disabled="true"' ?>
+                                            title="<?= hesc($r['descricao']) ?><?= $r['liberada'] ? '' : ' — libera no nível ' . (int) $r['nivel'] ?>">
+                                        <span <?= estiloPrevia($PREF, $tipo, $r['valor']) ?> data-previa="<?= $tipo ?>"
+                                              data-previa-valor="<?= hesc($r['valor']) ?>" aria-hidden="true"><?= hesc($USUARIO['inicial']) ?></span>
+                                        <span class="conta-estilo__nome"><?= hesc($r['nome']) ?></span>
+                                        <?php if (!$r['liberada']): ?>
+                                        <span class="conta-estilo__nivel">
+                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            Nível <?= (int) $r['nivel'] ?>
+                                        </span>
+                                        <?php endif; ?>
+                                    </button>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <?php $primeira = false; endforeach; ?>
+
+                            <div class="msg" id="msgEstilo" hidden></div>
+                        </div>
+                        <?php endif; ?>
 
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Dados do perfil</h2>
@@ -406,11 +516,11 @@ $temFoto = !empty($PREF['avatar_url']);
                                 </div>
                                 <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Termos de uso</span>
-                                    <span class="conta-info__valor"><a href="../termos.html" target="_blank" rel="noopener">Ler os termos</a></span>
+                                    <span class="conta-info__valor"><a href="../cadastro/termos.html" target="_blank" rel="noopener">Ler os termos</a></span>
                                 </div>
                                 <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Política de privacidade</span>
-                                    <span class="conta-info__valor"><a href="../politica.html" target="_blank" rel="noopener">Ler a política</a></span>
+                                    <span class="conta-info__valor"><a href="../cadastro/politica.html" target="_blank" rel="noopener">Ler a política</a></span>
                                 </div>
                                 <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Falar com a gente</span>

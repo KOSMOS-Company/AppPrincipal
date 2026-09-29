@@ -5,8 +5,10 @@
 //  POST (protegido): incrementa usuarios.sessoes_versao. Toda
 //  sessão aberta com a versão antiga passa a ser inválida; a
 //  sessão que pediu isso continua valendo (atualizamos a dela).
-//  A checagem acontece em usuario_atual.php / conta_dados.php,
-//  então as outras sessões caem no próximo acesso.
+//  A checagem acontece no exigirLogin() de todo endpoint (e no
+//  pagina_dashboard.php), então as outras sessões caem no próximo
+//  acesso. Este próprio endpoint também passa por ela: uma sessão
+//  já invalidada não consegue "se revalidar" chamando-o.
 // ============================================================
 
 header('Content-Type: application/json; charset=utf-8');

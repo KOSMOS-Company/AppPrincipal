@@ -50,9 +50,16 @@ try {
     /* `revisado_hoje` é para o XP: um cartão rende uma vez por dia.
        Revisar o mesmo deck dez vezes seguidas é estudo, mas não pode
        ser fábrica de XP. Sai do relógio do MySQL, como as outras datas. */
+    /* `vencido` é para o agendamento: só um cartão que chegou (ou
+       passou) da data marcada pode ter o intervalo recalculado.
+       Sem isso, estudar o mesmo deck 5x numa tarde multiplicava o
+       intervalo 5x e mandava o cartão para daqui a 55 dias — acertar
+       de novo minutos depois não prova que você vai lembrar em um mês.
+       CURDATE() do MySQL, pelo mesmo motivo de fuso das outras datas. */
     $stmt = $pdo->prepare(
         'SELECT id, intervalo, facilidade,
-                (ultima_revisao IS NOT NULL AND ultima_revisao >= CURDATE()) AS revisado_hoje
+                (ultima_revisao IS NOT NULL AND ultima_revisao >= CURDATE()) AS revisado_hoje,
+                (proxima_revisao IS NULL OR proxima_revisao <= CURDATE())     AS vencido
            FROM flashcard_cartoes WHERE deck_id = ?'
     );
     $stmt->execute([$deck['id']]);
@@ -63,6 +70,7 @@ try {
             'intervalo'     => (int) $c['intervalo'],
             'facilidade'    => (float) $c['facilidade'],
             'revisado_hoje' => (bool) $c['revisado_hoje'],
+            'vencido'       => (bool) $c['vencido'],
         ];
     }
 
@@ -81,6 +89,19 @@ try {
                 intervalo        = ?,
                 facilidade       = ?,
                 proxima_revisao  = CURDATE() + INTERVAL ? DAY
+          WHERE id = ? AND deck_id = ?'
+    );
+
+    /* Cartão estudado ANTES da data: conta como revisão no histórico,
+       mas o agendamento (intervalo, facilidade, próxima revisão) fica
+       como estava. */
+    $soContar = $pdo->prepare(
+        'UPDATE flashcard_cartoes
+            SET revisoes         = revisoes + 1,
+                acertos          = acertos + ?,
+                erros            = erros + ?,
+                ultimo_resultado = ?,
+                ultima_revisao   = NOW()
           WHERE id = ? AND deck_id = ?'
     );
 
@@ -104,6 +125,18 @@ try {
         }
 
         $antes = $doDeck[(int) $id];
+
+        if (!$antes['vencido']) {
+            $soContar->execute([
+                $acertou ? 1 : 0,
+                $acertou ? 0 : 1,
+                $acertou ? 1 : 0,
+                (int) $id,
+                $deck['id'],
+            ]);
+            continue;
+        }
+
         $agora = fcProximaRevisao($antes['intervalo'], $antes['facilidade'], $acertou);
 
         $atualizar->execute([

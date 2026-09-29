@@ -42,9 +42,14 @@ try {
         exit;
     }
 
-    // Grava a nova senha e invalida o token (uso único)
+    // Grava a nova senha, invalida o token (uso único) e sobe a geração de
+    // sessões: se a senha foi redefinida porque vazou, quem estava logado
+    // com ela cai no próximo acesso (ver sessaoAindaValida em sessao.php)
     $novoHash = password_hash($nova, PASSWORD_BCRYPT, ['cost' => 12]);
-    $upd = $pdo->prepare('UPDATE usuarios SET senha_hash = ?, reset_token = NULL, reset_expira = NULL WHERE id = ?');
+    $upd = $pdo->prepare('UPDATE usuarios
+                             SET senha_hash = ?, reset_token = NULL, reset_expira = NULL,
+                                 sessoes_versao = sessoes_versao + 1
+                           WHERE id = ?');
     $upd->execute([$novoHash, $user['id']]);
 
     echo json_encode(['ok' => true, 'msg' => 'Senha redefinida com sucesso! Você já pode entrar.']);

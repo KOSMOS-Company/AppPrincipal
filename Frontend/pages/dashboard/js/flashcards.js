@@ -396,17 +396,27 @@
         const s = estado.estudo;
         if (!s || s.respostas.size === 0) return;
 
-        const respostas = [...s.respostas].map(([id, acertou]) => ({ id, acertou }));
+        /* Copia o lote e esvazia o mapa ANTES de enviar. Limpar só depois
+           do POST deixava uma janela: um segundo clique (Embaralhar e logo
+           Voltar, por exemplo) via o mapa ainda cheio e gravava a mesma
+           sessão duas vezes — com XP duas vezes. */
+        const lote = new Map(s.respostas);
+        s.respostas.clear();
+        const respostas = [...lote].map(([id, acertou]) => ({ id, acertou }));
 
         try {
             await pedir("flashcards_revisao.php", {
                 deck: s.deckId,
                 respostas: JSON.stringify(respostas),
             });
-            s.respostas.clear();   // só agora: evita gravar a mesma sessão duas vezes
             aviso("Revisão registrada!");
         } catch (erro) {
-            // mantém as respostas na memória para uma nova tentativa ao sair
+            /* Falhou: devolve o lote ao mapa para uma nova tentativa ao
+               sair. Sem sobrescrever o que a pessoa respondeu de novo
+               enquanto o envio estava no ar — a resposta mais nova vale. */
+            lote.forEach((acertou, id) => {
+                if (!s.respostas.has(id)) s.respostas.set(id, acertou);
+            });
             aviso(erro.message, true);
         }
     }

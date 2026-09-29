@@ -5,12 +5,31 @@
 //  Centraliza tudo que envolve "quem está logado".
 // ============================================================
 
+// exigirLogin() confere a versão da sessão no banco, então precisa de conectar()
+require_once __DIR__ . '/conexao.php';
+
 /**
  * Inicia a sessão do PHP (apenas uma vez, com segurança).
  * Chame isto antes de ler ou escrever qualquer coisa em $_SESSION.
  */
 function iniciarSessao(): void {
     if (session_status() === PHP_SESSION_NONE) {
+        // Endurece o cookie antes de abri-lo (só vale se vier antes do session_start):
+        //  - httponly: JavaScript (e um eventual XSS) não lê o PHPSESSID;
+        //  - samesite Lax: o navegador não manda o cookie em POSTs vindos de
+        //    outros sites, o que já barra o CSRF clássico nos endpoints;
+        //  - secure só sob HTTPS, senão o login quebraria no XAMPP em http;
+        //  - path '/' é o mesmo padrão de antes (php.ini), nada muda para o app.
+        $https = !empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off';
+        session_set_cookie_params([
+            'httponly' => true,
+            'samesite' => 'Lax',
+            'secure'   => $https,
+            'path'     => '/',
+        ]);
+        // strict_mode: o PHP recusa IDs de sessão que ele não criou, o que
+        // impede um atacante de "plantar" um ID conhecido (session fixation)
+        ini_set('session.use_strict_mode', '1');
         session_start();
     }
 }
@@ -68,9 +87,31 @@ function registrarAcesso(PDO $pdo, int $usuarioId): int {
  * "Porteiro" para endpoints protegidos: se não houver login,
  * responde 401 em JSON e encerra o script imediatamente.
  * Se houver login, devolve os dados do usuário.
+ *
+ * Também confere a "geração" da sessão: sem isso, "sair de todos os
+ * dispositivos" (e a troca de senha) só derrubava as outras sessões nas
+ * páginas do dashboard — a API continuava aceitando o cookie antigo.
+ * A checagem roda aqui, antes de qualquer liberarSessao() do endpoint,
+ * porque encerrar a sessão exige que ela ainda esteja aberta.
  */
 function exigirLogin(): array {
     $usuario = usuarioLogado();
+
+    if ($usuario !== null) {
+        $valida = true;
+        try {
+            $valida = sessaoAindaValida(conectar(), (int) $usuario['id']);
+        } catch (Throwable $e) {
+            // Banco fora do ar: não derruba o login por isso — o próprio
+            // endpoint vai falhar ao consultar e responder o erro dele.
+            $valida = true;
+        }
+
+        if (!$valida) {
+            encerrarSessao();
+            $usuario = null;
+        }
+    }
 
     if ($usuario === null) {
         header('Content-Type: application/json; charset=utf-8');
@@ -99,9 +140,9 @@ function marcarVersaoSessao(PDO $pdo, int $usuarioId): void {
  * "sair de todos os dispositivos" em OUTRO lugar: lá a coluna
  * sessoes_versao é incrementada e as sessões antigas ficam para trás.
  *
- * Obs.: a checagem acontece onde este helper é chamado — hoje no
- * usuario_atual.php (que o dashboard consulta a cada página) e no
- * conta_dados.php. Sessões antigas caem no próximo acesso, não no
+ * Obs.: a checagem acontece onde este helper é chamado — em todo
+ * endpoint via exigirLogin(), no pagina_dashboard.php e no
+ * usuario_atual.php. Sessões antigas caem no próximo acesso, não no
  * mesmo instante.
  */
 function sessaoAindaValida(PDO $pdo, int $usuarioId): bool {

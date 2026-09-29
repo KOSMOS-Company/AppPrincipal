@@ -21,7 +21,8 @@
     const el = (id) => document.getElementById(id);
 
     let materiaId = 0;
-    let materiaNome = "";
+    let materiaNome = "";   // nome livre que a pessoa deu ("Bio do 2º bi")
+    let materiaBase = "";   // matéria do catálogo ("Biologia") — é o que orienta a IA
     let questoesGeradas = [];
     let planoGerado = [];
     let modo = "fixo"; // "fixo" = quantas de cada | "aleatorio" = total sorteado
@@ -88,6 +89,7 @@
         if (!materia) return;
         materiaId = materia.id;
         materiaNome = materia.nome;
+        materiaBase = materia.materia || materia.nome;
 
         el("exercicioGerarMateriaId").value = materiaId;
         el("modalExercicioGerarTitulo").textContent = "Gerar exercícios para " + materia.nome;
@@ -331,7 +333,12 @@
 
         try {
             const dados = new FormData();
-            dados.append("materia", materiaNome); // usa o nome da matéria base
+            // A IA recebe a matéria base; o nome livre só entra como contexto
+            // quando diz algo a mais (um apelido sozinho não diz a disciplina).
+            const materiaIA = materiaNome && materiaNome !== materiaBase
+                ? materiaBase + " — " + materiaNome
+                : materiaBase;
+            dados.append("materia", materiaIA);
             dados.append("conteudo", conteudo);
             dados.append("plano", JSON.stringify(plano));
 
@@ -406,12 +413,12 @@
                         color:var(--text);
                     ">
                         <span style="width:22px;height:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid currentColor;border-radius:50%;font-size:.75rem;font-weight:700;">${letra}</span>
-                        <span>${alt}</span>
+                        <span>${esc(alt)}</span>
                     </div>`;
             });
 
             const badgeDif = q.dificuldade
-                ? `<span class="ex-gerar-questao__dif">${q.dificuldade}</span>`
+                ? `<span class="ex-gerar-questao__dif">${esc(q.dificuldade)}</span>`
                 : "";
 
             div.innerHTML = `
@@ -419,7 +426,7 @@
                     <span>Questão ${q.numero}</span>
                     ${badgeDif}
                 </div>
-                <p style="margin:0 0 12px;line-height:1.5;">${q.enunciado}</p>
+                <p style="margin:0 0 12px;line-height:1.5;">${esc(q.enunciado)}</p>
                 <div class="ex-gerar-alts">${altsHtml}</div>
             `;
             container.appendChild(div);
@@ -446,7 +453,7 @@
         try {
             const conteudo = JSON.stringify({
                 questoes: questoesGeradas,
-                materiaBase: materiaNome
+                materiaBase: materiaBase
             });
 
             const resp = await fetch(`${BACKEND}/exercicios_salvar.php`, {
@@ -468,16 +475,25 @@
             document.dispatchEvent(new CustomEvent("exercicio:salvo", { detail: json.exercicio }));
 
             msg("Exercício salvo com sucesso!", "sucesso", "msgExercicioGerarPreview");
+            // O botão só volta quando o modal já fechou: reabilitar antes
+            // abria 1,2s para um segundo clique salvar a lista em dobro.
             setTimeout(() => {
                 fechar();
+                btn.disabled = false;
+                btn.innerHTML = htmlOriginal;
             }, 1200);
 
         } catch (err) {
             msg(err.message, "erro", "msgExercicioGerarPreview");
-        } finally {
             btn.disabled = false;
             btn.innerHTML = htmlOriginal;
         }
+    }
+
+    /** O texto da prévia vem da IA: nunca entra cru no innerHTML. */
+    function esc(texto) {
+        const mapa = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+        return String(texto ?? "").replace(/[&<>"']/g, (c) => mapa[c]);
     }
 
     function msg(texto, tipo, containerId) {

@@ -198,6 +198,14 @@
         // a matéria é do caderno: os resumos de dentro acompanham
         resumos = resumos.map((r) => ({ ...r, materia: caderno.materia }));
 
+        // a opção deste caderno no select do modal de resumo (nome e
+        // matéria vêm do PHP e ficariam velhos até recarregar)
+        const opcao = document.querySelector(`#resumoCaderno option[value="${caderno.id}"]`);
+        if (opcao) {
+            opcao.dataset.materia = caderno.materia || "";
+            opcao.textContent = (caderno.icone ? caderno.icone + " " : "") + caderno.nome + " · " + (caderno.materia || "");
+        }
+
         document.title = caderno.nome + " — Kosmos";
         desenhar();
     });

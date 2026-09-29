@@ -38,8 +38,13 @@ $corpo = estCorpo();
 
 // Um ciclo de Pomodoro tem entre 1 e 180 minutos. Fora disso é
 // engano ou alguém mexendo na requisição — nos dois casos não entra.
-$minutos = estInt($corpo['minutos'] ?? null, 1, 180, 0);
-if ($minutos === 0) {
+// Recusa em vez de ajustar: o estInt levava 9999 para 180 e o ciclo
+// forjado ainda rendia XP.
+$brutoMin = $corpo['minutos'] ?? null;
+$minutos = (is_int($brutoMin) || is_string($brutoMin))
+    ? filter_var($brutoMin, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 180]])
+    : false;
+if ($minutos === false) {
     estErro('Duração inválida.', 422);
 }
 

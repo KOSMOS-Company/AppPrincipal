@@ -328,7 +328,10 @@
         </div>`;
     }
 
-    /** O depois: a nota. Só nas provas que já passaram. */
+    /** O depois: a nota. Só nas provas que já passaram.
+        O value do input number é o número cru (ponto decimal): "8,5"
+        ali o navegador descarta, o campo abre vazio e salvar apagava
+        a nota. A vírgula (formatarNota) fica só no que é exibido. */
     function blocoNota(p) {
         return `
         <div class="pv-bloco">
@@ -337,7 +340,7 @@
                 <label class="sr-only" for="pvNota${p.id}">Nota da prova</label>
                 <input type="number" id="pvNota${p.id}" step="0.01" min="0" max="1000"
                        inputmode="decimal" placeholder="Nota"
-                       value="${p.nota === null ? "" : esc(formatarNota(p.nota))}">
+                       value="${p.nota === null ? "" : esc(String(Number(p.nota)))}">
                 <button type="submit" class="dash-btn dash-btn--ghost dash-btn--pequeno">Salvar nota</button>
             </form>
             <span class="campo__dica">Deixe em branco e salve para apagar a nota.</span>
@@ -360,14 +363,20 @@
         const check = e.target.closest("[data-topico]");
         if (check) {
             check.disabled = true;
-            await acao({ acao: "topico_alternar", id: Number(check.dataset.topico) });
+            // Deu certo: a lista é redesenhada e o botão some junto.
+            // Deu errado: nada é redesenhado, então ele precisa voltar.
+            if (!await acao({ acao: "topico_alternar", id: Number(check.dataset.topico) })) {
+                check.disabled = false;
+            }
             return;
         }
 
         const tirar = e.target.closest("[data-topico-x]");
         if (tirar) {
             tirar.disabled = true;
-            await acao({ acao: "topico_excluir", id: Number(tirar.dataset.topicoX) });
+            if (!await acao({ acao: "topico_excluir", id: Number(tirar.dataset.topicoX) })) {
+                tirar.disabled = false;
+            }
             return;
         }
 

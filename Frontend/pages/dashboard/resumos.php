@@ -40,6 +40,9 @@ if (!$ERRO_BANCO) {
                 'corpo'      => $r['corpo'],
                 'caderno_id' => null,
                 'fotos'      => (int) $r['fotos'],
+                // o editor (resumo-form.js) mostra e conta as imagens salvas
+                // por esta lista; sem ela, resumo só de fotos não salvava
+                'imagens'    => (int) $r['fotos'] > 0 ? imagensDoResumo($pdo, (int) $r['id']) : [],
                 'quando'     => dataCurtaPt((int) $r['dia'], (int) $r['mes']),
             ];
         }

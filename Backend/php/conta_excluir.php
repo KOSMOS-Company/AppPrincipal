@@ -27,7 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$senha        = (string) ($_POST['senha'] ?? '');
+// trim igual ao login/cadastro/troca de senha: lá a senha foi gravada e
+// conferida sem espaços nas pontas, então aqui também tem que ser
+$senha        = trim((string) ($_POST['senha'] ?? ''));
 $confirmacao  = strtoupper(trim((string) ($_POST['confirmacao'] ?? '')));
 
 try {

@@ -33,6 +33,9 @@
     let salvoPerfil = { nome: "", email: "", cor: "roxo" };
     let corEscolhida = "roxo";
 
+    /* O que o avatar está usando agora (gravado no servidor): cor, moldura e emblema */
+    let equipado = { cor: "roxo", moldura: null, emblema: null };
+
     document.addEventListener("DOMContentLoaded", () => {
         if (!document.querySelector(".conta-layout")) return;
 
@@ -53,6 +56,7 @@
         ativarCores();
         ativarMaterias();
         ativarEditorFoto();
+        ativarEstilo();
 
         atualizarPerfil();
         atualizarEstudo();
@@ -80,8 +84,18 @@
             [...document.querySelectorAll("#chipsMaterias .chip.active")].map((c) => c.textContent.trim())
         );
 
+        /* A cor vem do data-avatar-cor e não da bolinha marcada: com uma
+           cor especial equipada nenhuma bolinha básica está ativa, e ler
+           "roxo" dali fazia o clique no roxo parecer "nada mudou" — não
+           dava para voltar a ele. */
+        equipado = {
+            cor:     main.dataset.avatarCor || "roxo",
+            moldura: main.dataset.avatarMoldura || null,
+            emblema: main.dataset.avatarEmblema || null,
+        };
+
         prefs = {
-            avatar_cor:       document.querySelector(".conta-cor.ativa")?.dataset.cor || "roxo",
+            avatar_cor:       equipado.cor,
             avatar_url:       url || null,
             avatar_pos_x:     px,
             avatar_pos_y:     py,
@@ -481,6 +495,8 @@
                     salvoPerfil.cor = cor;
                     if (prefs) prefs.avatar_cor = cor;
                     aplicarCorAvatar(cor);               // agora também na barra lateral
+                    equipado.cor = cor;
+                    pintarEstilo();                      // a cor especial deixa de estar em uso
                 }
             }
 
@@ -759,7 +775,12 @@
     function aplicarFoto(url, posX, posY) {
         const x = Number.isFinite(+posX) ? +posX : 50;
         const y = Number.isFinite(+posY) ? +posY : 50;
-        const alvos = [document.getElementById("contaAvatar"), ...document.querySelectorAll(".usuario__avatar")];
+        // as prévias de moldura (Estilo do avatar) mostram a foto também
+        const alvos = [
+            document.getElementById("contaAvatar"),
+            ...document.querySelectorAll('.usuario__avatar, [data-previa="moldura"]'),
+        ];
+        document.querySelectorAll("[data-nota-foto]").forEach((n) => (n.hidden = !url));
 
         alvos.forEach((el) => {
             if (!el) return;
@@ -790,6 +811,133 @@
                 ? "Cor do avatar (usada quando não há foto)"
                 : "Cor do seu avatar";
         }
+    }
+
+    /* ------------------------------------------------------------
+       Estilo do avatar (molduras, emblemas e cores especiais)
+       Cada clique numa opção liberada grava na hora pelo mesmo
+       endpoint da trilha (recompensas_equipar.php — é ele quem confere
+       o nível) e troca as classes avatar-{tipo}--* em todo avatar da
+       página: o grande daqui, o da barra lateral e as prévias.
+       ------------------------------------------------------------ */
+    const NOME_TIPO = { moldura: "Moldura", emblema: "Emblema", cor: "Cor" };
+
+    function trocarClasseEstilo(el, tipo, valor) {
+        [...el.classList].forEach((c) => { if (c.startsWith(`avatar-${tipo}--`)) el.classList.remove(c); });
+        if (valor) el.classList.add(`avatar-${tipo}--${valor}`);
+    }
+
+    /* Repinta tudo a partir de `equipado` */
+    function pintarEstilo() {
+        const reais = [document.getElementById("contaAvatar"), ...document.querySelectorAll(".usuario__avatar")];
+        reais.forEach((el) => {
+            if (!el) return;
+            trocarClasseEstilo(el, "cor", equipado.cor);
+            trocarClasseEstilo(el, "moldura", equipado.moldura);
+            trocarClasseEstilo(el, "emblema", equipado.emblema);
+        });
+
+        // Prévias: a própria opção em cima do avatar atual (mesma regra do
+        // estiloPrevia() do conta.php)
+        document.querySelectorAll("[data-previa]").forEach((el) => {
+            const tipo = el.dataset.previa;
+            const valor = el.dataset.previaValor || null;
+            trocarClasseEstilo(el, "cor", tipo === "cor" ? valor : equipado.cor);
+            trocarClasseEstilo(el, "moldura", tipo === "moldura" ? valor : null);
+            trocarClasseEstilo(el, "emblema", tipo === "emblema" ? valor : (tipo === "moldura" ? equipado.emblema : null));
+        });
+
+        document.querySelectorAll("[data-estilo-tipo]").forEach((b) => {
+            const atual = equipado[b.dataset.estiloTipo] || "";
+            const emUso = atual === b.dataset.estiloValor;
+            b.classList.toggle("ativa", emUso);
+            b.setAttribute("aria-pressed", String(emUso));
+        });
+
+        // bolinhas básicas: só uma delas fica marcada se a cor for básica
+        if (!tocado.has("cor") || corEscolhida === equipado.cor) {
+            document.querySelectorAll(".conta-cor").forEach((b) => {
+                b.classList.toggle("ativa", b.dataset.cor === equipado.cor);
+            });
+        }
+    }
+
+    function ativarEstilo() {
+        const cartao = document.getElementById("contaEstilo");
+        if (!cartao) return;
+
+        // ---- Abas (setas do teclado andam entre elas, como um tablist) ----
+        const abas = [...cartao.querySelectorAll("[data-aba-estilo]")];
+        const mostrarAba = (aba, focar) => {
+            abas.forEach((a) => {
+                const sel = a === aba;
+                a.setAttribute("aria-selected", String(sel));
+                a.tabIndex = sel ? 0 : -1;
+                const painel = document.getElementById(a.getAttribute("aria-controls"));
+                if (painel) painel.hidden = !sel;
+            });
+            if (focar) aba.focus();
+        };
+        abas.forEach((a, i) => {
+            a.addEventListener("click", () => mostrarAba(a, false));
+            a.addEventListener("keydown", (e) => {
+                const passo = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+                if (!passo) return;
+                e.preventDefault();
+                mostrarAba(abas[(i + passo + abas.length) % abas.length], true);
+            });
+        });
+
+        // ---- Equipar ----
+        cartao.addEventListener("click", async (e) => {
+            const botao = e.target.closest("[data-estilo-tipo]");
+            if (!botao || botao.dataset.ocupado) return;
+
+            const tipo = botao.dataset.estiloTipo;
+            const nome = botao.dataset.estiloNome;
+            if (botao.getAttribute("aria-disabled") === "true") {
+                const nivel = botao.title.match(/nível (\d+)/)?.[1];
+                msg("msgEstilo", nivel ? `${nome} libera no nível ${nivel}.` : `${nome} ainda está bloqueado.`, "erro");
+                return;
+            }
+            if (botao.getAttribute("aria-pressed") === "true") return;   // já em uso
+
+            const dados = new FormData();
+            dados.append("tipo", tipo);
+            dados.append("slug", botao.dataset.estiloSlug);
+
+            botao.dataset.ocupado = "1";
+            cartao.classList.add("salvando");
+            try {
+                const resp = await fetch(`${BACKEND}/recompensas_equipar.php`, { method: "POST", body: dados });
+                const json = await resp.json();
+                if (!json.ok || !json.equipado) throw new Error(json.msg || "Não foi possível equipar agora.");
+
+                equipado = {
+                    cor:     json.equipado.cor || equipado.cor,
+                    moldura: json.equipado.moldura || null,
+                    emblema: json.equipado.emblema || null,
+                };
+                if (tipo === "cor") {
+                    // a cor especial passa a ser "o salvo": o formulário de
+                    // perfil não pode achar que ainda há cor pendente
+                    salvoPerfil.cor = equipado.cor;
+                    corEscolhida = equipado.cor;
+                    tocado.delete("cor");
+                    if (prefs) prefs.avatar_cor = equipado.cor;
+                    atualizarPerfil();
+                }
+                pintarEstilo();
+                msg("msgEstilo", botao.dataset.estiloSlug
+                    ? `${NOME_TIPO[tipo]} ${nome} aplicad${tipo === "emblema" ? "o" : "a"}.`
+                    : `${NOME_TIPO[tipo]} removid${tipo === "emblema" ? "o" : "a"}.`, "sucesso");
+            } catch (err) {
+                msg("msgEstilo", err.message || "Não foi possível equipar agora.", "erro");
+            } finally {
+                delete botao.dataset.ocupado;
+                cartao.classList.remove("salvando");
+            }
+        });
     }
 
     /* ------------------------------------------------------------

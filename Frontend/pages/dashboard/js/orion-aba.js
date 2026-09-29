@@ -98,14 +98,15 @@
 
         if (!corpo || !listaMensagens || !form || !input) return;
 
-        // Renderiza os avatares 3D do mascote
-        if (window.kosmosMascote) {
-            if (mascoteHeader) {
-                window.kosmosMascote.renderizar(mascoteHeader, { humor: 'normal', tamanho: 30 });
-            }
-            if (mascoteCentral) {
-                window.kosmosMascote.renderizar(mascoteCentral, { humor: 'normal', tamanho: 120 });
-            }
+        /* Monta os mascotes. A API real do shared/mascote.js é
+           window.KosmosMascote.montar(el) (K maiúsculo); o humor fica
+           depois em el.mascote.humor(nome) e o tamanho vem do CSS. Os dois
+           já têm data-mascote no HTML, então o montarTodos() do mascote.js
+           pode tê-los montado antes — montar() de novo só devolve o que
+           já existe, sem desenhar duas vezes. */
+        if (window.KosmosMascote) {
+            if (mascoteHeader) window.KosmosMascote.montar(mascoteHeader);
+            if (mascoteCentral) window.KosmosMascote.montar(mascoteCentral);
         }
 
         // Histórico de mensagens na sessão
@@ -124,14 +125,27 @@
         }
 
         function definirHumor(humor) {
-            if (window.kosmosMascote) {
-                if (mascoteHeader) window.kosmosMascote.definirHumor(mascoteHeader, humor);
-                if (mascoteCentral) window.kosmosMascote.definirHumor(mascoteCentral, humor);
-            }
+            [mascoteHeader, mascoteCentral].forEach(m => {
+                if (m && m.mascote) m.mascote.humor(humor);
+            });
+        }
+
+        /* Escapa o texto ANTES de aplicar a formatação. Sem isso, a
+           pergunta digitada (ou um histórico adulterado no sessionStorage)
+           ia crua para o innerHTML: "<img src=x onerror=...>" rodava na
+           página. Escapando primeiro, o ** e o * das respostas do Orion
+           continuam virando <strong>/<em> — esses caracteres não mudam. */
+        function escaparHtml(txt) {
+            return String(txt)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function formatarTexto(txt) {
-            return txt
+            return escaparHtml(txt)
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
                 .replace(/\n\n/g, '</p><p>')
@@ -159,11 +173,13 @@
                 avatar.className = 'orion-msg-avatar';
                 const mini = document.createElement('div');
                 mini.className = 'mascote';
+                // montar() lê o humor inicial deste data-attribute
+                mini.dataset.mascoteHumor = humor;
                 avatar.appendChild(mini);
                 row.appendChild(avatar);
 
-                if (window.kosmosMascote) {
-                    window.kosmosMascote.renderizar(mini, { humor: humor, tamanho: 34 });
+                if (window.KosmosMascote) {
+                    window.KosmosMascote.montar(mini);
                 }
             }
 
@@ -183,10 +199,25 @@
             scrollParaFim();
         }
 
+        /* Tira acentos (NFD + remove as marcas) e passa para minúsculas:
+           "Olá", "ola" e "OLÁ" viram a mesma coisa, dos dois lados. */
+        function normalizar(txt) {
+            return String(txt).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+        }
+
+        /* Casa por PALAVRA INTEIRA. includes() casava pedaço: "oi" dentro
+           de "oito"/"depois", "top" em "tópico"... e a pergunta ia para a
+           resposta errada. \b só funciona com ASCII — por isso o texto e a
+           chave passam por normalizar() antes. */
+        function temPalavra(texto, chave) {
+            const k = normalizar(chave).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return new RegExp('\\b' + k + '\\b').test(texto);
+        }
+
         function buscarResposta(texto) {
-            const limpo = texto.toLowerCase().trim();
+            const limpo = normalizar(texto);
             for (const item of RESPOSTAS_ORION) {
-                const bateu = item.chaves.some(k => limpo.includes(k));
+                const bateu = item.chaves.some(k => temPalavra(limpo, k));
                 if (bateu) return item;
             }
             return RESPOSTA_PADRAO;

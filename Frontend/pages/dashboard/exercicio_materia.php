@@ -234,6 +234,9 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
             document.title = materia.nome + ' — Kosmos';
         });
 
+        // Apagou a própria matéria daqui de dentro: esta página deixou de existir, volta à estante
+        document.addEventListener('exercicioMateria:apagado', () => location.href = 'exercicios.php');
+
         // Escuta evento de exercício salvo para recarregar a lista
         document.addEventListener('exercicio:salvo', () => {
             carregarExerciciosSalvos();
@@ -273,16 +276,17 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
                     qtdQuestoes = conteudo.questoes?.length || 0;
                 } catch (_) {}
 
-                const data = new Date(ex.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                // "YYYY-MM-DD HH:MM:SS" do MySQL não é ISO: o Safari devolve Invalid Date sem o "T"
+                const data = new Date(String(ex.criado_em).replace(' ', 'T')).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 
                 return `
                     <article class="exercicio-salvo-card anim-in">
                         <div class="exercicio-salvo-card__topo">
                             <div class="exercicio-salvo-card__info">
                                 <h4 class="exercicio-salvo-card__titulo">${escapeHtml(ex.titulo)}</h4>
-                                <p class="exercicio-salvo-card__meta">${qtdQuestoes} questão${qtdQuestoes!==1?'ões':''} · ${ex.dificuldade} · ${data}</p>
+                                <p class="exercicio-salvo-card__meta">${qtdQuestoes} ${qtdQuestoes === 1 ? 'questão' : 'questões'} · ${escapeHtml(ex.dificuldade)} · ${data}</p>
                             </div>
-                            <span class="exercicio-salvo-card__badge">${ex.dificuldade}</span>
+                            <span class="exercicio-salvo-card__badge">${escapeHtml(ex.dificuldade)}</span>
                         </div>
                         <div class="exercicio-salvo-card__acoes">
                             <button class="dash-btn dash-btn--outline" onclick="abrirExercicio(${ex.id})">
@@ -312,8 +316,8 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
         }
 
         function escapeHtml(str) {
-            const map = {'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'};
-            return str.replace(/[&<>"']/g, c => map[c]);
+            const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+            return String(str ?? '').replace(/[&<>"']/g, c => map[c]);
         }
 
         // Funções globais para os botões dos cards

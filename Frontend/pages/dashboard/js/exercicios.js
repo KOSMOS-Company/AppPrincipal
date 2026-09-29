@@ -92,26 +92,34 @@ if (filtros) {
     });
 }
 
+/* Tudo que a pessoa digitou (nome, descrição, ícone) passa por aqui antes
+   do innerHTML — inclusive nos atributos, por isso as aspas também. */
+function esc(texto) {
+    const mapa = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+    return String(texto ?? "").replace(/[&<>"']/g, (c) => mapa[c]);
+}
+
 function criarCardMateria(m) {
+    const id = Number(m.id) || 0;
     const tpl = document.createElement("template");
     tpl.innerHTML = `
-        <article class="exercicio-materia-card anim-in exercicio-materia-card--${m.cor}"
-                 data-id="${m.id}" data-materia="${m.materia}">
-            <a class="exercicio-materia-card__link" href="exercicio_materia.php?id=${m.id}" draggable="false">
+        <article class="exercicio-materia-card anim-in exercicio-materia-card--${esc(m.cor)}"
+                 data-id="${id}" data-materia="${esc(m.materia)}">
+            <a class="exercicio-materia-card__link" href="exercicio_materia.php?id=${id}" draggable="false">
                 <span class="exercicio-materia-card__lombada" aria-hidden="true"></span>
                 <div class="exercicio-materia-card__body">
                     <div class="exercicio-materia-card__topo">
-                        ${m.icone ? `<span class="exercicio-materia-card__icone" aria-hidden="true">${m.icone}</span>` : ""}
-                        <span class="materia-tag">${m.materia}</span>
+                        ${m.icone ? `<span class="exercicio-materia-card__icone" aria-hidden="true">${esc(m.icone)}</span>` : ""}
+                        <span class="materia-tag">${esc(m.materia)}</span>
                     </div>
-                    <h3 class="exercicio-materia-card__nome">${m.nome}</h3>
-                    ${m.descricao ? `<p class="exercicio-materia-card__desc">${m.descricao}</p>` : ""}
+                    <h3 class="exercicio-materia-card__nome">${esc(m.nome)}</h3>
+                    ${m.descricao ? `<p class="exercicio-materia-card__desc">${esc(m.descricao)}</p>` : ""}
                     <span class="exercicio-materia-card__abrir">Abrir →</span>
                 </div>
             </a>
-            <button type="button" class="exercicio-materia-card__editar" data-editar-exercicio-materia="${m.id}"
+            <button type="button" class="exercicio-materia-card__editar" data-editar-exercicio-materia="${id}"
                     title="Personalizar esta matéria"
-                    aria-label="Personalizar a matéria ${m.nome}">
+                    aria-label="Personalizar a matéria ${esc(m.nome)}">
                 <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
             </button>
             <span class="exercicio-materia-card__solte" aria-hidden="true">Solte para guardar aqui</span>
@@ -126,14 +134,14 @@ function criarCardMateria(m) {
     return card;
 }
 
+/* Só mexe na contagem de chips que já têm o contador: os chips desta
+   página não trazem número, e criar o span aqui grudava "Biologia1"
+   no rótulo (sem CSS para .rs-aba__n nesta tela). */
 function atualizarContadorFiltro(materia, delta) {
-    const chip = filtros?.querySelector(`[data-materia="${materia}"]`);
-    if (chip) {
-        const span = chip.querySelector(".rs-aba__n") || document.createElement("span");
-        if (!span.classList.contains("rs-aba__n")) {
-            span.className = "rs-aba__n";
-            chip.appendChild(span);
-        }
+    if (!materia) return;
+    const chip = filtros?.querySelector(`[data-materia="${CSS.escape(materia)}"]`);
+    const span = chip?.querySelector(".rs-aba__n");
+    if (span) {
         const atual = parseInt(span.textContent || "0", 10);
         const novo = Math.max(0, atual + delta);
         span.textContent = novo;

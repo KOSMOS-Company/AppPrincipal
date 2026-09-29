@@ -71,9 +71,6 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
         <link rel="stylesheet" href="./css/apple.css">
 
         <aside class="contLateral">
-            <!-- A seta de recolher NÃO mora aqui dentro: ela é posicionada
-                 na borda direita da barra (ver o CSS). Ficar ao lado da
-                 marca a fazia disputar atenção com o próprio nome do app. -->
             <div class="contTopo">
                 <!-- Botão de ferramentas no mobile (posição azul no topo-esquerdo) -->
                 <?php $isFerramentasAtiva = in_array($PAGINA, ['pomodoro.php', 'flashcards.php', 'exercicios.php', 'provas.php'], true); ?>
@@ -97,6 +94,21 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     <img class="contLogo__icone" src="../shared/favicon.svg" alt="Kosmos"
                          width="34" height="34" decoding="async">
                 </a>
+
+                <!-- Recolher/abrir a barra: ao lado da marca, no canto do topo
+                     (é onde se procura esse controle em apps de barra lateral).
+                     Recolhida, o .contTopo vira coluna e o botão desce para
+                     baixo do ícone. Só no computador — no celular a navegação
+                     é a barra de baixo, e o CSS o esconde lá. -->
+                <button class="lateral__aperta" id="lateralAperta" type="button"
+                        aria-expanded="true" aria-controls="navPrincipal"
+                        aria-label="Recolher menu" title="Recolher menu">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3.5" y="4.5" width="17" height="15" rx="3"/>
+                        <path d="M9.5 4.5v15"/>
+                        <path class="lateral__aperta-seta" d="M15.5 10l-2 2 2 2"/>
+                    </svg>
+                </button>
 
                 <!-- Sequência + nível (só no celular, canto direito do topo).
                      Dois números num chip só: a chama com os dias seguidos e o
@@ -163,17 +175,6 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                 </span>
                 <?php endif; ?>
             </div>
-
-            <!-- Só no computador: no celular a navegação é a barra de baixo,
-                 onde não existe nada para recolher (o CSS a esconde lá). -->
-            <button class="lateral__aperta" id="lateralAperta" type="button"
-                    aria-expanded="true" aria-controls="navPrincipal"
-                    aria-label="Recolher menu">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M14 7 L9 12 L14 17" stroke="currentColor" stroke-width="2.2"
-                          stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
 
             <nav class="botoesL" id="navPrincipal" aria-label="Navegação principal">
                 <!-- marcador que desliza entre os itens (posicionado pelo dashboard.js) -->

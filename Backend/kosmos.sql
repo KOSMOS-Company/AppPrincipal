@@ -588,6 +588,15 @@ CREATE TABLE IF NOT EXISTS `recompensas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `recompensas` (`slug`, `tipo`, `nome`, `descricao`, `nivel_minimo`, `valor`, `ordem`) VALUES
+  -- Nível 1: estilos livres, escolhidos na aba Conta (2026-09-29_avatar_extras.sql)
+  ('moldura_fio', 'moldura', 'Fio de luz', 'Um anel fino e claro em volta do avatar.', 1, 'fio', 1),
+  ('moldura_neon', 'moldura', 'Neon', 'Um anel roxo que brilha como letreiro.', 1, 'neon', 2),
+  ('moldura_duplo', 'moldura', 'Anel duplo', 'Dois anéis finos, um dentro do outro.', 1, 'duplo', 3),
+  ('emblema_estrela', 'emblema', 'Estrela', 'Troca a inicial do avatar por uma estrela.', 1, 'estrela', 4),
+  ('emblema_lua', 'emblema', 'Lua', 'Troca a inicial do avatar por uma lua crescente.', 1, 'lua', 5),
+  ('emblema_cometa', 'emblema', 'Cometa', 'Troca a inicial do avatar por um cometa.', 1, 'cometa', 6),
+  ('cor_meia_noite', 'cor', 'Meia-noite', 'Índigo profundo, o céu logo depois do pôr do sol.', 1, 'meia-noite', 7),
+  ('cor_coral', 'cor', 'Coral', 'Laranja e rosa, quente como uma anã vermelha.', 1, 'coral', 8),
   ('cor_nebulosa', 'cor', 'Nebulosa', 'Um degradê rosa e azul, como gás de estrela nascendo.', 2, 'nebulosa', 10),
   ('moldura_poeira', 'moldura', 'Anel de poeira', 'Um anel pontilhado de poeira estelar em volta do avatar.', 3, 'poeira', 20),
   ('emblema_foguete', 'emblema', 'Foguete', 'Troca a inicial do avatar por um foguete.', 4, 'foguete', 30),

@@ -12,7 +12,8 @@
    pertence a ele. Essa validação é boa e não vale a pena afrouxar
    só porque a fila agora mistura baralhos — então quem se adapta é
    esta tela: junta as respostas por deck_id e faz uma chamada por
-   baralho no fim.
+   baralho — assim que o baralho sai da fila (ou a cada LOTE_MAX
+   respostas), e o resto no fim ou no pagehide.
 
    Tudo dentro de uma IIFE: os scripts de página dividem o escopo
    global com o dashboard.js, então nada aqui pode vazar.
@@ -48,7 +49,10 @@
     let virado   = false;
     let acertos  = 0;
     let erros    = 0;
-    const respostas = [];   // [{id, deck_id, acertou}]
+    const respostas = [];   // [{id, deck_id, acertou}] — só as AINDA NÃO enviadas
+
+    /** Acumulou isto sem enviar (fila de um baralho só, longa)? Envia. */
+    const LOTE_MAX = 10;
 
     /* ------------------------------------------------------------
        Carga
@@ -93,7 +97,11 @@
         const c = fila[indice];
         if (!c) return terminar();
 
+        /* Volta para a frente SEM animar (mesma técnica do flashcards.js):
+           com a transição ligada, o giro de volta mostrava por um instante
+           o verso do cartão NOVO — a resposta antes da pergunta. */
         virado = false;
+        el.cartao.classList.add("sem-anim");
         el.cartao.classList.remove("virada");
         el.avaliacao.hidden = true;
 
@@ -101,6 +109,9 @@
         // pessoa digitou.
         el.frente.textContent = c.frente;
         el.verso.textContent  = c.verso;
+
+        void el.cartao.offsetWidth;   // aplica o estado sem transição
+        el.cartao.classList.remove("sem-anim");
 
         el.origem.textContent = c.materia ? `${c.deck} · ${c.materia}` : c.deck;
         el.progresso.textContent = `Cartão ${indice + 1} de ${fila.length}`;
@@ -125,8 +136,19 @@
         acertou ? acertos++ : erros++;
 
         indice++;
-        if (indice >= fila.length) terminar();
-        else mostrar();
+        if (indice >= fila.length) {
+            terminar();
+            return;
+        }
+
+        /* Envia aos poucos em vez de tudo no fim: quem fecha a aba no
+           meio da fila perdia a revisão inteira. Um baralho vai assim que
+           não sobra cartão dele na fila; e, se acumular demais, vai tudo. */
+        const deckTerminou = !fila.slice(indice).some((x) => x.deck_id === c.deck_id);
+        if (respostas.length >= LOTE_MAX) enviar();
+        else if (deckTerminou) enviar(c.deck_id);
+
+        mostrar();
     }
 
     /* ------------------------------------------------------------
@@ -148,24 +170,50 @@
         await enviar();
     }
 
-    /** Uma chamada por baralho (ver o comentário do topo). */
-    async function enviar() {
+    /**
+     * Tira de `respostas` o que ainda não foi enviado (de um baralho só,
+     * ou de todos) e devolve agrupado por deck_id.
+     *
+     * Tira ANTES de enviar, de propósito: o que saiu daqui nunca volta a
+     * ser enviado — nem pelo próximo lote, nem pelo pagehide. Reenviar
+     * seria gravar a revisão duas vezes e dar XP em dobro. O preço é que
+     * um envio que falha não é refeito; o cartão só continua vencido e
+     * reaparece na próxima fila, que é o mesmo destino de antes.
+     */
+    function retirarPendentes(deckId) {
         const porDeck = new Map();
-        respostas.forEach((r) => {
+        for (let i = respostas.length - 1; i >= 0; i--) {
+            const r = respostas[i];
+            if (deckId !== undefined && r.deck_id !== deckId) continue;
+            respostas.splice(i, 1);
             if (!porDeck.has(r.deck_id)) porDeck.set(r.deck_id, []);
-            porDeck.get(r.deck_id).push({ id: r.id, acertou: r.acertou });
-        });
+            porDeck.get(r.deck_id).unshift({ id: r.id, acertou: r.acertou });
+        }
+        return porDeck;
+    }
 
-        for (const [deckId, lista] of porDeck) {
-            const corpo = new URLSearchParams({
-                deck: String(deckId),
-                respostas: JSON.stringify(lista),
-            });
+    /** O corpo que o flashcards_revisao.php lê de $_POST: `deck` + `respostas` (JSON). */
+    function corpoDe(deckId, lista) {
+        return new URLSearchParams({
+            deck: String(deckId),
+            respostas: JSON.stringify(lista),
+        });
+    }
+
+    /** Uma chamada por baralho (ver o comentário do topo). */
+    async function enviar(deckId) {
+        const porDeck = retirarPendentes(deckId);
+
+        for (const [id, lista] of porDeck) {
+            const corpo = corpoDe(id, lista);
             try {
                 await fetch(`${API}/flashcards_revisao.php`, {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     credentials: "same-origin",
+                    // keepalive: se a pessoa sair enquanto este envio está no
+                    // ar, o navegador termina o POST em vez de cancelá-lo.
+                    keepalive: true,
                     body: corpo,
                 });
             } catch {
@@ -191,6 +239,19 @@
 
     el.avaliacao.querySelectorAll("[data-resposta]").forEach((b) => {
         b.addEventListener("click", () => responder(b.dataset.resposta === "1"));
+    });
+
+    /* Saindo da página (fechar aba, navegar, app em segundo plano no
+       celular): fetch comum seria cancelado. sendBeacon é feito para
+       isto — o navegador entrega depois que a página já foi embora. O
+       corpo é o mesmo URLSearchParams do fetch, que o PHP lê em $_POST.
+       pagehide e não beforeunload/unload: é o único que dispara com
+       confiança no celular e não quebra o bfcache. */
+    window.addEventListener("pagehide", () => {
+        if (respostas.length === 0 || !navigator.sendBeacon) return;
+        for (const [deckId, lista] of retirarPendentes()) {
+            navigator.sendBeacon(`${API}/flashcards_revisao.php`, corpoDe(deckId, lista));
+        }
     });
 
     carregar();

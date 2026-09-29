@@ -17,7 +17,6 @@ $i = $i ?? 0;
                 <article class="exercicio-materia-card anim-in exercicio-materia-card--<?= hesc($m['cor']) ?>"
                          data-id="<?= (int) $m['id'] ?>"
                          data-materia="<?= hesc($m['materia']) ?>"
-                         draggable="true"
                          style="animation-delay: <?= number_format($i * 0.04, 2, '.', '') ?>s">
                     <a class="exercicio-materia-card__link" href="exercicio_materia.php?id=<?= (int) $m['id'] ?>" draggable="false">
                         <span class="exercicio-materia-card__lombada" aria-hidden="true"></span>

@@ -42,8 +42,11 @@ let intervalo = null;
    Persistência
    ------------------------------------------------------------ */
 
+/* Data LOCAL em YYYY-MM-DD (é o formato do sv-SE). toISOString()
+   converte para UTC e, no Brasil, virava o dia às 21h — zerando os
+   ciclos de hoje no meio da noite. */
 function hoje() {
-    return new Date().toISOString().slice(0, 10);
+    return new Date().toLocaleDateString("sv-SE");
 }
 
 function salvar() {

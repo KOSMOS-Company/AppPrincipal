@@ -63,8 +63,17 @@ try {
     // Conta só do Google (sem senha): cria a senha sem pedir a atual
 
     $novoHash = password_hash($nova, PASSWORD_BCRYPT, ['cost' => 12]);
-    $upd = $pdo->prepare('UPDATE usuarios SET senha_hash = ? WHERE id = ?');
+    // Além da senha: descarta um link de "esqueci a senha" pendente (senão ele
+    // ainda trocaria a senha nova) e sobe a geração de sessões, derrubando
+    // os outros dispositivos logados com a senha antiga
+    $upd = $pdo->prepare('UPDATE usuarios
+                             SET senha_hash = ?, reset_token = NULL, reset_expira = NULL,
+                                 sessoes_versao = sessoes_versao + 1
+                           WHERE id = ?');
     $upd->execute([$novoHash, $usuario['id']]);
+
+    // ...mas quem trocou a senha continua logado aqui
+    marcarVersaoSessao($pdo, (int) $usuario['id']);
 
     $msg = $temSenha
         ? 'Senha alterada com sucesso!'

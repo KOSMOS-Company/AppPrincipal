@@ -270,7 +270,10 @@
         overlay.dataset.saindo = "1";
         if (warp) warp.turbinar();
         overlay.classList.add("intro--saindo");
-        document.documentElement.classList.remove("com-intro");
+        /* `com-intro` NÃO sai aqui: o .intro só tem display sob
+           html.com-intro, então tirá-la junto com .intro--saindo sumia
+           com o overlay na hora e a animação de saída nunca aparecia.
+           Ela sai em finalizar(), quando o salto já terminou. */
         document.documentElement.classList.add("intro-saida");
         window.removeEventListener("keydown", pularPorTecla);
         window.removeEventListener("pointermove", seguirCursor);
@@ -279,8 +282,13 @@
     }
 
     function finalizar() {
+        // roda duas vezes (transitionend + o setTimeout de garantia): só a primeira vale
+        if (overlay.dataset.finalizado) return;
+        overlay.dataset.finalizado = "1";
         if (warp) warp.parar();
         overlay.remove();
+        // só agora: o onboarding.js espera esta classe sair para abrir o modal
+        document.documentElement.classList.remove("com-intro");
     }
 
     function pularPorTecla(ev) {

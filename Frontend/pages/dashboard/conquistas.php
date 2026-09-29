@@ -28,7 +28,10 @@ if ($PROGRESSO['disponivel']) {
         }
         $PROGRESSO  = ['disponivel' => true] + $svc->estado($USUARIO['id']);
         $CONQUISTAS = $svc->listarConquistas($USUARIO['id']);
-        $RECOMPENSAS = $svc->recompensas($USUARIO['id']);
+        // Os estilos do nível 1 são livres e ficam na aba Conta: a trilha
+        // mostra só o que o nível DESTRAVA.
+        $TODAS_RECOMPENSAS = $svc->recompensas($USUARIO['id']);
+        $RECOMPENSAS = array_values(array_filter($TODAS_RECOMPENSAS, fn($r) => $r['nivel'] > 1));
         $MARCOS      = $svc->marcosDeTitulo();
     } catch (Throwable $e) {
         error_log('[KOSMOS conquistas] ' . $e->getMessage());
@@ -75,8 +78,10 @@ if (!empty($PREF['avatar_url'])) {
     $trEstilo   = 'background-image:url(&quot;' . hesc($PREF['avatar_url']) . '&quot;);'
                 . 'background-position:' . (int) $PREF['avatar_pos_x'] . '% ' . (int) $PREF['avatar_pos_y'] . '%;';
 }
-$nomeEquipado = function (string $tipo) use ($RECOMPENSAS): ?string {
-    foreach ($RECOMPENSAS as $r) {
+$TODAS_RECOMPENSAS = $TODAS_RECOMPENSAS ?? $RECOMPENSAS;
+$nomeEquipado = function (string $tipo) use ($TODAS_RECOMPENSAS): ?string {
+    // a lista inteira: o equipado pode ser um estilo livre do nível 1
+    foreach ($TODAS_RECOMPENSAS as $r) {
         if ($r['tipo'] === $tipo && $r['equipada']) return $r['nome'];
     }
     return null;

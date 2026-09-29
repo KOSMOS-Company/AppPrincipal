@@ -20,6 +20,9 @@ require_once __DIR__ . '/config.php';
 
 // Só usuários logados podem gastar a IA
 $usuario = exigirLogin();
+// A chamada à IA pode levar até 180s: sem soltar o lock da sessão,
+// todas as outras requisições da pessoa ficam enfileiradas atrás dela.
+liberarSessao();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -327,9 +330,27 @@ function normalizarQuestoes(array $questoes): array {
         if ($dica !== '') {
             $questao['dica'] = $dica;
         }
+        // O rótulo da IA precisa sobreviver até aplicarDificuldades —
+        // já canônico ("Facil" → "Fácil"); o que não reconhecer vira ''.
+        $rotulo = rotuloDificuldade((string) ($q['dificuldade'] ?? ''));
+        if ($rotulo !== '') {
+            $questao['dificuldade'] = $rotulo;
+        }
         $fora[] = $questao;
     }
     return $fora;
+}
+
+/**
+ * O prompt pede "Facil, Medio, Dificil" sem acento (o modelo erra
+ * menos), mas o plano usa os rótulos acentuados. Compara sem caixa
+ * nem acento e devolve o rótulo canônico, ou '' se não reconhecer.
+ * strtr em vez de iconv pelo mesmo motivo de indicioDeLimiteDiario.
+ */
+function rotuloDificuldade(string $bruto): string {
+    $t = strtr(mb_strtolower(trim($bruto), 'UTF-8'), ['á' => 'a', 'é' => 'e', 'í' => 'i']);
+    $canonicos = ['facil' => 'Fácil', 'medio' => 'Médio', 'dificil' => 'Difícil'];
+    return $canonicos[$t] ?? '';
 }
 
 /**
@@ -350,7 +371,8 @@ function aplicarDificuldades(array $questoes, array $plano): array {
 
     // 1) valida o rótulo vindo da IA e consome o saldo
     foreach ($questoes as $k => $q) {
-        $d = (string) ($q['dificuldade'] ?? '');
+        $d = rotuloDificuldade((string) ($q['dificuldade'] ?? ''));
+        $questoes[$k]['dificuldade'] = $d;
         if (!in_array($d, $ordem, true)) {
             $questoes[$k]['dificuldade'] = '';
         } elseif ($saldo[$d] > 0) {

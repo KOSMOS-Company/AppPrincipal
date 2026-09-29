@@ -41,7 +41,9 @@ if ($id > 0 && !$ERRO_BANCO) {
                 'criado'       => dataLongaPt((int) $r['dia'], (int) $r['mes'], (int) $r['ano']),
                 'atualizado'   => dataLongaPt((int) $r['dia_upd'], (int) $r['mes_upd'], (int) $r['ano_upd']),
                 'editado'      => !$r['nunca_editado'],
-                'palavras'     => str_word_count(strip_tags($r['corpo'])),
+                // str_word_count conta por byte e parte palavras acentuadas
+                // ("revolução" virava duas); /u conta como o resumo.js
+                'palavras'     => ($t = trim(strip_tags($r['corpo']))) === '' ? 0 : count(preg_split('/\s+/u', $t)),
                 'imagens'      => imagensDoResumo($pdo, (int) $r['id']),
             ];
         }

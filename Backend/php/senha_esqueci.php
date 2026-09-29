@@ -46,10 +46,12 @@ try {
     // Gera o token: o valor "puro" vai no link; no banco guardamos só o hash
     $token   = bin2hex(random_bytes(32));
     $hash    = hash('sha256', $token);
-    $expira  = date('Y-m-d H:i:s', time() + 3600); // validade de 1 hora
 
-    $upd = $pdo->prepare('UPDATE usuarios SET reset_token = ?, reset_expira = ? WHERE id = ?');
-    $upd->execute([$hash, $expira, $user['id']]);
+    // Validade de 1 hora calculada pelo relógio do MySQL: o senha_resetar.php
+    // compara com NOW() do banco, e o PHP roda em outro fuso (Europe/Berlin).
+    // Com date() do PHP o link já nascia expirado ou durava horas a mais.
+    $upd = $pdo->prepare('UPDATE usuarios SET reset_token = ?, reset_expira = NOW() + INTERVAL 1 HOUR WHERE id = ?');
+    $upd->execute([$hash, $user['id']]);
 
     // Monta o link e pede ao n8n para enviar o e-mail
     $link = APP_URL . '/login/redefinir.html?token=' . $token;

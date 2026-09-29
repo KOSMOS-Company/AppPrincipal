@@ -34,6 +34,12 @@ const FC_INTERVALO_MAX = 180;
 /**
  * Calcula o próximo agendamento de um cartão.
  *
+ * Só deve ser chamada para cartão VENCIDO (proxima_revisao nula ou
+ * <= hoje, pelo relógio do MySQL). Revisar antes da data não pode
+ * mexer no agendamento: senão cinco acertos na mesma tarde viram
+ * 1 → 3 → 8 → 21 → 55 dias sem a pessoa ter provado nada. Quem
+ * decide isso é quem chama (flashcards_revisao.php).
+ *
  * @param int   $intervalo  dias do intervalo atual (0 = cartão novo)
  * @param float $facilidade fator atual (2.50 é o padrão de início)
  * @param bool  $acertou    resultado desta revisão

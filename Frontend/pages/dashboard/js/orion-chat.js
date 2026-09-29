@@ -10,7 +10,9 @@
 
     // Flag de expansão para quando a API da IA estiver ativa
     var CONFIG_IA_ATIVA = false;
-    var ENDPOINT_IA = '../../Backend/php/gerar_exercicios.php';
+    // Relativo à PÁGINA (Frontend/pages/dashboard/*.php), não a este .js:
+    // são três níveis até a raiz, como o API do revisar.js.
+    var ENDPOINT_IA = '../../../Backend/php/gerar_exercicios.php';
 
     var STORAGE_KEY = 'kosmos_orion_chat_historico';
 
@@ -50,7 +52,12 @@
             chatBox.setAttribute('aria-hidden', deveAbrir ? 'false' : 'true');
 
             if (deveAbrir) {
-                if (historico.length === 0) {
+                /* Testa a TELA, não o histórico: a saudação é enviada com
+                   salvar=false, então o histórico continuava vazio e ela se
+                   repetia a cada abertura. Container vazio = nada na conversa.
+                   `children` e não hasChildNodes(): o HTML tem um comentário
+                   e espaços lá dentro, que contam como nós. */
+                if (msgsContainer && msgsContainer.children.length === 0) {
                     enviarMensagemOrion('Olá! Sou o Orion, seu assistente de estudos no Kosmos. ✦\nComo posso te ajudar hoje?', 'feliz', false);
                 }
                 setTimeout(function () { if (input) input.focus(); }, 250);
@@ -61,19 +68,35 @@
         launcher.addEventListener('click', function () { alternarChat(); });
         if (btnFechar) btnFechar.addEventListener('click', function () { alternarChat(false); });
 
-        // Auto-abertura para teste se solicitado
-        if (sessionStorage.getItem('kosmos_test_open_chat')) {
-            sessionStorage.removeItem('kosmos_test_open_chat');
+        /* Auto-abertura para teste se solicitado. Em try: com o storage
+           bloqueado (aba anônima em alguns navegadores, cookies de terceiros
+           desligados) o getItem LANÇA, e a exceção aqui abortava o resto
+           deste handler — nenhum listener abaixo era ligado. */
+        var abrirParaTeste = false;
+        try {
+            abrirParaTeste = !!sessionStorage.getItem('kosmos_test_open_chat');
+            if (abrirParaTeste) sessionStorage.removeItem('kosmos_test_open_chat');
+        } catch (e) { abrirParaTeste = false; }
+        if (abrirParaTeste) {
             setTimeout(function () { alternarChat(true); }, 200);
         }
 
         if (btnLimpar) {
             btnLimpar.addEventListener('click', function () {
                 historico = [];
-                sessionStorage.removeItem(STORAGE_KEY);
+                try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
                 if (msgsContainer) msgsContainer.innerHTML = '';
                 enviarMensagemOrion('Histórico limpo! Pronto para uma nova dúvida ou sessão de foco. ✦', 'normal', false);
             });
+        }
+
+        function escaparHtml(txt) {
+            return String(txt)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function rolarFim() {
@@ -89,8 +112,12 @@
 
             var balao = document.createElement('div');
             balao.className = 'orion-msg__balao';
-            // Converte quebras de linha em <br>
-            balao.innerHTML = texto.replace(/\n/g, '<br>');
+            /* Escapa ANTES de converter as quebras de linha em <br>: a
+               bolha do usuário (e todo o histórico, que volta do
+               sessionStorage e pode ter sido adulterado) ia crua para o
+               innerHTML. As respostas do bot são texto puro com \n, então
+               continuam iguais. */
+            balao.innerHTML = escaparHtml(texto).replace(/\n/g, '<br>');
 
             msgDiv.appendChild(balao);
             msgsContainer.appendChild(msgDiv);
@@ -164,11 +191,32 @@
         }
 
         /* ── Cérebro de Respostas Contextuais do Orion ── */
+        /* Tira acentos (NFD + remove as marcas) e passa para minúsculas:
+           "Olá", "ola" e "OLÁ" viram a mesma coisa. */
+        function normalizar(txt) {
+            return String(txt).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+        }
+
+        /* Casa por PALAVRA INTEIRA. includes() casava pedaço de palavra:
+           'ia' dentro de "matéria"/"dia", 'oi' em "oito", 'top' em
+           "tópico" — e a pergunta caía na resposta errada. Chave que
+           termina em '*' é um radical: casa o começo da palavra
+           ('cansad*' → cansado, cansada). \b só entende ASCII, por isso
+           texto e chave passam por normalizar() antes. */
+        function tem(q, chaves) {
+            return chaves.some(function (chave) {
+                var radical = chave.slice(-1) === '*';
+                var k = normalizar(radical ? chave.slice(0, -1) : chave)
+                    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                return new RegExp('\\b' + k + (radical ? '' : '\\b')).test(q);
+            });
+        }
+
         function responder(pergunta) {
-            var q = pergunta.toLowerCase().trim();
+            var q = normalizar(pergunta);
 
             // 1. Pomodoro
-            if (q.includes('pomodoro') || q.includes('tempo') || q.includes('timer') || q.includes('foco')) {
+            if (tem(q, ['pomodoro', 'tempo', 'timer', 'foco'])) {
                 enviarMensagemOrion(
                     'O Pomodoro do Kosmos divide seu estudo em blocos de alta concentração:\n\n' +
                     '⏱️ 25 minutos de FOCO TOTAL (sem celular ou distrações)\n' +
@@ -180,7 +228,7 @@
             }
 
             // 2. Flashcards & Repetição Espaçada
-            if (q.includes('flashcard') || q.includes('cartao') || q.includes('cartão') || q.includes('memoriz')) {
+            if (tem(q, ['flashcard*', 'cartao', 'cartoes', 'memoriz*'])) {
                 enviarMensagemOrion(
                     'Os Flashcards são a arma secreta da memorização ativa! 🎴\n\n' +
                     '1. Crie cartões com uma PERGUNTA na frente e a RESPOSTA no verso.\n' +
@@ -192,7 +240,7 @@
             }
 
             // 3. Resumos & Cadernos
-            if (q.includes('resumo') || q.includes('caderno') || q.includes('biblioteca') || q.includes('anota')) {
+            if (tem(q, ['resumo*', 'caderno*', 'biblioteca', 'anota*'])) {
                 enviarMensagemOrion(
                     'Na Biblioteca você organiza cadernos separados por matéria! 📝\n\n' +
                     '• Pode escrever resumos em texto formatado.\n' +
@@ -204,7 +252,7 @@
             }
 
             // 4. Sem foco / Cansaço / Procrastinação
-            if (q.includes('sem foco') || q.includes('cansad') || q.includes('pregui') || q.includes('procrastin') || q.includes('ajuda')) {
+            if (tem(q, ['sem foco', 'cansad*', 'pregui*', 'procrastin*', 'ajuda*'])) {
                 enviarMensagemOrion(
                     'Respira fundo! É super normal bater cansaço cósmico às vezes. 🌌\n\n' +
                     'Experimente a regra dos 5 minutos: comprometa-se a estudar apenas 5 minutos de um assunto leve. Quase sempre o cérebro engrena!\n' +
@@ -215,7 +263,7 @@
             }
 
             // 5. ENEM / Vestibulares / Concursos
-            if (q.includes('enem') || q.includes('vestibular') || q.includes('concurso') || q.includes('prova')) {
+            if (tem(q, ['enem', 'vestibular*', 'concurso*', 'prova*'])) {
                 enviarMensagemOrion(
                     'Para mandar bem no ENEM e Vestibulares: 🎯\n\n' +
                     '1. Resoluções práticas valem mais que teoria pura.\n' +
@@ -228,24 +276,24 @@
             }
 
             // 6. Saudações & Apresentação
-            if (q.includes('oi') || q.includes('ola') || q.includes('olá') || q.includes('bom dia') || q.includes('boa tarde') || q.includes('boa noite')) {
+            if (tem(q, ['oi', 'ola', 'bom dia', 'boa tarde', 'boa noite'])) {
                 enviarMensagemOrion('E aí! Muito bom ter você por aqui. O que estamos estudando agora? ✦', 'feliz');
                 return;
             }
 
-            if (q.includes('quem é você') || q.includes('quem e voce') || q.includes('seu nome') || q.includes('orion')) {
+            if (tem(q, ['quem e voce', 'seu nome', 'orion'])) {
                 enviarMensagemOrion('Sou o Orion, o mascote e assistente cósmico do Kosmos! Meu objetivo é te ajudar a manter a disciplina, organizar matérias e atingir sua melhor performance nos estudos. 🚀', 'curioso');
                 return;
             }
 
             // 7. Agradecimentos
-            if (q.includes('obrigad') || q.includes('valeu') || q.includes('top') || q.includes('legal') || q.includes('amei')) {
+            if (tem(q, ['obrigad*', 'valeu', 'top', 'legal', 'amei'])) {
                 enviarMensagemOrion('Tamo junto! Qualquer coisa, é só me chamar. Bons estudos e foco total! ✦', 'timido');
                 return;
             }
 
             // 8. Exercícios / IA
-            if (q.includes('ia') || q.includes('inteligencia') || q.includes('exercicio')) {
+            if (tem(q, ['ia', 'inteligencia', 'exercicio*'])) {
                 enviarMensagemOrion(
                     'Nosso módulo de Exercícios com IA está sendo calibrado! Em breve você poderá gerar simulados adaptativos que atacam exatamente suas matérias com mais erros. Fique de olho!',
                     'surpreso'

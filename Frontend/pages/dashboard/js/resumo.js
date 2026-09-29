@@ -73,6 +73,9 @@
         if (leitura) {
             leitura.textContent = corpo;
             leitura.hidden = corpo === "";
+            // o texto novo chega cru: os ==trechos== do modo revisão
+            // precisam ser montados de novo (resumo-revisao.js)
+            window.KosmosRevisao?.montar();
         }
         const semTexto = document.getElementById("semTexto");
         if (semTexto) semTexto.hidden = corpo !== "";

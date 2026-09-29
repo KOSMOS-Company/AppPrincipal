@@ -201,7 +201,9 @@
     function renderPassos(passos) {
         if (!passos || typeof passos !== "object") return;
 
-        const itens = [...document.querySelectorAll(".ini-passo")];
+        // as missões da semana reaproveitam o visual .ini-passo, mas têm a
+        // própria função (renderMissoes) — não entram nesta conta
+        const itens = [...document.querySelectorAll(".ini-passo:not(.ini-missao)")];
         if (!itens.length) return;
 
         let feitos = 0;
@@ -230,6 +232,46 @@
         if (contador) {
             contador.textContent = feitos === total ? "tudo pronto ✦" : `${feitos} de ${total}`;
         }
+    }
+
+    /* ------------------------------------------------------------
+       Missões da semana (depois dos primeiros passos)
+       O index.php pinta o cartão; aqui só se reaplica o progresso de
+       cada missão quando a resposta do inicio_dados.php chega — o
+       mesmo motivo dos primeiros passos (Pomodoro fechando um ciclo
+       em outra aba). Se a semana virou com a aba aberta, o conjunto
+       de missões muda: aí não dá para remendar item a item, e a
+       própria tela se recarrega na próxima visita.
+       ------------------------------------------------------------ */
+    function renderMissoes(m) {
+        const cartao = document.getElementById("iniMissoes");
+        if (!cartao || !m || !Array.isArray(m.missoes)) return;
+
+        const semanaTela = cartao.querySelector("[data-missoes-semana]")?.textContent.replace(/\D/g, "");
+        if (semanaTela && +semanaTela !== +m.semana) return;
+
+        m.missoes.forEach((missao) => {
+            const item = cartao.querySelector(`[data-missao="${CSS.escape(missao.slug)}"]`);
+            if (!item) return;
+            item.classList.toggle("feito", !!missao.feita);
+            const prog = item.querySelector("[data-missao-prog]");
+            if (prog) prog.textContent = missao.progresso;
+            const pct = item.querySelector("[data-missao-pct]");
+            if (pct) pct.style.setProperty("--pct", Math.floor(100 * missao.valor / Math.max(1, missao.alvo)) + "%");
+            const estado = item.querySelector(".ini-passo__estado");
+            if (estado) estado.textContent = missao.feita ? "Concluída" : "Em andamento";
+        });
+
+        const barra = document.getElementById("iniMissoesBarra");
+        if (barra) { barra.max = m.total; barra.value = m.feitas; }
+
+        const contador = document.getElementById("iniMissoesContador");
+        if (contador) {
+            const d = +m.dias_restantes || 0;
+            const prazo = d === 0 ? "termina hoje" : d === 1 ? "termina amanhã" : `faltam ${d} dias`;
+            contador.textContent = m.completa ? "semana completa ✦" : `${m.feitas} de ${m.total} · ${prazo}`;
+        }
+        cartao.classList.toggle("ini-missoes--completa", !!m.completa);
     }
 
 
@@ -265,11 +307,13 @@
         preencherMetricas({
             resumos:    dados.metricas?.resumos,
             flashcards: dados.metricas?.flashcards,
+            exercicios: dados.metricas?.exercicios,
         });
 
         renderMeta(dados.hoje, dados.meta);
         renderRevisar(dados.metricas?.vencidos);
         renderPassos(dados.passos);
+        renderMissoes(dados.missoes);
     }
 
     /** A meta diária. Existia em usuario_preferencias desde agosto e
@@ -311,5 +355,5 @@
     /* ------------------------------------------------------------
        Ponte: outras telas podem repintar sem recarregar.
        ------------------------------------------------------------ */
-    window.KosmosInicio = { preencherMetricas, renderGrafico, renderPassos, carregarDados };
+    window.KosmosInicio = { preencherMetricas, renderGrafico, renderPassos, renderMissoes, carregarDados };
 })();

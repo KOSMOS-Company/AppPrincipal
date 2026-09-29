@@ -64,7 +64,12 @@
         };
         const set = (tipo, vazio) => {
             const el = document.querySelector(`[data-equipado="${tipo}"]`);
-            if (el) el.textContent = nomeDe(tipo) || vazio;
+            if (!el) return;
+            const nome = nomeDe(tipo);
+            // Equipado mas fora da trilha (estilo livre do nível 1, escolhido
+            // na Conta): o nome que o PHP imprimiu continua valendo.
+            if (nome) el.textContent = nome;
+            else if (!equipado[tipo]) el.textContent = vazio;
         };
         set("moldura", "nenhuma");
         set("emblema", "nenhum");

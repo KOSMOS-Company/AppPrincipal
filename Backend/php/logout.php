@@ -9,9 +9,8 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/sessao.php';
 
-iniciarSessao();
-
-$_SESSION = [];          // limpa os dados da sessão
-session_destroy();       // destrói a sessão no servidor
+// encerrarSessao() limpa os dados, destrói a sessão no servidor e também
+// expira o cookie no navegador (só session_destroy deixava o PHPSESSID lá)
+encerrarSessao();
 
 echo json_encode(['ok' => true, 'msg' => 'Logout realizado.']);
