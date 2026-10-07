@@ -173,7 +173,9 @@
         caderno = { ...caderno, ...salvo };
 
         const nome = document.getElementById("cadernoNomeTitulo");
+        const caminhoTitulo = document.querySelector('.caminho ol li:last-child span[aria-current="page"]');
         if (nome) nome.textContent = caderno.nome;
+        if (caminhoTitulo) caminhoTitulo.textContent = caderno.nome;
 
         const ic = document.getElementById("cadernoIconeTitulo");
         if (ic) {

@@ -233,6 +233,7 @@
 
             $("#cartoesMateria").textContent = json.deck.materia;
             $("#cartoesTitulo").textContent  = json.deck.nome;
+            pinarCaminhoCartoes(json.deck.nome);
 
             renderCartoes();
             if (mudarDeView) mostrarView("cartoes");
@@ -307,6 +308,7 @@
         };
 
         $("#estudoTitulo").textContent = estado.deck.nome;
+        pinarCaminhoCartoes(estado.deck.nome);
         estudoFim.hidden  = true;
         flashcard.hidden  = false;
         estudoNav.hidden  = false;
@@ -511,6 +513,7 @@
                 estado.deck.materia = dados.materia;
                 $("#cartoesTitulo").textContent  = dados.nome;
                 $("#cartoesMateria").textContent = dados.materia;
+                pinarCaminhoCartoes(dados.nome);
             }
 
             await carregarDecks();
@@ -739,6 +742,13 @@
     function mostrarView(nome) {
         Object.entries(views).forEach(([chave, secao]) => { secao.hidden = chave !== nome; });
         window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /** Sincroniza o último item do breadcrumb das visões de baralho. */
+    function pinarCaminhoCartoes(nome) {
+        document
+            .querySelectorAll('#viewCartoes .caminho li:last-child span, #viewEstudo .caminho li:last-child span')
+            .forEach((s) => { s.textContent = nome; });
     }
 
     /** Escapa texto do usuário antes de entrar em innerHTML. */

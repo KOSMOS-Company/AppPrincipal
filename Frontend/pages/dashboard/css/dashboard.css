@@ -701,6 +701,53 @@ progress::-webkit-progress-value {
     font-size: 1.1rem;
     margin-bottom: 30px;
 }
+/* Trilha de navegação (caminho de migalhas) */
+.caminho {
+    margin-bottom: 6px;
+}
+.caminho ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.caminho__item {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+}
+.caminho__item:not(:first-child)::before {
+    content: "›";
+    margin: 0 6px;
+    color: var(--text-dim);
+}
+.caminho__item a,
+.caminho__item span {
+    font-size: .85rem;
+    color: var(--text-muted);
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: var(--transition);
+}
+.caminho__item a:hover {
+    color: var(--accent-lt);
+}
+.caminho__item span[aria-current="page"] {
+    color: var(--text);
+}
+@media (max-width: 640px) {
+    .caminho__item a,
+    .caminho__item span {
+        max-width: 160px;
+    }
+}
+
 .h-nome {
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-lt) 100%);
     -webkit-background-clip: text;
@@ -1017,6 +1064,9 @@ progress::-webkit-progress-value {
     backdrop-filter: blur(6px);
     overflow-y: auto;
 }
+
+#modalConfirma,
+#modalPede { z-index: 260; }
 .modal.open { display: flex; animation: dashFade .25s ease both; }
 .modal__box {
     width: 100%;

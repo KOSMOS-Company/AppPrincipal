@@ -134,7 +134,6 @@ $COMO = [
         <main class="contMeio">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <span class="section-tag">Progresso</span>
                     <h1>Suas <span class="h-nome">conquistas</span></h1>
                     <p>Cada sessão de estudo te leva mais longe no cosmos.</p>
                 </div>

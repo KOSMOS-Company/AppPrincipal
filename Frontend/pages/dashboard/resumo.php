@@ -91,13 +91,16 @@ if ($id > 0 && !$ERRO_BANCO) {
 <?php else: ?>
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <!-- volta para o caderno de onde o resumo saiu; sem
-                         caderno, volta para a estante -->
-                    <a class="voltar" id="voltar"
-                       href="<?= $RESUMO['caderno_id'] ? 'caderno.php?id=' . (int) $RESUMO['caderno_id'] : 'resumos.php' ?>">
-                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span id="voltarTexto"><?= $RESUMO['caderno_id'] ? hesc($RESUMO['caderno_nome']) : 'Cadernos' ?></span>
-                    </a>
+                    <?php
+                    $caminhoRes = [];
+                    $caminhoRes[] = ['Biblioteca', 'resumos.php'];
+                    if ($RESUMO['caderno_id']) {
+                        $caminhoRes[] = [$RESUMO['caderno_nome'], 'caderno.php?id=' . (int) $RESUMO['caderno_id']];
+                    }
+                    $caminhoRes[] = [$RESUMO['titulo'], null];
+                    $CAMINHO = $caminhoRes;
+                    require __DIR__ . '/partes/caminho.php';
+                    ?>
                     <h1><?= hesc($RESUMO['titulo']) ?></h1>
                     <p class="resumo-meta">
                         <span class="materia-tag"><?= hesc($RESUMO['materia']) ?></span>

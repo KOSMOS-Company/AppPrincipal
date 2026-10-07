@@ -136,7 +136,7 @@
                     <label class="onb-opcao-card">
                         <input type="radio" name="onb_meta" value="120">
                         <div class="onb-opcao-conteudo">
-                            <span class="onb-opcao-icone"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.2 2.6C18.6 6.6 20.5 10.4 20.5 13.9C20.5 18.4 17 21.9 12.4 21.9C7.8 21.9 4.2 18.6 4.2 14.4C4.2 12.4 4.7 10.5 5.8 9C6.6 11.2 7.5 12.6 9 13.2C8.6 9.4 11 4.5 14.2 2.6Z"/><path d="M12 12.6C11.1 14.4 9.9 15.7 9.9 16.9A2.2 2.2 0 0 0 14.3 16.9C14.3 16.2 14 15.5 13.6 14.9C13.1 14.2 12.6 13.3 12 12.6Z"/></svg></span>
+                            <span class="onb-opcao-icone"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2.5c.5 3-1.6 4.7-3.2 6.7C7.5 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1-3.9-2.2-5.3-.3 1.1-.9 1.9-1.7 2.4.5-3.4-.3-6.8-1.4-9.6Z"/><path d="M11.9 18.19a2.13 2.13 0 0 1-2.13-2.12c0-1.19 1.02-1.96 1.7-3.06 0.34 0.85 1.36 1.36 1.36 2.72 0 1.44-.34 2.46-.93 2.46Z"/></svg></span>
                             <div class="onb-opcao-textos">
                                 <strong>2 horas / dia</strong>
                                 <span>Ritmo acelerado para reta final e editais</span>

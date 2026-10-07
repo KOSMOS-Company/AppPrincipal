@@ -107,7 +107,7 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
         <main class="contMeio">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <span class="section-tag">Biblioteca</span>
+                    <?php $CAMINHO = [['Biblioteca', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                     <h1>Seus <span class="h-nome">Cadernos</span></h1>
                     <p id="estanteResumo"><?= hesc(resumoDaEstante($TOTAL_CADERNOS, $TOTAL_RESUMOS)) ?></p>
                 </div>

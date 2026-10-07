@@ -45,6 +45,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <span class="section-tag">Revisão</span>
+                    <?php $CAMINHO = [['Início', 'index.php'], ['Revisar hoje', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                     <h1>Revisar <span class="h-nome">hoje</span></h1>
                     <p id="revProgresso">Montando sua fila…</p>
                 </div>

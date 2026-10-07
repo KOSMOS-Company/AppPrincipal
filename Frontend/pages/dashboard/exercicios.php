@@ -152,7 +152,7 @@ function alturaMapa(int $materias): string {
         <main class="contMeio">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <span class="section-tag">Praticar</span>
+                    <?php $CAMINHO = [['Exercícios', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                     <h1>Suas <span class="h-nome">Matérias</span></h1>
                     <p id="estanteResumo"><?= hesc(resumoDaEstanteExercicios($TOTAL_MATERIAS)) ?></p>
                 </div>

@@ -136,7 +136,7 @@
 }
 .resumo-card__link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-/* ---- Prévia (resumo.php) ---- */
+/* ---- Pr�via (resumo.php) ---- */
 .voltar {
     display: inline-flex;
     align-items: center;

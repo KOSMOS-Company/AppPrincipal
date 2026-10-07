@@ -46,7 +46,6 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
         <main class="contMeio">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <span class="section-tag">Foco</span>
                     <h1>Suas <span class="h-nome">provas</span></h1>
                     <p>O que vem aí, o que cai e o que você já estudou para cada uma.</p>
                 </div>

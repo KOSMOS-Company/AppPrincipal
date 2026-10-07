@@ -38,8 +38,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
         <main class="contMeio">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <span class="section-tag">Busca</span>
-                    <h1>Achar <span class="h-nome">qualquer coisa</span></h1>
+                    <h1>Achar itens de <span class="h-nome">estudo</span></h1>
                     <p id="buscaResumo">Resumos, cadernos, baralhos e cartões.</p>
                 </div>
             </header>

@@ -104,10 +104,13 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
 <?php else: ?>
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <a class="voltar" href="resumos.php">
-                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Cadernos
-                    </a>
+                    <?php
+                    $CAMINHO = [
+                        ['Biblioteca', 'resumos.php'],
+                        [$CADERNO['nome'], null],
+                    ];
+                    require __DIR__ . '/partes/caminho.php';
+                    ?>
                     <h1 class="caderno-titulo">
 <?php if ($CADERNO['icone'] !== ''): ?>
                         <span class="caderno-titulo__icone" id="cadernoIconeTitulo" aria-hidden="true"><?= hesc($CADERNO['icone']) ?></span>

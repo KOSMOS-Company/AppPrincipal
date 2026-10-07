@@ -74,10 +74,13 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
 <?php else: ?>
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <a class="voltar" href="exercicios.php">
-                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Matérias
-                    </a>
+                    <?php
+                    $CAMINHO = [
+                        ['Exercícios', 'exercicios.php'],
+                        [$MATERIA['nome'], null],
+                    ];
+                    require __DIR__ . '/partes/caminho.php';
+                    ?>
                     <h1 class="caderno-titulo">
 <?php if ($MATERIA['icone'] !== ''): ?>
                         <span class="caderno-titulo__icone" id="materiaIconeTitulo" aria-hidden="true"><?= hesc($MATERIA['icone']) ?></span>

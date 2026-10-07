@@ -62,7 +62,9 @@
         resumo = { ...resumo, ...novo };
 
         const titulo = document.querySelector(".contCabeca__texto h1");
+        const caminhoTitulo = document.querySelector('.caminho ol li:last-child span[aria-current="page"]');
         if (titulo) titulo.textContent = resumo.titulo;
+        if (caminhoTitulo) caminhoTitulo.textContent = resumo.titulo;
 
         const tag = document.querySelector(".resumo-meta .materia-tag");
         if (tag) tag.textContent = resumo.materia;
@@ -87,18 +89,19 @@
             palavras.textContent = `· ${n} ${n === 1 ? "palavra" : "palavras"}`;
         }
 
-        /* O resumo pode ter mudado de caderno: o link de voltar tem
-           de ir para o lugar novo. O nome do caderno não vem no
-           evento, então mostramos um rótulo genérico até a próxima
-           carga da página, que traz o nome de verdade. */
-        const voltar = document.getElementById("voltar");
-        const voltarTexto = document.getElementById("voltarTexto");
-        if (voltar && voltarTexto) {
-            const antes = voltar.getAttribute("href");
-            const agora = resumo.caderno_id ? `caderno.php?id=${resumo.caderno_id}` : "resumos.php";
-            if (antes !== agora) {
-                voltar.setAttribute("href", agora);
-                voltarTexto.textContent = resumo.caderno_id ? "Caderno" : "Cadernos";
+        /* O resumo pode ter mudado de caderno: atualizar breadcrumb */
+        const caminhoOl = document.querySelector('.caminho ol');
+        if (caminhoOl && caminhoOl.children.length >= 3) {
+            const itemCaderno = caminhoOl.children[1];
+            const linkCaderno = itemCaderno.querySelector('a');
+            const spanCaderno = itemCaderno.querySelector('span');
+            const novoHref = resumo.caderno_id ? `caderno.php?id=${resumo.caderno_id}` : 'resumos.php';
+            const novoRotulo = resumo.caderno_id ? 'Caderno' : 'Cadernos';
+            if (linkCaderno && linkCaderno.getAttribute('href') !== novoHref) {
+                linkCaderno.setAttribute('href', novoHref);
+            }
+if (spanCaderno) {
+                spanCaderno.textContent = novoRotulo;
             }
         }
 

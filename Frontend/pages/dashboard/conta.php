@@ -101,7 +101,6 @@ $ESTILO_ABAS = [
               data-avatar-pos-y="<?= (int) $PREF['avatar_pos_y'] ?>">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <span class="section-tag">Sua conta</span>
                     <h1>Minha <span class="h-nome">Conta</span></h1>
                     <p>Perfil, segurança, preferências de estudo e privacidade.</p>
                 </div>

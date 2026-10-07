@@ -31,7 +31,6 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
         <main class="contMeio">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
-                    <span class="section-tag">Foco</span>
                     <h1>Método <span class="h-nome">Pomodoro</span></h1>
                     <p>Foque por blocos de tempo e descanse entre eles.</p>
                 </div>

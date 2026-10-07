@@ -197,7 +197,7 @@ function passoFeito(array $passos, string $slug): bool {
                          e o rótulo e desmontavam o selo. Trocar as tags
                          resolve na raiz; brigar por especificidade só
                          adiaria o problema para o próximo que mexer. -->
-                    <i class="ini-selo__icone" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.2a5.6 5.6 0 0 0 5.6-5.6c0-4.6-5.6-9.2-5.6-9.2S6.4 11 6.4 15.6A5.6 5.6 0 0 0 12 21.2Z"/><path d="M12 21.2a2.4 2.4 0 0 0 2.4-2.4c0-2-2.4-4.1-2.4-4.1s-2.4 2.1-2.4 4.1a2.4 2.4 0 0 0 2.4 2.4Z"/></svg></i>
+                    <i class="ini-selo__icone" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2.5c.5 3-1.6 4.7-3.2 6.7C7.5 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1-3.9-2.2-5.3-.3 1.1-.9 1.9-1.7 2.4.5-3.4-.3-6.8-1.4-9.6Z"/><path d="M11.9 18.19a2.13 2.13 0 0 1-2.13-2.12c0-1.19 1.02-1.96 1.7-3.06 0.34 0.85 1.36 1.36 1.36 2.72 0 1.44-.34 2.46-.93 2.46Z"/></svg></i>
                     <div class="ini-selo__num">
                         <strong data-metrica="sequencia"><?= (int) $USUARIO['sequencia'] ?></strong>
                         <i class="ini-selo__txt"><?= $USUARIO['sequencia'] === 1 ? 'dia seguido' : 'dias seguidos' ?></i>
@@ -290,6 +290,7 @@ function passoFeito(array $passos, string $slug): bool {
                  depois. Nada disso cabia numa lista no rodapé do Início.
                  ========================================================== -->
             <section class="ini-secao">
+                <br>
                 <h2 class="ini-titulo">Atalhos</h2>
 
                 <div class="ini-grid">

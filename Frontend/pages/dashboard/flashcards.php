@@ -36,7 +36,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             <section id="viewDecks">
                 <header class="contCabeca">
                     <div class="contCabeca__texto">
-                        <span class="section-tag">Revisão</span>
+                        <?php $CAMINHO = [['Flashcards', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                         <h1>Seus <span class="h-nome">Flashcards</span></h1>
                         <p>Monte seus próprios baralhos e veja o que você já domina.</p>
                     </div>
@@ -106,12 +106,12 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             <section id="viewCartoes" hidden>
                 <header class="contCabeca">
                     <div class="contCabeca__texto">
+                        <?php $CAMINHO = [['Flashcards', 'flashcards.php'], ['Baralho', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                         <span class="section-tag" id="cartoesMateria">Baralho</span>
                         <h1 id="cartoesTitulo">Baralho</h1>
                         <p id="cartoesResumo">Nenhum cartão ainda.</p>
                     </div>
                     <div class="fc-acoes">
-                        <button class="dash-btn dash-btn--outline" data-voltar-decks>← Baralhos</button>
                         <button class="dash-btn dash-btn--ghost" id="btnEstudarDaqui">Estudar</button>
                         <button class="dash-btn dash-btn--primary" id="btnNovoCartao">
                             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -135,6 +135,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             <section id="viewEstudo" hidden>
                 <header class="contCabeca">
                     <div class="contCabeca__texto">
+                        <?php $CAMINHO = [['Flashcards', 'flashcards.php'], ['Baralho', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                         <span class="section-tag">Estudando</span>
                         <h1 id="estudoTitulo">Baralho</h1>
                         <p id="estudoProgresso">Cartão 1 de 1</p>
