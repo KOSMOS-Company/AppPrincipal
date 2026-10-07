@@ -174,31 +174,28 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
     width: var(--lateral, 236px);
     transition: width .26s cubic-bezier(.4, 0, .2, 1);
 
-    /* `visible` porque as etiquetas do estado recolhido precisam
-       escapar da borda direita. Nada transborda por acidente: os
-       rótulos saem do layout por conta própria quando a barra encolhe. */
-    overflow-x: visible;
-    overflow-y: auto;
+    /* `visible` porque a seta fica meio para fora da borda direita e as
+       etiquetas do estado recolhido também precisam escapar. Nada
+       transborda por acidente: os rótulos saem do layout por conta
+       própria quando a barra encolhe. */
+    overflow: visible;
     height: 100vh;
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     padding: 26px 16px 20px;
     background: linear-gradient(180deg, rgba(30,6,54,.5) 0%, rgba(13,1,24,0) 60%);
-    border-right: 1px solid var(--border);
-    -webkit-backdrop-filter: var(--desfoque-painel);
-    backdrop-filter: var(--desfoque-painel);
+    border-right: 1px solid rgba(165,65,255,.1);
 }
 
-/* Topo: a marca e o botão de recolher dividem a linha, um AO LADO do
-   outro com folga entre os dois. A margem negativa à direita dá à
-   wordmark (~157px) os poucos px a mais que ela precisa para caber
-   inteira sem encostar no círculo. Quando a barra encolhe, o topo vira
-   coluna — o círculo desce para baixo do favicon. */
+/* Topo: a marca e o botão de recolher dividem a linha. Quando a barra
+   encolhe, vira uma coluna — o botão desce para baixo do "K". */
 .contTopo {
     display: flex;
     align-items: center;
     gap: 4px;
+    /* à direita sem margem: o botão de recolher encosta no canto e a
+       wordmark (~157px) cabe inteira sem encostar nele */
     margin: 0 -4px 34px 8px;
 }
 .contLogo {
@@ -212,48 +209,41 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
 .contLogo__icone { display: none; }
 
 /* ── O botão de recolher ──
-   Um círculo na mesma linha da marca, AO LADO dela. O `margin-left`
-   é o que GARANTE a separação: antes o botão encostava na wordmark,
-   porque marca + botão praticamente emendavam os ~199px da linha.
+   Mora no canto direito do topo, na mesma linha da marca — o lugar
+   onde apps de barra lateral põem esse controle. O ícone é o de
+   "painel": um quadro com a coluna da esquerda e uma setinha que mostra
+   o que o clique vai fazer (não o estado em que a barra está).
 
-   Recolhida, o topo vira coluna e o círculo desce para baixo do
-   favicon (regra no bloco do estado recolhido) — e a margem lateral
-   dele zera lá, senão ela deslocaria o círculo do centro.
-
-   O ícone é só a seta: ela mostra o que o clique VAI FAZER (recolher →
-   esquerda), não o estado atual. Recolhida, o CSS gira 180°.
-
-   Discreto, não escondido: fraco parado, cheio no hover ou no foco. */
+   Discreto, não escondido: 55% de opacidade parado, cheio quando o
+   ponteiro entra na barra ou ele recebe foco. */
 .lateral__aperta {
     flex: none;
-    margin-left: 10px;
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
     display: grid;
     place-items: center;
     padding: 0;
-    background: var(--bg-card);
-    border: 1px solid rgba(165, 65, 255, .18);
-    border-radius: 50%;
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid rgba(165, 65, 255, .16);
+    border-radius: 10px;
     color: var(--text-dim);
     cursor: pointer;
-    opacity: .65;
+    opacity: .7;
     transition: opacity var(--transition), color var(--transition),
-                background-color var(--transition), border-color var(--transition),
-                transform var(--transition);
+                background-color var(--transition), border-color var(--transition);
 }
-.lateral__aperta svg { width: 14px; height: 14px; }
+.lateral__aperta svg { width: 20px; height: 20px; }
 .lateral__aperta-seta {
     transform-box: fill-box;
     transform-origin: center;
     transition: transform var(--transition);
 }
-.lateral__aperta:hover,
-.lateral__aperta:focus-visible {
-    opacity: 1;
+.contLateral:hover .lateral__aperta,
+.lateral__aperta:focus-visible { opacity: 1; }
+.lateral__aperta:hover {
     color: var(--accent-lt);
-    background: rgba(165, 65, 255, .12);
-    border-color: rgba(165, 65, 255, .32);
+    background: rgba(165, 65, 255, .1);
+    border-color: rgba(165, 65, 255, .22);
 }
 .lateral__aperta:active { transform: scale(.94); }
 
@@ -331,7 +321,7 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     height: 60%;
     border-radius: 3px;
     background: linear-gradient(180deg, var(--accent-lt), var(--purple-md));
-    box-shadow: 0 0 12px rgba(255,255,255,.3);
+    box-shadow: 0 0 12px rgba(165,65,255,.7);
 }
 
 .botoesL a {
@@ -374,7 +364,7 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     font-size: 0.62rem;
     font-weight: 700;
     line-height: 1.2;
-    border-radius: 10px;
+    border-radius: 999px;
     background: linear-gradient(135deg, #a541ff, #7203bd);
     color: #fff;
     margin-left: 6px;
@@ -411,15 +401,13 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
         padding-right: 12px;
     }
 
-    /* o topo vira coluna: "K●" em cima, o círculo embaixo */
+    /* o topo vira coluna: "K●" em cima, botão embaixo */
     html.lateral-recolhida .contTopo {
         flex-direction: column;
         gap: 12px;
         margin-left: 0;
         margin-right: 0;
     }
-    /* na coluna, a margem lateral deslocaria o círculo do centro */
-    html.lateral-recolhida .lateral__aperta { margin-left: 0; }
     html.lateral-recolhida .contLogo { flex: none; line-height: 0; }
 
     /* Recolhida, a marca vira o FAVICON — o mesmo ícone da aba do
@@ -482,48 +470,12 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
        como as etiquetas dos ícones. */
     html.lateral-recolhida .conf__menu { right: auto; left: calc(100% + 10px); bottom: 0; }
 
-    /* ── Quem rola é a LISTA, não a barra ──
-       Recolhida, o topo e o rodapé viram colunas e a barra fica mais
-       alta que 100vh em boa parte dos notebooks. Com `overflow: visible`
-       — que é o que deixa o menu da engrenagem escapar da borda — não
-       existe rolagem nenhuma: o rodapé inteiro, com o ícone da conta,
-       saía para fora da tela e não havia como buscá-lo. E o avatar
-       sumia mesmo quando havia espaço, porque o flex divide a falta de
-       altura entre os blocos e espreme o rodapé até ele sumir.
-
-       A saída é não mexer na barra e rolar só o miolo: `.botoesL` é o
-       bloco que sobra entre a marca e a conta, então é ele que encolhe
-       e recebe a rolagem. Topo, cartão de XP e rodapé ficam sempre à
-       vista, e o menu da engrenagem — que mora no rodapé, fora da
-       lista — continua escapando normalmente.
-
-       O `min-height: 0` não é decoração: sem ele o flex não deixa um
-       item encolher abaixo do próprio conteúdo (`min-height: auto` é o
-       padrão em coluna) e a barra estoura de novo. */
-    html.lateral-recolhida .botoesL {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto;
-    }
-    /* Topo, XP e rodapé mantêm a altura que pedem — é o que garante o
-       ícone da conta presente, e não só alcançável por rolagem. */
-    html.lateral-recolhida .contTopo,
-    html.lateral-recolhida .xp,
-    html.lateral-recolhida .contUsuario { flex: none; }
-
     /* ── A etiqueta que diz o que cada ícone é ──
        `content: attr(data-rotulo)` — CSS puro, sem JS e sem `title`
        (que só aparece no hover do mouse e depois de um segundo parado).
        Responde a `:focus-visible` também: quem navega por teclado
-       precisa saber onde está tanto quanto quem usa mouse.
-
-       Só a da conta sobreviveu. A etiqueta dos links mora dentro de
-       `.botoesL`, que passou a ser o bloco que rola, e um bloco que
-       rola recorta tudo que passa da borda dele. Não dá para ter as
-       duas coisas: ou a lista rola, ou as etiquetas escapam — e quem
-       manda é a rolagem. O nome dos links continua sendo lido por
-       quem usa leitor de tela, porque o `.nav__rotulo` de cada um segue
-       no DOM como "escondido só para os olhos" (acima). */
+       precisa saber onde está tanto quanto quem usa mouse. */
+    html.lateral-recolhida .botoesL a::after,
     html.lateral-recolhida .usuario::after {
         content: attr(data-rotulo);
         position: absolute;
@@ -545,24 +497,23 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
         transition: opacity .16s ease;
     }
     html.lateral-recolhida .usuario { position: relative; }
+    html.lateral-recolhida .botoesL a:hover::after,
+    html.lateral-recolhida .botoesL a:focus-visible::after,
     html.lateral-recolhida .usuario:hover::after,
     html.lateral-recolhida .usuario:focus-visible::after { opacity: 1; }
 
-    /* A barra em si NÃO recorta, e é de propósito: é o que deixa o menu
-       da engrenagem e a etiqueta da conta saírem pela direita. A
-       rolagem mora no `.botoesL` (acima), não aqui. */
+    /* A etiqueta precisa escapar da barra, que é `overflow: hidden` para
+       recortar os rótulos. Sem isto ela nasceria cortada na borda. */
     html.lateral-recolhida .contLateral { overflow: visible; }
+    html.lateral-recolhida .botoesL a { overflow: hidden; }
+    html.lateral-recolhida .botoesL a:hover,
+    html.lateral-recolhida .botoesL a:focus-visible { overflow: visible; }
 }
 
 /* Quem pediu menos movimento não vê a barra deslizar — ela troca de
-   largura de uma vez. O resto (cor, opacidade, o escalão do clique)
-   continua respondendo ao ponteiro. */
+   largura de uma vez. O estado continua o mesmo. */
 @media (prefers-reduced-motion: reduce) {
     .contLateral { transition: none; }
-    .lateral__aperta {
-        transition: opacity var(--transition), color var(--transition),
-                    background-color var(--transition), border-color var(--transition);
-    }
 }
 
 /* No desktop a conta fica no rodapé; na barra inferior do mobile
@@ -701,7 +652,7 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     transition: var(--transition);
 }
 .conf__item svg { flex: none; width: 17px; height: 17px; }
-.conf__item:hover { background: rgba(255,255,255,.08); color: var(--text); }
+.conf__item:hover { background: rgba(165,65,255,.14); color: var(--text); }
 .conf__item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .conf__divisor {
     height: 1px;
@@ -1160,23 +1111,25 @@ progress::-webkit-progress-value {
         justify-content: center;
         width: 42px;
         height: 42px;
-        border-radius: var(--radius-chip);
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        color: var(--text-dim);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(165, 65, 255, 0.22);
+        color: rgba(185, 145, 235, 0.85);
         cursor: pointer;
         padding: 0;
         flex-shrink: 0;
-        transition: color .2s ease, border-color .2s ease, background .2s ease;
+        transition: color .2s ease, border-color .2s ease, background .2s ease, transform .15s ease, box-shadow .2s ease;
         -webkit-tap-highlight-color: transparent;
     }
     .topo-btn-ferramentas:active {
-        background: rgba(255,255,255,.08);
+        transform: scale(0.94);
+        background: rgba(165, 65, 255, 0.16);
     }
     .topo-btn-ferramentas.ativo {
         color: var(--accent-lt);
         border-color: var(--accent);
-        background: rgba(165, 65, 255, .12);
+        background: rgba(165, 65, 255, 0.14);
+        box-shadow: 0 0 16px rgba(165, 65, 255, 0.35);
     }
     .topo-btn-ferramentas svg {
         width: 22px;
@@ -1193,9 +1146,9 @@ progress::-webkit-progress-value {
         height: 42px;
         min-width: 42px;
         padding: 0 12px 0 10px;
-        border-radius: var(--radius-chip);
-        background: var(--bg-card);
-        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(165, 65, 255, 0.1);
+        border: 1px solid rgba(165, 65, 255, 0.26);
         color: var(--accent-lt);
     }
     .topo-sequencia svg { width: 18px; height: 18px; flex: none; }
@@ -1206,8 +1159,8 @@ progress::-webkit-progress-value {
         line-height: 1;
     }
     .topo-sequencia--vazia {
-        background: var(--bg-nav);
-        border-color: rgba(255,255,255,.1);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
         color: var(--text-muted);
     }
 
@@ -1266,10 +1219,15 @@ progress::-webkit-progress-value {
         gap: 4px;
         flex-grow: 0;
         padding: 6px;
-        border-radius: 18px;
-        background: var(--bg-nav);
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow-card-hover);
+        border-radius: 999px;
+        background: rgba(18, 1, 31, .86);
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+        border: 1px solid rgba(165, 65, 255, .22);
+        box-shadow:
+            0 14px 34px -10px rgba(0, 0, 0, .75),
+            0 0 0 1px rgba(0, 0, 0, .35),
+            inset 0 1px 0 rgba(255, 255, 255, .05);
     }
     .botoesL a {
         flex: 1 1 0;                  /* os inativos dividem o que sobra */
@@ -1280,7 +1238,7 @@ progress::-webkit-progress-value {
         align-items: center;
         justify-content: center;
         gap: 8px;
-        border-radius: 12px;
+        border-radius: 999px;
         border: none;
         background: transparent;
         color: #9a86b8;
@@ -1338,8 +1296,10 @@ progress::-webkit-progress-value {
         flex: 0 0 auto;               /* cresce o quanto o nome pedir */
         padding: 0 16px 0 6px;
         color: #fff;
-        background: var(--accent);
-        box-shadow: var(--shadow-neutral);
+        background: linear-gradient(135deg, var(--purple) 0%, var(--accent) 100%);
+        box-shadow:
+            0 6px 18px -6px rgba(130, 0, 219, .85),
+            inset 0 1px 0 rgba(255, 255, 255, .22);
         animation: navChipEntra .38s cubic-bezier(.2, .8, .2, 1) both;
     }
     /* o ícone ganha um disco claro — o "1" dentro do círculo da referência */
@@ -1351,8 +1311,8 @@ progress::-webkit-progress-value {
         background: #fff;
         color: var(--purple);
         opacity: 1;
-        filter: none;
-        box-shadow: var(--shadow-neutral);
+        filter: none;                 /* o brilho neon do desktop borraria o disco */
+        box-shadow: 0 2px 8px rgba(47, 10, 75, .35);
     }
     .botoesL a.active .nav__rotulo {
         display: inline;
@@ -1397,6 +1357,8 @@ progress::-webkit-progress-value {
         inset: 0;
         z-index: 200;
         background: rgba(5, 0, 11, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         opacity: 0;
         pointer-events: none;
         display: flex;
@@ -1416,11 +1378,11 @@ progress::-webkit-progress-value {
     }
     .sheet-painel {
         width: 100%;
-        background: var(--bg-nav);
-        border-top: 1px solid var(--border);
+        background: #130324;
+        border-top: 1px solid rgba(165, 65, 255, 0.42);
         border-radius: 24px 24px 0 0;
         padding: 14px 20px calc(24px + env(safe-area-inset-bottom));
-        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85);
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85), 0 0 35px rgba(130, 0, 219, 0.35);
         transform: translateY(100%);
         transition: transform .3s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
@@ -1470,16 +1432,16 @@ progress::-webkit-progress-value {
         align-items: center;
         gap: 12px;
         padding: 13px 14px;
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-card);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(165, 65, 255, 0.22);
+        border-radius: 16px;
         text-decoration: none;
         color: #fff;
         transition: all .18s ease;
     }
     .sheet-card:hover, .sheet-card:active, .sheet-card.ativo {
-        background: rgba(255, 255, 255, .08);
-        border-color: rgba(255,255,255,.3);
+        background: rgba(165, 65, 255, 0.16);
+        border-color: #a541ff;
     }
     .sheet-card__ico {
         display: flex;
@@ -1487,14 +1449,12 @@ progress::-webkit-progress-value {
         justify-content: center;
         width: 40px;
         height: 40px;
-        border-radius: var(--radius-chip);
-        background: rgba(255,255,255,.08);
-        color: var(--text-dim);
+        border-radius: 12px;
+        background: rgba(165, 65, 255, 0.12);
+        color: var(--accent-lt);
         flex-shrink: 0;
         transition: background .18s ease, color .18s ease;
     }
-    .sheet-card__ico .nav-icon--outline { display: block; }
-    .sheet-card__ico .nav-icon--filled { display: none; }
     .sheet-card__ico svg {
         width: 22px;
         height: 22px;
@@ -1502,9 +1462,13 @@ progress::-webkit-progress-value {
     }
     .sheet-card:hover .sheet-card__ico,
     .sheet-card.ativo .sheet-card__ico {
-        background: rgba(255,255,255,.15);
-        color: var(--text);
+        background: rgba(165, 65, 255, 0.25);
+        color: #fff;
     }
+    /* O par contorno/preenchido do sidebar.php: a ferramenta em uso
+       aparece com o ícone cheio, como na barra. */
+    .sheet-card__ico .nav-icon--outline { display: block; }
+    .sheet-card__ico .nav-icon--filled { display: none; }
     .sheet-card.ativo .sheet-card__ico .nav-icon--outline { display: none; }
     .sheet-card.ativo .sheet-card__ico .nav-icon--filled { display: block; }
     .sheet-card__info {
@@ -1834,6 +1798,21 @@ a.ini-card:focus-visible {
     border-radius: var(--radius-card);
     padding: 28px;
     transition: var(--transition);
+}
+
+/* ---- Grade de atalhos (aba Início) ----
+   O index.php ainda monta os atalhos em `.ini-grid`: sem esta regra
+   eles caíam um embaixo do outro. Um ao lado do outro, como antes do
+   bento; 200px faz os cinco caberem numa fileira com a barra aberta. */
+.ini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+.ini-grid .ini-card { padding: 20px; }
+.ini-grid .ini-card__desc { margin-bottom: 0; }
+@media (max-width: 768px) {
+    .ini-grid { grid-template-columns: 1fr; gap: 14px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
