@@ -51,6 +51,10 @@
     var semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var ponteiroFino = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+    /* Visual Lite: céu parado, igual ao do cosmos-gl.js */
+    var lite = document.documentElement.classList.contains('kosmos-lite');
+    function parado() { return semMovimento || lite; }
+
     /* ── Estado ── */
     var L = 0, A = 0;            // largura e altura em CSS pixels
     var dpr = 1;
@@ -306,7 +310,8 @@
     var remedir = null;
     window.addEventListener('resize', function () {
         clearTimeout(remedir);
-        remedir = setTimeout(medir, 180);
+        // parado, ninguém redesenharia depois do medir() (que limpa o canvas)
+        remedir = setTimeout(function () { medir(); if (parado()) desenhar(0); }, 180);
     });
 
     if (ponteiroFino && !semMovimento) {
@@ -320,7 +325,21 @@
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             rodando = false;
-        } else if (!semMovimento) {
+        } else if (!parado()) {
+            rodando = true;
+            requestAnimationFrame(passo);
+        }
+    });
+
+    document.addEventListener('kosmos:visual', function (e) {
+        lite = e.detail === 'lite';
+        if (semMovimento) return;
+        if (lite) {
+            rodando = false;
+            rolagem = 0;
+            meteoros.length = 0;
+            desenhar(0);
+        } else if (!rodando) {
             rodando = true;
             requestAnimationFrame(passo);
         }
@@ -339,8 +358,9 @@
        ------------------------------------------------------------ */
     medir();
 
-    if (semMovimento) {
+    if (parado()) {
         // um céu bonito e parado: nada se mexe, mas o espaço continua lá
+        rodando = false;
         rolagem = 0;
         desenhar(0);
     } else {

@@ -82,6 +82,10 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
              de cada aba de propósito: carregada depois do CSS da página,
              ela vence os empates sem precisar de !important. -->
         <link rel="stylesheet" href="./css/apple.css">
+        <!-- Visual Lite (opcional, por aparelho): depois do apple.css para
+             vencer os mesmos empates. Só age com html.kosmos-lite, que o
+             partes/fundo.php liga antes da primeira pintura. -->
+        <link rel="stylesheet" href="./css/lite.css">
 
         <aside class="contLateral">
             <div class="contTopo">
@@ -324,6 +328,16 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
 
                         <hr class="conf__divisor" role="separator">
 
+                        <button class="conf__item conf__item--visual" type="button" role="menuitemcheckbox"
+                                aria-checked="false" data-visual-alternar
+                                title="Menos brilho e movimento, mais leve para o aparelho">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6L13 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                            Visual Lite
+                            <span class="conf__chave" aria-hidden="true"></span>
+                        </button>
+
+                        <hr class="conf__divisor" role="separator">
+
                         <button class="conf__item conf__item--sair" type="button" role="menuitem">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5 H18 a1 1 0 0 1 1 1 V18 a1 1 0 0 1 -1 1 H15 M10 8 L6 12 L10 16 M6 12 H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             Sair da conta
@@ -383,6 +397,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
         </div>
 
         <script src="./js/apple.js" defer></script>
+        <script src="./js/visual.js" defer></script>
 
         <?php if ($PAGINA !== 'orion.php'): ?>
             <?php include __DIR__ . '/orion-chat.php'; ?>

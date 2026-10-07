@@ -43,6 +43,14 @@
        CSS (a opacidade do canvas), não daqui. */
     var calmo = canvas.hasAttribute('data-calmo');
 
+    /* VISUAL LITE — <html class="kosmos-lite"> (escolha da pessoa, por
+       aparelho; ver dashboard/js/visual.js). O céu vira um quadro
+       parado, como no "reduzir movimento": zero quadros por segundo
+       depois do primeiro. A troca vale na hora, pelo evento
+       `kosmos:visual`. */
+    var lite = document.documentElement.classList.contains('kosmos-lite');
+    function parado() { return semMovimento || lite; }
+
     /* ------------------------------------------------------------
        O shader
        ------------------------------------------------------------ */
@@ -431,7 +439,7 @@
         gl.uniform1f(uProg, Math.min(1, Math.max(0, rolagem / alturaDoc)));
         gl.uniform1f(uRolagem, rolagem);
         gl.uniform2f(uMouse, mx, my);
-        gl.uniform1f(uVivo, semMovimento ? 0.0 : 1.0);
+        gl.uniform1f(uVivo, parado() ? 0.0 : 1.0);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
@@ -460,7 +468,7 @@
     var remedir = null;
     window.addEventListener('resize', function () {
         clearTimeout(remedir);
-        remedir = setTimeout(function () { medir(); if (semMovimento) desenhar(0); }, 180);
+        remedir = setTimeout(function () { medir(); if (parado()) desenhar(0); }, 180);
     });
 
     if (ponteiroFino && !semMovimento) {
@@ -473,7 +481,20 @@
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             rodando = false;
-        } else if (!semMovimento) {
+        } else if (!parado()) {
+            rodando = true;
+            requestAnimationFrame(passo);
+        }
+    });
+
+    document.addEventListener('kosmos:visual', function (e) {
+        lite = e.detail === 'lite';
+        if (semMovimento) return;
+        if (lite) {
+            rodando = false;
+            rolagem = 0;
+            desenhar(0);
+        } else if (!rodando) {
             rodando = true;
             requestAnimationFrame(passo);
         }
@@ -492,7 +513,8 @@
        ------------------------------------------------------------ */
     medir();
 
-    if (semMovimento) {
+    if (parado()) {
+        rodando = false;
         rolagem = 0;
         desenhar(0);                     // um quadro bonito e parado
     } else {

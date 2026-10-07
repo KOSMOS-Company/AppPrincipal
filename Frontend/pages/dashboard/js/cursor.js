@@ -8,6 +8,8 @@
     const reduzido = window.matchMedia("(prefers-reduced-motion: reduce)");
     const toque    = window.matchMedia("(pointer: coarse)");
     if (reduzido.matches || toque.matches) return;
+    // Visual Lite: cursor nativo (o anel segue o mouse num laço de quadros)
+    if (document.documentElement.classList.contains("kosmos-lite")) return;
 
     // Esconde o cursor nativo apenas quando o efeito está ativo
     document.documentElement.classList.add("has-dash-cursor");

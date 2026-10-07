@@ -1,0 +1,284 @@
+/* ============================================================
+   KOSMOS — Visual Lite / Foco
+
+   A MESMA marca com menos ruído, escolhida pela pessoa, por
+   aparelho (Conta › Estudo, ou a engrenagem). Liga com a classe
+   `kosmos-lite` no <html>, posta pelo partes/fundo.php antes da
+   primeira pintura; sem ela este arquivo não faz nada.
+
+   Não é um tema novo: paleta, fontes, raios, layout e o roxo como
+   cor de ESTADO continuam iguais. O que sai é o ornamento que custa
+   — para a vista e para o aparelho:
+
+     1. Glow em cor de marca (box-shadow/drop-shadow roxo difuso).
+        Brilho é sinal: só o item em uso brilha, e em BRANCO.
+     2. Vidro (backdrop-filter). Obriga o navegador a reler o que já
+        foi pintado, por elemento, a cada quadro — é o que mais pesa
+        na rolagem do celular. Sai em todo lugar; as superfícies
+        ganham opacidade para segurar a leitura.
+     3. Animação decorativa sem estado (flutuar, girar, pulsar).
+        Ficam as que COMUNICAM algo: carregando, digitando.
+     4. O céu animado: vira um quadro parado (cosmos-gl.js) e a
+        abertura do Início não roda (index.php).
+
+   Carregada depois do apple.css (partes/sidebar.php). Tudo aqui
+   começa com `html.kosmos-lite`, o que já vence as regras das abas
+   sem !important — ele só aparece onde a regra original também usa.
+   ============================================================ */
+
+html.kosmos-lite {
+    /* Sombras neutras: profundidade sem cor */
+    --shadow-neutral: 0 4px 12px rgba(0, 0, 0, .4);
+    --shadow-card-hover: 0 20px 50px rgba(0, 0, 0, .45);
+    --shadow-glow: var(--shadow-neutral);       /* token do estilo antigo */
+    --halo-ativo: drop-shadow(0 0 6px rgba(255, 255, 255, .3));
+
+    /* Sem vidro, a superfície segura a leitura sozinha */
+    --superficie: linear-gradient(150deg, rgba(30, 6, 54, .95) 0%, rgba(18, 2, 32, .97) 100%);
+    --desfoque-painel: none;
+    --material-desfoque: none;
+    --material-grosso: rgba(16, 2, 30, .96);
+    --material-fino: #1d0536;
+
+    /* Céu presente, mas atrás do trabalho */
+    --cosmos-opacidade: .7;
+    --veu-forca: .45;
+}
+
+/* ============================================================
+   1. VIDRO
+   ============================================================ */
+html.kosmos-lite *,
+html.kosmos-lite *::before,
+html.kosmos-lite *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+@media (min-width: 769px) {
+    html.kosmos-lite .contLateral { background: var(--material-grosso); box-shadow: none; }
+}
+@media (max-width: 768px) {
+    html.kosmos-lite .contLateral::before { background: rgba(13, 1, 24, .96); }
+    html.kosmos-lite .botoesL {
+        background: rgba(22, 4, 40, .97);
+        box-shadow: 0 14px 34px -10px rgba(0, 0, 0, .75), inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+    html.kosmos-lite .sheet-overlay { background: rgba(4, 0, 10, calc(.8 * var(--sheet-p, 1))); }
+}
+html.kosmos-lite .modal { background: rgba(4, 0, 10, .8); }
+html.kosmos-lite .conf__menu { background: var(--material-fino); }
+html.kosmos-lite .orion-chat-header { background: rgba(13, 1, 24, .96); }
+html.kosmos-lite .orion-launcher { background: rgba(22, 4, 38, .97); }
+html.kosmos-lite .xp-aviso { background: rgba(28, 6, 50, .98); }
+
+/* ============================================================
+   2. GLOW EM COR DE MARCA
+   O que era halo roxo vira sombra neutra (ou nada, quando o
+   elemento já se destaca pela cor). Anel de foco (0 0 0 3px) e
+   moldura de recompensa ficam: são estado, não brilho.
+   ============================================================ */
+
+/* ── Navegação ── */
+html.kosmos-lite .nav__marca::before { box-shadow: none; }
+html.kosmos-lite .nav__tag-ia { box-shadow: none; }
+/* O item em uso continua sendo o único que brilha — em branco */
+html.kosmos-lite .botoesL a.active .nav-icon { filter: var(--halo-ativo); }
+html.kosmos-lite .conta-nav__item.active svg { filter: var(--halo-ativo); }
+@media (max-width: 768px) {
+    /* No celular o peso é do chip; halo borraria o ícone dentro dele */
+    html.kosmos-lite .botoesL a.active .nav-icon { filter: none; }
+    html.kosmos-lite .botoesL a.active {
+        box-shadow: var(--shadow-neutral), inset 0 1px 0 rgba(255, 255, 255, .18);
+    }
+    html.kosmos-lite .topo-btn-ferramentas.ativo { box-shadow: none; }
+}
+html.kosmos-lite .topo-status__arco { filter: none; }
+html.kosmos-lite .xp__nivel { box-shadow: 0 0 0 1px rgba(201, 124, 255, .45); }
+
+/* ── Botões e cards ── */
+html.kosmos-lite .dash-btn--primary:hover { box-shadow: var(--shadow-neutral); }
+html.kosmos-lite :is(.resumo-card, .caderno-card, .deck-card, .exercicio-materia-card):hover {
+    box-shadow: var(--shadow-card-hover);
+}
+html.kosmos-lite a.ini-card:hover .ini-card__ico { box-shadow: none; }
+html.kosmos-lite a.ini-card:focus-visible { box-shadow: none; outline: 2px solid var(--accent); outline-offset: 2px; }
+html.kosmos-lite .ini-tag { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15); }
+html.kosmos-lite .chip.active::after { box-shadow: none; }
+html.kosmos-lite .materia-tag::before { box-shadow: none; }
+
+/* ── Superfícies flutuantes ── */
+html.kosmos-lite .combo__lista { box-shadow: 0 18px 50px rgba(0, 0, 0, .55); }
+html.kosmos-lite .modal__box { box-shadow: 0 40px 90px -20px rgba(0, 0, 0, .8), var(--realce-topo); }
+html.kosmos-lite .sheet-painel { box-shadow: 0 -24px 60px -12px rgba(0, 0, 0, .75), var(--realce-topo); }
+html.kosmos-lite .onb-card { box-shadow: 0 24px 60px rgba(0, 0, 0, .85); }
+html.kosmos-lite :is(.onb-progresso-barra,
+                     .onb-opcao-card input:checked + .onb-opcao-conteudo,
+                     .onb-materia-chip input:checked + .onb-materia-nome) { box-shadow: none; }
+
+/* ── Orion ── */
+html.kosmos-lite .orion-launcher { box-shadow: var(--shadow-neutral); }
+html.kosmos-lite .orion-launcher:hover { box-shadow: var(--shadow-card-hover); }
+html.kosmos-lite .orion-chat { box-shadow: 0 24px 60px rgba(0, 0, 0, .85); }
+html.kosmos-lite :is(.orion-chat-header__avatar, .orion-msg-avatar,
+                     .orion-chat__btn-enviar:hover) { box-shadow: none; }
+html.kosmos-lite .orion-chat-form { box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
+html.kosmos-lite .orion-chat-form:focus-within { box-shadow: 0 12px 35px rgba(0, 0, 0, .65); }
+html.kosmos-lite :is(.orion-chat-btn-enviar, .orion-chat-btn-enviar:hover) { box-shadow: var(--shadow-neutral); }
+html.kosmos-lite .orion-card-sugestao:hover { box-shadow: var(--shadow-neutral); }
+html.kosmos-lite .orion-hero-titulo .h-nome { filter: none; }
+html.kosmos-lite .orion-hero-mascote-box .mascote { filter: drop-shadow(0 14px 28px rgba(0, 0, 0, .65)); }
+html.kosmos-lite .orion-hero-mascote-box::before { animation: none; opacity: .5; }
+
+/* ── Progresso, conquistas, Pomodoro ── */
+html.kosmos-lite .xp-aviso__xp { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25); }
+html.kosmos-lite .xp-aviso--conquista { box-shadow: 0 16px 40px -10px rgba(0, 0, 0, .8); }
+html.kosmos-lite .lvl__estrela { box-shadow: none; }
+html.kosmos-lite .lvl__nivel strong { filter: none; }
+html.kosmos-lite .cq-anel__arco { filter: none; }
+html.kosmos-lite .trilha__no--liberado .trilha__marca::after { box-shadow: none; }
+html.kosmos-lite .trilha__no--proximo .trilha__card { box-shadow: var(--shadow-neutral); }
+html.kosmos-lite .pomo-selo { box-shadow: 0 12px 32px rgba(0, 0, 0, .5); }
+html.kosmos-lite .pomo-selo:hover { box-shadow: 0 16px 38px rgba(0, 0, 0, .55); }
+
+/* ── Logo ── o planeta do "o" fica, sem auréola */
+html.kosmos-lite .contLogo .klogo__o::before,
+html.kosmos-lite .contLogo .klogo:hover .klogo__o::before { box-shadow: none; }
+
+/* ============================================================
+   3. ANIMAÇÃO SEM ESTADO
+   Pausadas, não removidas: o elemento fica no primeiro quadro, com
+   a mesma cara. Carregando (.esqueleto), "digitando" e os humores
+   do mascote (dormindo, em dúvida, confuso, comemorando) ficam —
+   esses dizem que algo está acontecendo.
+   ============================================================ */
+html.kosmos-lite :is(.mascote__svg, .mascote__borla, .mascote__estrela,
+                     .orion-hero-mascote-box .mascote,
+                     .avatar-moldura--supernova::after, .avatar-moldura--bigbang::after,
+                     .lvl__raios) {
+    animation-play-state: paused;
+}
+html.kosmos-lite .mascote--confuso .mascote__svg { animation-play-state: running; }
+/* O pulso do selo do Pomodoro é sinal ("está rodando"): fica um ponto fixo */
+html.kosmos-lite .pomo-selo__pulso { animation: none; box-shadow: none; }
+
+/* O cursor de anel e ponto é um laço de quadros: no Lite, o nativo.
+   (O cursor.js já não liga no Lite; isto cobre a troca na hora.) */
+html.kosmos-lite :is(.dash-cursor, .dash-cursor__dot) { display: none !important; }
+html.kosmos-lite.has-dash-cursor,
+html.kosmos-lite.has-dash-cursor * { cursor: auto !important; }
+html.kosmos-lite.has-dash-cursor :is(a, button, [role="button"], label, summary, select) { cursor: pointer !important; }
+html.kosmos-lite.has-dash-cursor :is(input:not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable]) { cursor: text !important; }
+
+/* Cards não "levantam" no hover — a sombra neutra já marca */
+html.kosmos-lite :is(.resumo-card, .caderno-card, .deck-card, .exercicio-materia-card, a.ini-card):hover {
+    transform: none;
+}
+
+/* ============================================================
+   A ESCOLHA DO VISUAL (Conta › Estudo e menu da engrenagem)
+   Vale nos dois modos — por isso fora do prefixo.
+   ============================================================ */
+.visual-opcoes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+.visual-opcao {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .03);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .2s ease, background-color .2s ease;
+}
+.visual-opcao:hover { border-color: rgba(201, 124, 255, .35); }
+.visual-opcao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.visual-opcao[aria-checked="true"] {
+    border-color: var(--accent);
+    background: rgba(165, 65, 255, .1);
+}
+.visual-opcao strong { font-size: .95rem; font-weight: 600; }
+.visual-opcao span { font-size: .82rem; color: var(--text-muted); line-height: 1.45; }
+
+/* Miniatura: a diferença em uma olhada — brilho e vidro de um lado,
+   superfície limpa do outro */
+.visual-opcao__previa {
+    position: relative;
+    height: 64px;
+    border-radius: 10px;
+    overflow: hidden;
+    background:
+        radial-gradient(1px 1px at 20% 30%, #fff 50%, transparent 51%),
+        radial-gradient(1px 1px at 70% 20%, #fff 50%, transparent 51%),
+        radial-gradient(1.5px 1.5px at 85% 70%, #fff 50%, transparent 51%),
+        radial-gradient(1px 1px at 40% 80%, #fff 50%, transparent 51%),
+        radial-gradient(ellipse at 30% 40%, rgba(130, 60, 220, .55), transparent 60%),
+        #0b0115;
+}
+.visual-opcao__previa::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 10px;
+    height: 26px;
+    border-radius: 8px;
+    border: 1px solid rgba(201, 124, 255, .35);
+    background: rgba(40, 10, 70, .55);
+    box-shadow: 0 0 18px rgba(165, 65, 255, .55);
+}
+.visual-opcao__previa--lite {
+    background:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.6) 50%, transparent 51%),
+        radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,.6) 50%, transparent 51%),
+        radial-gradient(ellipse at 30% 40%, rgba(130, 60, 220, .22), transparent 60%),
+        #0b0115;
+}
+.visual-opcao__previa--lite::after {
+    border-color: rgba(255, 255, 255, .1);
+    background: rgba(30, 6, 54, .95);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
+}
+
+/* Item do menu da engrenagem: rótulo à esquerda, mini-chave à direita */
+.conf__item--visual { width: 100%; }
+.conf__item--visual .conf__chave {
+    margin-left: auto;
+    position: relative;
+    width: 30px;
+    height: 18px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, .12);
+    flex: none;
+    transition: background-color .2s ease;
+}
+.conf__item--visual .conf__chave::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: transform .2s ease, background-color .2s ease;
+}
+.conf__item--visual[aria-checked="true"] .conf__chave { background: var(--accent); }
+.conf__item--visual[aria-checked="true"] .conf__chave::after { transform: translateX(12px); background: #fff; }
+
+@media (max-width: 600px) {
+    .visual-opcoes { gap: 10px; }
+    .visual-opcao { padding: 12px; }
+    .visual-opcao__previa { height: 52px; }
+}
+@media (max-width: 340px) {
+    .visual-opcoes { grid-template-columns: 1fr; }
+}

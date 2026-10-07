@@ -26,7 +26,20 @@ if (!isset($USUARIO, $PREF)) { http_response_code(403); exit('Esta página não 
    Fica numa parte só porque são OITO páginas. Mudar o fundo em
    uma e esquecer as outras sete é exatamente o tipo de coisa que
    este arquivo existe para impedir.
+   O VISUAL LITE
+   A pessoa escolhe, por aparelho, entre o visual completo e o Lite
+   (sem brilhos, sem vidro, céu parado — ver css/lite.css). A classe
+   entra aqui, ANTES do canvas e do resto da página: assim a primeira
+   pintura já sai no modo certo e o cosmos-gl.js, que roda depois,
+   já sabe se deve animar.
    ============================================================ */
 ?>
+    <script>
+        try {
+            if (localStorage.getItem('kosmos_visual') === 'lite') {
+                document.documentElement.classList.add('kosmos-lite');
+            }
+        } catch (e) { /* navegação privada: visual completo */ }
+    </script>
     <canvas class="cosmos" id="cosmos" data-calmo aria-hidden="true"></canvas>
     <div class="veu" aria-hidden="true"></div>

@@ -88,8 +88,13 @@ function passoFeito(array $passos, string $slug): bool {
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
     <script>
         // Mostra o splash imediatamente (sem flash) se o usuário acabou de logar
+        // No visual Lite a abertura animada não roda: é a tela mais cara do app.
         if (sessionStorage.getItem("kosmos_intro")) {
-            document.documentElement.classList.add("com-intro");
+            if (localStorage.getItem("kosmos_visual") === "lite") {
+                sessionStorage.removeItem("kosmos_intro");
+            } else {
+                document.documentElement.classList.add("com-intro");
+            }
         }
     </script>
 </head>

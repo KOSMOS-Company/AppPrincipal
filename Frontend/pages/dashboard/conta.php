@@ -384,6 +384,25 @@ $ESTILO_ABAS = [
 
                     <!-- ============ ESTUDO ============ -->
                     <section class="conta-secao" data-painel="estudo" hidden>
+                        <?php /* Salva na hora e só NESTE aparelho (localStorage) —
+                                 quem troca é o js/visual.js, carregado pela sidebar. */ ?>
+                        <div class="ini-card conta-cartao">
+                            <h2 class="painel__titulo">Visual neste aparelho</h2>
+                            <p class="painel__sub">O Lite tira os brilhos, o vidro e o céu em movimento: a tela fica mais calma e o aparelho trabalha menos. Muda na hora.</p>
+                            <div class="visual-opcoes" role="radiogroup" aria-label="Visual do Kosmos">
+                                <button type="button" class="visual-opcao" role="radio" aria-checked="true" data-visual-opcao="completo">
+                                    <span class="visual-opcao__previa" aria-hidden="true"></span>
+                                    <strong>Completo</strong>
+                                    <span>Céu animado, vidro e brilhos.</span>
+                                </button>
+                                <button type="button" class="visual-opcao" role="radio" aria-checked="false" data-visual-opcao="lite">
+                                    <span class="visual-opcao__previa visual-opcao__previa--lite" aria-hidden="true"></span>
+                                    <strong>Lite</strong>
+                                    <span>Céu parado, sem brilho. Mais leve e com mais bateria.</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Seu Pomodoro</h2>
                             <p class="painel__sub">Estes tempos são usados na aba Pomodoro.</p>
