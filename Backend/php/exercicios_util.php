@@ -15,21 +15,29 @@ const EXERCICIOS_ORDEM = 'ORDER BY CASE WHEN m.ordem = 0 THEN 1 ELSE 0 END,
  */
 function exercicioMateriaDaLinha(array $m): array {
     return [
-        'id'          => (int) $m['id'],
-        'nome'        => $m['nome'],
-        'materia'     => $m['materia'],
-        'cor'         => $m['cor'] ?: 'roxo',
-        'icone'       => $m['icone'] ?? '📝',
-        'descricao'   => $m['descricao'] ?? '',
-        'ordem'       => (int) ($m['ordem'] ?? 0),
+        'id'        => (int) $m['id'],
+        'nome'      => $m['nome'],
+        'materia'   => $m['materia'],
+        'cor'       => $m['cor'] ?: 'roxo',
+        'icone'     => $m['icone'] ?? '📝',
+        'descricao' => $m['descricao'] ?? '',
+        'ordem'     => (int) ($m['ordem'] ?? 0),
+        'criado_em' => $m['criado_em'] ?? null,
+        'qtd'       => (int) ($m['qtd'] ?? 0),
     ];
 }
 
 /** As colunas das matérias. */
 function exercicioMateriasSelect(): string {
+    // A contagem entra como subconsulta, sem parâmetro novo: exercicios
+    // já guarda materia_id, então ela não atravessa conta. Assim os
+    // execute() das duas leituras abaixo continuam com os mesmos binds.
     return 'SELECT m.id, m.nome, m.materia, m.cor, m.icone, m.descricao,
-                   m.ordem
-            FROM exercicio_materias m';
+                   m.ordem,
+                   m.criado_em,
+                   (SELECT COUNT(*) FROM exercicios e
+                     WHERE e.materia_id = m.id) AS qtd
+             FROM exercicio_materias m';
 }
 
 /** Todas as matérias de exercícios do usuário, já na ordem. */

@@ -71,8 +71,17 @@
     --radius-sm: 12px;
     --radius-md: 20px;
     --radius-lg: 32px;
+    --radius-chip: 8px;
+    --radius-card: 16px;
     --transition: .25s cubic-bezier(.4,0,.2,1);
     --shadow-glow: 0 0 60px rgba(165,65,255,.25);
+    --shadow-neutral: 0 4px 12px rgba(0,0,0,.4);
+    --shadow-card-hover: 0 20px 50px rgba(0,0,0,.45);
+    --sucesso:      #22c55e;
+    --sucesso-bg:   rgba(34,197,94,.12);
+    --erro:         #ef4444;
+    --erro-bg:      rgba(239,68,68,.12);
+    --xp-dourado:   #f5b942;
 
     /* ── A SUPERFÍCIE DE CARD ──
        Era `linear-gradient(150deg, #1e0636, #120220)` escrito à mão em
@@ -103,6 +112,9 @@
        partes/fundo.php) cuida do CUSTO; estas duas cuidam do brilho. */
     --cosmos-opacidade: .85;
     --veu-forca: .36;
+    /* Menos grão que na landing: aqui o texto manda, e a película
+       não pode ficar competindo com ele (ver shared/cosmos.css). */
+    --ruido-forca: .04;
 }
 
 body {
@@ -162,28 +174,31 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
     width: var(--lateral, 236px);
     transition: width .26s cubic-bezier(.4, 0, .2, 1);
 
-    /* `visible` porque a seta fica meio para fora da borda direita e as
-       etiquetas do estado recolhido também precisam escapar. Nada
-       transborda por acidente: os rótulos saem do layout por conta
-       própria quando a barra encolhe. */
-    overflow: visible;
+    /* `visible` porque as etiquetas do estado recolhido precisam
+       escapar da borda direita. Nada transborda por acidente: os
+       rótulos saem do layout por conta própria quando a barra encolhe. */
+    overflow-x: visible;
+    overflow-y: auto;
     height: 100vh;
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     padding: 26px 16px 20px;
     background: linear-gradient(180deg, rgba(30,6,54,.5) 0%, rgba(13,1,24,0) 60%);
-    border-right: 1px solid rgba(165,65,255,.1);
+    border-right: 1px solid var(--border);
+    -webkit-backdrop-filter: var(--desfoque-painel);
+    backdrop-filter: var(--desfoque-painel);
 }
 
-/* Topo: a marca e o botão de recolher dividem a linha. Quando a barra
-   encolhe, vira uma coluna — o botão desce para baixo do "K". */
+/* Topo: a marca e o botão de recolher dividem a linha, um AO LADO do
+   outro com folga entre os dois. A margem negativa à direita dá à
+   wordmark (~157px) os poucos px a mais que ela precisa para caber
+   inteira sem encostar no círculo. Quando a barra encolhe, o topo vira
+   coluna — o círculo desce para baixo do favicon. */
 .contTopo {
     display: flex;
     align-items: center;
     gap: 4px;
-    /* à direita sem margem: o botão de recolher encosta no canto e a
-       wordmark (~157px) cabe inteira sem encostar nele */
     margin: 0 -4px 34px 8px;
 }
 .contLogo {
@@ -197,41 +212,48 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
 .contLogo__icone { display: none; }
 
 /* ── O botão de recolher ──
-   Mora no canto direito do topo, na mesma linha da marca — o lugar
-   onde apps de barra lateral põem esse controle. O ícone é o de
-   "painel": um quadro com a coluna da esquerda e uma setinha que mostra
-   o que o clique vai fazer (não o estado em que a barra está).
+   Um círculo na mesma linha da marca, AO LADO dela. O `margin-left`
+   é o que GARANTE a separação: antes o botão encostava na wordmark,
+   porque marca + botão praticamente emendavam os ~199px da linha.
 
-   Discreto, não escondido: 55% de opacidade parado, cheio quando o
-   ponteiro entra na barra ou ele recebe foco. */
+   Recolhida, o topo vira coluna e o círculo desce para baixo do
+   favicon (regra no bloco do estado recolhido) — e a margem lateral
+   dele zera lá, senão ela deslocaria o círculo do centro.
+
+   O ícone é só a seta: ela mostra o que o clique VAI FAZER (recolher →
+   esquerda), não o estado atual. Recolhida, o CSS gira 180°.
+
+   Discreto, não escondido: fraco parado, cheio no hover ou no foco. */
 .lateral__aperta {
     flex: none;
-    width: 34px;
-    height: 34px;
+    margin-left: 10px;
+    width: 28px;
+    height: 28px;
     display: grid;
     place-items: center;
     padding: 0;
-    background: rgba(255, 255, 255, .03);
-    border: 1px solid rgba(165, 65, 255, .16);
-    border-radius: 10px;
+    background: var(--bg-card);
+    border: 1px solid rgba(165, 65, 255, .18);
+    border-radius: 50%;
     color: var(--text-dim);
     cursor: pointer;
-    opacity: .7;
+    opacity: .65;
     transition: opacity var(--transition), color var(--transition),
-                background-color var(--transition), border-color var(--transition);
+                background-color var(--transition), border-color var(--transition),
+                transform var(--transition);
 }
-.lateral__aperta svg { width: 20px; height: 20px; }
+.lateral__aperta svg { width: 14px; height: 14px; }
 .lateral__aperta-seta {
     transform-box: fill-box;
     transform-origin: center;
     transition: transform var(--transition);
 }
-.contLateral:hover .lateral__aperta,
-.lateral__aperta:focus-visible { opacity: 1; }
-.lateral__aperta:hover {
+.lateral__aperta:hover,
+.lateral__aperta:focus-visible {
+    opacity: 1;
     color: var(--accent-lt);
-    background: rgba(165, 65, 255, .1);
-    border-color: rgba(165, 65, 255, .22);
+    background: rgba(165, 65, 255, .12);
+    border-color: rgba(165, 65, 255, .32);
 }
 .lateral__aperta:active { transform: scale(.94); }
 
@@ -309,7 +331,7 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     height: 60%;
     border-radius: 3px;
     background: linear-gradient(180deg, var(--accent-lt), var(--purple-md));
-    box-shadow: 0 0 12px rgba(165,65,255,.7);
+    box-shadow: 0 0 12px rgba(255,255,255,.3);
 }
 
 .botoesL a {
@@ -334,12 +356,16 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     width: 20px;
     height: 20px;
     opacity: .75;
-    transition: opacity var(--transition), filter var(--transition);
+    transition: opacity var(--transition);
 }
+.nav-icon--outline { display: block; }
+.nav-icon--filled { display: none; }
 .botoesL a:hover .nav-icon { opacity: 1; }
+.botoesL a.active .nav-icon--outline { display: none; }
+.botoesL a.active .nav-icon--filled { display: block; }
 .botoesL a.active .nav-icon {
     opacity: 1;
-    filter: drop-shadow(0 0 6px rgba(165,65,255,.6));
+    filter: drop-shadow(0 0 6px rgba(255,255,255,.3));
 }
 
 .nav__tag-ia {
@@ -348,7 +374,7 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     font-size: 0.62rem;
     font-weight: 700;
     line-height: 1.2;
-    border-radius: 999px;
+    border-radius: 10px;
     background: linear-gradient(135deg, #a541ff, #7203bd);
     color: #fff;
     margin-left: 6px;
@@ -385,13 +411,15 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
         padding-right: 12px;
     }
 
-    /* o topo vira coluna: "K●" em cima, botão embaixo */
+    /* o topo vira coluna: "K●" em cima, o círculo embaixo */
     html.lateral-recolhida .contTopo {
         flex-direction: column;
         gap: 12px;
         margin-left: 0;
         margin-right: 0;
     }
+    /* na coluna, a margem lateral deslocaria o círculo do centro */
+    html.lateral-recolhida .lateral__aperta { margin-left: 0; }
     html.lateral-recolhida .contLogo { flex: none; line-height: 0; }
 
     /* Recolhida, a marca vira o FAVICON — o mesmo ícone da aba do
@@ -454,12 +482,48 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
        como as etiquetas dos ícones. */
     html.lateral-recolhida .conf__menu { right: auto; left: calc(100% + 10px); bottom: 0; }
 
+    /* ── Quem rola é a LISTA, não a barra ──
+       Recolhida, o topo e o rodapé viram colunas e a barra fica mais
+       alta que 100vh em boa parte dos notebooks. Com `overflow: visible`
+       — que é o que deixa o menu da engrenagem escapar da borda — não
+       existe rolagem nenhuma: o rodapé inteiro, com o ícone da conta,
+       saía para fora da tela e não havia como buscá-lo. E o avatar
+       sumia mesmo quando havia espaço, porque o flex divide a falta de
+       altura entre os blocos e espreme o rodapé até ele sumir.
+
+       A saída é não mexer na barra e rolar só o miolo: `.botoesL` é o
+       bloco que sobra entre a marca e a conta, então é ele que encolhe
+       e recebe a rolagem. Topo, cartão de XP e rodapé ficam sempre à
+       vista, e o menu da engrenagem — que mora no rodapé, fora da
+       lista — continua escapando normalmente.
+
+       O `min-height: 0` não é decoração: sem ele o flex não deixa um
+       item encolher abaixo do próprio conteúdo (`min-height: auto` é o
+       padrão em coluna) e a barra estoura de novo. */
+    html.lateral-recolhida .botoesL {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+    }
+    /* Topo, XP e rodapé mantêm a altura que pedem — é o que garante o
+       ícone da conta presente, e não só alcançável por rolagem. */
+    html.lateral-recolhida .contTopo,
+    html.lateral-recolhida .xp,
+    html.lateral-recolhida .contUsuario { flex: none; }
+
     /* ── A etiqueta que diz o que cada ícone é ──
        `content: attr(data-rotulo)` — CSS puro, sem JS e sem `title`
        (que só aparece no hover do mouse e depois de um segundo parado).
        Responde a `:focus-visible` também: quem navega por teclado
-       precisa saber onde está tanto quanto quem usa mouse. */
-    html.lateral-recolhida .botoesL a::after,
+       precisa saber onde está tanto quanto quem usa mouse.
+
+       Só a da conta sobreviveu. A etiqueta dos links mora dentro de
+       `.botoesL`, que passou a ser o bloco que rola, e um bloco que
+       rola recorta tudo que passa da borda dele. Não dá para ter as
+       duas coisas: ou a lista rola, ou as etiquetas escapam — e quem
+       manda é a rolagem. O nome dos links continua sendo lido por
+       quem usa leitor de tela, porque o `.nav__rotulo` de cada um segue
+       no DOM como "escondido só para os olhos" (acima). */
     html.lateral-recolhida .usuario::after {
         content: attr(data-rotulo);
         position: absolute;
@@ -481,23 +545,24 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
         transition: opacity .16s ease;
     }
     html.lateral-recolhida .usuario { position: relative; }
-    html.lateral-recolhida .botoesL a:hover::after,
-    html.lateral-recolhida .botoesL a:focus-visible::after,
     html.lateral-recolhida .usuario:hover::after,
     html.lateral-recolhida .usuario:focus-visible::after { opacity: 1; }
 
-    /* A etiqueta precisa escapar da barra, que é `overflow: hidden` para
-       recortar os rótulos. Sem isto ela nasceria cortada na borda. */
+    /* A barra em si NÃO recorta, e é de propósito: é o que deixa o menu
+       da engrenagem e a etiqueta da conta saírem pela direita. A
+       rolagem mora no `.botoesL` (acima), não aqui. */
     html.lateral-recolhida .contLateral { overflow: visible; }
-    html.lateral-recolhida .botoesL a { overflow: hidden; }
-    html.lateral-recolhida .botoesL a:hover,
-    html.lateral-recolhida .botoesL a:focus-visible { overflow: visible; }
 }
 
 /* Quem pediu menos movimento não vê a barra deslizar — ela troca de
-   largura de uma vez. O estado continua o mesmo. */
+   largura de uma vez. O resto (cor, opacidade, o escalão do clique)
+   continua respondendo ao ponteiro. */
 @media (prefers-reduced-motion: reduce) {
     .contLateral { transition: none; }
+    .lateral__aperta {
+        transition: opacity var(--transition), color var(--transition),
+                    background-color var(--transition), border-color var(--transition);
+    }
 }
 
 /* No desktop a conta fica no rodapé; na barra inferior do mobile
@@ -636,7 +701,7 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     transition: var(--transition);
 }
 .conf__item svg { flex: none; width: 17px; height: 17px; }
-.conf__item:hover { background: rgba(165,65,255,.14); color: var(--text); }
+.conf__item:hover { background: rgba(255,255,255,.08); color: var(--text); }
 .conf__item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .conf__divisor {
     height: 1px;
@@ -718,7 +783,7 @@ progress::-webkit-progress-value {
     font-size: .92rem;
     font-weight: 600;
     padding: 11px 20px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-chip);
     border: 1px solid transparent;
     cursor: pointer;
     text-decoration: none;
@@ -727,21 +792,19 @@ progress::-webkit-progress-value {
 }
 .dash-btn svg { width: 18px; height: 18px; }
 .dash-btn--primary { background: var(--accent); color: #fff; }
-.dash-btn--primary:hover { background: var(--accent-lt); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(165,65,255,.35); }
+.dash-btn--primary:hover { background: var(--accent-lt); }
 .dash-btn--ghost { background: rgba(165,65,255,.1); color: var(--accent-lt); border-color: rgba(165,65,255,.3); }
 .dash-btn--ghost:hover { background: rgba(165,65,255,.18); border-color: var(--accent); }
 .dash-btn--outline { background: transparent; color: var(--text-dim); border-color: rgba(255,255,255,.15); }
 .dash-btn--outline:hover { border-color: rgba(255,255,255,.4); color: #fff; }
-.dash-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.dash-btn:disabled { opacity: .5; cursor: not-allowed; }
 
 /* Painel/cartão genérico */
 .painel {
     position: relative;
-    background: var(--superficie);
-    -webkit-backdrop-filter: var(--desfoque-painel);
-    backdrop-filter: var(--desfoque-painel);
-    border: 1px solid rgba(165,65,255,.12);
-    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
     padding: 28px;
 }
 
@@ -779,7 +842,6 @@ progress::-webkit-progress-value {
 .chip.active::after {
     width: 100%;
     background: linear-gradient(90deg, var(--accent), var(--accent-lt));
-    box-shadow: 0 0 12px rgba(165,65,255,.5);
 }
 
 /* Tag de matéria */
@@ -837,9 +899,9 @@ progress::-webkit-progress-value {
 .campo input, .campo select, .campo textarea {
     width: 100%;
     padding: 11px 14px;
-    background: rgba(255,255,255,.05);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: var(--radius-sm);
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-chip);
     color: #fff;
     font-family: "DM Sans", sans-serif;
     font-size: .95rem;
@@ -852,19 +914,45 @@ progress::-webkit-progress-value {
    porque as partes reaproveitadas (partes/modal-resumo.php,
    partes/modal-caderno.php) as usam e podem ser incluídas por
    qualquer página do dashboard. */
-.campo__dica     { font-size: .78rem; color: var(--text-muted); }
-.campo__opcional { font-weight: 400;  color: var(--text-muted); }
+.campo__dica       { font-size: .78rem; color: var(--text-muted); }
+.campo__opcional   { font-weight: 400;  color: var(--text-muted); }
+.campo__obrigatorio{ font-weight: 400;  color: var(--text-muted); }
+
+/* Senha com mostrar/ocultar: os MESMOS ícones da página de login
+   (login.css) — olho fechado quando oculta, aberto quando visível */
+.campo__senha { position: relative; }
+.campo__senha input { padding-right: 44px; }
+.campo__olho {
+    position: absolute;
+    top: 50%; right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    background: none;
+    border: 0;
+    color: var(--text-muted);
+    opacity: .5;
+    cursor: pointer;
+    transition: opacity var(--transition);
+}
+.campo__olho:hover, .campo__olho:focus-visible { opacity: 1; }
+.campo__olho svg { width: 17px; height: 17px; }
+.campo__olho .ico-eye-off { display: block; }
+.campo__olho .ico-eye { display: none; }
+.campo__olho--visivel .ico-eye-off { display: none; }
+.campo__olho--visivel .ico-eye { display: block; }
 .campo input:focus, .campo select:focus, .campo textarea:focus {
     border-color: var(--accent);
-    background: rgba(165,65,255,.08);
-    box-shadow: 0 0 0 3px rgba(165,65,255,.15);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-neutral);
 }
 .campo select option { background: var(--bg-nav); }
 /* campo recusado pela validação (o JS põe aria-invalid) */
 .campo input[aria-invalid="true"],
 .campo input[aria-invalid="true"]:focus {
-    border-color: rgba(239, 68, 68, .7);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, .15);
+    border-color: var(--erro);
+    box-shadow: 0 0 0 3px var(--erro-bg);
 }
 
 /* Matéria com lista + texto livre. O JS (combo-materia.js) transforma
@@ -897,6 +985,9 @@ progress::-webkit-progress-value {
    nativo não aceita CSS e saía fora do tema. */
 .combo { position: relative; }
 .combo input { padding-right: 38px; }
+/* O select de Caderno vira este input readonly (combo-select.js),
+   com o mesmo visual — só o cursor diz que ele é clicável. */
+.combo__valor { cursor: pointer; }
 
 .combo__btn {
     position: absolute;
@@ -925,10 +1016,10 @@ progress::-webkit-progress-value {
     list-style: none;
     max-height: 264px;
     overflow-y: auto;
-    background: #241733;
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 10px;
-    box-shadow: 0 18px 50px rgba(0,0,0,.55), 0 0 40px rgba(165,65,255,.10);
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-chip);
+    box-shadow: var(--shadow-card-hover);
     font-family: "DM Sans", sans-serif;
     animation: dashFade .15s ease both;
 }
@@ -982,10 +1073,10 @@ progress::-webkit-progress-value {
     max-height: calc(100vh - 48px);
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     padding: 28px;
     padding-bottom: 40px;
-    box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 60px rgba(165,65,255,.12);
+    box-shadow: var(--shadow-card-hover), 0 0 0 1px rgba(0,0,0,.2);
     overflow-y: auto;
 }
 .modal__head {
@@ -1069,25 +1160,23 @@ progress::-webkit-progress-value {
         justify-content: center;
         width: 42px;
         height: 42px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(165, 65, 255, 0.22);
-        color: rgba(185, 145, 235, 0.85);
+        border-radius: var(--radius-chip);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text-dim);
         cursor: pointer;
         padding: 0;
         flex-shrink: 0;
-        transition: color .2s ease, border-color .2s ease, background .2s ease, transform .15s ease, box-shadow .2s ease;
+        transition: color .2s ease, border-color .2s ease, background .2s ease;
         -webkit-tap-highlight-color: transparent;
     }
     .topo-btn-ferramentas:active {
-        transform: scale(0.94);
-        background: rgba(165, 65, 255, 0.16);
+        background: rgba(255,255,255,.08);
     }
     .topo-btn-ferramentas.ativo {
         color: var(--accent-lt);
         border-color: var(--accent);
-        background: rgba(165, 65, 255, 0.14);
-        box-shadow: 0 0 16px rgba(165, 65, 255, 0.35);
+        background: rgba(165, 65, 255, .12);
     }
     .topo-btn-ferramentas svg {
         width: 22px;
@@ -1104,9 +1193,9 @@ progress::-webkit-progress-value {
         height: 42px;
         min-width: 42px;
         padding: 0 12px 0 10px;
-        border-radius: 12px;
-        background: rgba(165, 65, 255, 0.1);
-        border: 1px solid rgba(165, 65, 255, 0.26);
+        border-radius: var(--radius-chip);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         color: var(--accent-lt);
     }
     .topo-sequencia svg { width: 18px; height: 18px; flex: none; }
@@ -1117,8 +1206,8 @@ progress::-webkit-progress-value {
         line-height: 1;
     }
     .topo-sequencia--vazia {
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(255, 255, 255, 0.1);
+        background: var(--bg-nav);
+        border-color: rgba(255,255,255,.1);
         color: var(--text-muted);
     }
 
@@ -1177,15 +1266,10 @@ progress::-webkit-progress-value {
         gap: 4px;
         flex-grow: 0;
         padding: 6px;
-        border-radius: 999px;
-        background: rgba(18, 1, 31, .86);
-        backdrop-filter: blur(20px) saturate(140%);
-        -webkit-backdrop-filter: blur(20px) saturate(140%);
-        border: 1px solid rgba(165, 65, 255, .22);
-        box-shadow:
-            0 14px 34px -10px rgba(0, 0, 0, .75),
-            0 0 0 1px rgba(0, 0, 0, .35),
-            inset 0 1px 0 rgba(255, 255, 255, .05);
+        border-radius: 18px;
+        background: var(--bg-nav);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-card-hover);
     }
     .botoesL a {
         flex: 1 1 0;                  /* os inativos dividem o que sobra */
@@ -1196,7 +1280,7 @@ progress::-webkit-progress-value {
         align-items: center;
         justify-content: center;
         gap: 8px;
-        border-radius: 999px;
+        border-radius: 12px;
         border: none;
         background: transparent;
         color: #9a86b8;
@@ -1254,10 +1338,8 @@ progress::-webkit-progress-value {
         flex: 0 0 auto;               /* cresce o quanto o nome pedir */
         padding: 0 16px 0 6px;
         color: #fff;
-        background: linear-gradient(135deg, var(--purple) 0%, var(--accent) 100%);
-        box-shadow:
-            0 6px 18px -6px rgba(130, 0, 219, .85),
-            inset 0 1px 0 rgba(255, 255, 255, .22);
+        background: var(--accent);
+        box-shadow: var(--shadow-neutral);
         animation: navChipEntra .38s cubic-bezier(.2, .8, .2, 1) both;
     }
     /* o ícone ganha um disco claro — o "1" dentro do círculo da referência */
@@ -1269,8 +1351,8 @@ progress::-webkit-progress-value {
         background: #fff;
         color: var(--purple);
         opacity: 1;
-        filter: none;                 /* o brilho neon do desktop borraria o disco */
-        box-shadow: 0 2px 8px rgba(47, 10, 75, .35);
+        filter: none;
+        box-shadow: var(--shadow-neutral);
     }
     .botoesL a.active .nav__rotulo {
         display: inline;
@@ -1315,8 +1397,6 @@ progress::-webkit-progress-value {
         inset: 0;
         z-index: 200;
         background: rgba(5, 0, 11, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
         opacity: 0;
         pointer-events: none;
         display: flex;
@@ -1336,11 +1416,11 @@ progress::-webkit-progress-value {
     }
     .sheet-painel {
         width: 100%;
-        background: #130324;
-        border-top: 1px solid rgba(165, 65, 255, 0.42);
+        background: var(--bg-nav);
+        border-top: 1px solid var(--border);
         border-radius: 24px 24px 0 0;
         padding: 14px 20px calc(24px + env(safe-area-inset-bottom));
-        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85), 0 0 35px rgba(130, 0, 219, 0.35);
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85);
         transform: translateY(100%);
         transition: transform .3s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
@@ -1390,16 +1470,16 @@ progress::-webkit-progress-value {
         align-items: center;
         gap: 12px;
         padding: 13px 14px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(165, 65, 255, 0.22);
-        border-radius: 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-card);
         text-decoration: none;
         color: #fff;
         transition: all .18s ease;
     }
     .sheet-card:hover, .sheet-card:active, .sheet-card.ativo {
-        background: rgba(165, 65, 255, 0.16);
-        border-color: #a541ff;
+        background: rgba(255, 255, 255, .08);
+        border-color: rgba(255,255,255,.3);
     }
     .sheet-card__ico {
         display: flex;
@@ -1407,12 +1487,14 @@ progress::-webkit-progress-value {
         justify-content: center;
         width: 40px;
         height: 40px;
-        border-radius: 12px;
-        background: rgba(165, 65, 255, 0.12);
-        color: var(--accent-lt);
+        border-radius: var(--radius-chip);
+        background: rgba(255,255,255,.08);
+        color: var(--text-dim);
         flex-shrink: 0;
         transition: background .18s ease, color .18s ease;
     }
+    .sheet-card__ico .nav-icon--outline { display: block; }
+    .sheet-card__ico .nav-icon--filled { display: none; }
     .sheet-card__ico svg {
         width: 22px;
         height: 22px;
@@ -1420,9 +1502,11 @@ progress::-webkit-progress-value {
     }
     .sheet-card:hover .sheet-card__ico,
     .sheet-card.ativo .sheet-card__ico {
-        background: rgba(165, 65, 255, 0.25);
-        color: #fff;
+        background: rgba(255,255,255,.15);
+        color: var(--text);
     }
+    .sheet-card.ativo .sheet-card__ico .nav-icon--outline { display: none; }
+    .sheet-card.ativo .sheet-card__ico .nav-icon--filled { display: block; }
     .sheet-card__info {
         display: flex;
         flex-direction: column;
@@ -1556,21 +1640,18 @@ em { font-style: normal; color: var(--accent-lt); }
    ABERTURA
 
    Era o hero da landing page transplantado: título de 3.4rem,
-   parágrafo de venda, dois botões e quatro números soltos — quase uma
-   tela inteira antes de qualquer informação útil. Mas quem abre o
+   parágrafo de venda, dois botões e quatro números soltos — quase
+   uma tela inteira antes de qualquer informação útil. Mas quem abre o
    Início já se cadastrou: não precisa ser convencido de novo, precisa
    saber como está.
 
-   Agora é uma linha, no formato da prévia que está na landing page:
-   saudação à esquerda, sequência à direita.
+   Agora é uma linha só — a saudação. O selo da sequência saiu daqui e
+   virou o número de destaque do bloco grande do bento: o número
+   responde "como estou indo", e essa resposta pertence ao painel do
+   gráfico, não à saudação.
    ════════════════════════════════════════════════════════════════ */
 .ini-hero {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 .ini-hero__texto { min-width: 0; }
 .ini-hero__titulo {
@@ -1607,7 +1688,7 @@ em { font-style: normal; color: var(--accent-lt); }
     align-items: center;
     gap: 11px;
     padding: 11px 18px;
-    border-radius: 999px;
+    border-radius: 10px;
     background: rgba(165, 65, 255, .1);
     border: 1px solid rgba(165, 65, 255, .26);
 }
@@ -1679,21 +1760,28 @@ em { font-style: normal; color: var(--accent-lt); }
 .ini-stat__div { width: 1px; height: 36px; background: rgba(165,65,255,.25); }
 
 /* ---- O painel "Esta semana" ----
-   Subiu para logo abaixo da saudação: é a única coisa nesta tela que
-   responde "como eu estou indo", e antes estava no fim da página. */
-.ini-painel { padding: 22px 24px 24px; margin-bottom: 40px; }
+   É o bloco 2x2 do bento: a única coisa nesta tela que responde "como
+   eu estou indo". O selo da sequência mora no lado direito da
+   cabeça — título e subtítulo à esquerda, o número que a pessoa mais
+   quer ver à direita, como na prévia da landing page. */
+.ini-painel { padding: 22px 24px 24px; }
 .ini-painel__cabeca {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 16px;
     margin-bottom: 20px;
 }
+.ini-painel__tit { min-width: 0; }
 .ini-painel__cabeca h2 {
     font-size: 1.05rem;
     font-weight: 700;
+    line-height: 1.2;
 }
+/* A nota (o total da semana) é o subtítulo do título: fica embaixo,
+   e não espremida entre o título e o selo. */
 .ini-painel__nota { font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
+.ini-painel__tit .ini-painel__nota { display: block; margin-top: 3px; }
 
 /* Os outros números, no rodapé do painel: são contexto do "como estou
    indo", não manchete — por isso saíram do topo da página. */
@@ -1723,71 +1811,189 @@ em { font-style: normal; color: var(--accent-lt); }
     margin-bottom: 16px;
 }
 
-/* ---- Card (mesma receita do .card da LP) ---- */
-.ini-card {
-    position: relative;
-    overflow: hidden;
-    background: var(--superficie);
-    border: 1px solid rgba(165,65,255,.12);
-    border-radius: var(--radius-lg);
-    padding: 28px;
-    transition: var(--transition);
-    transform-style: preserve-3d;
-}
-/* brilho que acompanha o cursor — as vars vêm do inicio.js */
-.ini-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 0%), rgba(165,65,255,.10), transparent 42%);
-    opacity: 0;
-    transition: opacity .3s ease;
-    pointer-events: none;
-}
-.ini-card:hover::after { opacity: 1; }
-.ini-card > * { position: relative; z-index: 1; }
-
-/* ---- Grade de ferramentas ---- */
-.ini-grid {
-    display: grid;
-    /* Era minmax(240px, …): com quatro atalhos e a barra lateral aberta,
-       4x240 + 3 vãos passava da largura útil por poucos pixels — e a
-       grade caía para três, deixando o Pomodoro sozinho numa segunda
-       linha. 200px faz os quatro caberem numa fileira só. */
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-}
-
-/* Atalho é atalho: ícone, nome e uma linha. O tamanho de antes vinha de
-   quando estes cartões eram a apresentação dos recursos, com a moldura
-   de campanha em volta. */
-.ini-grid .ini-card { padding: 20px; }
-.ini-grid .ini-card__desc { margin-bottom: 0; }
-a.ini-card { text-decoration: none; color: inherit; display: block; }
+a.ini-card { text-decoration: none; color: inherit; }
 a.ini-card:hover,
 a.ini-card:focus-visible {
-    border-color: rgba(165,65,255,.35);
-    box-shadow: var(--shadow-glow);
+    border-color: rgba(255,255,255,.3);
+    box-shadow: var(--shadow-card-hover);
     outline: none;
+    transform: translateY(-4px);
 }
+
+/* ---- Card (mesma receita do .card da LP) ---- */
+.ini-card {
+    /* O `display` mora AQUI, e não em `a.ini-card`: um seletor com tag
+       tem mais especificidade que a classe, e o `display: block` dele
+       ganharia do `display: flex` dos blocos do bento — a coluna do
+       nível e o atalho largo ficariam empilhados em vez de deitados. */
+    display: block;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 28px;
+    transition: var(--transition);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   O BENTO
+
+   A fileira de atalhos iguais virou uma grade de tamanhos diferentes.
+   Nenhum painel entrou ou saiu — os mesmos dados de antes, em blocos
+   que dizem o que importa: o 2x2 da semana é o único que responde
+   "como estou indo", e o resto é atalho em volta dele.
+
+   As áreas são nomeadas (grid-template-areas) em vez de repetir
+   grid-column em cada filho: com nomes, a ordem visual pode ser
+   reescrita inteira em cada breakpoint sem mexer no HTML — que é o
+   que o celular precisa (uma coluna, na ordem de leitura) e o que um
+   bloco a menos ou a mais precisa (a grade de três colunas sem o
+   bloco de nível).
+
+   Substitui o antigo `.ini-grid` (auto-fit, minmax(200px, 1fr)): com
+   a barra lateral aberta e quatro atalhos, 4x200 passava da largura
+   útil por poucos pixels e a grade caía para três, deixando o
+   Pomodoro sozinho numa segunda linha.
+   ════════════════════════════════════════════════════════════════ */
+.ini-bento {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(158px, auto);
+    gap: 16px;
+    margin-bottom: 40px;
+    grid-template-areas:
+        "semana semana xp    pomo"
+        "semana semana xp    exerc"
+        "bib    flash  flash provas";
+}
+/* Sem a progressão (banco sem a migração), o bloco de nível não
+   existe — e uma bento com um buraco no meio é pior que uma bento
+   menor. Aqui a grade fecha em três colunas. */
+.ini-bento--sem-xp {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+        "semana semana pomo"
+        "semana semana exerc"
+        "bib    flash  provas";
+}
+
+.ini-bento__semana { grid-area: semana; }
+.ini-bento__xp     { grid-area: xp; }
+.ini-bento__pomo   { grid-area: pomo; }
+.ini-bento__exerc  { grid-area: exerc; }
+.ini-bento__bib    { grid-area: bib; }
+.ini-bento__flash  { grid-area: flash; }
+.ini-bento__provas { grid-area: provas; }
+
+/* O gráfico do bloco grande tem altura de sobra: era 180px quando
+   ocupava a largura da página, agora divide espaço com a meta e os
+   números em cima e embaixo. */
+.ini-bento__semana .ini-chart { height: 210px; }
+.ini-bento__semana .ini-numeros { margin-top: 20px; }
+
+/* ---- Atalho pequeno ----
+   Ícone menor e sem respiro de campanha: aqui o cartão é um botão
+   do tamanho de um botão, não a apresentação de um recurso. */
+.ini-bento__mini {
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+}
+.ini-bento__mini .ini-card__ico {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+}
+.ini-bento__mini .ini-card__ico svg { width: 22px; height: 22px; }
+.ini-bento__mini .ini-card__titulo { font-size: 1rem; margin-bottom: 4px; }
+.ini-bento__mini .ini-card__desc { font-size: .84rem; line-height: 1.45; margin: 0; }
+
+/* O número de acertos que antes vivia no rodapé do painel grande:
+   mesmo dado, mesmo `ini-stat` (contrato do js/inicio.js), só menor
+   para caber no atalho. */
+.ini-stat--mini { margin-top: auto; }
+.ini-stat--mini strong { font-size: 1.25rem; }
+.ini-stat--mini span { margin-top: 2px; font-size: .7rem; }
+
+/* ---- Atalho largo (2 colunas) ----
+   O Flashcards ganhou a largura porque revisar é a fila que a pessoa
+   volta todo dia. Em duas colunas de lado o ícone não pode ficar em
+   cima: ele passa para a esquerda do texto. */
+.ini-bento__larga {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+}
+.ini-bento__larga .ini-card__ico {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0;
+}
+.ini-bento__larga .ini-card__ico svg { width: 24px; height: 24px; }
+.ini-bento__larga .ini-card__titulo { font-size: 1.05rem; margin-bottom: 4px; }
+.ini-bento__larga .ini-card__desc { font-size: .86rem; margin: 0; }
+/* min-width:0 para o texto poder encolher dentro do flex: sem isso a
+   linha mais longa não quebra e empurra o cartão para fora da área. */
+.ini-bento__txt { min-width: 0; }
+
+/* ---- O bloco de nível ----
+   Coluna alta do meio. A barra é a mesma da barra lateral
+   (.xp__barra do progresso.css), com os mesmos ganchos data-xp-*:
+   o js/progresso.js pinta as duas de uma vez. */
+.ini-bento__xp {
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+}
+.ini-bento__xp .ini-card__ico {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    color: var(--xp-dourado);
+    background: rgba(245, 185, 66, .12);
+}
+.ini-bento__xp .ini-card__ico svg { width: 22px; height: 22px; }
+.ini-bento__xp .ini-card__titulo { font-size: 1.05rem; margin-bottom: 2px; }
+.ini-xp__titulo {
+    font-size: .88rem;
+    color: var(--xp-dourado);
+    font-weight: 600;
+    margin-bottom: auto;
+}
+.ini-xp__barra { margin-top: 14px; }
+/* O XP acumulado em texto: o número sozinho não diz em que nível a
+   pessoa está, e a dica do progresso.js é longa demais para uma
+   coluna estreita — por isso só o total. */
+.ini-xp__dica {
+    display: block;
+    margin-top: 9px;
+    font-size: .74rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .ini-card__ico {
     width: 52px;
     height: 52px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(165,65,255,.12);
-    border-radius: var(--radius-sm);
-    color: var(--accent-lt);
+    background: rgba(255,255,255,.08);
+    border-radius: var(--radius-chip);
+    color: var(--text-dim);
     margin-bottom: 20px;
-    transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
+    transition: transform var(--transition), background var(--transition);
 }
 .ini-card__ico svg { width: 26px; height: 26px; }
 a.ini-card:hover .ini-card__ico {
     transform: scale(1.08) rotate(-5deg);
-    background: rgba(165,65,255,.22);
-    box-shadow: 0 0 24px rgba(165,65,255,.35);
+    background: rgba(255,255,255,.15);
+    color: var(--text);
 }
 .ini-card__titulo {
     font-family: "Syne", sans-serif;
@@ -1810,10 +2016,9 @@ a.ini-card:hover .ini-card__ico {
     letter-spacing: .12em;
     text-transform: uppercase;
     color: #fff;
-    background: linear-gradient(135deg, var(--purple-md), var(--accent));
+    background: var(--accent);
     padding: 3px 9px;
-    border-radius: 6px;
-    box-shadow: 0 0 14px rgba(165,65,255,.35), inset 0 1px 0 rgba(255,255,255,.15);
+    border-radius: var(--radius-chip);
 }
 
 .ini-card__cabeca {
@@ -1933,7 +2138,7 @@ a.ini-card:hover .ini-card__ico {
     display: inline-block;
     margin-bottom: 6px;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: 10px;
     background: linear-gradient(135deg, var(--purple), var(--accent));
     font: 700 .68rem/1.4 "Syne", sans-serif;
     letter-spacing: .08em;
@@ -1991,7 +2196,7 @@ a.ini-card:hover .ini-card__ico {
 }
 .ini-missoes__marco {
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: 10px;
     border: 1px solid rgba(255,255,255,.1);
     background: rgba(255,255,255,.03);
     font-size: .72rem;
@@ -2023,15 +2228,42 @@ a.ini-card:hover .ini-card__ico {
     .ini-missao__barra > span { transition: none; }
 }
 
-/* ---- Responsivo ---- */
+/* ---- Responsivo ----
+   O bento se recompõe por breakpoint, sempre com as áreas nomeadas
+   (nada de `grid-column` solto): no computador a assimetria, no
+   tablet duas colunas, no celular uma coluna na ordem de leitura. */
+@media (max-width: 1180px) {
+    /* Quatro colunas de atalho estreito (com a barra lateral aberta)
+       deixa o bloco do Pomodoro com 150px: cabe o ícone e o nome, e
+       mais nada. Duas colunas devolvem o respiro. */
+    .ini-bento,
+    .ini-bento--sem-xp {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            "semana  semana"
+            "xp      xp"
+            "pomo    exerc"
+            "bib     flash"
+            "provas  provas";
+    }
+    /* Sem o bloco de nível, o primeiro bloco de atalhos sobe */
+    .ini-bento--sem-xp {
+        grid-template-areas:
+            "semana  semana"
+            "pomo    exerc"
+            "bib     flash"
+            "provas  provas";
+    }
+    .ini-bento__semana .ini-chart { height: 190px; }
+}
 @media (max-width: 1100px) {
     .ini-duas { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
     /* No celular a sequência mora no topo do app (partes/sidebar.php,
-       .topo-sequencia), à direita do logo. Repetir o selo aqui seria o
-       mesmo número duas vezes na mesma tela. */
-    .ini-hero { display: block; margin-bottom: 24px; }
+       .topo-sequencia), à direita do logo. Repetir o selo no bloco da
+       semana seria o mesmo número duas vezes na mesma tela. */
+    .ini-hero { margin-bottom: 24px; }
     .ini-selo { display: none; }
     .ini-secao { margin-bottom: 56px; }
     .ini-hero__cta { margin-bottom: 36px; }
@@ -2040,9 +2272,49 @@ a.ini-card:hover .ini-card__ico {
     .ini-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
     .ini-stat__div { display: none; }
     .ini-stat strong { font-size: 1.3rem; }
-    .ini-grid { grid-template-columns: 1fr; gap: 14px; }
     .ini-card { padding: 22px; }
+
+    /* Uma coluna só, na ordem de leitura: o bloco da semana primeiro
+       (é o que responde "como estou indo"), o nível em seguida, e os
+       atalhos pelo tamanho que tinham antes de virarem bento. */
+    .ini-bento,
+    .ini-bento--sem-xp {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+        grid-template-areas:
+            "semana"
+            "xp"
+            "pomo"
+            "exerc"
+            "flash"
+            "bib"
+            "provas";
+        gap: 14px;
+    }
+    .ini-bento--sem-xp { grid-template-areas: "semana" "pomo" "exerc" "flash" "bib" "provas"; }
+    .ini-bento__mini,
+    .ini-bento__larga,
+    .ini-bento__xp { padding: 22px; }
+    .ini-bento__mini .ini-card__ico,
+    .ini-bento__larga .ini-card__ico,
+    .ini-bento__xp .ini-card__ico {
+        width: 52px;
+        height: 52px;
+        margin-bottom: 18px;
+    }
+    .ini-bento__mini .ini-card__ico svg,
+    .ini-bento__larga .ini-card__ico svg,
+    .ini-bento__xp .ini-card__ico svg { width: 26px; height: 26px; }
+    .ini-bento__mini .ini-card__titulo,
+    .ini-bento__larga .ini-card__titulo,
+    .ini-bento__xp .ini-card__titulo { font-size: 1.15rem; }
+    .ini-bento__mini .ini-card__desc,
+    .ini-bento__larga .ini-card__desc { font-size: .92rem; }
+    /* De lado só fazia sentido na grade do computador */
+    .ini-bento__larga { display: block; }
+    .ini-xp__titulo { margin-bottom: 0; }
     .ini-chart { height: 150px; gap: 6px; }
+    .ini-bento__semana .ini-chart { height: 170px; }
 }
 @media (max-width: 420px) {
     .ini-stats { gap: 14px; }
@@ -2201,17 +2473,17 @@ a.ini-card:hover .ini-card__ico {
     gap: 14px;
     padding: 14px 20px;
     margin-bottom: 20px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-card);
     text-decoration: none;
     color: inherit;
-    background: linear-gradient(100deg, rgba(165,65,255,.16) 0%, rgba(165,65,255,.05) 100%);
-    border: 1px solid rgba(165,65,255,.3);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     transition: var(--transition);
 }
 .ini-revisar:hover {
     border-color: var(--accent);
     transform: translateY(-2px);
-    box-shadow: 0 14px 34px rgba(0,0,0,.35);
+    box-shadow: var(--shadow-card-hover);
 }
 .ini-revisar:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .ini-revisar__ico { font-size: 1.4rem; line-height: 1; }
@@ -2285,10 +2557,10 @@ a.ini-card:hover .ini-card__ico {
 
 /* ---- Busca global ---- */
 .busca-campo { display: flex; gap: 10px; margin-bottom: 28px; }
+.busca-campo__caixa { position: relative; flex: 1 1 auto; min-width: 0; }
 .busca-campo input {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding: 13px 16px;
+    width: 100%;
+    padding: 13px 42px 13px 16px;
     font-size: 1rem;
     font-family: inherit;
     color: var(--text);
@@ -2301,19 +2573,44 @@ a.ini-card:hover .ini-card__ico {
     border-color: var(--accent);
     background: rgba(165,65,255,.08);
 }
+/* O × nativo do navegador tem cara de emoji: escondemos ele e usamos
+   o nosso, no estilo do site (SVG de traço, igual aos outros ícones). */
+.busca-campo input[type="search"]::-webkit-search-cancel-button,
+.busca-campo input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
+.busca-campo input[type="search"]::-moz-search-cancel-button { display: none; }
+.busca-limpar {
+    position: absolute;
+    top: 50%; right: 12px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    background: none;
+    border: 0;
+    color: var(--text-muted);
+    opacity: .5;
+    cursor: pointer;
+    transition: opacity var(--transition);
+}
+.busca-limpar:hover, .busca-limpar:focus-visible { opacity: 1; }
+.busca-limpar svg { width: 16px; height: 16px; }
+.busca-limpar[hidden] { display: none; }
 
 .busca-lista { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .busca-item {
     display: block;
     padding: 14px 18px;
-    border-radius: var(--radius-sm);
-    background: var(--superficie);
-    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-chip);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     text-decoration: none;
     color: inherit;
     transition: var(--transition);
 }
-.busca-item:hover { border-color: rgba(165,65,255,.4); transform: translateX(3px); }
+.busca-item:hover { border-color: rgba(255,255,255,.3); transform: translateX(3px); box-shadow: var(--shadow-card-hover); }
 .busca-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .busca-item__topo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 /* O tipo do resultado, como TARJA e não como pílula.
@@ -2372,18 +2669,18 @@ a.ini-card:hover .ini-card__ico {
     z-index: 300;
     max-width: min(340px, calc(100vw - 48px));
     padding: 12px 18px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-chip);
     font-size: .88rem;
     font-weight: 500;
-    background: rgba(52,211,153,.15);
-    color: #34d399;
-    border: 1px solid rgba(52,211,153,.25);
-    box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    background: var(--sucesso-bg);
+    color: var(--sucesso);
+    border: 1px solid rgba(34,197,94,.25);
+    box-shadow: var(--shadow-card-hover);
     animation: fcAviso .3s ease both;
 }
 .fc-aviso--erro {
-    background: rgba(239,68,68,.15);
-    color: #f87171;
+    background: var(--erro-bg);
+    color: var(--erro);
     border-color: rgba(239,68,68,.25);
 }
 @keyframes fcAviso {
@@ -2404,3 +2701,168 @@ a.ini-card:hover .ini-card__ico {
 @media (prefers-reduced-motion: reduce) {
     .fc-aviso { animation: none; }
 }
+
+
+/* ---- A ordem: um botão só, as três opções atrás dele ----
+   Repartido de exercicios.css para valer em Biblioteca e Flashcards. */
+/* ---- A ordem: um botão só, as três opções atrás dele ----
+   A linha fica com dois pesos em vez de quatro: o filtro, que muda o
+   conteúdo, e o botão da ordem, que é um detalhe. O botão diz a opção
+   em vigor — sem ele, três chips diziam três vezes que ali havia
+   alguma escolha, e o filtro já ocupava a esquerda sozinho. */
+.ordem {
+    position: relative;
+    flex: none;
+    margin-bottom: 18px;
+}
+.ordem__botao {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: var(--radius-chip);
+    border: 1px solid var(--border);
+    background: var(--bg-nav);
+    color: var(--text-muted);
+    font-family: "DM Sans", sans-serif;
+    font-size: .82rem;
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.ordem__botao:hover {
+    border-color: rgba(165, 65, 255, .4);
+    color: var(--text-dim);
+}
+.ordem__botao[aria-expanded="true"] {
+    border-color: var(--accent);
+    background: rgba(165, 65, 255, .14);
+    color: var(--text);
+}
+.ordem__botao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ordem__icone { width: 16px; height: 16px; flex: none; }
+.ordem__prefixo { color: var(--text-muted); }
+/* A opção em vigor é a parte que tem peso: é o que a pessoa escolheu. */
+.ordem__atual { font-weight: 600; color: var(--text); }
+.ordem__seta {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    transition: transform .2s ease;
+}
+.ordem__botao[aria-expanded="true"] .ordem__seta { transform: rotate(180deg); }
+
+/* O menu é ancorado no botão, no mesmo desenho do menu da engrenagem
+   da lateral (.conf__menu, no dashboard.css) — daí o z-index, a
+   sombra e o mesmo nome de animação. */
+.ordem__menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 80;
+    min-width: 208px;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    border: 1px solid rgba(165, 65, 255, .22);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .55);
+    animation: ordemSobe .18s cubic-bezier(.4, 0, .2, 1);
+}
+@keyframes ordemSobe {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+/* O menu tem display:flex, que vence o display:none do [hidden] do
+   UA — sem este guard, as três opções apareceriam na página inteira. */
+.ordem__menu[hidden] { display: none; }
+
+.ordem__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    font: inherit;
+    font-size: .86rem;
+    text-align: left;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.ordem__item:hover { background: rgba(255, 255, 255, .08); color: var(--text); }
+.ordem__item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ordem__item[aria-checked="true"] { color: var(--accent-lt); }
+/* O visto da escolha é ::after (e não um svg dentro do item) porque o
+   JS copia o texto do item para o rótulo do botão: com um desenho
+   dentro, o botão passaria a anunciar "✓ Mais recentes". */
+.ordem__item[aria-checked="true"]::after {
+    content: "✓";
+    margin-left: auto;
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+
+
+/* Linha de controles: o filtro ocupa a esquerda e o botao da ordem
+   encosta na direita — o mesmo desenho de .ex-controles (Exercicios). */
+.controles-linha {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0 28px;
+}
+.controles-linha .chips { margin-bottom: 18px; }
+.controles-linha .ordem { margin-bottom: 18px; }
+
+/* ============================================================
+   STEPPER NUMÉRICO — − / + no lugar das setinhas nativas
+   ============================================================
+   Repartido de exercicios.css para valer em Conta, Provas e
+   onde mais houver campo type=number. Minimalista de propósito:
+   os botões nascem discretos (só a borda da casa) e acendem no
+   hover — o número é o protagonista, as setas são apoio. */
+.qtd-stepper {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+}
+.qtd-stepper input {
+    -moz-appearance: textfield;
+    appearance: textfield;
+    text-align: center;
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    color: var(--text);
+}
+.qtd-stepper input::-webkit-outer-spin-button,
+.qtd-stepper input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.qtd-stepper__btn {
+    flex: none;
+    width: 34px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.qtd-stepper__btn .ico { width: 16px; height: 16px; }
+.qtd-stepper__btn:hover {
+    background: rgba(165,65,255,.12);
+    border-color: rgba(165,65,255,.4);
+    color: var(--accent-lt);
+}
+.qtd-stepper__btn:active { background: rgba(165,65,255,.2); }
+.qtd-stepper__btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

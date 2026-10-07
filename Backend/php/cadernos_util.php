@@ -44,6 +44,7 @@ function cadernoDaLinha(array $c): array {
         'descricao' => $c['descricao'] ?? '',
         'capa'      => urlCadernoCapa($c['capa_arquivo'] ?? null),
         'ordem'     => (int) ($c['ordem'] ?? 0),
+        'criado_em' => $c['criado_em'] ?? '',
         'resumos'   => (int) ($c['resumos'] ?? 0),
         'fotos'     => (int) ($c['fotos'] ?? 0),
     ];
@@ -52,7 +53,7 @@ function cadernoDaLinha(array $c): array {
 /** As colunas + as contagens. Usado pelas duas consultas abaixo. */
 function cadernosSelect(): string {
     return 'SELECT c.id, c.nome, c.materia, c.cor, c.icone, c.descricao,
-                   c.capa_arquivo, c.ordem,
+                   c.capa_arquivo, c.ordem, c.criado_em,
                    COUNT(r.id) AS resumos,
                    COALESCE(SUM((SELECT COUNT(*) FROM resumo_imagens i
                                   WHERE i.resumo_id = r.id)), 0) AS fotos

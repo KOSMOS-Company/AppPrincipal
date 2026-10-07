@@ -50,6 +50,21 @@
         document.getElementById("swLembrete").addEventListener("click", () => alternarNotificacao("swLembrete", "notif_lembrete"));
         document.getElementById("swResumo").addEventListener("click", () => alternarNotificacao("swResumo", "notif_resumo"));
 
+        /* Mostrar/ocultar senha: um clique delegado serve para todos os
+           olhos da página (trocar senha e exclusão de conta). */
+        document.addEventListener("click", (e) => {
+            const btn = e.target.closest?.(".campo__olho");
+            if (!btn) return;
+            const input = document.getElementById(btn.dataset.alvo);
+            if (!input) return;
+            const mostrando = input.type === "password";
+            input.type = mostrando ? "text" : "password";
+            btn.classList.toggle("campo__olho--visivel", mostrando);
+            btn.setAttribute("aria-label", mostrando ? "Ocultar senha" : "Mostrar senha");
+            btn.title = mostrando ? "Ocultar senha" : "Mostrar senha";
+            input.focus({ preventScroll: true });
+        });
+
         ativarExclusao();
         ativarFoto();
         marcarCamposTocados();
@@ -289,6 +304,18 @@
 
         mostrar((location.hash || "#perfil").slice(1));
         window.addEventListener("hashchange", () => mostrar((location.hash || "#perfil").slice(1)));
+    }
+
+    /* Depois de uma troca bem-sucedida o form é limpo: os campos
+       voltam a ficar ocultos, caso a pessoa estivesse com o olho aberto. */
+    function reocultarSenhas(form) {
+        form.querySelectorAll(".campo__olho").forEach((btn) => {
+            const input = document.getElementById(btn.dataset.alvo);
+            if (input) input.type = "password";
+            btn.classList.remove("campo__olho--visivel");
+            btn.setAttribute("aria-label", "Mostrar senha");
+            btn.title = "Mostrar senha";
+        });
     }
 
     /* Painel de senha muda de cara quando a conta não tem senha */
@@ -534,6 +561,7 @@
             msg("msgSenha", json.msg, json.ok ? "sucesso" : "erro");
             if (json.ok) {
                 e.target.reset();
+                reocultarSenhas(e.target);
                 configurarSenha(true);
                 configurarCamposExclusao(true);
             }

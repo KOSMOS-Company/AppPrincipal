@@ -78,6 +78,22 @@
         el.lista.addEventListener("toggle", noAbrirFechar, true);
         el.listaPass.addEventListener("toggle", noAbrirFechar, true);
 
+        document.getElementById("btnPrevProximas")?.addEventListener("click", () => {
+            el.lista.scrollBy({ left: -300, behavior: "smooth" });
+        });
+        document.getElementById("btnNextProximas")?.addEventListener("click", () => {
+            el.lista.scrollBy({ left: 300, behavior: "smooth" });
+        });
+        document.getElementById("btnPrevPassadas")?.addEventListener("click", () => {
+            el.listaPass.scrollBy({ left: -300, behavior: "smooth" });
+        });
+        document.getElementById("btnNextPassadas")?.addEventListener("click", () => {
+            el.listaPass.scrollBy({ left: 300, behavior: "smooth" });
+        });
+
+        el.lista.addEventListener("scroll", () => atualizarSetas(el.lista, "Proximas"));
+        el.listaPass.addEventListener("scroll", () => atualizarSetas(el.listaPass, "Passadas"));
+
         carregar();
     });
 
@@ -170,42 +186,157 @@
         el.listaPass.innerHTML = passadas.map((p) => cartao(p, true)).join("");
         el.media.textContent = textoDaMedia();
 
+        posicionarRegua(el.lista);
+        posicionarRegua(el.listaPass);
+
         pintarDestaque();
+        atualizarSetas(el.lista, "Proximas");
+        atualizarSetas(el.listaPass, "Passadas");
+    }
+
+    /* ------------------------------------------------------------
+       A RÉGUA — onde cada prova fica na linha do tempo
+       ------------------------------------------------------------
+       O vão entre dois marcadores é proporcional aos dias que os
+       separaram: `faltam` vem do MySQL (DATEDIFF(data, CURDATE())),
+       então é positivo nas próximas e negativo nas que já passaram —
+       o módulo dá a distância em qualquer um dos dois casos.
+
+       Se a régua não couber na tela, tudo encolhe na mesma proporção:
+       a distância entre as provas continua sendo a mesma, muda só a
+       escala. E o --trilho mede o conteúdo de verdade, para a linha
+       atravessar a rolagem inteira em vez de parar na dobra. */
+
+    /* 8px por dia. O cartão tem 272px, ou seja ~34 dias nessa escala:
+       provas mais próximas que isso dividem o vão mínimo (não dá para
+       encolher duas cartas de 272px sem elas se sobreporem), e a partir
+       daí a distância passa a contar de verdade. Com 2px/dia nenhuma
+       prova de um semestre ficaria longe da outra - a régua viraria
+       quatro cartões iguais, que é uma lista com enfeite. */
+    const PX_POR_DIA = 8;    /* px por dia, antes de caber na tela */
+    const VAO_MINIMO = 20;   /* respiro entre um cartão e outro */
+
+    function posicionarRegua(lista) {
+        if (!lista) return;
+
+        const cartoes = [...lista.querySelectorAll(".pv-card")];
+        if (cartoes.length === 0) {
+            lista.style.setProperty("--trilho", "100%");
+            return;
+        }
+
+        const dias = cartoes.map(c => Math.abs(Number(c.dataset.falta) || 0));
+        const menor = Math.min(...dias);
+        const amplitude = Math.max(...dias) - menor;
+
+        const larguraCartao = cartoes[0].offsetWidth;
+        /* Nenhum vão pode ser menor que o próprio cartão: dois cartões
+           em cima um do outro não são linha do tempo nenhuma. */
+        const vaoMinimo = larguraCartao + VAO_MINIMO;
+
+        /* O vão bruto é proporcional aos dias (PX_POR_DIA por dia), mas
+           nunca menor que o cartão. O que sobra do mínimo é o "excesso"
+           — a parte que realmente representa a distância no tempo. */
+        const excessos = [];
+        for (let k = 1; k < cartoes.length; k++) {
+            const bruto = Math.max(vaoMinimo, (dias[k] - dias[k - 1]) * PX_POR_DIA);
+            excessos.push(bruto - vaoMinimo);
+        }
+
+        /* Se não couber na tela, o excesso é que encolhe. Sem espaço
+           para ele (ou nem para os vãos mínimos), a régua rola: melhor
+           rolar do que mentir sobre a distância entre as datas — então
+           nesse caso o excesso entra INTEIRO (encolhe = 1), senão as
+           quatro provas iam ficar com o mesmo vão. */
+        const orcamento = Math.max(0, (lista.clientWidth || larguraCartao) - larguraCartao);
+        const sobra = orcamento - (cartoes.length - 1) * vaoMinimo;
+        const somaExcesso = excessos.reduce((a, b) => a + b, 0);
+        const encolhe = somaExcesso <= 0 ? 0 : sobra > 0 ? Math.min(1, sobra / somaExcesso) : 1;
+
+        cartoes.forEach((c, k) => {
+            const vao = k === 0 ? 0 : Math.round(vaoMinimo + excessos[k - 1] * encolhe);
+            c.style.setProperty("--x", vao + "px");
+            /* --prox: 1 na mais próxima (a que está em cima), 0 na mais
+               distante. É o que apaga o resto da régua. */
+            const prox = amplitude > 0 ? 1 - (dias[k] - menor) / amplitude : 1;
+            c.style.setProperty("--prox", prox.toFixed(2));
+        });
+
+        /* A régua atravessa a lista toda, rolagem inclusive. Medido já
+           com os vãos no lugar (scrollWidth força o layout), senão a
+           linha pararia antes do último cartão. */
+        lista.style.setProperty("--trilho", lista.scrollWidth + "px");
+    }
+
+    function atualizarSetas(lista, tipo) {
+        if (!lista) return;
+        const btnPrev = document.getElementById("btnPrev" + tipo);
+        const btnNext = document.getElementById("btnNext" + tipo);
+        if (!btnPrev || !btnNext) return;
+
+        const maxScroll = lista.scrollWidth - lista.clientWidth;
+        const left = lista.scrollLeft;
+
+        btnPrev.disabled = left <= 0;
+        btnNext.disabled = left >= maxScroll - 1;
     }
 
     /** A próxima prova, grande, no topo. */
     function pintarDestaque() {
         const p = proximas[0];
-        el.destaque.hidden = !p;
+        if (el.destaque) el.destaque.hidden = !p;
         if (!p) return;
 
         const [num, unidade] = contagem(p.faltam);
-        document.getElementById("pvDestaqueNum").textContent      = num;
-        document.getElementById("pvDestaqueUnidade").textContent  = unidade;
-        document.getElementById("pvDestaqueTitulo").textContent   = p.titulo;
-        document.getElementById("pvDestaqueData").textContent     = p.por_extenso;
+        const numEl = document.getElementById("pvDestaqueNum");
+        const uniEl = document.getElementById("pvDestaqueUnidade");
+        const titEl = document.getElementById("pvDestaqueTitulo");
+        const datEl = document.getElementById("pvDestaqueData");
+        if (numEl) numEl.textContent = num;
+        if (uniEl) uniEl.textContent = unidade;
+        if (titEl) titEl.textContent = p.titulo;
+        if (datEl) datEl.textContent = p.por_extenso;
 
         const tag = document.getElementById("pvDestaqueMateria");
-        tag.textContent = p.materia || "";
-        tag.hidden = !p.materia;
+        if (tag) {
+            tag.textContent = p.materia || "";
+            tag.hidden = !p.materia;
+        }
 
-        // Faltando uma semana ou menos, a contagem acende. É a única
-        // diferença visual do painel — e a que importa.
-        el.destaque.classList.toggle("pv-destaque--perto", p.faltam <= 7);
+        if (el.destaque) {
+            el.destaque.classList.toggle("pv-destaque--perto", p.faltam <= 7);
+        }
 
         const caixa = document.getElementById("pvDestaqueProgresso");
-        const total = p.topicos.length;
-        caixa.hidden = total === 0;
+        const total = p.topicos && p.topicos.length ? p.topicos.length : 0;
+        if (caixa) caixa.hidden = total === 0;
         if (total > 0) {
             const barra = document.getElementById("pvDestaqueBarra");
-            barra.max   = total;
-            barra.value = p.feitos;
-            document.getElementById("pvDestaqueTexto").textContent =
-                p.feitos === total
+            if (barra) {
+                barra.max = total;
+                barra.value = p.feitos || 0;
+            }
+            const txt = document.getElementById("pvDestaqueTexto");
+            if (txt) {
+                txt.textContent = (p.feitos === total)
                     ? "tudo estudado ✦"
-                    : `${p.feitos} de ${total} assuntos estudados`;
+                    : ((p.feitos || 0) + " de " + total + " assuntos estudados");
+            }
         }
     }
+
+    /* A régua é proporcional à largura: ao virar a tela (ou voltar
+       do celular) o mapa das provas é refeito. */
+    let esperaRegua;
+    window.addEventListener("resize", () => {
+        clearTimeout(esperaRegua);
+        esperaRegua = setTimeout(() => {
+            posicionarRegua(el.lista);
+            posicionarRegua(el.listaPass);
+        }, 150);
+    });
+
+
 
     /** Um cartão de prova. `passada` troca a contagem pelo resultado. */
     function cartao(p, passada) {
@@ -220,7 +351,8 @@
             : `<span class="pv-card__conta"><strong>${esc(num)}</strong><i>${esc(unidade)}</i></span>`;
 
         return `
-        <li class="pv-card${!passada && p.faltam <= 7 ? " pv-card--perto" : ""}" data-id="${p.id}">
+        <li class="pv-card${!passada && p.faltam <= 7 ? " pv-card--perto" : ""}" data-id="${p.id}"
+            data-data="${esc(p.data)}" data-falta="${p.faltam}">
             <details class="pv-card__det"${aberta ? " open" : ""}>
                 <summary class="pv-card__topo">
                     ${selo}
@@ -338,9 +470,17 @@
             <h4 class="pv-bloco__titulo">Como foi</h4>
             <form class="pv-nota" data-nota="${p.id}">
                 <label class="sr-only" for="pvNota${p.id}">Nota da prova</label>
-                <input type="number" id="pvNota${p.id}" step="0.01" min="0" max="1000"
-                       inputmode="decimal" placeholder="Nota"
-                       value="${p.nota === null ? "" : esc(String(Number(p.nota)))}">
+                <div class="qtd-stepper">
+                    <button type="button" class="qtd-stepper__btn" data-passo="-1" aria-label="Diminuir nota">
+                        <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </button>
+                    <input type="number" id="pvNota${p.id}" step="0.01" min="0" max="1000"
+                           inputmode="decimal" placeholder="Nota"
+                           value="${p.nota === null ? "" : esc(String(Number(p.nota)))}">
+                    <button type="button" class="qtd-stepper__btn" data-passo="1" aria-label="Aumentar nota">
+                        <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </button>
+                </div>
                 <button type="submit" class="dash-btn dash-btn--ghost dash-btn--pequeno">Salvar nota</button>
             </form>
             <span class="campo__dica">Deixe em branco e salve para apagar a nota.</span>

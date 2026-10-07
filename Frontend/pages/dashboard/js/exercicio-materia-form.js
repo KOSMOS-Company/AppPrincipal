@@ -240,6 +240,14 @@
         if (!id) return;
 
         const nome = el("exercicioMateriaNome").value.trim();
+        await apagarDireto(id, nome, true);
+    }
+
+    /* A exclusão comum: o botão do modal e a lixeira direta na linha
+       (exercicios.js) passam por aqui, para a mensagem, o endpoint e o
+       evento serem um só. Quando vem da linha, o modal está fechado —
+       aí o erro aparece no próprio confirmar() em vez do .msg. */
+    async function apagarDireto(id, nome, noModal = false) {
         // confirmar() é compartilhada (dashboard.js) e usa o modal de
         // partes/modal-confirma.php
         const ok = await confirmar({
@@ -250,9 +258,11 @@
         });
         if (!ok) return;
 
-        const btn = el("exercicioMateriaApagar");
-        btn.disabled = true;
-        btn.textContent = "Excluindo…";
+        const btn = noModal ? el("exercicioMateriaApagar") : null;
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = "Excluindo…";
+        }
         try {
             const dados = new FormData();
             dados.append("acao", "excluir");
@@ -261,18 +271,28 @@
             const resp = await fetch(`${BACKEND}/exercicios_materia.php`, { method: "POST", body: dados });
             const json = await resp.json();
 
-            if (!json.ok) { msg(json.msg || "Não foi possível excluir.", "erro"); return; }
+            if (!json.ok) {
+                await falhar(json.msg || "Não foi possível excluir.", noModal);
+                return;
+            }
 
             document.dispatchEvent(new CustomEvent("exercicioMateria:apagado", {
                 detail: { id, msg: json.msg },
             }));
-            fechar();
+            if (noModal) fechar();
         } catch (err) {
-            msg("Não foi possível falar com o servidor.", "erro");
+            await falhar("Não foi possível falar com o servidor.", noModal);
         } finally {
-            btn.disabled = false;
-            btn.textContent = "Excluir";
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = "Excluir";
+            }
         }
+    }
+
+    async function falhar(texto, noModal) {
+        if (noModal) { msg(texto, "erro"); return; }
+        await confirmar({ titulo: "Não foi possível excluir", texto, botao: "Entendi" });
     }
 
     function msg(texto, tipo) {
@@ -294,5 +314,5 @@
         return String(valor).replace(/["\\]/g, "\\$&");
     }
 
-    window.KosmosExercicioMateriaForm = { abrir, fechar };
+    window.KosmosExercicioMateriaForm = { abrir, fechar, apagarDireto };
 })();

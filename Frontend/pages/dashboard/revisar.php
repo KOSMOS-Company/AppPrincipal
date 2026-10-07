@@ -33,7 +33,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dashboard-fundo-estatico">
 
     <?php include __DIR__ . '/partes/fundo.php'; ?>
 

@@ -71,3 +71,30 @@
     z-index: var(--veu-z, -1);
     background: rgba(5, 0, 12, var(--veu-forca, .52));
 }
+
+/* ── O GRÃO ──
+   Uma película de ruído finíssimo em cima do céu, do jeito do papel
+   fotográfico. O shader desenha nuvens e estrelas, e nuvens de
+   computador são MUIDAS demais: em degradê, o que aparece é a
+   bandagem — faixas horizontais que o olho pega na hora. O grão
+   quebra a perfectionção do degradê e some no meio do texto.
+
+   É `::before` e não `::after` porque a landing page já usa o
+   `::after` do véu para o degradê do topo (inicio.css, mais abaixo
+   na folha dela) — duas camadas diferentes, e nenhuma delas briga
+   com a outra.
+
+   A força é uma variável, como as do resto do céu: a landing page
+   pode pedir mais grão (o céu é o assunto), o dashboard menos (a
+   pessoa fica horas lendo em cima dele). */
+.veu::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: var(--ruido-forca, .05);
+    /* feTurbulence sorteia ruído; o feColorMatrix sem cor deixa
+       cinza, senão cada canal vira uma mancha(colorida) da nada. */
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+}

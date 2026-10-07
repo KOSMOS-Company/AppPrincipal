@@ -24,6 +24,31 @@
 
 /* A contagem. É o número que a pessoa veio ver, então ele tem o
    tamanho de um título e não o de um dado. */
+
+
+
+
+/* Faltando uma semana ou menos, a contagem acende. */
+.pv-destaque--perto { border-color: rgba(165,65,255,.38); }
+.pv-destaque--perto 
+.pv-destaque--perto 
+
+.pv-destaque__texto { flex: 1 1 auto; min-width: 0; }
+.pv-destaque__texto h2 {
+    font-family: "Syne", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;
+}
+.pv-destaque__barra {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+}
+.pv-destaque__barra[hidden] { display: none; }
+.pv-destaque__barra progress { flex: 1 1 auto; min-width: 0; margin: 0; }
 .pv-destaque__conta {
     flex: none;
     min-width: 128px;
@@ -49,31 +74,12 @@
     text-transform: uppercase;
     color: var(--text-muted);
 }
-
-/* Faltando uma semana ou menos, a contagem acende. */
-.pv-destaque--perto { border-color: rgba(165,65,255,.38); }
 .pv-destaque--perto .pv-destaque__conta {
-    background: rgba(165,65,255,.14);
+    background: var(--bg-nav);
     border-color: rgba(165,65,255,.4);
 }
 .pv-destaque--perto .pv-destaque__conta strong { color: var(--accent-lt); }
 
-.pv-destaque__texto { flex: 1 1 auto; min-width: 0; }
-.pv-destaque__texto h2 {
-    font-family: "Syne", sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-    overflow-wrap: anywhere;
-}
-.pv-destaque__barra {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-top: 16px;
-}
-.pv-destaque__barra[hidden] { display: none; }
-.pv-destaque__barra progress { flex: 1 1 auto; min-width: 0; margin: 0; }
 .pv-destaque__barra span {
     flex: none;
     font-size: .82rem;
@@ -83,28 +89,161 @@
 
 @media (max-width: 620px) {
     .pv-destaque { flex-direction: column; align-items: stretch; gap: 18px; }
-    .pv-destaque__conta { min-width: 0; }
+    
     .pv-destaque__barra { flex-wrap: wrap; gap: 8px; }
 }
 
 /* ============================================================
-   A LISTA
-   ============================================================ */
+   A RÉGUA DAS PROVAS
+   ============================================================
+   A lista virou linha do tempo: a régua de 2px atravessa a lista e
+   cada prova é um marcador sobre ela, com o prego (::before) na linha
+   e o fio (::after) descendo até o cartão.
+
+   O ESPAÇAMENTO NÃO ESTÁ NO CSS: quem põe cada prova no seu lugar é
+   o js/provas.js (posicionarRegua), que olha a data de cada uma e
+   distribui na régua — o vão entre duas provas é proporcional aos
+   dias que as separam. O --x é a distância do marcador anterior, e
+   o --trilho é a largura toda da régua (medida pelo JS, para a linha
+   atravessar o que cabe na rolagem). */
 .pv-lista {
     list-style: none;
+    position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+    margin: 0;
+    /* espaço para a régua e para o fio do marcador */
+    padding: 54px 0 4px;
+    overflow-x: auto;
+    /* A régua não conta mais para a largura mínima dos pais: sem isto os
+       vãos (margin-left) viravam largura de verdade subindo a cadeia até
+       o main, e a barra de rolagem horizontal saía da página inteira em
+       vez de ficar dentro da régua. */
+    contain: inline-size;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    
+}
+/* Companion do contain acima: a seção é item flex e também não pode
+   ser presa pelo conteúdo da régua. */
+.ini-secao--regua { min-width: 0; }
+.pv-lista::-webkit-scrollbar { display: none; }
+
+/* Navegação das régua */
+.pv-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    margin-right: 8px;
+}
+.pv-nav__btn {
+    padding: 6px;
+    min-width: 0;
+    width: 32px;
+    height: 32px;
+    justify-content: center;
+}
+.pv-nav__btn svg {
+    width: 18px;
+    height: 18px;
+}
+.pv-nav__btn[disabled] {
+    opacity: .4;
+    pointer-events: none;
+}
+
+/* A régua: 2px na cor da marca, apagando para o fim. */
+.pv-lista::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 27px;
+    width: var(--trilho, 100%);
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgba(165, 65, 255, .55), rgba(165, 65, 255, .10));
+    pointer-events: none;
+}
+
+/* O que já passou fica para trás da régua: linha fraca e pontilhada. */
+.pv-lista--passadas::before {
+    height: 2px;
+    background: repeating-linear-gradient(90deg,
+                rgba(165, 65, 255, .22) 0 6px,
+                transparent 6px 12px);
 }
 
 .pv-card {
-    border-radius: var(--radius-sm);
-    background: var(--superficie);
-    border: 1px solid rgba(165,65,255,.12);
-    transition: var(--transition);
+    position: relative;
+    flex: none;
+    width: 272px;
+    /* o vão até o marcador anterior, em px (vem do JS) */
+    margin-left: var(--x, 0px);
+    /* --prox vai de 1 (a prova mais próxima) a 0 (a mais distante) */
+    opacity: calc(.78 + .22 * var(--prox, 1));
+    border-radius: var(--radius-chip);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    transition: var(--transition), opacity .35s ease;
 }
 .pv-card--perto { border-color: rgba(165,65,255,.34); }
-.pv-card:hover  { border-color: rgba(165,65,255,.4); }
+.pv-card:hover  { border-color: rgba(255,255,255,.3); box-shadow: var(--shadow-card-hover); opacity: 1; }
+
+/* O prego: o ponto que fica SOBRE a régua. O topo dele bate com os
+   27px da linha (o <li> começa 54px abaixo do topo da lista). */
+.pv-card::before {
+    content: "";
+    position: absolute;
+    top: -27px;
+    left: 50%;
+    width: calc(9px + 5px * var(--prox, 1));
+    height: calc(9px + 5px * var(--prox, 1));
+    margin-left: calc((9px + 5px * var(--prox, 1)) / -2);
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 calc(8px + 16px * var(--prox, 1))
+                rgba(165, 65, 255, calc(.25 + .45 * var(--prox, 1)));
+    opacity: calc(.5 + .5 * var(--prox, 1));
+    transition: transform .3s ease, box-shadow .3s ease, opacity .3s ease;
+}
+/* O fio que desce do prego até o cartão. */
+.pv-card::after {
+    content: "";
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    width: 1px;
+    height: 20px;
+    background: linear-gradient(180deg, rgba(165, 65, 255, .55), rgba(165, 65, 255, .18));
+    pointer-events: none;
+}
+.pv-card:hover::before { transform: translateY(-50%) scale(1.15); }
+
+.pv-card--perto::before {
+    background: var(--accent-lt);
+    box-shadow: 0 0 22px rgba(165, 65, 255, .7);
+    opacity: 1;
+}
+
+/* Prova já realizada: o prego fica vazado (só o anel) e o cartão,
+   todo o conteúdo junto, some para trás da régua. */
+.pv-lista--passadas .pv-card {
+    opacity: calc(.42 + .28 * var(--prox, 1));
+    border-color: rgba(165, 65, 255, .1);
+}
+.pv-lista--passadas .pv-card:hover { opacity: .95; border-color: rgba(255, 255, 255, .3); }
+.pv-lista--passadas .pv-card::before {
+    background: var(--bg-card);
+    border: 2px solid rgba(165, 65, 255, .45);
+    box-shadow: none;
+}
+.pv-lista--passadas .pv-card::after {
+    background: linear-gradient(180deg, rgba(165, 65, 255, .3), rgba(165, 65, 255, .08));
+}
 
 /* <details> nativo: abrir e fechar sem uma linha de JS de estado,
    e já funciona no teclado e no leitor de tela. O JS só anota quem
@@ -223,10 +362,10 @@
     align-items: center;
     gap: 12px;
     padding: 7px 10px;
-    border-radius: 10px;
+    border-radius: var(--radius-chip);
     transition: var(--transition);
 }
-.pv-top:hover { background: rgba(165,65,255,.06); }
+.pv-top:hover { background: rgba(255,255,255,.08); }
 
 .pv-top__check {
     flex: none;
@@ -236,8 +375,8 @@
     place-items: center;
     padding: 0;
     background: transparent;
-    border: 1.8px solid rgba(165,65,255,.35);
-    border-radius: 7px;
+    border: 1.8px solid var(--border);
+    border-radius: var(--radius-chip);
     color: transparent;
     cursor: pointer;
     transition: var(--transition);
@@ -263,7 +402,7 @@
     padding: 0;
     background: transparent;
     border: 0;
-    border-radius: 50%;
+    border-radius: var(--radius-chip);
     color: var(--text-muted);
     font-size: 1.05rem;
     line-height: 1;
@@ -273,7 +412,7 @@
 }
 .pv-top:hover .pv-top__x,
 .pv-top:focus-within .pv-top__x { opacity: 1; }
-.pv-top__x:hover { color: #ff6b8a; background: rgba(255,107,138,.12); }
+.pv-top__x:hover { color: var(--erro); background: var(--erro-bg); }
 .pv-top__x:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
 /* Onde não há hover (celular) o × fica sempre visível, senão não
    haveria como tirar um assunto pelo telefone. */
@@ -295,16 +434,18 @@
     font-family: inherit;
     font-size: .9rem;
     color: var(--text);
-    background: rgba(255,255,255,.04);
+    background: var(--bg-nav);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-chip);
 }
 .pv-nota input { flex: 0 1 140px; }
+.pv-nota .qtd-stepper { min-width: 0; }
 .pv-add input:focus,
 .pv-nota input:focus {
     outline: none;
     border-color: var(--accent);
-    background: rgba(165,65,255,.08);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-neutral);
 }
 .pv-add input::placeholder,
 .pv-nota input::placeholder { color: var(--text-muted); }
@@ -321,14 +462,14 @@
     align-items: center;
     gap: 10px;
     padding: 10px 13px;
-    border-radius: 10px;
-    background: rgba(255,255,255,.03);
-    border: 1px solid rgba(165,65,255,.12);
+    border-radius: var(--radius-chip);
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
     color: inherit;
     text-decoration: none;
     transition: var(--transition);
 }
-.pv-mat:hover { border-color: rgba(165,65,255,.4); transform: translateX(3px); }
+.pv-mat:hover { border-color: rgba(255,255,255,.3); transform: translateX(3px); box-shadow: var(--shadow-neutral); }
 .pv-mat:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .pv-mat__ico  { flex: none; font-size: 1.05rem; }
 .pv-mat__nome { flex: 1 1 auto; min-width: 0; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -345,6 +486,7 @@
 }
 
 @media (max-width: 560px) {
+    .pv-card { width: 236px; }
     .pv-card__topo { gap: 12px; padding: 12px 14px; }
     .pv-card__conta { min-width: 58px; }
     .pv-card__corpo { padding: 4px 14px 16px; }

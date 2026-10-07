@@ -1,69 +1,101 @@
 /* ==== RESUMOS ==== */
+/* Um resumo é uma LINHA, não um cartão.
+
+   O que se faz nesta tela é ESCOLHER: passar o olho por vários
+   resumos e decidir qual abrir. Grade de cards obriga a comparar
+   miniaturas, e a miniatura — 120px de altura só para dizer "isto é
+   um documento" — repete o que o próprio título já afirma. A linha
+   põe título, matéria e data na mesma altura, cabe o caderno inteiro
+   sem rolar e devolve o que a grade roubava: comparação. */
 .resumos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .resumo-card {
     position: relative;
-    background: var(--superficie);
-    border: 1px solid rgba(165,65,255,.12);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    cursor: pointer;
-    transition: var(--transition);
     display: flex;
-    flex-direction: column;
+    align-items: stretch;
+    min-height: 66px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    border-radius: 0;
+    cursor: default;
+    transition: background .18s ease, box-shadow .18s ease;
 }
-.resumo-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(165,65,255,.4);
-    box-shadow: 0 20px 50px rgba(0,0,0,.45), 0 0 30px rgba(165,65,255,.1);
+/* No hover a linha acende e ganha um filete à esquerda. Um
+   transform aqui levantaria a linha e deixaria um buraco visível
+   embaixo dela — por isso o destaque é cor, não movimento. */
+.resumo-card:hover,
+.resumo-card:focus-within {
+    background: rgba(165,65,255,.07);
+    box-shadow: inset 3px 0 0 var(--accent);
 }
 
+/* O que sobrou da miniatura: 40px de ícone para marcar o tipo. */
 .resumo-card__thumb {
     position: relative;
     z-index: 1;
-    height: 120px;
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--purple-dk) 0%, #1e0338 100%);
-    border-bottom: 1px solid var(--border);
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(165,65,255,.08);
+    color: var(--accent-lt);
 }
-.resumo-card__thumb svg { width: 44px; height: 44px; color: var(--accent-lt); opacity: .85; transition: transform var(--transition); }
-.resumo-card:hover .resumo-card__thumb svg { transform: scale(1.08) rotate(-5deg); }
-/* brilho que acompanha o cursor — mesma receita dos cards do Início */
-.resumo-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 0%), rgba(165,65,255,.10), transparent 42%);
-    opacity: 0;
-    transition: opacity .3s ease;
-    pointer-events: none;
-}
-.resumo-card:hover::after { opacity: 1; }
-.resumo-card > * { position: relative; z-index: 1; }
+.resumo-card__thumb svg { width: 20px; height: 20px; opacity: .9; transition: transform var(--transition); }
+.resumo-card:hover .resumo-card__thumb svg { transform: scale(1.1); }
 
-
-.resumo-card__body { padding: 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-.resumo-card__title {
-    font-family: "Syne", sans-serif;
-    font-size: 1.05rem;
-    font-weight: 700;
-    line-height: 1.3;
-}
-.resumo-card__meta {
-    margin-top: auto;
+/* Título à esquerda, matéria no meio, data à direita — as três na
+   mesma linha de base, que é o que faz a lista parecer lista. */
+.resumo-card__body {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 18px;
+    flex: 1;
+    min-width: 0;
+    padding: 12px 16px 12px 14px;
+}
+.resumo-card__title {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: "Syne", sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+/* A tag entra no meio da linha, onde o olho já está: assim a matéria
+   fica sempre na mesma coluna, e o título tem a largura toda. */
+.resumo-card__body .materia-tag {
+    order: 2;
+    flex: none;
+    margin: 0;
+}
+.resumo-card__meta {
+    order: 3;
+    flex: none;
+    min-width: 132px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
     font-size: .8rem;
     color: var(--text-muted);
+    white-space: nowrap;
 }
+.resumo-card__meta span:last-child { transition: color var(--transition); }
+.resumo-card:hover .resumo-card__meta span:last-child { color: var(--accent-lt); }
 
 /* Modal de escrever/abrir resumo: mais largo, porque tem texto */
 .modal__box--resumo { 
@@ -94,11 +126,13 @@
 .resumo-card { position: relative; cursor: default; }
 .resumo-card__link {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     flex: 1;
+    min-width: 0;
     text-decoration: none;
     color: inherit;
     border-radius: inherit;
+    cursor: pointer;
 }
 .resumo-card__link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
@@ -142,117 +176,289 @@
 
 /* ============================================================
    CADERNOS — a estante (resumos.php)
-   O caderno é o "deck" dos resumos: agrupa os temas de uma matéria.
+   O caderno é o "deck" dos resumos: agrupa os temas de uma
+   matéria. Na tela ele é uma LOMBADA em pé, não um cartão deitado:
+   grade de cards transformava a biblioteca numa lista de tarefas,
+   e uma biblioteca se reconhece pela prateleira, não pela grade.
+   A lombada é a parte mais imediata do objeto — dá para ver a cor
+   do caderno, a altura dele e o quanto cabe dentro, tudo antes de
+   clicar.
+
+   Uma fileira só, rolando de lado quando não couber: é o que uma
+   estante faz, e a rolagem horizontal é o gesto que o olho já
+   associa a prateleira.
    ============================================================ */
 .cadernos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    display: flex;
+    align-items: flex-end;          /* as lombadas param na prateleira */
+    gap: 10px;
     margin-bottom: 12px;
+    /* 56px no topo abre espaço para a dica flutuante; 120px na direita
+       dão espaço para a dica da ÚLTIMA lombada, que senão a rolagem
+       do container cortaria pela metade. A prateleira em branco no
+       fim da fileira é a parte vazia de uma biblioteca. */
+    padding: 56px 120px 0 6px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    /* A PRATELEIRA: uma prancha sob as lombadas, com a luz batendo
+       na aresta de cima. Como a rolagem é do container, a prancha é
+       da borda dele e fica parada enquanto as lombadas passam. */
+    border-bottom: 9px solid rgba(26,5,44,.95);
+    box-shadow:
+        inset 0 1px 0 rgba(201,124,255,.22),
+        0 20px 34px -24px rgba(0,0,0,.95);
 }
 
 .caderno-card {
     position: relative;
-    display: flex;
-    background: var(--superficie);
-    border: 1px solid rgba(165,65,255,.12);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: var(--transition);
+    display: block;
+    flex: none;
+    width: 54px;
+    height: 236px;
+    border-radius: 5px 5px 3px 3px;   /* dura em cima, assentada em baixo */
+    background: linear-gradient(180deg, var(--cad) 0%, var(--cad-esc) 100%);
+    box-shadow:
+        0 12px 24px -16px rgba(0,0,0,.9),
+        inset 0 1px 0 rgba(255,255,255,.2);
+    transition: transform .28s cubic-bezier(.4,0,.2,1), box-shadow .28s ease, filter .2s ease;
+    /* `overflow` fica de fora de propósito: é o ::after do cartão que
+       desenha a dica, e ela precisa escapar da lombada. Quem recorta
+       o desenho é o link, logo abaixo. */
 }
+/* Alturas um pouco diferentes, como livros de espessuras
+   diferentes na mesma prateleira. */
+.caderno-card:nth-child(3n+2) { height: 252px; }
+.caderno-card:nth-child(5n+3) { height: 220px; }
+.caderno-card:nth-child(7n+5) { height: 244px; }
+
+/* O hover puxa o livro para fora da estante — o gesto que todo mundo
+   já conhece de uma estante de verdade. */
 .caderno-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(165,65,255,.4);
-    box-shadow: 0 20px 50px rgba(0,0,0,.45), 0 0 30px rgba(165,65,255,.1);
+    transform: translateY(-14px);
+    filter: brightness(1.07);
+    box-shadow:
+        0 30px 44px -20px rgba(0,0,0,.95),
+        inset 0 1px 0 rgba(255,255,255,.28);
 }
-/* brilho que acompanha o cursor — mesma receita dos cards do Início */
-.caderno-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%), rgba(165,65,255,.10), transparent 42%);
-    opacity: 0;
-    transition: opacity .3s ease;
-    pointer-events: none;
-}
-.caderno-card:hover::after { opacity: 1; }
-.caderno-card > * { position: relative; z-index: 1; }
 
 .caderno-card__link {
+    position: relative;
+    z-index: 1;
     display: flex;
-    flex: 1;
+    flex-direction: column;
+    height: 100%;
     min-width: 0;
+    overflow: hidden;
     text-decoration: none;
     color: inherit;
     border-radius: inherit;
 }
 .caderno-card__link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-/* a lombada: o detalhe que faz o cartão parecer um caderno.
+/* A lombada da lombada: a dobra onde a capa encontra as folhas.
    A cor vem de --cad, definida pela classe .caderno-card--<cor>. */
 .caderno-card__lombada {
-    flex: none;
-    width: 12px;
-    border-right: 1px solid rgba(0,0,0,.35);
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 1;
+    width: 9px;
+    background: linear-gradient(90deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.18) 55%, rgba(255,255,255,.1) 100%);
 }
 
 .caderno-card__body {
+    position: relative;
+    z-index: 2;
     flex: 1;
     min-width: 0;
-    padding: 20px 20px 18px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 7px 14px;
+    transition: padding var(--transition);
 }
-.caderno-card__nome {
-    font-family: "Syne", sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-}
-.caderno-card__qtd { font-size: .85rem; color: var(--text-dim); }
-.caderno-card__qtd strong { color: var(--text); font-weight: 600; }
-.caderno-card__abrir {
-    margin-top: auto;
-    font-size: .8rem;
-    color: var(--text-muted);
-    transition: var(--transition);
-}
-.caderno-card:hover .caderno-card__abrir { color: var(--accent-lt); }
 
-/* o lápis renomeia; o corpo do cartão abre o caderno */
-.caderno-card__editar {
+/* O título desce pela lombada, como o de um livro na prateleira.
+   Com `nowrap` o nome comprido não vira uma segunda coluna ao lado:
+   ele é cortado na base, e o nome inteiro está na dica. */
+.caderno-card__nome {
+    flex: 1;
+    min-height: 0;
+    margin: 4px 0;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+    text-align: center;          /* no vertical-rl, centralizar na altura */
+    font-family: "Syne", sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: .01em;
+    overflow: hidden;
+    text-shadow: 0 1px 4px rgba(0,0,0,.45);
+}
+
+/* Numa lombada de 54px não cabem a matéria, a descrição nem a
+   contagem. Elas saem de cena mas continuam no DOM, para quem usa
+   leitor de tela (e para a dica logo abaixo). */
+.caderno-card__desc,
+.caderno-card__qtd,
+.caderno-card__topo .materia-tag {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 2;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+.caderno-card__abrir { display: none; }
+
+/* O ícone da matéria fica no alto da lombada, como o brilho do
+   verniz; a tag de texto é a que some (acima). */
+.caderno-card__topo { display: flex; }
+.caderno-card__icone {
+    font-size: 1.15rem;
+    line-height: 1;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,.5));
+}
+
+/* A dica: nome, matéria e o que tem dentro. Some do hover e do
+   foco do teclado, e no toque não existe — lá a informação está
+   no leitor de tela e no slide. */
+.caderno-card::after {
+    content: attr(data-dica);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    z-index: 30;
+    width: max-content;
+    max-width: 240px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-nav);
+    color: var(--text-dim);
+    font-size: .78rem;
+    line-height: 1.45;
+    text-align: center;
+    box-shadow: var(--shadow-card-hover);
+    opacity: 0;
+    transform: translate(-50%, 6px);
+    transition: opacity .18s ease, transform .18s ease;
+    pointer-events: none;
+}
+.caderno-card:hover::after,
+.caderno-card:focus-within::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+/* A seta da dica: amarra a caixa ao card dono. Nas pontas a caixa
+   é ancorada na borda (regra abaixo) e cresce sobre os vizinhos —
+   sem isto o hover parecia de outro caderno. Ela fica no centro do
+   card, no vão de 10px entre o card e a caixa, e acompanha o
+   levante do hover porque é posicionada nele. */
+.caderno-card::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 3px);
+    z-index: 29;
+    width: 14px;
+    height: 7px;
+    background: var(--bg-nav);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    opacity: 0;
+    transform: translateX(-50%);
+    transition: opacity .18s ease;
+    pointer-events: none;
+}
+.caderno-card:hover::before,
+.caderno-card:focus-within::before {
+    opacity: 1;
+}
+/* A estante rola (overflow-x) e RECORTA o que vaza dela: na ponta,
+   a dica centrada perdia metade — a da primeira lombada saía sem o
+   começo do texto. Nas duas pontas ela se ancora na borda do card
+   e cresce para DENTRO da estante, onde não corta. */
+.caderno-card:first-child::after {
+    left: 0;
+    transform: translate(0, 6px);
+}
+.caderno-card:last-child::after {
+    left: auto;
+    right: 0;
+    transform: translate(0, 6px);
+}
+.caderno-card:first-child:hover::after,
+.caderno-card:first-child:focus-within::after,
+.caderno-card:last-child:hover::after,
+.caderno-card:last-child:focus-within::after {
+    transform: translate(0, 0);
+}
+@media (hover: none) {
+    .caderno-card::after,
+    .caderno-card::before { display: none; }
+}
+
+/* O lápis renomeia e a lixeira apaga; o corpo do cartão abre o
+   caderno. Os dois ficam um em cima do outro, centrados na base
+   da lombada — a única ponta livre (em cima mora o ícone). */
+.caderno-card__acoes {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 6px;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.caderno-card__editar {
+    width: 28px;
+    height: 28px;
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(13,1,24,.6);
-    backdrop-filter: blur(6px);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-nav);
     color: var(--text-dim);
     cursor: pointer;
     opacity: 0;
     transition: var(--transition);
 }
-.caderno-card__editar svg { width: 17px; height: 17px; }
+.caderno-card__editar svg { width: 15px; height: 15px; }
 .caderno-card:hover .caderno-card__editar,
 .caderno-card:focus-within .caderno-card__editar { opacity: 1; }
 .caderno-card__editar:hover {
     color: #fff;
-    border-color: rgba(165,65,255,.5);
-    background: rgba(165,65,255,.25);
+    border-color: var(--accent);
+    background: rgba(255,255,255,.1);
 }
 .caderno-card__editar:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
-/* no toque não existe hover: o lápis fica sempre visível */
+/* só a lixeira fica vermelha — e só quando o dedo vai até ela */
+.caderno-card__apagar:hover {
+    color: #fff;
+    border-color: var(--erro);
+    background: rgba(239, 68, 68, .12);
+}
+/* no toque não existe hover: os dois ficam sempre visíveis, e a
+   reserva de espaço embaixo também fica */
 @media (hover: none) {
     .caderno-card__editar { opacity: 1; }
+    .caderno-card__body { padding-bottom: 74px; }
+}
+
+/* A zona dos dois botões empilhados mede 66px (6 de base + 28 + 4
+   + 28). Enquanto eles aparecem, o corpo reserva esse espaço com
+   folga: o nome vertical recua e nunca fica embaixo dos ícones —
+   fora do hover o nome segue com a altura inteira. */
+.caderno-card:hover .caderno-card__body,
+.caderno-card:focus-within .caderno-card__body {
+    padding-bottom: 74px;
 }
 
 /* Dois botões no cabeçalho (Novo resumo + Novo caderno) */
@@ -277,19 +483,26 @@
     max-width: 62ch;
 }
 
-/* Selo com a quantidade de fotos, na miniatura do cartão de resumo */
+/* Selo com a quantidade de fotos, no canto da marca do resumo.
+   Na miniatura de 120px ele era uma pílula flutuando no meio da
+   imagem; em 40px de ícone o lugar dele é o canto, meio fora, para
+   não comer o desenho. */
 .resumo-card__thumb { position: relative; }
 .resumo-card__fotos {
     position: absolute;
-    bottom: 8px;
-    right: 10px;
-    min-width: 22px;
-    padding: 2px 7px;
-    border-radius: 999px;
-    background: rgba(13,1,24,.75);
+    bottom: -5px;
+    right: -7px;
+    min-width: 18px;
+    padding: 0 4px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    background: var(--purple-dk);
     border: 1px solid rgba(165,65,255,.35);
-    font-size: .72rem;
+    font-size: .68rem;
     font-weight: 700;
+    line-height: 1;
     color: var(--text);
     text-align: center;
 }
@@ -305,9 +518,9 @@
     align-items: center;
     gap: 4px;
     padding: 18px;
-    border: 1px dashed rgba(165,65,255,.35);
-    border-radius: var(--radius-sm);
-    background: rgba(165,65,255,.04);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-chip);
+    background: var(--bg-nav);
     color: var(--text-dim);
     text-align: center;
     cursor: pointer;
@@ -315,7 +528,7 @@
 }
 .img-solta:hover {
     border-color: var(--accent);
-    background: rgba(165,65,255,.1);
+    background: rgba(255,255,255,.08);
     color: var(--text);
 }
 .img-solta svg { width: 26px; height: 26px; color: var(--accent-lt); }
@@ -371,15 +584,15 @@
     place-items: center;
     width: 24px;
     height: 24px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,.16);
-    background: rgba(13,1,24,.72);
+    border-radius: var(--radius-chip);
+    border: 1px solid var(--border);
+    background: var(--bg-nav);
     color: #fff;
     cursor: pointer;
     transition: var(--transition);
 }
 .img-mini__x svg { width: 14px; height: 14px; }
-.img-mini__x:hover { background: rgba(255,70,90,.7); border-color: rgba(255,70,90,.8); }
+.img-mini__x:hover { background: var(--erro); border-color: var(--erro); }
 .img-mini__x:disabled { opacity: .5; cursor: default; }
 
 /* ============================================================
@@ -395,7 +608,7 @@
 .resumo-galeria__item {
     padding: 0;
     aspect-ratio: 4 / 3;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-chip);
     overflow: hidden;
     border: 1px solid var(--border);
     background: var(--bg-nav);
@@ -405,8 +618,8 @@
 .resumo-galeria__item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .resumo-galeria__item:hover {
     transform: translateY(-3px);
-    border-color: rgba(165,65,255,.5);
-    box-shadow: 0 14px 34px rgba(0,0,0,.45);
+    border-color: rgba(255,255,255,.3);
+    box-shadow: var(--shadow-card-hover);
 }
 .resumo-galeria__item:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
@@ -428,15 +641,14 @@
     justify-content: center;
     padding: 40px 60px;
     background: rgba(5,0,10,.92);
-    backdrop-filter: blur(6px);
     animation: lupa-entra .2s ease;
 }
 .lupa__img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    border-radius: var(--radius-sm);
-    box-shadow: 0 30px 80px rgba(0,0,0,.6);
+    border-radius: var(--radius-chip);
+    box-shadow: var(--shadow-card-hover);
 }
 .lupa__fechar,
 .lupa__nav {
@@ -466,7 +678,7 @@
     left: 50%;
     transform: translateX(-50%);
     padding: 5px 14px;
-    border-radius: 999px;
+    border-radius: 10px;
     background: rgba(26,2,48,.8);
     border: 1px solid var(--border);
     font-size: .8rem;
@@ -479,12 +691,27 @@
 body.sem-rolagem { overflow: hidden; }
 
 @media (max-width: 768px) {
-    .cadernos-grid { grid-template-columns: 1fr; }
+    .cadernos-grid { padding-top: 40px; }
+    .caderno-card { width: 48px; height: 200px; }
     .rs-acoes { width: 100%; }
     .rs-acoes .dash-btn { flex: 1 1 0; justify-content: center; }
     .resumo-galeria { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
     .lupa { padding: 64px 12px 56px; }
     .lupa__nav { width: 40px; height: 40px; font-size: 1.6rem; }
+}
+
+/* Em tela estreita a lista de resumos empilha: título em cima,
+   matéria e data embaixo. Some o "Ler →", que ali é óbvio. */
+@media (max-width: 620px) {
+    .resumo-card__body {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+        padding: 12px 10px 12px 12px;
+    }
+    .resumo-card__meta { min-width: 0; gap: 0; }
+    .resumo-card__meta span:last-child { display: none; }
+    .resumo-card__acoes { padding-right: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -513,60 +740,30 @@ body.sem-rolagem { overflow: hidden; }
 .caderno-card--rosa    { --cad: #f472b6; --cad-esc: #be185d; }
 .caderno-card--ciano   { --cad: #22d3ee; --cad-esc: #0e7490; }
 
-.caderno-card__lombada {
-    background: linear-gradient(180deg, var(--cad) 0%, var(--cad-esc) 100%);
-}
-.caderno-card:hover {
-    border-color: color-mix(in srgb, var(--cad) 45%, transparent);
-    box-shadow: 0 20px 50px rgba(0,0,0,.45),
-                0 0 30px color-mix(in srgb, var(--cad) 14%, transparent);
-}
-.caderno-card::after {
-    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%),
-                color-mix(in srgb, var(--cad) 12%, transparent), transparent 42%);
-}
-.caderno-card:hover .caderno-card__abrir { color: var(--cad); }
+/* O gradiente da cor é o FUNDO da lombada (lá em cima, no .caderno-card);
+   aqui a lombada é só a dobra da capa, que é sombra. */
 
 /* ---- Capa ---- */
 .caderno-card__capa {
     position: absolute;
-    inset: 0 0 0 12px;             /* começa depois da lombada */
+    inset: 0;
     background-size: cover;
     background-position: center;
-    opacity: .3;
+    opacity: .38;
     z-index: 0;
 }
-/* um véu escuro por cima: a capa é fundo, o texto tem de continuar legível */
+/* um véu escuro por cima: a capa é fundo, o título tem de continuar legível */
 .caderno-card__capa::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(10,1,20,.55) 0%, rgba(10,1,20,.88) 100%);
+    background: linear-gradient(180deg, rgba(10,1,20,.6) 0%, rgba(10,1,20,.88) 100%);
 }
-.caderno-card__link { position: relative; z-index: 1; }
 
-/* ---- Ícone e descrição ---- */
-.caderno-card__topo {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    flex-wrap: wrap;
-}
-.caderno-card__icone {
-    font-size: 1.25rem;
-    line-height: 1;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,.5));
-}
-.caderno-card__desc {
-    font-size: .84rem;
-    line-height: 1.45;
-    color: var(--text-muted);
-    /* no máximo duas linhas: o cartão não pode crescer sem controle */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
+/* ---- Ícone e descrição ----
+   Os dois já ganharam o desenho na estante, lá em cima: o ícone fica
+   no alto da lombada e a descrição sai de cena (vira texto para
+   leitor de tela). Nada a declarar aqui. */
 
 /* ============================================================
    ARRASTAR E SOLTAR
@@ -579,45 +776,52 @@ body.sem-rolagem { overflow: hidden; }
     cursor: grabbing;
 }
 
-/* Enquanto um resumo viaja, os cadernos se anunciam como destino */
+/* Enquanto um resumo viaja, os cadernos se anunciam como destino.
+   A lombada não tem borda nenhuma, então o aviso é um contorno
+   tracejado por dentro — e todos eles saem um pouco da prateleira,
+   como quem oferece o livro. */
 body.arrastando-resumo .caderno-card {
-    border-style: dashed;
-    border-color: color-mix(in srgb, var(--cad) 40%, transparent);
+    outline: 2px dashed color-mix(in srgb, var(--cad) 45%, transparent);
+    outline-offset: -3px;
+    transform: translateY(-8px);
 }
 body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 
-/* O alvo sob o cursor */
-.caderno-card.alvo-aceso,
-.rs-soltos.alvo-aceso {
-    border-style: solid;
-    border-color: var(--cad, var(--accent));
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cad, var(--accent)) 45%, transparent),
-                0 20px 50px rgba(0,0,0,.5);
-    transform: translateY(-4px) scale(1.015);
+/* O alvo sob o cursor: na lombada, o livro sai da estante */
+.caderno-card.alvo-aceso {
+    outline: none;
+    transform: translateY(-18px);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cad) 45%, transparent),
+                0 34px 54px -20px rgba(0,0,0,.95);
 }
 .rs-soltos.alvo-aceso {
     border-radius: var(--radius-lg);
     border: 1px dashed var(--accent);
     padding: 20px;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent),
+                0 20px 50px rgba(0,0,0,.5);
 }
 
-/* A tarja "Solte para guardar aqui" */
+/* A tarja "Solte para guardar aqui": na lombada ela cobre o livro
+   inteiro, porque a tarja de baixo não caberia em 54px de largura. */
 .caderno-card__solte {
     position: absolute;
-    inset: auto 0 0 12px;
+    inset: 0;
     z-index: 3;
-    padding: 7px 12px;
-    background: var(--cad, var(--accent));
+    display: grid;
+    place-items: center;
+    padding: 8px;
+    background: color-mix(in srgb, var(--cad) 78%, #0d0118);
     color: #0d0118;
-    font-size: .76rem;
+    font-size: .72rem;
     font-weight: 700;
+    line-height: 1.25;
     text-align: center;
     opacity: 0;
-    transform: translateY(100%);
-    transition: var(--transition);
+    transition: opacity var(--transition);
     pointer-events: none;
 }
-.caderno-card.alvo-aceso .caderno-card__solte { opacity: 1; transform: translateY(0); }
+.caderno-card.alvo-aceso .caderno-card__solte { opacity: 1; }
 
 /* ---- Doca de destinos (caderno.php) ---- */
 .doca {
@@ -630,9 +834,8 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     padding: 14px 18px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
-    background: rgba(18, 2, 32, .96);
-    backdrop-filter: blur(14px);
-    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    background: var(--bg-nav);
+    box-shadow: var(--shadow-card-hover);
     animation: doca-sobe .2s cubic-bezier(.4,0,.2,1);
 }
 .doca__titulo {
@@ -659,7 +862,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     gap: 8px;
     max-width: 230px;
     padding: 10px 16px;
-    border-radius: 999px;
+    border-radius: 10px;
     border: 1px dashed color-mix(in srgb, var(--cad, var(--accent)) 45%, transparent);
     background: rgba(165,65,255,.06);
     color: var(--text-dim);
@@ -671,7 +874,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.doca__alvo:hover { color: var(--text); }
+.doca__alvo:hover { color: var(--text); background: rgba(255,255,255,.08); }
 .doca__alvo.alvo-aceso {
     border-style: solid;
     border-color: var(--cad, var(--accent));
@@ -691,12 +894,11 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
    AÇÕES DO CARTÃO DE RESUMO (menu ⋮ e lápis)
    ============================================================ */
 .resumo-card__acoes {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 2;
+    flex: none;
     display: flex;
-    gap: 6px;
+    align-items: center;
+    gap: 4px;
+    padding-right: 16px;
     opacity: 0;
     transition: var(--transition);
 }
@@ -711,21 +913,20 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 .resumo-card__botao {
     display: grid;
     place-items: center;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(13,1,24,.72);
-    backdrop-filter: blur(6px);
+    border: 1px solid var(--border);
+    background: var(--bg-nav);
     color: var(--text-dim);
     cursor: pointer;
     transition: var(--transition);
 }
-.resumo-card__botao svg { width: 16px; height: 16px; }
+.resumo-card__botao svg { width: 15px; height: 15px; }
 .resumo-card__botao:hover {
     color: #fff;
-    border-color: rgba(165,65,255,.5);
-    background: rgba(165,65,255,.25);
+    border-color: var(--accent);
+    background: rgba(255,255,255,.1);
 }
 .resumo-card__botao:focus-visible {
     opacity: 1;
@@ -744,9 +945,8 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     padding: 8px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border);
-    background: rgba(20, 2, 36, .98);
-    backdrop-filter: blur(14px);
-    box-shadow: 0 22px 60px rgba(0,0,0,.6);
+    background: var(--bg-nav);
+    box-shadow: var(--shadow-card-hover);
     animation: rs-menu-entra .14s ease;
 }
 @media (max-width: 480px) {
@@ -779,7 +979,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     cursor: pointer;
     transition: background .15s ease, color .15s ease;
 }
-.rs-menu__item:hover:not([disabled]) { background: rgba(165,65,255,.18); color: #fff; }
+.rs-menu__item:hover:not([disabled]) { background: rgba(255,255,255,.08); color: #fff; }
 .rs-menu__item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .rs-menu__item--aqui { color: var(--text-muted); cursor: default; }
 .rs-menu__icone { font-size: 1rem; line-height: 1; flex: none; }
@@ -811,9 +1011,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     min-height: 104px;
     border-radius: var(--radius-md);
     border: 1px solid color-mix(in srgb, var(--cad) 35%, transparent);
-    background: var(--superficie);
-    -webkit-backdrop-filter: var(--desfoque-painel);
-    backdrop-filter: var(--desfoque-painel);
+    background: var(--bg-card);
     overflow: hidden;
 }
 .cad-previa__lombada {
@@ -894,25 +1092,25 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     max-height: 168px;
     overflow-y: auto;
     padding: 4px;
-    border-radius: var(--radius-sm);
-    background: rgba(0,0,0,.2);
+    border-radius: var(--radius-chip);
+    background: var(--bg-nav);
 }
 .cad-icone {
     aspect-ratio: 1;
     display: grid;
     place-items: center;
-    border-radius: 10px;
+    border-radius: var(--radius-chip);
     border: 1px solid transparent;
-    background: rgba(255,255,255,.04);
+    background: var(--bg-card);
     font-size: 1.2rem;
     line-height: 1;
     cursor: pointer;
     transition: var(--transition);
 }
-.cad-icone:hover { background: rgba(165,65,255,.2); }
+.cad-icone:hover { background: rgba(255,255,255,.08); }
 .cad-icone.escolhido {
     border-color: var(--accent);
-    background: rgba(165,65,255,.3);
+    background: rgba(165,65,255,.15);
 }
 .cad-icone:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .cad-icone--nenhum { font-size: 1rem; color: var(--text-muted); }
@@ -925,9 +1123,9 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     gap: 8px;
     align-self: flex-start;
     padding: 9px 14px;
-    background: rgba(165,65,255,.1);
-    border: 1px solid rgba(165,65,255,.3);
-    border-radius: var(--radius-sm);
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-chip);
     color: var(--accent-lt);
     font-family: "DM Sans", sans-serif;
     font-size: .88rem;
@@ -936,7 +1134,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     transition: var(--transition);
 }
 .cad-icone-abrir:hover {
-    background: rgba(165,65,255,.18);
+    background: rgba(255,255,255,.08);
     border-color: var(--accent);
 }
 .cad-icone-abrir:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -973,15 +1171,15 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     place-items: center;
     width: 28px;
     height: 28px;
-    border-radius: 9px;
-    border: 1px solid rgba(255,255,255,.16);
-    background: rgba(13,1,24,.78);
+    border-radius: var(--radius-chip);
+    border: 1px solid var(--border);
+    background: var(--bg-nav);
     color: #fff;
     cursor: pointer;
     transition: var(--transition);
 }
 .cad-capa__x svg { width: 15px; height: 15px; }
-.cad-capa__x:hover { background: rgba(255,70,90,.7); border-color: rgba(255,70,90,.8); }
+.cad-capa__x:hover { background: var(--erro); border-color: var(--erro); }
 
 /* ============================================================
    DENTRO DO CADERNO — a cor tinge a página
@@ -1046,7 +1244,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     -webkit-backdrop-filter: var(--desfoque-painel);
     backdrop-filter: var(--desfoque-painel);
     border: 1px solid rgba(165,65,255,.12);
-    border-radius: 100px;
+    border-radius: 12px;
 }
 .rs-aba {
     flex: 1 1 0;
@@ -1057,7 +1255,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     min-width: 0;
     padding: 10px 14px;
     border: none;
-    border-radius: 100px;
+    border-radius: 8px;
     background: none;
     font-family: "DM Sans", sans-serif;
     font-size: .88rem;
@@ -1078,7 +1276,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     min-width: 20px;
     height: 20px;
     padding: 0 6px;
-    border-radius: 999px;
+    border-radius: 6px;
     background: rgba(255,255,255,.08);
     font-size: .72rem;
     font-weight: 700;

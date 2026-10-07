@@ -94,7 +94,7 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dashboard-fundo-estatico">
 
     <?php include __DIR__ . '/partes/fundo.php'; ?>
 
@@ -145,16 +145,34 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
             </div>
 
             <!-- Filtros: só as matérias que o usuário realmente tem -->
+            <div class="controles-linha">
 <?php if (count($MATERIAS_USADAS) > 1): ?>
-            <div class="chips" id="filtros">
-                <button class="chip active" data-materia="todos">Todos</button>
+                <div class="chips" id="filtros">
+                    <button class="chip active" data-materia="todos">Todos</button>
 <?php foreach ($MATERIAS_USADAS as $m): ?>
-                <button class="chip" data-materia="<?= hesc($m) ?>"><?= hesc($m) ?></button>
+                    <button class="chip" data-materia="<?= hesc($m) ?>"><?= hesc($m) ?></button>
 <?php endforeach; ?>
-            </div>
+                </div>
 <?php else: ?>
-            <div class="chips" id="filtros" hidden></div>
+                <div class="chips" id="filtros" hidden></div>
 <?php endif; ?>
+
+                <div class="ordem">
+                    <button type="button" class="ordem__botao" id="ordemBotao"
+                            aria-haspopup="true" aria-expanded="false" aria-controls="ordemMaterias">
+                        <svg class="ordem__icone" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 5.5h7M3.5 10h4.5M3.5 14.5h2M14.5 4v11m0 0 2.5-2.5M14.5 15 12 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span class="ordem__prefixo">Ordenar</span>
+                        <span class="ordem__atual" id="ordemAtual">Mais recentes</span>
+                        <svg class="ordem__seta" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+
+                    <div class="ordem__menu" id="ordemMaterias" role="menu" aria-labelledby="ordemBotao" hidden>
+                        <button type="button" class="ordem__item" role="menuitemradio" aria-checked="true" data-ordem="recentes">Mais recentes</button>
+                        <button type="button" class="ordem__item" role="menuitemradio" aria-checked="false" data-ordem="alfabetica">Alfabética</button>
+                        <button type="button" class="ordem__item" role="menuitemradio" aria-checked="false" data-ordem="resumos">Mais resumos</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Grade de cadernos: já vem pronta do servidor.
                  Arrastar um cartão daqui reordena a estante; arrastar
@@ -220,6 +238,7 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
     <script src="./js/pomodoro-aviso.js"></script>
     <script src="./js/resumo-mover.js"></script>
     <script src="./js/combo-materia.js"></script>
+    <script src="./js/combo-select.js"></script>
     <script src="./js/caderno-form.js"></script>
     <script src="./js/resumo-form.js"></script>
     <!-- antes do resumos.js: é ele que pergunta se o módulo existe

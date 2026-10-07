@@ -35,7 +35,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dashboard-fundo-estatico">
 
     <?php include __DIR__ . '/partes/fundo.php'; ?>
 
@@ -67,6 +67,11 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                  Nasce escondida: quem não tem prova marcada não precisa
                  de um painel anunciando que não tem.
                  ========================================================== -->
+            
+
+            <!-- ---------------------------------------------------------
+                 PRÓXIMAS
+                 --------------------------------------------------------- -->
             <section class="pv-destaque painel" id="pvDestaque" hidden aria-labelledby="pvDestaqueTitulo">
                 <div class="pv-destaque__conta">
                     <strong id="pvDestaqueNum">—</strong>
@@ -85,12 +90,17 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                 </div>
             </section>
 
-            <!-- ---------------------------------------------------------
-                 PRÓXIMAS
-                 --------------------------------------------------------- -->
-            <section class="ini-secao" id="pvProximas">
+            <section class="ini-secao ini-secao--regua" id="pvProximas">
                 <div class="ini-secao__cabeca">
                     <h2 class="ini-titulo">Próximas</h2>
+                    <div class="pv-nav">
+                        <button class="dash-btn pv-nav__btn" type="button" id="btnPrevProximas" aria-label="Rolar para esquerda" disabled>
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M13 5l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button class="dash-btn pv-nav__btn" type="button" id="btnNextProximas" aria-label="Rolar para direita" disabled>
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
                     <span class="ini-card__nota" id="pvProximasConta"></span>
                 </div>
 
@@ -112,9 +122,17 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                  registrada vira linha morta; com a nota, vira a única
                  evidência de que o estudo funcionou (ou não).
                  --------------------------------------------------------- -->
-            <section class="ini-secao" id="pvPassadas" hidden>
+            <section class="ini-secao ini-secao--regua" id="pvPassadas" hidden>
                 <div class="ini-secao__cabeca">
                     <h2 class="ini-titulo">Já passaram</h2>
+                    <div class="pv-nav">
+                        <button class="dash-btn pv-nav__btn" type="button" id="btnPrevPassadas" aria-label="Rolar para esquerda" disabled>
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M13 5l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button class="dash-btn pv-nav__btn" type="button" id="btnNextPassadas" aria-label="Rolar para direita" disabled>
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
                     <span class="ini-card__nota" id="pvMedia"></span>
                 </div>
 

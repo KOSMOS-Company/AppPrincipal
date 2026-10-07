@@ -80,7 +80,7 @@ $ESTILO_ABAS = [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dashboard-fundo-estatico">
 
     <?php include __DIR__ . '/partes/fundo.php'; ?>
 
@@ -282,11 +282,11 @@ $ESTILO_ABAS = [
                             <form class="conta-form" id="formPerfil" novalidate>
                                 <div class="conta-dupla">
                                     <div class="campo">
-                                        <label for="nome">Nome completo</label>
+                                        <label for="nome">Nome completo <span class="campo__obrigatorio">(obrigatório)</span></label>
                                         <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo" value="<?= hesc($USUARIO['nome']) ?>">
                                     </div>
                                     <div class="campo">
-                                        <label for="email">E-mail</label>
+                                        <label for="email">E-mail <span class="campo__obrigatorio">(obrigatório)</span></label>
                                         <input id="email" name="email" type="email" autocomplete="email" placeholder="seu@email.com" value="<?= hesc($USUARIO['email']) ?>">
                                     </div>
                                 </div>
@@ -309,17 +309,35 @@ $ESTILO_ABAS = [
                             <p class="painel__sub" id="senhaSub">Por segurança, confirme sua senha atual antes de definir uma nova.</p>
                             <form class="conta-form" id="formSenha" novalidate>
                                 <div class="campo" id="campoSenhaAtual">
-                                    <label for="senhaAtual">Senha atual</label>
-                                    <input id="senhaAtual" name="senha_atual" type="password" autocomplete="current-password" placeholder="••••••••">
+                                    <label for="senhaAtual">Senha atual <span class="campo__obrigatorio">(obrigatório)</span></label>
+                                    <div class="campo__senha">
+                                        <input id="senhaAtual" name="senha_atual" type="password" autocomplete="current-password" placeholder="••••••••">
+                                        <button type="button" class="campo__olho" data-alvo="senhaAtual" aria-label="Mostrar senha" title="Mostrar senha">
+                                            <svg viewBox="0 0 20 20" fill="none" class="ico-eye" aria-hidden="true"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                                            <svg viewBox="0 0 20 20" fill="none" class="ico-eye-off" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="conta-dupla">
                                     <div class="campo">
-                                        <label for="senhaNova">Nova senha</label>
-                                        <input id="senhaNova" name="senha_nova" type="password" autocomplete="new-password" placeholder="Mín. 8 caracteres">
+                                        <label for="senhaNova">Nova senha <span class="campo__obrigatorio">(obrigatório)</span></label>
+                                        <div class="campo__senha">
+                                            <input id="senhaNova" name="senha_nova" type="password" autocomplete="new-password" placeholder="Mín. 8 caracteres">
+                                            <button type="button" class="campo__olho" data-alvo="senhaNova" aria-label="Mostrar senha" title="Mostrar senha">
+                                                <svg viewBox="0 0 20 20" fill="none" class="ico-eye" aria-hidden="true"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                                                <svg viewBox="0 0 20 20" fill="none" class="ico-eye-off" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="campo">
-                                        <label for="senhaConfirma">Confirmar nova senha</label>
-                                        <input id="senhaConfirma" name="senha_confirma" type="password" autocomplete="new-password" placeholder="Repita a nova senha">
+                                        <label for="senhaConfirma">Confirmar nova senha <span class="campo__obrigatorio">(obrigatório)</span></label>
+                                        <div class="campo__senha">
+                                            <input id="senhaConfirma" name="senha_confirma" type="password" autocomplete="new-password" placeholder="Repita a nova senha">
+                                            <button type="button" class="campo__olho" data-alvo="senhaConfirma" aria-label="Mostrar senha" title="Mostrar senha">
+                                                <svg viewBox="0 0 20 20" fill="none" class="ico-eye" aria-hidden="true"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                                                <svg viewBox="0 0 20 20" fill="none" class="ico-eye-off" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="msg" id="msgSenha" hidden></div>
@@ -409,18 +427,42 @@ $ESTILO_ABAS = [
                             <div class="conta-dupla">
                                 <div class="campo">
                                     <label for="pomoFoco">Foco (min)</label>
-                                    <input id="pomoFoco" type="number" min="5" max="90" step="1" placeholder="25" value="<?= (int) $PREF['pomo_foco'] ?>">
-                                    <span class="campo__dica">entre 5 e 90</span>
+                                    <div class="qtd-stepper">
+                                        <button type="button" class="qtd-stepper__btn" data-passo="-1" aria-label="Diminuir foco">
+                                            <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        </button>
+                                        <input id="pomoFoco" type="number" min="5" max="90" step="1" placeholder="25" value="<?= (int) $PREF['pomo_foco'] ?>">
+                                        <button type="button" class="qtd-stepper__btn" data-passo="1" aria-label="Aumentar foco">
+                                            <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        </button>
+                                    </div>
+                                    <span class="campo__dica">obrigatório · entre 5 e 90</span>
                                 </div>
                                 <div class="campo">
                                     <label for="pomoPausa">Pausa curta (min)</label>
-                                    <input id="pomoPausa" type="number" min="1" max="30" step="1" placeholder="5" value="<?= (int) $PREF['pomo_pausa'] ?>">
-                                    <span class="campo__dica">entre 1 e 30</span>
+                                    <div class="qtd-stepper">
+                                        <button type="button" class="qtd-stepper__btn" data-passo="-1" aria-label="Diminuir pausa curta">
+                                            <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        </button>
+                                        <input id="pomoPausa" type="number" min="1" max="30" step="1" placeholder="5" value="<?= (int) $PREF['pomo_pausa'] ?>">
+                                        <button type="button" class="qtd-stepper__btn" data-passo="1" aria-label="Aumentar pausa curta">
+                                            <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        </button>
+                                    </div>
+                                    <span class="campo__dica">obrigatório · entre 1 e 30</span>
                                 </div>
                                 <div class="campo">
                                     <label for="pomoPausaLonga">Pausa longa (min)</label>
-                                    <input id="pomoPausaLonga" type="number" min="5" max="60" step="1" placeholder="15" value="<?= (int) $PREF['pomo_pausa_longa'] ?>">
-                                    <span class="campo__dica">entre 5 e 60</span>
+                                    <div class="qtd-stepper">
+                                        <button type="button" class="qtd-stepper__btn" data-passo="-1" aria-label="Diminuir pausa longa">
+                                            <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        </button>
+                                        <input id="pomoPausaLonga" type="number" min="5" max="60" step="1" placeholder="15" value="<?= (int) $PREF['pomo_pausa_longa'] ?>">
+                                        <button type="button" class="qtd-stepper__btn" data-passo="1" aria-label="Aumentar pausa longa">
+                                            <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        </button>
+                                    </div>
+                                    <span class="campo__dica">obrigatório · entre 5 e 60</span>
                                 </div>
                             </div>
                         </div>
@@ -430,8 +472,16 @@ $ESTILO_ABAS = [
                             <p class="painel__sub">Quantos minutos por dia você quer estudar.</p>
                             <div class="campo campo--estreito">
                                 <label for="metaDiaria">Minutos por dia</label>
-                                <input id="metaDiaria" type="number" min="10" max="600" step="5" placeholder="60" value="<?= (int) $PREF['meta_diaria'] ?>">
-                                <span class="campo__dica">entre 10 e 600</span>
+                                <div class="qtd-stepper">
+                                    <button type="button" class="qtd-stepper__btn" data-passo="-1" aria-label="Diminuir meta diária">
+                                        <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                    </button>
+                                    <input id="metaDiaria" type="number" min="10" max="600" step="5" placeholder="60" value="<?= (int) $PREF['meta_diaria'] ?>">
+                                    <button type="button" class="qtd-stepper__btn" data-passo="1" aria-label="Aumentar meta diária">
+                                        <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                    </button>
+                                </div>
+                                <span class="campo__dica">obrigatório · entre 10 e 600</span>
                             </div>
                         </div>
 
@@ -609,11 +659,17 @@ $ESTILO_ABAS = [
 
                 <form class="modal__form" id="formExcluir" novalidate>
                     <div class="campo" id="campoSenhaExcluir">
-                        <label for="senhaExcluir">Digite sua senha para confirmar</label>
-                        <input id="senhaExcluir" type="password" autocomplete="current-password" placeholder="••••••••">
+                        <label for="senhaExcluir">Digite sua senha para confirmar <span class="campo__obrigatorio">(obrigatório)</span></label>
+                        <div class="campo__senha">
+                            <input id="senhaExcluir" type="password" autocomplete="current-password" placeholder="••••••••">
+                            <button type="button" class="campo__olho" data-alvo="senhaExcluir" aria-label="Mostrar senha" title="Mostrar senha">
+                                <svg viewBox="0 0 20 20" fill="none" class="ico-eye" aria-hidden="true"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                                <svg viewBox="0 0 20 20" fill="none" class="ico-eye-off" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="campo" id="campoConfirmaExcluir" hidden>
-                        <label for="confirmaExcluir">Digite <strong>EXCLUIR</strong> para confirmar</label>
+                        <label for="confirmaExcluir">Digite <strong>EXCLUIR</strong> para confirmar <span class="campo__obrigatorio">(obrigatório)</span></label>
                         <input id="confirmaExcluir" type="text" autocomplete="off" placeholder="EXCLUIR">
                     </div>
 

@@ -68,7 +68,8 @@
 
         const texto = el("conteudo");
         texto?.addEventListener("input", () => {
-            el("contador").textContent = texto.value.length;
+            const contador = el("contador");
+            if (contador) contador.textContent = texto.value.length;
         });
 
         el("resumoCaderno")?.addEventListener("change", aplicarCaderno);
@@ -122,7 +123,8 @@
             if (materia) materia.value = "";
         }
 
-        el("contador").textContent = texto.value.length;
+        const contador = el("contador");
+        if (contador) contador.textContent = texto.value.length;
         aplicarCaderno();
         desenharImagens();
 

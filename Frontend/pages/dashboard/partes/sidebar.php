@@ -202,54 +202,67 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                      (content: attr), então funciona no teclado também — não
                      depende de hover. -->
                 <a href="index.php" data-rotulo="Início"<?= navAtivo('index.php', $secaoAtual) ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 10 L12 4 L20 10 L20 20 L4 20 Z"/></svg>
                     <span class="nav__rotulo">Início</span>
                 </a>
 
                 <a href="orion.php" data-rotulo="Orion"<?= navAtivo('orion.php', $secaoAtual) ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5.5"/>
                         <path d="M3.5 13.5 C5 9.5 12 7 17.5 9 C20.5 10 21 11.5 20.5 12.5 C19 14.5 12 17 6.5 15 C3.5 14 3 12.5 3.5 11.5"/>
                         <path d="M19 3.5 L19.4 5.2 L21.1 5.6 L19.4 6 L19 7.7 L18.6 6 L16.9 5.6 L18.6 5.2 Z" fill="currentColor" stroke="none"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled">
+                        <circle cx="12" cy="12" r="5.5"/>
+                        <path d="M3.5 13.5 C5 9.5 12 7 17.5 9 C20.5 10 21 11.5 20.5 12.5 C19 14.5 12 17 6.5 15 C3.5 14 3 12.5 3.5 11.5"/>
+                        <path d="M19 3.5 L19.4 5.2 L21.1 5.6 L19.4 6 L19 7.7 L18.6 6 L16.9 5.6 L18.6 5.2 Z"/>
                     </svg>
                     <span class="nav__rotulo">Orion <span class="nav__tag-ia">IA</span></span>
                 </a>
 
                 <a href="busca.php" data-rotulo="Buscar"<?= navAtivo('busca.php', $secaoAtual) ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/><path d="M16 16 L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/><path d="M16 16 L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><circle cx="11" cy="11" r="6.5"/><path d="M16 16 L21 21" stroke-width="2" stroke-linecap="round" stroke="currentColor"/></svg>
                     <span class="nav__rotulo">Buscar</span>
                 </a>
 
                 <span class="nav__grupo">Estudar</span>
                 <a href="resumos.php" data-rotulo="Biblioteca"<?= navAtivo('resumos.php', $secaoAtual) ?>>
                     <!-- ícone de estante: a aba guarda cadernos, não folhas soltas -->
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m18.4 6.2 2.2 13.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m18.4 6.2 2.2 13.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z"/><path d="m18.4 6.2 2.2 13.1"/></svg>
                     <span class="nav__rotulo">Biblioteca</span>
                 </a>
                 <a href="flashcards.php" data-rotulo="Flashcards"<?= navAtivo('flashcards.php', $secaoAtual, 'nav-secundario-mobile') ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke-width="2" stroke-linecap="round" stroke="currentColor"/></svg>
                     <span class="nav__rotulo">Flashcards</span>
                 </a>
                 <a href="exercicios.php" data-rotulo="Exercícios"<?= navAtivo('exercicios.php', $secaoAtual, 'nav-secundario-mobile') ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Exercícios</span>
                 </a>
 
                 <span class="nav__grupo">Foco</span>
                 <a href="pomodoro.php" data-rotulo="Pomodoro"<?= navAtivo('pomodoro.php', $secaoAtual, 'nav-secundario-mobile') ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="nav__rotulo">Pomodoro</span>
                 </a>
                 <a href="provas.php" data-rotulo="Provas"<?= navAtivo('provas.php', $secaoAtual, 'nav-secundario-mobile') ?>>
                     <!-- ícone de calendário com um dia marcado: o que a aba
                          faz é apontar um dia no futuro e contar até ele -->
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6"/></svg>
                     <span class="nav__rotulo">Provas</span>
                 </a>
 
                 <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile (posição amarela) -->
                 <a href="conta.php" data-rotulo="Conta"<?= navAtivo('conta.php', $secaoAtual, 'nav-somente-mobile') ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Conta</span>
                 </a>
             </nav>
@@ -358,7 +371,8 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                 <div class="sheet-grid">
                     <a href="pomodoro.php" class="sheet-card<?= $secaoAtual === 'pomodoro.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15"/></svg>
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <div class="sheet-card__info">
                             <strong>Pomodoro</strong>
@@ -367,7 +381,8 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     </a>
                     <a href="flashcards.php" class="sheet-card<?= $secaoAtual === 'flashcards.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16"/></svg>
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         </span>
                         <div class="sheet-card__info">
                             <strong>Flashcards</strong>
@@ -376,7 +391,8 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     </a>
                     <a href="exercicios.php" class="sheet-card<?= $secaoAtual === 'exercicios.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6 H20 M4 12 H20 M4 18 H14"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6 H20 M4 12 H20 M4 18 H14"/></svg>
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         </span>
                         <div class="sheet-card__info">
                             <strong>Exercícios</strong>
@@ -385,7 +401,8 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     </a>
                     <a href="provas.php" class="sheet-card<?= $secaoAtual === 'provas.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6"/></svg>
                         </span>
                         <div class="sheet-card__info">
                             <strong>Provas</strong>

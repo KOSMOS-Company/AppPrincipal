@@ -123,7 +123,7 @@ $COMO = [
     </script>
     <?php endif; ?>
 </head>
-<body>
+<body class="dashboard-fundo-estatico">
 
     <?php include __DIR__ . '/partes/fundo.php'; ?>
 

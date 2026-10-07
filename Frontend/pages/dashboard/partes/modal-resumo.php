@@ -53,7 +53,7 @@ if (!isset($CADERNOS)) {
 
                     <div class="campo">
                         <label for="resumoCaderno">Caderno</label>
-                        <select id="resumoCaderno">
+                        <select id="resumoCaderno" class="combo-select">
                             <option value="">Sem caderno</option>
 <?php foreach ($CADERNOS as $c): ?>
                             <option value="<?= (int) $c['id'] ?>" data-materia="<?= hesc($c['materia']) ?>"><?= $c['icone'] !== '' ? hesc($c['icone']) . ' ' : '' ?><?= hesc($c['nome']) ?> · <?= hesc($c['materia']) ?></option>
@@ -84,10 +84,7 @@ if (!isset($CADERNOS)) {
                              ajuda: recurso escondido atrás de documentação é
                              recurso que ninguém usa. Uma linha no lugar onde a
                              pessoa está escrevendo custa pouco e ensina. -->
-                        <span class="campo__dica">
-                            <span id="contador">0</span> caracteres
-                            · marque com <code>==assim==</code> para esconder no modo revisão
-                        </span>
+
                     </div>
 
                     <!-- ---------- Imagens ---------- -->

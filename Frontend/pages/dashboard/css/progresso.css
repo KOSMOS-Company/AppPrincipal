@@ -8,8 +8,8 @@
    ============================================================ */
 
 :root {
-    --xp-grad: linear-gradient(90deg, #6a00c9 0%, #a541ff 55%, #e7b8ff 100%);
-    --xp-brilho: 0 0 12px rgba(165, 65, 255, .75);
+    --xp-grad: linear-gradient(90deg, #f5b942 0%, #fbbf24 55%, #fde68a 100%);
+    --xp-brilho: 0 0 12px rgba(245, 185, 66, .75);
     --xp-curva: var(--mola, cubic-bezier(.2, .8, .2, 1));
     --xp-curva-quique: var(--mola-quique, cubic-bezier(.34, 1.4, .64, 1));
 }
@@ -24,8 +24,8 @@
     border-radius: 50%;
     background:
         radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .35), transparent 45%),
-        linear-gradient(145deg, #a541ff 0%, #6a00c9 100%);
-    box-shadow: 0 0 0 1px rgba(201, 124, 255, .45), 0 4px 14px -4px rgba(165, 65, 255, .8);
+        linear-gradient(145deg, var(--xp-dourado) 0%, #fbbf24 100%);
+    box-shadow: 0 0 0 1px rgba(245, 185, 66, .45), 0 4px 14px -4px rgba(245, 185, 66, .8);
     color: #fff;
     font: 800 .92rem/1 "Syne", sans-serif;
     font-variant-numeric: tabular-nums;
@@ -84,14 +84,14 @@
     text-decoration: none;
     transition: background-color .2s ease, border-color .2s ease, transform .16s ease-out;
 }
-.xp:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.xp:focus-visible { outline: 2px solid var(--xp-dourado); outline-offset: 2px; }
 .xp:active { transform: scale(.98); }
 .xp.ativa {
-    background: rgba(165, 65, 255, .12);
-    border-color: rgba(165, 65, 255, .28);
+    background: rgba(245, 185, 66, .12);
+    border-color: rgba(245, 185, 66, .28);
 }
 @media (hover: hover) and (pointer: fine) {
-    .xp:hover { background: rgba(165, 65, 255, .08); border-color: rgba(165, 65, 255, .2); }
+    .xp:hover { background: rgba(245, 185, 66, .08); border-color: rgba(245, 185, 66, .2); }
 }
 .xp__info {
     flex: 1 1 auto;
@@ -127,7 +127,7 @@
     bottom: calc(100% + 8px);
     z-index: 70;
     padding: 8px 10px;
-    border-radius: 10px;
+    border-radius: var(--radius-chip);
     background: var(--bg-card);
     border: 1px solid rgba(165, 65, 255, .28);
     box-shadow: 0 14px 30px -8px rgba(0, 0, 0, .6);
@@ -212,8 +212,8 @@
     .topo-status:active { transform: scale(.96); }
     .topo-status:focus-visible { outline: 2px solid var(--accent-lt); outline-offset: 2px; }
     .topo-status[aria-expanded="true"] {
-        background: rgba(165, 65, 255, .22);
-        border-color: rgba(201, 124, 255, .55);
+        background: rgba(245, 185, 66, .22);
+        border-color: rgba(245, 185, 66, .55);
     }
     .topo-status__seq {
         display: inline-flex;
@@ -244,10 +244,10 @@
     }
     .topo-status__arco {
         fill: none;
-        stroke: #c97cff;
+        stroke: var(--xp-dourado);
         stroke-width: 3;
         stroke-linecap: round;
-        filter: drop-shadow(0 0 3px rgba(165, 65, 255, .9));
+        filter: drop-shadow(0 0 3px rgba(245, 185, 66, .9));
         transition: stroke-dashoffset .9s var(--xp-curva);
     }
     .topo-status__nivel span {
@@ -268,12 +268,12 @@
         z-index: 150;
         width: min(320px, calc(100vw - 32px));
         padding: 16px;
-        border-radius: 20px;
-        background: rgba(28, 6, 50, .97);
-        -webkit-backdrop-filter: blur(20px) saturate(160%);
-        backdrop-filter: blur(20px) saturate(160%);
-        border: 1px solid rgba(201, 124, 255, .28);
-        box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .08);
+        border-radius: var(--radius-lg);
+        background: var(--bg-nav);
+        
+        
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-card-hover);
         text-align: left;
         transform-origin: calc(100% - 44px) -10px;
         animation: statusAbre .42s var(--xp-curva) both;
@@ -289,9 +289,9 @@
         right: 40px;
         width: 12px;
         height: 12px;
-        background: rgba(28, 6, 50, .97);
-        border-left: 1px solid rgba(201, 124, 255, .28);
-        border-top: 1px solid rgba(201, 124, 255, .28);
+        background: var(--bg-nav);
+        border-left: 1px solid var(--border);
+        border-top: 1px solid var(--border);
         transform: rotate(45deg);
     }
     .status-painel__titulo {
@@ -397,8 +397,8 @@
     padding: 8px 16px 8px 8px;
     border-radius: 999px;
     background: rgba(28, 6, 50, .9);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    backdrop-filter: blur(20px) saturate(160%);
+    
+    
     border: 1px solid rgba(201, 124, 255, .3);
     box-shadow: 0 16px 36px -10px rgba(0, 0, 0, .75), inset 0 1px 0 rgba(255, 255, 255, .08);
     color: var(--text);

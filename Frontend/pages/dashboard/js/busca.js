@@ -21,6 +21,7 @@
 
     const form   = document.getElementById("buscaForm");
     const campo  = document.getElementById("buscaInput");
+    const limpar = document.getElementById("buscaLimpar");
     const lista  = document.getElementById("buscaLista");
     const vazio  = document.getElementById("buscaVazio");
     const vTitulo = document.getElementById("buscaVazioTitulo");
@@ -177,10 +178,27 @@
     /* ------------------------------------------------------------
        Ligações
        ------------------------------------------------------------ */
+    /* O × só aparece quando há texto para limpar (o nativo do
+       navegador foi escondido no CSS). */
+    function atualizarLimpar() {
+        if (limpar) limpar.hidden = !campo.value;
+    }
+
     campo.addEventListener("input", () => {
+        atualizarLimpar();
         clearTimeout(timer);
         timer = setTimeout(() => buscar(campo.value), 280);
     });
+
+    if (limpar) {
+        limpar.addEventListener("click", () => {
+            campo.value = "";
+            clearTimeout(timer);
+            buscar("");
+            atualizarLimpar();
+            campo.focus();
+        });
+    }
 
     form.addEventListener("submit", (e) => {
         // Enter busca na hora, sem esperar os 280 ms.
@@ -196,4 +214,5 @@
         campo.value = inicial;
         buscar(inicial);
     }
+    atualizarLimpar();
 })();

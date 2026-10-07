@@ -27,7 +27,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dashboard-fundo-estatico">
 
     <?php include __DIR__ . '/partes/fundo.php'; ?>
 
@@ -45,13 +45,19 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             </header>
 
             <!-- `type="search"` e não `text`: o teclado do celular mostra
-                 a lupa em vez de "enter", e o navegador oferece o × para
-                 limpar de graça. -->
+                 a lupa em vez de "enter". O × é o nosso (SVG no estilo do
+                 site); o nativo do navegador é escondido no CSS, porque
+                 parece emoji. -->
             <form class="busca-campo" id="buscaForm" role="search">
                 <label class="sr-only" for="buscaInput">Buscar</label>
-                <input type="search" id="buscaInput" autocomplete="off"
-                       placeholder="Digite um assunto, título ou pergunta…"
-                       autofocus>
+                <div class="busca-campo__caixa">
+                    <input type="search" id="buscaInput" autocomplete="off"
+                           placeholder="Digite um assunto, título ou pergunta…"
+                           autofocus>
+                    <button class="busca-limpar" type="button" id="buscaLimpar" aria-label="Limpar busca" title="Limpar busca" hidden>
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                    </button>
+                </div>
                 <button class="dash-btn dash-btn--primary" type="submit">Buscar</button>
             </form>
 

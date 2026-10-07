@@ -41,8 +41,10 @@
         el("btnGerarComIA")?.addEventListener("click", gerarComIA);
         el("btnVoltarConfig")?.addEventListener("click", voltarConfig);
         el("btnSalvarExercicio")?.addEventListener("click", salvarExercicio);
-        el("exGerarQtdMais")?.addEventListener("click", () => mudarQtd(+1));
-        el("exGerarQtdMenos")?.addEventListener("click", () => mudarQtd(-1));
+        /* Os − / + de todos os steppers pertencem ao dashboard.js
+           (handler delegado em .qtd-stepper__btn). Aqui só escuta o
+           campo mudar — clique de botão ou digitação, tanto faz. */
+        el("exGerarQtd")?.addEventListener("input", atualizarTotal);
 
         // Chips de dificuldade (multi-seleção)
         el("exGerarDificuldades")?.addEventListener("click", (e) => {
@@ -56,20 +58,9 @@
             if (btn) definirModo(btn.dataset.modo);
         });
 
-        // Steppers das linhas "quantas de cada"
+        // Linhas "quantas de cada": o − / + é do dashboard.js; aqui
+        // só o valor digitado (ou vindo dos botões) alimenta o total.
         const linhas = el("exGerarQtdsDif");
-        linhas?.addEventListener("click", (e) => {
-            const btn = e.target.closest("[data-passo]");
-            if (!btn) return;
-            const linha = btn.closest(".ex-qtd-dif__linha");
-            const input = linha.querySelector("input");
-            let valor = parseInt(input.value, 10);
-            if (isNaN(valor)) valor = 1;
-            valor = Math.min(15, Math.max(1, valor + parseInt(btn.dataset.passo, 10)));
-            input.value = String(valor);
-            qtds[linha.dataset.dif] = valor;
-            atualizarTotal();
-        });
         linhas?.addEventListener("input", (e) => {
             const input = e.target.closest("input");
             if (!input) return;
@@ -197,18 +188,6 @@
         const total = modo === "fixo" ? totalFixo() : parseInt(el("exGerarQtd").value, 10) || 0;
         span.textContent = `Total: ${total} de 15 questões.`;
         span.classList.toggle("campo__dica--erro", total > 15);
-    }
-
-    /** Botões − / + do stepper de quantidade total (modo aleatório). */
-    function mudarQtd(delta) {
-        const input = el("exGerarQtd");
-        if (!input) return;
-        let valor = parseInt(input.value, 10);
-        if (isNaN(valor)) {
-            valor = 5;
-        }
-        input.value = Math.min(15, Math.max(1, valor + delta));
-        atualizarTotal();
     }
 
     /** Monta o [{dificuldade, qtd}] que vai para o backend. */

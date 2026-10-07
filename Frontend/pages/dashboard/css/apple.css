@@ -94,7 +94,7 @@ h3 { letter-spacing: -.012em; }
 }
 :is(.dash-btn, .chip, .conf__botao, .topo-btn-ferramentas, .sheet-card,
                           .modal__close, .sheet-fechar, a.ini-card, .resumo-card, .deck-card,
-                          .caderno-card, .exercicio-materia-card) {
+                          .caderno-card, .ex-linha) {
     transition-property: color, background-color, border-color, box-shadow, opacity, transform;
     transition-duration: .2s, .2s, .2s, .2s, .2s, var(--mola-t);
     transition-timing-function: ease, ease, ease, ease, ease, var(--mola);
@@ -105,7 +105,7 @@ h3 { letter-spacing: -.012em; }
     transition-timing-function: ease-out;
 }
 :is(.sheet-card, .chip, a.ini-card, .resumo-card, .deck-card,
-                          .caderno-card, .exercicio-materia-card):active {
+                          .caderno-card, .ex-linha):active {
     transform: scale(.98);
     transition-duration: .1s;
     transition-timing-function: ease-out;

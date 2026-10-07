@@ -53,7 +53,7 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
-<body<?= $MATERIA ? ' class="tema-caderno tema-caderno--' . hesc($MATERIA['cor']) . '"' : '' ?>>
+<body<?= $MATERIA ? ' class="dashboard-fundo-estatico tema-caderno tema-caderno--' . hesc($MATERIA['cor']) . '"' : ' class="dashboard-fundo-estatico"' ?>>
 
     <?php include __DIR__ . '/partes/fundo.php'; ?>
 

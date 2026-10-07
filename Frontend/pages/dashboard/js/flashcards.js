@@ -115,7 +115,9 @@
 
             renderStats();
             renderFiltros(materias);
-            renderDecks();
+        renderDecks();
+        ativarOrdemFc();
+        aplicarOrdemFc(ordemAtualFc);
         } catch (erro) {
             decksGrid.innerHTML = "";
             vazio.hidden = false;
@@ -173,7 +175,9 @@
             const semCartoes = d.cartoes === 0;
 
             return `
-            <article class="deck-card anim-in" style="animation-delay:${i * 0.05}s">
+            <article class="deck-card" style="animation-delay:${i * 0.05}s"
+                     data-id="${d.id}" data-nome="${esc(d.nome)}" data-materia="${esc(d.materia)}"
+                     data-cartoes="${d.cartoes}" data-criado="${esc(d.criado_em || '')}">
                 <div class="deck-card__topo">
                     <span class="materia-tag">${esc(d.materia)}</span>
                     <div class="deck-card__acoes">
@@ -773,6 +777,116 @@
         avisoTimer = setTimeout(() => { caixa.hidden = true; }, erro ? 5000 : 2600);
     }
 
+    const ORDEM_CHAVE_FC = "kosmos_ordem_flashcards";
+
+    function comparadorOrdemFc(chave) {
+        const nome = (el) => el.dataset.nome || "";
+        switch (chave) {
+            case "alfabetica":
+                return (a, b) => nome(a).localeCompare(nome(b), "pt-BR");
+            case "cartoes":
+                return (a, b) =>
+                    (Number(b.dataset.cartoes) || 0) - (Number(a.dataset.cartoes) || 0) ||
+                    nome(a).localeCompare(nome(b), "pt-BR");
+            case "recentes":
+            default:
+                return (a, b) =>
+                    (b.dataset.criado || "").localeCompare(a.dataset.criado || "") ||
+                    Number(a.dataset.id || 0) - Number(b.dataset.id || 0);
+        }
+    }
+
+    let ordemAtualFc = (function () {
+        try {
+            const s = localStorage.getItem(ORDEM_CHAVE_FC);
+            return s === "alfabetica" || s === "cartoes" ? s : "recentes";
+        } catch (_) {
+            return "recentes";
+        }
+    })();
+
+    function aplicarOrdemFc(chave) {
+        if (!decksGrid) return;
+        const comparar = comparadorOrdemFc(chave);
+        const cards = [...decksGrid.querySelectorAll(".deck-card")].sort(comparar);
+        let anterior = null;
+        for (const card of cards) {
+            const alvo = anterior ? anterior.nextElementSibling : decksGrid.firstElementChild;
+            if (card !== alvo) decksGrid.insertBefore(card, alvo);
+            anterior = card;
+        }
+    }
+
+    function lembrarOrdemFc(chave) {
+        try {
+            localStorage.setItem(ORDEM_CHAVE_FC, chave);
+        } catch (_) {}
+    }
+
+    function ativarOrdemFc() {
+        if (ativarOrdemFc.pronto) return;
+        const botao = document.getElementById("ordemBotao");
+        const rotulo = document.getElementById("ordemAtual");
+        const menu = document.getElementById("ordemMaterias");
+        if (!botao || !menu) return;
+
+        const aberto = () => botao.getAttribute("aria-expanded") === "true";
+        const fechar = () => {
+            menu.hidden = true;
+            botao.setAttribute("aria-expanded", "false");
+            botao.focus();
+        };
+        const abrir = () => {
+            menu.hidden = false;
+            botao.setAttribute("aria-expanded", "true");
+            const ativo = menu.querySelector('[aria-checked="true"]');
+            ativo?.focus();
+        };
+
+        botao.addEventListener("click", (e) => {
+            /* Mesmo truque de exercicios.js: sem isto o clique NO
+               FILHO do botão (ícone/texto/seta) chega até aqui em
+               cima, `e.target !== botao` é verdadeiro e o menu fecha
+               no mesmo instante — só a borda do botão funcionava. */
+            e.stopPropagation();
+            aberto() ? fechar() : abrir();
+        });
+        document.addEventListener("click", (e) => {
+            if (!aberto()) return;
+            if (!menu.contains(e.target) && e.target !== botao) {
+                menu.hidden = true;
+                botao.setAttribute("aria-expanded", "false");
+            }
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && aberto()) {
+                e.stopPropagation();
+                fechar();
+            }
+        });
+
+        menu.querySelectorAll(".ordem__item").forEach((item) => {
+            item.addEventListener("click", () => {
+                const chave = item.dataset.ordem;
+                menu.querySelectorAll(".ordem__item").forEach((i) => i.setAttribute("aria-checked", "false"));
+                item.setAttribute("aria-checked", "true");
+                if (rotulo) rotulo.textContent = item.textContent;
+                ordemAtualFc = chave;
+                lembrarOrdemFc(chave);
+                aplicarOrdemFc(chave);
+                fechar();
+            });
+        });
+
+        const inicial = menu.querySelector(`[data-ordem="${ordemAtualFc}"]`);
+        if (inicial) {
+            menu.querySelectorAll(".ordem__item").forEach((i) => i.setAttribute("aria-checked", "false"));
+            inicial.setAttribute("aria-checked", "true");
+            if (rotulo) rotulo.textContent = inicial.textContent;
+        }
+        ativarOrdemFc.pronto = true;
+    }
+
     // ---------- Começo de tudo ----------
     carregarDecks();
 
@@ -784,4 +898,6 @@
        apontar. */
     const deckDaUrl = Number(new URLSearchParams(location.search).get("deck"));
     if (deckDaUrl > 0) abrirCartoes(deckDaUrl);
+
+
 })();

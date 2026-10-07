@@ -62,11 +62,11 @@ if (!isset($USUARIO, $PREF)) {
                         <div class="campo" id="exGerarTotalAleatorio" hidden>
                             <label for="exGerarQtd">Quantidade total</label>
                             <div class="qtd-stepper">
-                                <button type="button" class="qtd-stepper__btn" id="exGerarQtdMenos" aria-label="Diminuir quantidade">
+                                <button type="button" class="qtd-stepper__btn" id="exGerarQtdMenos" data-passo="-1" aria-label="Diminuir quantidade">
                                     <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                 </button>
                                 <input id="exGerarQtd" type="number" min="1" max="15" value="5" inputmode="numeric" aria-label="Quantidade de questões">
-                                <button type="button" class="qtd-stepper__btn" id="exGerarQtdMais" aria-label="Aumentar quantidade">
+                                <button type="button" class="qtd-stepper__btn" id="exGerarQtdMais" data-passo="1" aria-label="Aumentar quantidade">
                                     <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                 </button>
                             </div>

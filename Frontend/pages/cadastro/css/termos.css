@@ -5,14 +5,20 @@
     --black:#000;
     --bg-deep:#0d0118;
     --bg-nav:#12011f;
+    --bg-card:#1a0230;
     --accent:#a541ff;
     --accent-lt:#c97cff;
     --text:#fff;
     --text-dim:#b8a8cc;
+    --text-muted:#7a6890;
+    --ok:#22c55e;
+    --erro:#ef4444;
     --border:rgba(165,65,255,.14);
-    --radius-md:20px;
+    --radius-sm:8px;
+    --radius-md:16px;
     --radius-lg:28px;
     --transition:.25s cubic-bezier(.4,0,.2,1);
+    --shadow-neutral:0 4px 12px rgba(0,0,0,.4);
 
     /* ── O céu ──
        As regras de `.cosmos` e `.veu` estão em ../shared/cosmos.css: são
@@ -43,25 +49,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 .header-terms{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;max-width:1120px;margin:0 auto;padding:24px 32px 0}
 .logo{display:inline-flex;align-items:center;text-decoration:none}
 .logo__text{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:-.02em}
-.header-terms__link{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:12px;border:1px solid rgba(165,65,255,.25);color:var(--accent-lt);text-decoration:none;background:rgba(165,65,255,.08);font-weight:600;transition:transform .2s ease, background .2s ease, border-color .2s ease}
-.header-terms__link:hover{transform:translateY(-1px);background:rgba(165,65,255,.14);border-color:rgba(165,65,255,.4)}
+.header-terms__link{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:var(--radius-sm);border:1px solid rgba(165,65,255,.25);color:var(--accent-lt);text-decoration:none;background:var(--bg-card);font-weight:600;transition:background .2s ease, border-color .2s ease, color .2s ease}
+.header-terms__link:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 
 /* ── Card principal ── */
 .terms-container{position:relative;z-index:1;max-width:1120px;margin:32px auto 0;padding:0 32px 40px}
-.terms-card{background:linear-gradient(180deg, rgba(19,2,32,.88) 0%, rgba(13,1,24,.82) 100%);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px;box-shadow:0 30px 80px rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.terms-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px;box-shadow:var(--shadow-neutral);}
 .section-tag{display:inline-flex;align-items:center;gap:12px;background:none;color:var(--accent-lt);font-weight:600;font-size:.86rem;letter-spacing:.08em;text-transform:uppercase}
 .section-tag::before{content:"";width:26px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent-lt));box-shadow:0 0 12px rgba(165,65,255,.5)}
 .section-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,3vw,3rem);margin:14px 0 10px;line-height:1.1}
 .terms-meta{color:var(--text-dim);margin-bottom:14px}
 .terms-intro{max-width:820px;color:#d8cbe8;font-size:1.02rem;margin-bottom:18px}
 .terms-intro abbr[title]{text-decoration:underline rgba(165,65,255,.5);cursor:help}
-.terms-callout{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;background:rgba(165,65,255,.08);border:1px solid rgba(165,65,255,.16);border-radius:18px;padding:16px 18px;margin:0 0 28px;color:#eadcff}
+.terms-callout{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;background:var(--bg-nav);border:1px solid rgba(165,65,255,.16);border-radius:var(--radius-md);padding:16px 18px;margin:0 0 28px;color:#eadcff}
 .terms-callout strong{color:var(--accent-lt)}
 
 /* ── Cartões de destaque ── */
 .priv-highlights{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:12px}
-.priv-highlight{background:linear-gradient(150deg,#1e0636 0%,#120220 100%);border:1px solid rgba(165,65,255,.16);border-radius:var(--radius-md);padding:22px;transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition)}
-.priv-highlight:hover{transform:translateY(-4px);border-color:rgba(165,65,255,.4);box-shadow:0 18px 44px rgba(0,0,0,.45),0 0 30px rgba(165,65,255,.12)}
+.priv-highlight{background:var(--bg-card);border:1px solid rgba(165,65,255,.16);border-radius:var(--radius-md);padding:22px;transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition);box-shadow:var(--shadow-neutral);}
+.priv-highlight:hover{transform:translateY(-4px);border-color:rgba(165,65,255,.4);box-shadow:0 12px 32px rgba(0,0,0,.5);}
 .priv-highlight__icon{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(165,65,255,.14);color:var(--accent-lt);margin-bottom:14px;transition:transform var(--transition)}
 .priv-highlight:hover .priv-highlight__icon{transform:scale(1.08) rotate(-5deg)}
 .priv-highlight h3{font-family:'Syne',sans-serif;font-size:1.02rem;font-weight:700;margin-bottom:6px}
@@ -81,11 +87,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 .priv-list li strong{color:#e6d8f7}
 
 /* ── Rodapé do card ── */
-.terms-footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:28px;padding:16px 18px;border-radius:18px;border:1px solid rgba(165,65,255,.16);background:rgba(165,65,255,.06);color:var(--text-dim)}
+.terms-footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:28px;padding:16px 18px;border-radius:var(--radius-md);border:1px solid rgba(165,65,255,.16);background:var(--bg-nav);color:var(--text-dim)}
 .terms-footer__label{color:var(--text-dim);font-weight:500}
 .terms-footer__separator{color:rgba(184,168,204,.7)}
-.terms-footer__link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:12px;border:1px solid rgba(165,65,255,.24);background:rgba(13,1,24,.55);color:var(--accent-lt);text-decoration:none;font-weight:600;transition:transform .2s ease, background .2s ease, border-color .2s ease, color .2s ease}
-.terms-footer__link:hover{transform:translateY(-1px);background:rgba(165,65,255,.12);border-color:rgba(165,65,255,.42);color:#fff}
+.terms-footer__link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:var(--radius-sm);border:1px solid rgba(165,65,255,.24);background:var(--bg-card);color:var(--accent-lt);text-decoration:none;font-weight:600;transition:transform .2s ease, background .2s ease, border-color .2s ease, color .2s ease}
+.terms-footer__link:hover{transform:translateY(-1px);background:var(--accent);border-color:var(--accent);color:#fff}
 
 .footer-terms{position:relative;z-index:1;max-width:1120px;margin:28px auto 60px;padding:0 32px;color:var(--text-dim);text-align:center}
 
@@ -102,7 +108,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 @media(max-width:720px){
     .header-terms{padding:20px 16px 0;flex-direction:column;align-items:flex-start}
     .terms-container{padding:0 16px 28px;margin-top:20px}
-    .terms-card{padding:24px;border-radius:20px}
+    .terms-card{padding:24px;border-radius:var(--radius-lg)}
     .section-title{font-size:1.55rem}
     .terms-intro{font-size:.98rem}
     .footer-terms{padding:0 16px 40px}

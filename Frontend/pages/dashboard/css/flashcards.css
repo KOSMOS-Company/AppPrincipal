@@ -12,44 +12,84 @@
 .fc-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
 
 /* ============================================================
-   VISÃO 1 — GRADE DE DECKS
-   ============================================================ */
+   VISÃO 1 — OS BARALHOS
+   ============================================================
+   A grade continua uma grade, mas cada deck virou um baralho: o
+   cartão de cima é o que se vê, e duas camadas atrás (::before e
+   ::after) saem deslocadas e tortas de leve, para dar espessura.
+   As camadas ficam ATRÁS do cartão (z-index -1) e presas dentro dele
+   (isolation), então nunca vazam para fora do baralho. */
 .decks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
+    gap: 26px 22px;
+    padding-bottom: 6px;
 }
 
 .deck-card {
     position: relative;
-    background: var(--superficie);
-    border: 1px solid rgba(165,65,255,.12);
-    border-radius: var(--radius-lg);
+    isolation: isolate;
+    /* quanto as cartas de baixo saem do lugar (o celular usa menos,
+       senão o baralho empurra a página para o lado) */
+    --desvio: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
     padding: 26px;
     display: flex;
     flex-direction: column;
     gap: 14px;
     transition: var(--transition);
+    /* A entrada anima SÓ a opacidade (o .anim-in do dashboard.css
+       animava o transform e, com fill "both", prendia o cartão em
+       translateY(0) — o hover de baixo nunca valia). Assim o
+       transform volta a ser do baralho. */
+    animation: baralhoEntra .4s ease both;
 }
-.deck-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(165,65,255,.4);
-    box-shadow: 0 20px 50px rgba(0,0,0,.45), 0 0 30px rgba(165,65,255,.1);
+@keyframes baralhoEntra {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
-
-/* brilho que acompanha o cursor — mesma receita dos cards do Início */
+/* As duas cartas de baixo do baralho. */
+.deck-card::before,
 .deck-card::after {
     content: "";
     position: absolute;
     inset: 0;
+    z-index: -1;
     border-radius: inherit;
-    background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 0%), rgba(165,65,255,.10), transparent 42%);
-    opacity: 0;
-    transition: opacity .3s ease;
+    border: 1px solid rgba(165, 65, 255, .16);
+    background: linear-gradient(165deg, var(--purple-dk) 0%, var(--bg-nav) 72%);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .38);
     pointer-events: none;
+    transition: transform .3s cubic-bezier(.2, .7, .2, 1);
 }
-.deck-card:hover::after { opacity: 1; }
-.deck-card > * { position: relative; z-index: 1; }
+.deck-card::before {
+    transform: rotate(-2.4deg)
+               translate(calc(5px * var(--desvio)), calc(7px * var(--desvio)));
+}
+.deck-card::after {
+    transform: rotate(1.9deg)
+               translate(calc(10px * var(--desvio)), calc(13px * var(--desvio)));
+}
+
+.deck-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,.3);
+    box-shadow: var(--shadow-card-hover);
+}
+/* No hover o baralho se abre um pouco mais: as cartas de baixo
+   deslizam para fora, como quem vai pegar o topo. */
+.deck-card:hover::before {
+    transform: rotate(-3.6deg)
+               translate(calc(9px * var(--desvio)), calc(12px * var(--desvio)));
+}
+.deck-card:hover::after {
+    transform: rotate(3deg)
+               translate(calc(18px * var(--desvio)), calc(23px * var(--desvio)));
+}
+
+
 
 /* linha de cima: matéria à esquerda, ações discretas à direita */
 .deck-card__topo {
@@ -107,18 +147,18 @@
     width: 30px;
     height: 30px;
     flex: none;
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 9px;
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-chip);
     color: var(--text-muted);
     cursor: pointer;
     opacity: .55;
     transition: var(--transition);
 }
 .icone-btn svg { width: 15px; height: 15px; }
-.icone-btn:hover { opacity: 1; color: var(--accent-lt); border-color: rgba(165,65,255,.4); }
+.icone-btn:hover { opacity: 1; color: var(--accent-lt); border-color: var(--accent); }
 .icone-btn:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
-.icone-btn--perigo:hover { color: #f87171; border-color: rgba(239,68,68,.4); }
+.icone-btn--perigo:hover { color: var(--erro); border-color: var(--erro); }
 .deck-card:hover .icone-btn,
 .cartao-item:hover .icone-btn { opacity: .85; }
 
@@ -151,13 +191,13 @@
     grid-template-columns: auto 1fr auto auto;
     align-items: center;
     gap: 16px;
-    background: var(--superficie);
-    border: 1px solid rgba(165,65,255,.12);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 16px 20px;
     transition: var(--transition);
 }
-.cartao-item:hover { border-color: rgba(165,65,255,.32); }
+.cartao-item:hover { border-color: rgba(255,255,255,.3); box-shadow: var(--shadow-neutral); }
 
 /* bolinha de estado: nunca revisado / errou / acertou */
 .cartao-item__estado {
@@ -238,14 +278,12 @@
     overflow-y: auto;
 }
 .flashcard__face--frente {
-    background: var(--superficie);
-    -webkit-backdrop-filter: var(--desfoque-painel);
-    backdrop-filter: var(--desfoque-painel);
-    border-color: rgba(165,65,255,.12);
+    background: var(--bg-card);
+    border-color: var(--border);
 }
 .flashcard__face--verso {
-    background: linear-gradient(135deg, #1e0338 0%, var(--purple-dk) 100%);
-    border-color: rgba(165,65,255,.4);
+    background: var(--purple-dk);
+    border-color: var(--border);
     transform: rotateY(180deg);
 }
 .flashcard__face p {
@@ -283,11 +321,11 @@
 .estudo-avaliacao__botoes .dash-btn { min-width: 120px; justify-content: center; }
 
 .fc-btn--acertei {
-    background: rgba(52,211,153,.14);
-    color: #34d399;
-    border-color: rgba(52,211,153,.3);
+    background: var(--sucesso-bg);
+    color: var(--sucesso);
+    border-color: rgba(34,197,94,.3);
 }
-.fc-btn--acertei:hover { background: rgba(52,211,153,.24); border-color: #34d399; }
+.fc-btn--acertei:hover { background: rgba(34,197,94,.2); border-color: var(--sucesso); }
 .fc-btn--errei {
     background: rgba(240,167,66,.12);
     color: #f0a742;
@@ -295,11 +333,11 @@
 }
 .fc-btn--errei:hover { background: rgba(240,167,66,.22); border-color: #f0a742; }
 .fc-btn--perigo {
-    background: rgba(239,68,68,.16);
-    color: #f87171;
+    background: var(--erro-bg);
+    color: var(--erro);
     border-color: rgba(239,68,68,.32);
 }
-.fc-btn--perigo:hover { background: rgba(239,68,68,.26); border-color: #f87171; }
+.fc-btn--perigo:hover { background: var(--erro); border-color: var(--erro); }
 
 /* Navegação do estudo */
 .estudo-nav {
@@ -401,7 +439,7 @@
     .flashcard__face p { font-size: 1.2rem; }
     .flashcard__inner { min-height: 280px; }
     .estudo-nav .dash-btn { padding: 10px 14px; font-size: .85rem; }
-    .deck-card { padding: 22px; }
+    .deck-card { padding: 22px; --desvio: .5; }
     .estudo-fim__stats { gap: 20px; }
 }
 
@@ -409,6 +447,11 @@
     .flashcard__inner,
     .estudo-progresso__bar,
     .deck-card__barra span { transition: none; }
+    /* o baralho fica com as cartas alinhadas: sem o deslize do hover */
+    .deck-card::before,
+    .deck-card::after { transition: none; }
+    .deck-card:hover::before,
+    .deck-card:hover::after { transform: none; }
     .estudo-avaliacao,
     .estudo-fim { animation: none; }
 }

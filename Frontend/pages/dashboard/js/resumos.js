@@ -54,6 +54,13 @@
 
         // delegação: os cartões são recriados quando a lista muda
         gridCadernos.addEventListener("click", (e) => {
+            const lixeira = e.target.closest("[data-apagar-caderno]");
+            if (lixeira) {
+                e.preventDefault();
+                const alvo = cadernos.find((c) => c.id === Number(lixeira.dataset.apagarCaderno));
+                if (alvo) window.KosmosCadernoForm?.apagarDireto(alvo.id, alvo.nome);
+                return;
+            }
             const lapis = e.target.closest("[data-editar-caderno]");
             if (!lapis) return;
             e.preventDefault();
@@ -65,7 +72,9 @@
 
         ativarFiltros();
         ativarAbas();
+        ativarOrdem();
         ligarArrastes();
+        aplicarOrdem(ordemAtual);
     });
 
     /* ------------------------------------------------------------
@@ -286,6 +295,7 @@
         Mover?.definirCadernos(cadernos);
         window.KosmosResumoForm?.definirCadernos(cadernos);   // o select do modal de resumo
         desenhar();
+        aplicarOrdem(ordemAtual);
     });
 
     document.addEventListener("caderno:apagado", (e) => {
@@ -380,6 +390,7 @@
        repintamos. Mexeu lá, mexa aqui.
        ============================================================ */
     const ICONE_LAPIS = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    const ICONE_LIXEIRA = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const ICONE_MENU  = '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><circle cx="10" cy="4" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="10" cy="16" r="1.6"/></svg>';
     const ICONE_DOC   = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
     const ICONE_FOTO  = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="10" r="1.6" stroke="currentColor" stroke-width="1.4"/><path d="M4 17l5-4 3 2.5 3-2.5 5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -401,6 +412,10 @@
         gridCadernos.innerHTML = lista.map((c, i) => `
             <article class="caderno-card anim-in caderno-card--${escapar(c.cor || "roxo")}"
                      data-id="${c.id}" data-materia="${escapar(c.materia)}"
+                     data-nome="${escapar(c.nome)}"
+                     data-resumos="${Number(c.resumos) || 0}"
+                     data-criado="${escapar(c.criado_em || "")}"
+                     data-dica="${escapar(dicaDoCaderno(c))}"
                      draggable="true" style="animation-delay:${(i * 0.04).toFixed(2)}s">
                 <a class="caderno-card__link" href="caderno.php?id=${c.id}" draggable="false">
                     <span class="caderno-card__lombada" aria-hidden="true"></span>
@@ -423,9 +438,14 @@
                         <span class="caderno-card__abrir">Abrir →</span>
                     </div>
                 </a>
-                <button type="button" class="caderno-card__editar" data-editar-caderno="${c.id}"
-                        title="Personalizar este caderno"
-                        aria-label="Personalizar o caderno ${escapar(c.nome)}">${ICONE_LAPIS}</button>
+                <div class="caderno-card__acoes">
+                    <button type="button" class="caderno-card__editar" data-editar-caderno="${c.id}"
+                            title="Personalizar este caderno"
+                            aria-label="Personalizar o caderno ${escapar(c.nome)}">${ICONE_LAPIS}</button>
+                    <button type="button" class="caderno-card__editar caderno-card__apagar" data-apagar-caderno="${c.id}"
+                            title="Excluir este caderno"
+                            aria-label="Excluir o caderno ${escapar(c.nome)}">${ICONE_LIXEIRA}</button>
+                </div>
                 <span class="caderno-card__solte" aria-hidden="true">Solte para guardar aqui</span>
             </article>`).join("");
 
@@ -443,6 +463,13 @@
         vazioCadernos.querySelector("p").textContent = nenhum
             ? "Crie um caderno para a matéria que você está estudando e guarde os resumos dela dentro."
             : "Troque o filtro acima ou crie um caderno para esta matéria.";
+    }
+
+    /** O que a lombada conta no hover: nome, matéria e o que tem dentro. */
+    function dicaDoCaderno(c) {
+        let texto = `${c.nome} · ${c.materia} · ${c.resumos} ${c.resumos === 1 ? "resumo" : "resumos"}`;
+        if (c.fotos > 0) texto += ` · ${c.fotos} ${c.fotos === 1 ? "imagem" : "imagens"}`;
+        return texto;
     }
 
     function desenharSoltos() {
@@ -548,14 +575,127 @@
             filtros.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
             chip.classList.add("active");
             filtroAtual = chip.dataset.materia;
-            desenhar();
-        });
+        desenhar();
+        aplicarOrdem(ordemAtual);
+    });
     }
 
     /* O texto vem do banco: escapamos antes de jogar em innerHTML */
+    /* Escapa o texto antes de botá-lo num atributo entre aspas.
+       O truque do textContent resolve & e < >, mas NÃO as aspas — e
+       aqui o texto vai para data-dica="..." e aria-label="...". */
     function escapar(texto) {
         const div = document.createElement("div");
         div.textContent = texto ?? "";
-        return div.innerHTML;
+        return div.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+
+    const ORDEM_CHAVE_BIB = "kosmos_ordem_biblioteca";
+
+    function comparadorOrdemBib(chave) {
+        const nome = (el) => el.dataset.nome || "";
+        switch (chave) {
+            case "alfabetica":
+                return (a, b) => nome(a).localeCompare(nome(b), "pt-BR");
+            case "resumos":
+                return (a, b) =>
+                    (Number(b.dataset.resumos) || 0) - (Number(a.dataset.resumos) || 0) ||
+                    nome(a).localeCompare(nome(b), "pt-BR");
+            case "recentes":
+            default:
+                return (a, b) =>
+                    (b.dataset.criado || "").localeCompare(a.dataset.criado || "") ||
+                    Number(a.dataset.id) - Number(b.dataset.id);
+        }
+    }
+
+    let ordemAtual = (function () {
+        try {
+            const s = localStorage.getItem(ORDEM_CHAVE_BIB);
+            return s === "alfabetica" || s === "resumos" ? s : "recentes";
+        } catch (_) {
+            return "recentes";
+        }
+    })();
+
+    function aplicarOrdem(chave) {
+        if (!gridCadernos) return;
+        const comparar = comparadorOrdemBib(chave);
+        const cards = [...gridCadernos.querySelectorAll(".caderno-card")].sort(comparar);
+        let anterior = null;
+        for (const card of cards) {
+            const alvo = anterior ? anterior.nextElementSibling : gridCadernos.firstElementChild;
+            if (card !== alvo) gridCadernos.insertBefore(card, alvo);
+            anterior = card;
+        }
+    }
+
+    function lembrarOrdemBib(chave) {
+        try {
+            localStorage.setItem(ORDEM_CHAVE_BIB, chave);
+        } catch (_) {}
+    }
+
+    function ativarOrdem() {
+        const botao = document.getElementById("ordemBotao");
+        const rotulo = document.getElementById("ordemAtual");
+        const menu = document.getElementById("ordemMaterias");
+        if (!botao || !menu) return;
+
+        const aberto = () => botao.getAttribute("aria-expanded") === "true";
+        const fechar = () => {
+            menu.hidden = true;
+            botao.setAttribute("aria-expanded", "false");
+            botao.focus();
+        };
+        const abrir = () => {
+            menu.hidden = false;
+            botao.setAttribute("aria-expanded", "true");
+            const ativo = menu.querySelector('[aria-checked="true"]');
+            ativo?.focus();
+        };
+
+        botao.addEventListener("click", (e) => {
+            /* Mesmo truque de exercicios.js: sem isto o clique NO
+               FILHO do botão (ícone/texto/seta) chega até aqui em
+               cima, `e.target !== botao` é verdadeiro e o menu fecha
+               no mesmo instante — só a borda do botão funcionava. */
+            e.stopPropagation();
+            aberto() ? fechar() : abrir();
+        });
+        document.addEventListener("click", (e) => {
+            if (!aberto()) return;
+            if (!menu.contains(e.target) && e.target !== botao) {
+                menu.hidden = true;
+                botao.setAttribute("aria-expanded", "false");
+            }
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && aberto()) {
+                e.stopPropagation();
+                fechar();
+            }
+        });
+
+        menu.querySelectorAll(".ordem__item").forEach((item) => {
+            item.addEventListener("click", () => {
+                const chave = item.dataset.ordem;
+                menu.querySelectorAll(".ordem__item").forEach((i) => i.setAttribute("aria-checked", "false"));
+                item.setAttribute("aria-checked", "true");
+                if (rotulo) rotulo.textContent = item.textContent;
+                ordemAtual = chave;
+                lembrarOrdemBib(chave);
+                aplicarOrdem(chave);
+                fechar();
+            });
+        });
+
+        const inicial = menu.querySelector(`[data-ordem="${ordemAtual}"]`);
+        if (inicial) {
+            menu.querySelectorAll(".ordem__item").forEach((i) => i.setAttribute("aria-checked", "false"));
+            inicial.setAttribute("aria-checked", "true");
+            if (rotulo) rotulo.textContent = inicial.textContent;
+        }
     }
 })();

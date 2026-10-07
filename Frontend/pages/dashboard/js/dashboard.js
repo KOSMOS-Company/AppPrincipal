@@ -31,6 +31,43 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ------------------------------------------------------------
+   Steppers numéricos (− / +) — compartilhado por todas as abas
+
+   Todo campo type=number com .qtd-stepper nasce com os dois
+   botões; quem os liga é este único ouvinte delegado. O passo
+   respeita min/max/step do próprio input (a nota usa 0.01, a
+   meta diária usa 5), e o valor muda via "input" — é o mesmo
+   evento de digitação, então quem escuta o campo (Conta,
+   Exercícios, notas de Provas) nem percebe que foram os botões.
+   ------------------------------------------------------------ */
+document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".qtd-stepper__btn");
+    if (!btn) return;
+
+    const input = btn.closest(".qtd-stepper")?.querySelector('input[type="number"]');
+    if (!input) return;
+    e.preventDefault();
+
+    const passo = Number(btn.dataset.passo) || 1;
+    const min   = input.min !== "" ? parseFloat(input.min) : 0;
+    const max   = input.max !== "" ? parseFloat(input.max) : Infinity;
+    const step  = input.step !== "" && input.step !== "any" ? parseFloat(input.step) : 1;
+
+    let valor = parseFloat(String(input.value).replace(",", "."));
+    if (!Number.isFinite(valor)) {
+        // vazio: diminuir não faz sentido (não há de onde descer)
+        if (passo < 0) return;
+        valor = min;
+    }
+
+    valor = Math.min(max, Math.max(min, valor + passo * step));
+    // volta ao passo exato: evita 0.30000000000000004 no 0.01 da nota
+    valor = Math.round(valor / step) * step;
+    input.value = String(Number(valor.toFixed(10)));
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+});
+
+/* ------------------------------------------------------------
    Troca de aba na barra de baixo (só no celular)
 
    Cada aba é uma página nova, então não há "a mesma barra" para
@@ -342,7 +379,11 @@ function ativarMarcador() {
    Só com ponteiro fino e se o usuário não pediu menos movimento.
    ------------------------------------------------------------ */
 function ativarBrilhoNosCards() {
-    const SELETOR = "a.ini-card, .resumo-card, .deck-card";
+    /* .resumo-card NÃO entra aqui: desde que os resumos viraram lista,
+       ele é uma LINHA da largura toda, e girar uma linha inteira em
+       3D deforma o texto em vez de levantar o cartão. O realce da
+       lista é o do próprio css (fundo e filete no hover). */
+    const SELETOR = "a.ini-card, .deck-card";
     const area = document.querySelector(".contMeio");
     if (!area) return;
 

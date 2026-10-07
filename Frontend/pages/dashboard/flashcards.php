@@ -20,7 +20,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dashboard-fundo-estatico">
 
     <?php include __DIR__ . '/partes/fundo.php'; ?>
 
@@ -70,7 +70,25 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                 </div>
 
                 <!-- Filtros por matéria: montados a partir das SUAS matérias -->
-                <div class="chips" id="filtros" hidden></div>
+                <div class="controles-linha">
+                    <div class="chips" id="filtros" hidden></div>
+
+                    <div class="ordem">
+                        <button type="button" class="ordem__botao" id="ordemBotao"
+                                aria-haspopup="true" aria-expanded="false" aria-controls="ordemMaterias">
+                            <svg class="ordem__icone" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 5.5h7M3.5 10h4.5M3.5 14.5h2M14.5 4v11m0 0 2.5-2.5M14.5 15 12 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="ordem__prefixo">Ordenar</span>
+                            <span class="ordem__atual" id="ordemAtual">Mais recentes</span>
+                            <svg class="ordem__seta" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+
+                        <div class="ordem__menu" id="ordemMaterias" role="menu" aria-labelledby="ordemBotao" hidden>
+                            <button type="button" class="ordem__item" role="menuitemradio" aria-checked="true" data-ordem="recentes">Mais recentes</button>
+                            <button type="button" class="ordem__item" role="menuitemradio" aria-checked="false" data-ordem="alfabetica">Alfabética</button>
+                            <button type="button" class="ordem__item" role="menuitemradio" aria-checked="false" data-ordem="cartoes">Mais cartões</button>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="decks-grid" id="decksGrid" aria-busy="true"></div>
 
