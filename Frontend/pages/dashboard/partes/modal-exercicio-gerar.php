@@ -93,10 +93,7 @@ if (!isset($USUARIO, $PREF)) {
                                 <strong id="previewTitulo">Título</strong>
                                 <span id="previewMeta"></span>
                             </div>
-                            <button type="button" class="dash-btn dash-btn--ghost dash-btn--sm" id="btnVoltarConfig">
-                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                Ajustar
-                            </button>
+                            
                         </div>
 
                         <div class="ex-gerar-questoes" id="exGerarQuestoes">
