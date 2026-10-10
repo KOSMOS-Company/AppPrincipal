@@ -445,18 +445,25 @@
                 <span class="pv-mat__n">${d.cartoes} ${d.cartoes === 1 ? "cartão" : "cartões"}</span>
             </a>`).join("");
 
-        if (!cadernos && !decks) {
+        const exercicios = (m.exercicios || []).map((x) => `
+            <a class="pv-mat" href="exercicio_materia.php?id=${x.id}">
+                <span class="pv-mat__ico" aria-hidden="true">${esc(x.icone || "📝")}</span>
+                <span class="pv-mat__nome">${esc(x.nome)}</span>
+                <span class="pv-mat__n">${x.qtd} ${x.qtd === 1 ? "exercício" : "exercícios"}</span>
+            </a>`).join("");
+
+        if (!cadernos && !decks && !exercicios) {
             return `
             <div class="pv-bloco">
                 <h4 class="pv-bloco__titulo">Material de ${esc(p.materia)}</h4>
-                <p class="pv-bloco__vazio">Você ainda não tem cadernos nem baralhos de ${esc(p.materia)}.</p>
+                <p class="pv-bloco__vazio">Você ainda não tem cadernos, baralhos nem exercícios de ${esc(p.materia)}.</p>
             </div>`;
         }
 
         return `
         <div class="pv-bloco">
             <h4 class="pv-bloco__titulo">Material de ${esc(p.materia)}</h4>
-            <div class="pv-mats">${cadernos}${decks}</div>
+            <div class="pv-mats">${cadernos}${decks}${exercicios}</div>
         </div>`;
     }
 

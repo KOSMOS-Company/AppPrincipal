@@ -396,11 +396,12 @@ function listarProvas(PDO $pdo, int $usuarioId, bool $futuras): array {
 
 /**
  * O material que a pessoa JÁ TEM de cada matéria com prova marcada:
- * os cadernos e os baralhos daquela matéria.
+ * os cadernos, os baralhos e as matérias de exercícios daquela matéria.
  *
  * É o que transforma a lista de provas em ponto de partida — "tem
- * prova de Biologia em 3 dias, e aqui estão seus dois cadernos e seu
- * baralho de Biologia" — em vez de só um aviso de contagem regressiva.
+ * prova de Biologia em 3 dias, e aqui estão seus dois cadernos, seu
+ * baralho e seus exercícios de Biologia" — em vez de só um aviso de
+ * contagem regressiva.
  *
  * Vai como mapa matéria -> material, e não copiado dentro de cada
  * prova: duas provas da mesma matéria apontam para o mesmo material,
@@ -416,7 +417,7 @@ function materiaisDeEstudo(PDO $pdo, int $usuarioId, array $provas): array {
         return [];
     }
 
-    $mapa   = array_fill_keys($materias, ['cadernos' => [], 'decks' => []]);
+    $mapa   = array_fill_keys($materias, ['cadernos' => [], 'decks' => [], 'exercicios' => []]);
     $marcas = implode(',', array_fill(0, count($materias), '?'));
 
     $stmt = $pdo->prepare(
@@ -449,6 +450,25 @@ function materiaisDeEstudo(PDO $pdo, int $usuarioId, array $provas): array {
             'id'      => (int) $d['id'],
             'nome'    => $d['nome'],
             'cartoes' => (int) $d['cartoes'],
+        ];
+    }
+
+    // ---- EXERCÍCIOS via exercicio_materias (o grupo que agrupa os
+    // exercicios salvos; a matéria dos exercícios é uma coluna dele)
+    $stmt = $pdo->prepare(
+        "SELECT m.id, m.nome, m.materia, m.icone,
+                (SELECT COUNT(*) FROM exercicios e WHERE e.materia_id = m.id) AS exercicios
+           FROM exercicio_materias m
+          WHERE m.usuario_id = ? AND m.materia IN ($marcas)
+       ORDER BY m.nome"
+    );
+    $stmt->execute(array_merge([$usuarioId], $materias));
+    foreach ($stmt as $m) {
+        $mapa[$m['materia']]['exercicios'][] = [
+            'id'      => (int) $m['id'],
+            'nome'    => $m['nome'],
+            'icone'   => $m['icone'] ?? '',
+            'qtd'     => (int) $m['exercicios'],
         ];
     }
 

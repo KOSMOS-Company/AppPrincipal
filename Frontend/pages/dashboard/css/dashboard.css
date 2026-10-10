@@ -395,6 +395,39 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
         display: none !important;
     }
 
+    /* ── Rolagem do miolo ──
+       A barra tem `height: 100vh` fixo. Numa janela baixa (notebook
+       pequeno, zoom 125%/150%, escala do Windows) a lista de itens
+       fica mais ALTA que o viewport e o que passa do fundo (o rodapé
+       da conta) saía da tela sem rolagem alguma. Aqui o MIOLO ganha
+       rolagem própria; topo, bloco de XP e rodapé ficam presos, e é só
+       a lista que rola quando não cabe.
+       Sem limite de altura: `overflow-y: auto` só mostra a barra quando
+       o conteúdo de fato não cabe — ou seja, nas próprias janelas baixas.
+       O estado RECOLHIDO fica fora: lá a lista é curta e as etiquetas
+       (`::after`) precisam escapar pela borda, e um `overflow` de
+       rolagem as recortaria. */
+    html:not(.lateral-recolhida) .botoesL {
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;           /* deixa a lista encolher e rolar de fato */
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(165, 65, 255, .45) transparent;
+    }
+    html:not(.lateral-recolhida) .botoesL::-webkit-scrollbar { width: 8px; }
+    html:not(.lateral-recolhida) .botoesL::-webkit-scrollbar-track { background: transparent; }
+    html:not(.lateral-recolhida) .botoesL::-webkit-scrollbar-thumb {
+        background: rgba(165, 65, 255, .45);
+        border-radius: 999px;
+    }
+
+    /* Nada além da lista encolhe: topo, XP e rodapé mantêm o tamanho, e a
+       lista é quem absorve a falta de altura (é ela que rola). */
+    .contTopo,
+    .xp,
+    .contUsuario { flex-shrink: 0; }
+
     html.lateral-recolhida .contLateral {
         --lateral: 74px;
         padding-left: 12px;
@@ -508,6 +541,20 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     html.lateral-recolhida .botoesL a { overflow: hidden; }
     html.lateral-recolhida .botoesL a:hover,
     html.lateral-recolhida .botoesL a:focus-visible { overflow: visible; }
+
+    /* Recolhida em janela baixa (notebook a 100% de zoom): o selo de XP
+       e o rodapé da conta caíam abaixo da dobra. Aqui NÃO dá para rolar
+       — as etiquetas laterais dependem de `overflow: visible` e seriam
+       recortadas na borda. Então o ritmo vertical aperta até tudo caber;
+       telas altas seguem folgadas, sem mudança. */
+    @media (max-height: 800px) {
+        html.lateral-recolhida .contLateral { padding-top: 16px; padding-bottom: 12px; }
+        html.lateral-recolhida .contTopo { margin-bottom: 16px; }
+        html.lateral-recolhida .botoesL a { padding: 8px 0; }
+        html.lateral-recolhida .nav__grupo { padding: 8px 0 6px; }
+        html.lateral-recolhida .xp { margin-top: 8px; }
+        html.lateral-recolhida .contUsuario { padding-top: 8px; }
+    }
 }
 
 /* Quem pediu menos movimento não vê a barra deslizar — ela troca de

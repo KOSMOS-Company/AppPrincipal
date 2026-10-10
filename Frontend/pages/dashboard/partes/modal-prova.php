@@ -51,7 +51,7 @@ require_once __DIR__ . '/../../../../Backend/php/materias.php';
                             <option value="<?= hesc($m) ?>"></option>
                             <?php endforeach; ?>
                         </datalist>
-                        <span class="campo__dica">Com a matéria escolhida, a prova já mostra seus cadernos e baralhos dela.</span>
+                        <span class="campo__dica">Com a matéria escolhida, a prova já mostra seus cadernos, baralhos e exercícios dela.</span>
                     </div>
 
                     <div class="campo">

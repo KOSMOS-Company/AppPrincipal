@@ -134,12 +134,26 @@ h3 { letter-spacing: -.012em; }
    ============================================================ */
 @media (min-width: 769px) {
     .contLateral {
-        background: var(--material-grosso);
-        -webkit-backdrop-filter: var(--material-desfoque);
-        backdrop-filter: var(--material-desfoque);
+        background: transparent;
         border-right: 1px solid var(--fio-claro);
         box-shadow: inset -1px 0 0 rgba(165, 65, 255, .06);
         transition: width var(--mola-t) var(--mola);
+    }
+    /* O vidro mora num ::before atrás do conteúdo — como já é feito no
+       topo do celular. Um backdrop-filter no PRÓPRIO painel deixa de
+       cobrir o filho que ganha rolagem própria: o Chromium sampleia o
+       fundo por camada, e o miolo rolável nascia com outra cor que o
+       resto da barra. No pseudo, a lâmina fica atrás de tudo e o
+       conteúdo rola por cima dela: cor uniforme em qualquer altura. */
+    .contLateral::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: var(--material-grosso);
+        -webkit-backdrop-filter: var(--material-desfoque);
+        backdrop-filter: var(--material-desfoque);
+        pointer-events: none;
     }
     .nav__marca {
         background: rgba(255, 255, 255, .07);
@@ -380,10 +394,18 @@ h3 { letter-spacing: -.012em; }
         -webkit-backdrop-filter: none !important;
         backdrop-filter: none !important;
     }
-    :is(.conf__menu, .botoesL) { background: #1d0536; }
+    .conf__menu { background: #1d0536; }
     .contLateral::before { background: #0d0118; }
     @media (min-width: 769px) {
+        /* No desktop o painel é UMA superfície só: o miolo (.botoesL) fica
+           liso para mostrar o mesmo material da barra. Se ele tivesse fundo
+           próprio, nascia uma faixa com cor diferente exatamente na altura
+           dos links — do logo ao rodapé a cor passa a ser uniforme. */
         .contLateral { background: #12011f; }
+    }
+    @media (max-width: 768px) {
+        /* Já a pílula de baixo é uma superfície descolada: sólida sim. */
+        .botoesL { background: #1d0536; }
     }
 }
 /* Mais contraste: fundos quase sólidos e bordas definidas */
@@ -393,8 +415,11 @@ h3 { letter-spacing: -.012em; }
         --text-dim: #e4dbef;
         --text-muted: #b9a9cf;
     }
-    :is(.conf__menu, .botoesL, .modal__box, .sheet-painel) {
+    :is(.conf__menu, .modal__box, .sheet-painel) {
         background: #1d0536;
         border-color: rgba(255, 255, 255, .4);
+    }
+    @media (max-width: 768px) {
+        .botoesL { background: #1d0536; border-color: rgba(255, 255, 255, .4); }
     }
 }
