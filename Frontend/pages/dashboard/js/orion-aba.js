@@ -135,15 +135,6 @@
            ia crua para o innerHTML: "<img src=x onerror=...>" rodava na
            página. Escapando primeiro, o ** e o * das respostas do Orion
            continuam virando <strong>/<em> — esses caracteres não mudam. */
-        function escaparHtml(txt) {
-            return String(txt)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
         function formatarTexto(txt) {
             return escaparHtml(txt)
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')

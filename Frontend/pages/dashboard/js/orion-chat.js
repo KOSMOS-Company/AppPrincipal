@@ -90,15 +90,6 @@
             });
         }
 
-        function escaparHtml(txt) {
-            return String(txt)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
         function rolarFim() {
             if (msgsContainer) {
                 msgsContainer.scrollTop = msgsContainer.scrollHeight;

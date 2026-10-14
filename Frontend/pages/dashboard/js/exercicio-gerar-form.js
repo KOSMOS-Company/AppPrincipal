@@ -392,12 +392,12 @@
                         color:var(--text);
                     ">
                         <span style="width:22px;height:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid currentColor;border-radius:50%;font-size:.75rem;font-weight:700;">${letra}</span>
-                        <span>${esc(alt)}</span>
+                        <span>${escaparHtml(alt)}</span>
                     </div>`;
             });
 
             const badgeDif = q.dificuldade
-                ? `<span class="ex-gerar-questao__dif dif-capsula" data-dificuldade="${esc(q.dificuldade)}">${esc(q.dificuldade)}</span>`
+                ? `<span class="ex-gerar-questao__dif dif-capsula" data-dificuldade="${escaparHtml(q.dificuldade)}">${escaparHtml(q.dificuldade)}</span>`
                 : "";
 
             div.innerHTML = `
@@ -405,7 +405,7 @@
                     <span>Questão ${q.numero}</span>
                     ${badgeDif}
                 </div>
-                <p style="margin:0 0 12px;line-height:1.5;">${esc(q.enunciado)}</p>
+                <p style="margin:0 0 12px;line-height:1.5;">${escaparHtml(q.enunciado)}</p>
                 <div class="ex-gerar-alts">${altsHtml}</div>
             `;
             container.appendChild(div);
@@ -468,13 +468,6 @@
             btn.innerHTML = htmlOriginal;
         }
     }
-
-    /** O texto da prévia vem da IA: nunca entra cru no innerHTML. */
-    function esc(texto) {
-        const mapa = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-        return String(texto ?? "").replace(/[&<>"']/g, (c) => mapa[c]);
-    }
-
     function msg(texto, tipo, containerId) {
         const m = el(containerId);
         if (!m) return;

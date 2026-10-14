@@ -129,7 +129,7 @@ if (spanCaderno) {
         galeria.innerHTML = imagens.map((img, i) => `
             <button type="button" class="resumo-galeria__item" data-lupa="${i}"
                     aria-label="Ver a imagem ${i + 1} em tamanho grande">
-                <img src="${escapar(img.url)}" alt="${escapar(img.legenda || `Imagem ${i + 1} do resumo`)}" loading="lazy">
+                <img src="${escaparHtml(img.url)}" alt="${escaparHtml(img.legenda || `Imagem ${i + 1} do resumo`)}" loading="lazy">
             </button>`).join("");
 
         const meta = document.getElementById("metaFotos");
@@ -207,12 +207,5 @@ if (spanCaderno) {
         const sozinha = imagens.length < 2;
         document.getElementById("lupaAnterior").hidden = sozinha;
         document.getElementById("lupaProxima").hidden  = sozinha;
-    }
-
-    /* URLs e legendas entram em innerHTML: escapamos antes */
-    function escapar(texto) {
-        const div = document.createElement("div");
-        div.textContent = texto ?? "";
-        return div.innerHTML;
     }
 })();

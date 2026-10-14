@@ -116,13 +116,6 @@ if (filtros) {
     });
 }
 
-/* Tudo que a pessoa digitou (nome, descrição, ícone) passa por aqui antes
-   do innerHTML — inclusive nos atributos, por isso as aspas também. */
-function esc(texto) {
-    const mapa = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-    return String(texto ?? "").replace(/[&<>"']/g, (c) => mapa[c]);
-}
-
 /* O ponto do céu é o mesmo link da lista: um <a> para a matéria, com o
    nome em data-nome (o balão do hover lê esse atributo) e em
    aria-label — o céu não escreve o nome no chão, mas quem usa teclado
@@ -133,11 +126,11 @@ function criarPontoMateria(m) {
     const tamanho = tamanhoEstrela(qtd);
     const tpl = document.createElement("template");
     tpl.innerHTML = `
-        <a class="ex-ponto${qtd === 0 ? " ex-ponto--vazia" : ""} ex-ponto--${esc(m.cor)}"
+        <a class="ex-ponto${qtd === 0 ? " ex-ponto--vazia" : ""} ex-ponto--${escaparHtml(m.cor)}"
            href="exercicio_materia.php?id=${id}"
-           data-id="${id}" data-qtd="${qtd}" data-nome="${esc(m.nome)}"
+           data-id="${id}" data-qtd="${qtd}" data-nome="${escaparHtml(m.nome)}"
            data-x="50" data-y="50" data-tamanho="${tamanho}"
-           aria-label="${esc(m.nome + " — " + rotuloQtdExercicios(qtd))}"
+           aria-label="${escaparHtml(m.nome + " — " + rotuloQtdExercicios(qtd))}"
            style="--x: 50%; --y: 50%; --tamanho: ${tamanho}px"></a>
     `;
     return tpl.content.firstElementChild;
@@ -151,25 +144,25 @@ function criarLinhaMateria(m) {
     const qtd = Number(m.qtd) || 0;
     const tpl = document.createElement("template");
     tpl.innerHTML = `
-        <article class="ex-linha${qtd === 0 ? " ex-linha--vazia" : ""} ex-linha--${esc(m.cor)}"
-                 data-id="${id}" data-materia="${esc(m.materia)}" data-qtd="${qtd}"
-                 data-nome="${esc(m.nome)}" data-criado="${esc(m.criado_em)}"
+        <article class="ex-linha${qtd === 0 ? " ex-linha--vazia" : ""} ex-linha--${escaparHtml(m.cor)}"
+                 data-id="${id}" data-materia="${escaparHtml(m.materia)}" data-qtd="${qtd}"
+                 data-nome="${escaparHtml(m.nome)}" data-criado="${escaparHtml(m.criado_em)}"
                  style="--intensidade: ${intensidadeQtd(qtd)}">
             <a class="ex-linha__link" href="exercicio_materia.php?id=${id}" draggable="false"
-               ${m.descricao ? `title="${esc(m.nome + " — " + m.descricao)}"` : ""}>
+               ${m.descricao ? `title="${escaparHtml(m.nome + " — " + m.descricao)}"` : ""}>
                 <span class="ex-linha__ponto" aria-hidden="true"></span>
-                <h3 class="ex-linha__nome">${esc(m.nome)}</h3>
-                <span class="ex-linha__mat">${esc(m.materia)}</span>
-                <span class="ex-linha__conta">${esc(rotuloQtdExercicios(qtd))}</span>
+                <h3 class="ex-linha__nome">${escaparHtml(m.nome)}</h3>
+                <span class="ex-linha__mat">${escaparHtml(m.materia)}</span>
+                <span class="ex-linha__conta">${escaparHtml(rotuloQtdExercicios(qtd))}</span>
             </a>
             <button type="button" class="ex-linha__editar" data-editar-exercicio-materia="${id}"
                     title="Personalizar esta matéria"
-                    aria-label="Personalizar a matéria ${esc(m.nome)}">
+                    aria-label="Personalizar a matéria ${escaparHtml(m.nome)}">
                 <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
             </button>
             <button type="button" class="ex-linha__editar ex-linha__apagar" data-apagar-exercicio-materia="${id}"
                     title="Excluir esta matéria"
-                    aria-label="Excluir a matéria ${esc(m.nome)}">
+                    aria-label="Excluir a matéria ${escaparHtml(m.nome)}">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
         </article>

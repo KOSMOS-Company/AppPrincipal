@@ -291,8 +291,8 @@
     function miniatura(url, tipo, chave, selo) {
         return `
         <div class="img-mini" data-tipo="${tipo}" data-chave="${chave}">
-            <img src="${escapar(url)}" alt="">
-            ${selo ? `<span class="img-mini__selo">${escapar(selo)}</span>` : ""}
+            <img src="${escaparHtml(url)}" alt="">
+            ${selo ? `<span class="img-mini__selo">${escaparHtml(selo)}</span>` : ""}
             <button type="button" class="img-mini__x" data-remover
                     title="Remover imagem" aria-label="Remover imagem">${ICONE_X}</button>
         </div>`;
@@ -520,14 +520,6 @@
         const m = el("msgResumo");
         if (m) m.hidden = true;
     }
-
-    /* URLs e legendas entram em innerHTML: escapamos antes */
-    function escapar(texto) {
-        const div = document.createElement("div");
-        div.textContent = texto ?? "";
-        return div.innerHTML;
-    }
-
     /* A lista de cadernos do select nasce no PHP (partes/modal-resumo.php).
        Criar, renomear ou apagar um caderno sem recarregar deixava o
        select velho: o caderno novo não aparecia e o apagado ainda

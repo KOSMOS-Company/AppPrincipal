@@ -235,7 +235,7 @@
 
         grid.innerHTML = resumos.map((r, i) => `
             <article class="resumo-card anim-in" data-id="${r.id}"
-                     data-materia="${escapar(r.materia)}" data-caderno="${r.caderno_id || 0}"
+                     data-materia="${escaparHtml(r.materia)}" data-caderno="${r.caderno_id || 0}"
                      draggable="true" style="animation-delay:${(i * 0.04).toFixed(2)}s">
                 <a class="resumo-card__link" href="resumo.php?id=${r.id}" draggable="false">
                     <div class="resumo-card__thumb">
@@ -244,9 +244,9 @@
                             : ICONE_DOC}
                     </div>
                     <div class="resumo-card__body">
-                        <h3 class="resumo-card__title">${escapar(r.titulo)}</h3>
+                        <h3 class="resumo-card__title">${escaparHtml(r.titulo)}</h3>
                         <div class="resumo-card__meta">
-                            <span>${escapar(r.quando || "hoje")}</span>
+                            <span>${escaparHtml(r.quando || "hoje")}</span>
                             <span>Ler →</span>
                         </div>
                     </div>
@@ -254,10 +254,10 @@
                 <div class="resumo-card__acoes">
                     <button type="button" class="resumo-card__botao" data-menu="${r.id}"
                             title="Mover, editar ou apagar" aria-haspopup="menu" aria-expanded="false"
-                            aria-label="Ações do resumo ${escapar(r.titulo)}">${ICONE_MENU}</button>
+                            aria-label="Ações do resumo ${escaparHtml(r.titulo)}">${ICONE_MENU}</button>
                     <button type="button" class="resumo-card__botao" data-editar="${r.id}"
                             title="Editar este resumo"
-                            aria-label="Editar o resumo ${escapar(r.titulo)}">${ICONE_LAPIS}</button>
+                            aria-label="Editar o resumo ${escaparHtml(r.titulo)}">${ICONE_LAPIS}</button>
                 </div>
             </article>`).join("");
 
@@ -275,12 +275,5 @@
         let texto = `${n} ${n === 1 ? "resumo" : "resumos"}`;
         if (f > 0) texto += ` · ${f} ${f === 1 ? "imagem" : "imagens"}`;
         span.textContent = texto;
-    }
-
-    /* O texto vem do banco: escapamos antes de jogar em innerHTML */
-    function escapar(texto) {
-        const div = document.createElement("div");
-        div.textContent = texto ?? "";
-        return div.innerHTML;
     }
 })();

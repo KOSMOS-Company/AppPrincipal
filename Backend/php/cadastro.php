@@ -5,13 +5,12 @@
 // ============================================================
  
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
- 
+
 // ---------- Configurações do banco ----------
 // Credenciais ficam só no conexao.php (fora do git, ver conexao.example.php),
 // como nos outros endpoints — antes estavam repetidas aqui.
 require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/senha_util.php';
 
 // ---------- Só aceita POST ----------
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -23,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // ---------- Lê e valida os campos ----------
 $nome  = trim($_POST['nome']  ?? '');
 $email = trim($_POST['email'] ?? '');
-$senha = trim($_POST['senha'] ?? '');
+$senha = lerSenha('senha');
  
 $erros = [];
  
@@ -43,13 +42,12 @@ if ($email === '') {
     $erros[] = 'E-mail muito longo.';
 }
  
-if ($senha === '') {
-    $erros[] = 'A senha é obrigatória.';
-} elseif (mb_strlen($senha) < 8) {
-    $erros[] = 'A senha deve ter no mínimo 8 caracteres.';
+if (($erroSenha = erroNovaSenha($senha)) !== null) {
+    $erros[] = $erroSenha;
 }
- 
+
 if (!empty($erros)) {
+    http_response_code(422);
     echo json_encode(['ok' => false, 'msg' => implode(' ', $erros)]);
     exit;
 }
@@ -79,7 +77,7 @@ try {
 }
  
 // ---------- Cria o hash da senha e insere ----------
-$senhaHash = password_hash($senha, PASSWORD_BCRYPT, ['cost' => 12]);
+$senhaHash = gerarHashSenha($senha);
  
 try {
     $insert = $pdo->prepare(

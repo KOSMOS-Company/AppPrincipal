@@ -9,6 +9,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
+require_once __DIR__ . '/senha_util.php';
 
 $usuario = exigirLogin();
 
@@ -18,15 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$atual = trim($_POST['senha_atual'] ?? '');
-$nova  = trim($_POST['senha_nova']  ?? '');
+$atual = lerSenha('senha_atual');
+$nova  = lerSenha('senha_nova');
 
-if ($nova === '') {
-    echo json_encode(['ok' => false, 'msg' => 'Informe a nova senha.']);
-    exit;
-}
-if (mb_strlen($nova) < 8) {
-    echo json_encode(['ok' => false, 'msg' => 'A nova senha deve ter no mínimo 8 caracteres.']);
+if (($erro = erroNovaSenha($nova)) !== null) {
+    http_response_code(422);
+    echo json_encode(['ok' => false, 'msg' => $erro]);
     exit;
 }
 
@@ -50,19 +48,19 @@ try {
             echo json_encode(['ok' => false, 'msg' => 'Informe a senha atual.']);
             exit;
         }
-        if (!password_verify($atual, $row['senha_hash'])) {
+        if (!senhaConfere($atual, $row['senha_hash'])) {
             http_response_code(422);
             echo json_encode(['ok' => false, 'msg' => 'A senha atual está incorreta.']);
             exit;
         }
-        if (password_verify($nova, $row['senha_hash'])) {
+        if (senhaConfere($nova, $row['senha_hash'])) {
             echo json_encode(['ok' => false, 'msg' => 'A nova senha deve ser diferente da atual.']);
             exit;
         }
     }
     // Conta só do Google (sem senha): cria a senha sem pedir a atual
 
-    $novoHash = password_hash($nova, PASSWORD_BCRYPT, ['cost' => 12]);
+    $novoHash = gerarHashSenha($nova);
     // Além da senha: descarta um link de "esqueci a senha" pendente (senão ele
     // ainda trocaria a senha nova) e sobe a geração de sessões, derrubando
     // os outros dispositivos logados com a senha antiga

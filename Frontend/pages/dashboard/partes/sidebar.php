@@ -71,21 +71,21 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                 }
             } catch (e) { /* navegação privada: segue aberta, sem drama */ }
         </script>
-        <link rel="stylesheet" href="./css/progresso.css">
-        <link rel="stylesheet" href="./css/recompensas.css">
+        <link rel="stylesheet" href="<?= asset('./css/progresso.css') ?>">
+        <link rel="stylesheet" href="<?= asset('./css/recompensas.css') ?>">
         <!-- Síncrono e antes de qualquer outro script da página: ele
              embrulha o fetch para perceber o `progresso` que os
              endpoints devolvem e mostrar o "+50 XP" — em qualquer aba,
              sem cada tela precisar lembrar de chamar nada. -->
-        <script src="./js/progresso.js"></script>
+        <script src="<?= asset('./js/progresso.js') ?>"></script>
         <!-- Camada "Apple" (molas, materiais, gestos). Aqui e não no <head>
              de cada aba de propósito: carregada depois do CSS da página,
              ela vence os empates sem precisar de !important. -->
-        <link rel="stylesheet" href="./css/apple.css">
+        <link rel="stylesheet" href="<?= asset('./css/apple.css') ?>">
         <!-- Visual Lite (opcional, por aparelho): depois do apple.css para
              vencer os mesmos empates. Só age com html.kosmos-lite, que o
              partes/fundo.php liga antes da primeira pintura. -->
-        <link rel="stylesheet" href="./css/lite.css">
+        <link rel="stylesheet" href="<?= asset('./css/lite.css') ?>">
 
         <aside class="contLateral">
             <div class="contTopo">
@@ -413,12 +413,12 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
             </div>
         </div>
 
-        <script src="./js/apple.js" defer></script>
-        <script src="./js/visual.js" defer></script>
+        <script src="<?= asset('./js/apple.js') ?>" defer></script>
+        <script src="<?= asset('./js/visual.js') ?>" defer></script>
 
         <?php if ($PAGINA !== 'orion.php'): ?>
             <?php include __DIR__ . '/orion-chat.php'; ?>
-            <link rel="stylesheet" href="../shared/mascote.css">
-            <script src="../shared/mascote.js"></script>
-            <script src="./js/orion-chat.js" defer></script>
+            <link rel="stylesheet" href="<?= asset('../shared/mascote.css') ?>">
+            <script src="<?= asset('../shared/mascote.js') ?>"></script>
+            <script src="<?= asset('./js/orion-chat.js') ?>" defer></script>
         <?php endif; ?>

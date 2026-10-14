@@ -5,11 +5,11 @@
 // ============================================================
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
 
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
+require_once __DIR__ . '/senha_util.php';
+require_once __DIR__ . '/limite_util.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $email = trim($_POST['email'] ?? '');
-$senha = trim($_POST['senha'] ?? '');
+$senha = lerSenha('senha');
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $senha === '') {
     http_response_code(422);
@@ -27,16 +27,28 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $senha === '') {
 }
 
 try {
-    $pdo  = conectar();
+    $pdo = conectar();
+
+    // Muitas falhas seguidas: nem confere a senha (ver limite_util.php)
+    if (limiteExcedido($pdo, 'login', $email)) {
+        http_response_code(429);
+        echo json_encode(['ok' => false, 'msg' => 'Muitas tentativas. Aguarde alguns minutos e tente de novo.']);
+        exit;
+    }
+
     $stmt = $pdo->prepare('SELECT id, nome, senha_hash FROM usuarios WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    if (!$user || !password_verify($senha, $user['senha_hash'])) {
+    // senha_hash vazio = conta criada só com o Google
+    if (!$user || empty($user['senha_hash']) || !senhaConfere($senha, $user['senha_hash'])) {
+        registrarTentativa($pdo, 'login', $email);
         http_response_code(401);
         echo json_encode(['ok' => false, 'msg' => 'E-mail ou senha incorretos.']);
         exit;
     }
+
+    limparTentativas($pdo, 'login', $email);
 
     // ---------- Login válido: grava a sessão ----------
     // A partir daqui o SERVIDOR "lembra" quem é este usuário.

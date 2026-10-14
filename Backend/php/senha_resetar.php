@@ -9,6 +9,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/senha_util.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -17,14 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $token = trim($_POST['token']      ?? '');
-$nova  = trim($_POST['senha_nova'] ?? '');
+$nova  = lerSenha('senha_nova');
 
 if ($token === '') {
     echo json_encode(['ok' => false, 'msg' => 'Token ausente.']);
     exit;
 }
-if (mb_strlen($nova) < 8) {
-    echo json_encode(['ok' => false, 'msg' => 'A nova senha deve ter no mínimo 8 caracteres.']);
+if (($erro = erroNovaSenha($nova)) !== null) {
+    http_response_code(422);
+    echo json_encode(['ok' => false, 'msg' => $erro]);
     exit;
 }
 
@@ -45,7 +47,7 @@ try {
     // Grava a nova senha, invalida o token (uso único) e sobe a geração de
     // sessões: se a senha foi redefinida porque vazou, quem estava logado
     // com ela cai no próximo acesso (ver sessaoAindaValida em sessao.php)
-    $novoHash = password_hash($nova, PASSWORD_BCRYPT, ['cost' => 12]);
+    $novoHash = gerarHashSenha($nova);
     $upd = $pdo->prepare('UPDATE usuarios
                              SET senha_hash = ?, reset_token = NULL, reset_expira = NULL,
                                  sessoes_versao = sessoes_versao + 1

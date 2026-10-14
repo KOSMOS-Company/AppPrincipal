@@ -685,6 +685,23 @@ UPDATE `niveis_config` SET `recompensa_descricao` = 'Faltam 2 níveis para a mol
 UPDATE `niveis_config` SET `recompensa_descricao` = 'Falta 1 nível para a moldura Big Bang.' WHERE `nivel` = 49;
 UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava a moldura Big Bang.' WHERE `nivel` = 50;
 
+-- ────────────────────────────────────────────────────────────
+--  Limite de tentativas de login / "esqueci a senha"
+--  (acrescentada em 2026-10-14 — ver Backend/sql/2026-10-14_tentativas_acesso.sql)
+--  Lida e escrita só pelo Backend/php/limite_util.php.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `tentativas_acesso` (
+  `id`        int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `tipo`      enum('login','reset') NOT NULL,
+  `email`     varchar(180) NOT NULL,
+  `ip`        varchar(45) NOT NULL,
+  `criado_em` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_tipo_email` (`tipo`, `email`, `criado_em`),
+  KEY `idx_tipo_ip` (`tipo`, `ip`, `criado_em`),
+  KEY `idx_criado` (`criado_em`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

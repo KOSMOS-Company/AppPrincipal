@@ -11,6 +11,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/limite_util.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -32,7 +33,17 @@ $respostaGenerica = [
 ];
 
 try {
-    $pdo  = conectar();
+    $pdo = conectar();
+
+    // Limite de pedidos (ver limite_util.php): sem isso dava para lotar a
+    // caixa de alguém de e-mails. Conta mesmo quando o e-mail não existe,
+    // e a resposta continua genérica para não revelar se a conta existe.
+    if (limiteExcedido($pdo, 'reset', $email)) {
+        echo json_encode($respostaGenerica);
+        exit;
+    }
+    registrarTentativa($pdo, 'reset', $email);
+
     $stmt = $pdo->prepare('SELECT id, nome FROM usuarios WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $user = $stmt->fetch();

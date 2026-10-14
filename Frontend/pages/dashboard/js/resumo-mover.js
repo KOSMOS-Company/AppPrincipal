@@ -123,8 +123,8 @@
                 <button type="button" class="rs-menu__item${aqui ? " rs-menu__item--aqui" : ""}"
                         role="menuitemradio" aria-checked="${aqui}"
                         data-destino="${c.id ?? ""}"${aqui ? " disabled" : ""}>
-                    <span class="rs-menu__icone" aria-hidden="true">${escapar(c.icone || "📙")}</span>
-                    <span class="rs-menu__nome">${escapar(c.nome)}</span>
+                    <span class="rs-menu__icone" aria-hidden="true">${escaparHtml(c.icone || "📙")}</span>
+                    <span class="rs-menu__nome">${escaparHtml(c.nome)}</span>
                     ${aqui ? '<span class="rs-menu__aqui" aria-hidden="true">aqui</span>' : ""}
                 </button>`;
             }).join("") +
@@ -292,14 +292,6 @@
         clearTimeout(avisoTimer);
         avisoTimer = setTimeout(() => { caixa.hidden = true; }, erro ? 5000 : 2600);
     }
-
-    /* Nomes de caderno entram em innerHTML: escapamos antes */
-    function escapar(texto) {
-        const div = document.createElement("div");
-        div.textContent = texto ?? "";
-        return div.innerHTML;
-    }
-
     window.KosmosMover = {
         mover,
         abrirMenu,

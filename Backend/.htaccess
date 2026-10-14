@@ -1,0 +1,8 @@
+# Arquivos do backend que não são endpoints: o dump do banco
+# (kosmos.sql), anotações, logs e backups não saem pelo navegador.
+<FilesMatch "\.(?i:sql|md|txt|log|bak)$">
+    Require all denied
+</FilesMatch>
+<Files "LICENSE">
+    Require all denied
+</Files>

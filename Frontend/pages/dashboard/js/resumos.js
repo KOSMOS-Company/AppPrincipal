@@ -410,24 +410,24 @@
         );
 
         gridCadernos.innerHTML = lista.map((c, i) => `
-            <article class="caderno-card anim-in caderno-card--${escapar(c.cor || "roxo")}"
-                     data-id="${c.id}" data-materia="${escapar(c.materia)}"
-                     data-nome="${escapar(c.nome)}"
+            <article class="caderno-card anim-in caderno-card--${escaparHtml(c.cor || "roxo")}"
+                     data-id="${c.id}" data-materia="${escaparHtml(c.materia)}"
+                     data-nome="${escaparHtml(c.nome)}"
                      data-resumos="${Number(c.resumos) || 0}"
-                     data-criado="${escapar(c.criado_em || "")}"
-                     data-dica="${escapar(dicaDoCaderno(c))}"
+                     data-criado="${escaparHtml(c.criado_em || "")}"
+                     data-dica="${escaparHtml(dicaDoCaderno(c))}"
                      draggable="true" style="animation-delay:${(i * 0.04).toFixed(2)}s">
                 <a class="caderno-card__link" href="caderno.php?id=${c.id}" draggable="false">
                     <span class="caderno-card__lombada" aria-hidden="true"></span>
                     ${c.capa ? `<span class="caderno-card__capa" aria-hidden="true"
-                          style="background-image:url('${escapar(c.capa)}')"></span>` : ""}
+                          style="background-image:url('${escaparHtml(c.capa)}')"></span>` : ""}
                     <div class="caderno-card__body">
                         <div class="caderno-card__topo">
-                            ${c.icone ? `<span class="caderno-card__icone" aria-hidden="true">${escapar(c.icone)}</span>` : ""}
-                            <span class="materia-tag">${escapar(c.materia)}</span>
+                            ${c.icone ? `<span class="caderno-card__icone" aria-hidden="true">${escaparHtml(c.icone)}</span>` : ""}
+                            <span class="materia-tag">${escaparHtml(c.materia)}</span>
                         </div>
-                        <h3 class="caderno-card__nome">${escapar(c.nome)}</h3>
-                        ${c.descricao ? `<p class="caderno-card__desc">${escapar(c.descricao)}</p>` : ""}
+                        <h3 class="caderno-card__nome">${escaparHtml(c.nome)}</h3>
+                        ${c.descricao ? `<p class="caderno-card__desc">${escaparHtml(c.descricao)}</p>` : ""}
                         <span class="caderno-card__qtd">
                             <strong>${c.resumos}</strong> ${c.resumos === 1 ? "resumo" : "resumos"}${
                                 c.fotos > 0
@@ -441,10 +441,10 @@
                 <div class="caderno-card__acoes">
                     <button type="button" class="caderno-card__editar" data-editar-caderno="${c.id}"
                             title="Personalizar este caderno"
-                            aria-label="Personalizar o caderno ${escapar(c.nome)}">${ICONE_LAPIS}</button>
+                            aria-label="Personalizar o caderno ${escaparHtml(c.nome)}">${ICONE_LAPIS}</button>
                     <button type="button" class="caderno-card__editar caderno-card__apagar" data-apagar-caderno="${c.id}"
                             title="Excluir este caderno"
-                            aria-label="Excluir o caderno ${escapar(c.nome)}">${ICONE_LIXEIRA}</button>
+                            aria-label="Excluir o caderno ${escaparHtml(c.nome)}">${ICONE_LIXEIRA}</button>
                 </div>
                 <span class="caderno-card__solte" aria-hidden="true">Solte para guardar aqui</span>
             </article>`).join("");
@@ -489,7 +489,7 @@
     function cartaoResumo(r, i, comMateria) {
         return `
             <article class="resumo-card anim-in" data-id="${r.id}"
-                     data-materia="${escapar(r.materia)}" data-caderno="${r.caderno_id || 0}"
+                     data-materia="${escaparHtml(r.materia)}" data-caderno="${r.caderno_id || 0}"
                      draggable="true" style="animation-delay:${(i * 0.04).toFixed(2)}s">
                 <a class="resumo-card__link" href="resumo.php?id=${r.id}" draggable="false">
                     <div class="resumo-card__thumb">
@@ -498,10 +498,10 @@
                             : ICONE_DOC}
                     </div>
                     <div class="resumo-card__body">
-                        ${comMateria ? `<span class="materia-tag">${escapar(r.materia)}</span>` : ""}
-                        <h3 class="resumo-card__title">${escapar(r.titulo)}</h3>
+                        ${comMateria ? `<span class="materia-tag">${escaparHtml(r.materia)}</span>` : ""}
+                        <h3 class="resumo-card__title">${escaparHtml(r.titulo)}</h3>
                         <div class="resumo-card__meta">
-                            <span>${escapar(r.quando || "hoje")}</span>
+                            <span>${escaparHtml(r.quando || "hoje")}</span>
                             <span>Ler →</span>
                         </div>
                     </div>
@@ -509,10 +509,10 @@
                 <div class="resumo-card__acoes">
                     <button type="button" class="resumo-card__botao" data-menu="${r.id}"
                             title="Mover, editar ou apagar" aria-haspopup="menu" aria-expanded="false"
-                            aria-label="Ações do resumo ${escapar(r.titulo)}">${ICONE_MENU}</button>
+                            aria-label="Ações do resumo ${escaparHtml(r.titulo)}">${ICONE_MENU}</button>
                     <button type="button" class="resumo-card__botao" data-editar="${r.id}"
                             title="Editar este resumo"
-                            aria-label="Editar o resumo ${escapar(r.titulo)}">${ICONE_LAPIS}</button>
+                            aria-label="Editar o resumo ${escaparHtml(r.titulo)}">${ICONE_LAPIS}</button>
                 </div>
             </article>`;
     }
@@ -536,7 +536,7 @@
         filtros.innerHTML =
             `<button class="chip${atual === "todos" ? " active" : ""}" data-materia="todos">Todos</button>` +
             materias.map((m) =>
-                `<button class="chip${m === atual ? " active" : ""}" data-materia="${escapar(m)}">${escapar(m)}</button>`
+                `<button class="chip${m === atual ? " active" : ""}" data-materia="${escaparHtml(m)}">${escaparHtml(m)}</button>`
             ).join("");
     }
 
@@ -578,16 +578,6 @@
         desenhar();
         aplicarOrdem(ordemAtual);
     });
-    }
-
-    /* O texto vem do banco: escapamos antes de jogar em innerHTML */
-    /* Escapa o texto antes de botá-lo num atributo entre aspas.
-       O truque do textContent resolve & e < >, mas NÃO as aspas — e
-       aqui o texto vai para data-dica="..." e aria-label="...". */
-    function escapar(texto) {
-        const div = document.createElement("div");
-        div.textContent = texto ?? "";
-        return div.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
 
 
