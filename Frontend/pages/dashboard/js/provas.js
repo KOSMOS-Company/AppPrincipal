@@ -216,8 +216,8 @@
         const selo = passada
             ? (p.nota === null
                 ? '<span class="pv-card__conta pv-card__conta--fria">sem nota</span>'
-                : `<span class="pv-card__conta pv-card__conta--nota">${esc(formatarNota(p.nota))}</span>`)
-            : `<span class="pv-card__conta"><strong>${esc(num)}</strong><i>${esc(unidade)}</i></span>`;
+                : `<span class="pv-card__conta pv-card__conta--nota">${escaparHtml(formatarNota(p.nota))}</span>`)
+            : `<span class="pv-card__conta"><strong>${escaparHtml(num)}</strong><i>${escaparHtml(unidade)}</i></span>`;
 
         return `
         <li class="pv-card${!passada && p.faltam <= 7 ? " pv-card--perto" : ""}" data-id="${p.id}">
@@ -225,10 +225,10 @@
                 <summary class="pv-card__topo">
                     ${selo}
                     <span class="pv-card__texto">
-                        <span class="pv-card__nome">${esc(p.titulo)}</span>
+                        <span class="pv-card__nome">${escaparHtml(p.titulo)}</span>
                         <span class="pv-card__meta">
-                            ${p.materia ? `<span class="materia-tag">${esc(p.materia)}</span>` : ""}
-                            <span>${esc(p.por_extenso)}</span>
+                            ${p.materia ? `<span class="materia-tag">${escaparHtml(p.materia)}</span>` : ""}
+                            <span>${escaparHtml(p.por_extenso)}</span>
                             ${total ? `<span class="pv-card__prog">${p.feitos}/${total} assuntos</span>` : ""}
                         </span>
                     </span>
@@ -258,12 +258,12 @@
             <li class="pv-top${t.feito ? " pv-top--feito" : ""}">
                 <button type="button" class="pv-top__check" data-topico="${t.id}"
                         aria-pressed="${t.feito}"
-                        aria-label="${t.feito ? "Desmarcar" : "Marcar como estudado"}: ${esc(t.texto)}">
+                        aria-label="${t.feito ? "Desmarcar" : "Marcar como estudado"}: ${escaparHtml(t.texto)}">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
-                <span class="pv-top__texto">${esc(t.texto)}</span>
+                <span class="pv-top__texto">${escaparHtml(t.texto)}</span>
                 <button type="button" class="pv-top__x" data-topico-x="${t.id}"
-                        aria-label="Tirar da lista: ${esc(t.texto)}">&times;</button>
+                        aria-label="Tirar da lista: ${escaparHtml(t.texto)}">&times;</button>
             </li>`).join("");
 
         return `
@@ -286,7 +286,7 @@
         return `
         <div class="pv-bloco">
             <h4 class="pv-bloco__titulo">Anotações</h4>
-            <p class="pv-anotacoes">${esc(p.anotacoes)}</p>
+            <p class="pv-anotacoes">${escaparHtml(p.anotacoes)}</p>
         </div>`;
     }
 
@@ -301,29 +301,29 @@
 
         const cadernos = (m.cadernos || []).map((c) => `
             <a class="pv-mat" href="caderno.php?id=${c.id}">
-                <span class="pv-mat__ico" aria-hidden="true">${esc(c.icone || "📙")}</span>
-                <span class="pv-mat__nome">${esc(c.nome)}</span>
+                <span class="pv-mat__ico" aria-hidden="true">${escaparHtml(c.icone || "📙")}</span>
+                <span class="pv-mat__nome">${escaparHtml(c.nome)}</span>
                 <span class="pv-mat__n">${c.resumos} ${c.resumos === 1 ? "resumo" : "resumos"}</span>
             </a>`).join("");
 
         const decks = (m.decks || []).map((d) => `
             <a class="pv-mat" href="flashcards.php?deck=${d.id}">
                 <span class="pv-mat__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></span>
-                <span class="pv-mat__nome">${esc(d.nome)}</span>
+                <span class="pv-mat__nome">${escaparHtml(d.nome)}</span>
                 <span class="pv-mat__n">${d.cartoes} ${d.cartoes === 1 ? "cartão" : "cartões"}</span>
             </a>`).join("");
 
         if (!cadernos && !decks) {
             return `
             <div class="pv-bloco">
-                <h4 class="pv-bloco__titulo">Material de ${esc(p.materia)}</h4>
-                <p class="pv-bloco__vazio">Você ainda não tem cadernos nem baralhos de ${esc(p.materia)}.</p>
+                <h4 class="pv-bloco__titulo">Material de ${escaparHtml(p.materia)}</h4>
+                <p class="pv-bloco__vazio">Você ainda não tem cadernos nem baralhos de ${escaparHtml(p.materia)}.</p>
             </div>`;
         }
 
         return `
         <div class="pv-bloco">
-            <h4 class="pv-bloco__titulo">Material de ${esc(p.materia)}</h4>
+            <h4 class="pv-bloco__titulo">Material de ${escaparHtml(p.materia)}</h4>
             <div class="pv-mats">${cadernos}${decks}</div>
         </div>`;
     }
@@ -340,7 +340,7 @@
                 <label class="sr-only" for="pvNota${p.id}">Nota da prova</label>
                 <input type="number" id="pvNota${p.id}" step="0.01" min="0" max="1000"
                        inputmode="decimal" placeholder="Nota"
-                       value="${p.nota === null ? "" : esc(String(Number(p.nota)))}">
+                       value="${p.nota === null ? "" : escaparHtml(String(Number(p.nota)))}">
                 <button type="submit" class="dash-btn dash-btn--ghost dash-btn--pequeno">Salvar nota</button>
             </form>
             <span class="campo__dica">Deixe em branco e salve para apagar a nota.</span>
@@ -589,12 +589,5 @@
         clearTimeout(avisoTimer);
         caixa.style.display = "";
         avisoTimer = setTimeout(() => { caixa.hidden = true; }, erro ? 5000 : 2600);
-    }
-
-    /** Texto do usuário antes de entrar em innerHTML. */
-    function esc(texto) {
-        return String(texto ?? "").replace(/[&<>"']/g, (c) => ({
-            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-        }[c]));
     }
 })();

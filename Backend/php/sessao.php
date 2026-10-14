@@ -84,6 +84,28 @@ function registrarAcesso(PDO $pdo, int $usuarioId): int {
 }
 
 /**
+ * Segunda camada contra CSRF, além do cookie SameSite=Lax: um POST
+ * que o navegador diz vir de OUTRO site (cabeçalho Origin) é recusado.
+ * O fetch do próprio app manda Origin igual ao Host, então nada muda
+ * para ele. Sem Origin (curl, navegador antigo) passa: aí quem
+ * protege é o SameSite.
+ */
+function exigirMesmaOrigem(): void {
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST' || empty($_SERVER['HTTP_ORIGIN'])) {
+        return;
+    }
+    $origem = parse_url((string) $_SERVER['HTTP_ORIGIN']);
+    $host   = ($origem['host'] ?? '') . (isset($origem['port']) ? ':' . $origem['port'] : '');
+
+    if (strcasecmp($host, (string) ($_SERVER['HTTP_HOST'] ?? '')) !== 0) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'msg' => 'Requisição de outra origem recusada.']);
+        exit;
+    }
+}
+
+/**
  * "Porteiro" para endpoints protegidos: se não houver login,
  * responde 401 em JSON e encerra o script imediatamente.
  * Se houver login, devolve os dados do usuário.
@@ -95,6 +117,7 @@ function registrarAcesso(PDO $pdo, int $usuarioId): int {
  * porque encerrar a sessão exige que ela ainda esteja aberta.
  */
 function exigirLogin(): array {
+    exigirMesmaOrigem();
     $usuario = usuarioLogado();
 
     if ($usuario !== null) {

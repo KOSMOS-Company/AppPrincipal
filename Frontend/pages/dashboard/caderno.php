@@ -73,12 +73,12 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title><?= $CADERNO ? hesc($CADERNO['nome']) . ' — Kosmos' : 'Kosmos — Caderno' ?></title>
-    <link rel="stylesheet" href="./css/dashboard.css">
-    <link rel="stylesheet" href="../shared/cosmos.css">
-    <link rel="stylesheet" href="./css/pomodoro-aviso.css">
-    <link rel="stylesheet" href="./css/resumos.css">
-    <link rel="stylesheet" href="./css/cursor.css">
-    <link rel="stylesheet" href="../shared/logo.css">
+    <link rel="stylesheet" href="<?= asset('./css/dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= asset('../shared/cosmos.css') ?>">
+    <link rel="stylesheet" href="<?= asset('./css/pomodoro-aviso.css') ?>">
+    <link rel="stylesheet" href="<?= asset('./css/resumos.css') ?>">
+    <link rel="stylesheet" href="<?= asset('./css/cursor.css') ?>">
+    <link rel="stylesheet" href="<?= asset('../shared/logo.css') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -194,22 +194,23 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
     <script type="application/json" id="dadosResumos"><?= json_encode($RESUMOS, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 <?php endif; ?>
 
-    <script src="./js/dashboard.js"></script>
-    <script src="./js/pomodoro-aviso.js"></script>
-    <script src="./js/resumo-mover.js"></script>
-    <script src="./js/combo-materia.js"></script>
-    <script src="./js/caderno-form.js"></script>
-    <script src="./js/resumo-form.js"></script>
+    <script src="<?= asset('./js/util.js') ?>"></script>
+    <script src="<?= asset('./js/dashboard.js') ?>"></script>
+    <script src="<?= asset('./js/pomodoro-aviso.js') ?>"></script>
+    <script src="<?= asset('./js/resumo-mover.js') ?>"></script>
+    <script src="<?= asset('./js/combo-materia.js') ?>"></script>
+    <script src="<?= asset('./js/caderno-form.js') ?>"></script>
+    <script src="<?= asset('./js/resumo-form.js') ?>"></script>
     <!-- antes do caderno.js: é ele que pergunta se o módulo existe
          para decidir se põe "Gerar flashcards" no menu ⋮ -->
-    <script src="./js/flashcards-gerar.js"></script>
-    <script src="./js/caderno.js"></script>
-    <script src="./js/cursor.js"></script>
+    <script src="<?= asset('./js/flashcards-gerar.js') ?>"></script>
+    <script src="<?= asset('./js/caderno.js') ?>"></script>
+    <script src="<?= asset('./js/cursor.js') ?>"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta
          primeiro e, se não houver placa ou o shader não compilar, ele
          desiste em silêncio e o cosmos.js (Canvas 2D) assume — por isso
          esta ordem importa. Ver partes/fundo.php. -->
-    <script src="../shared/cosmos-gl.js"></script>
-    <script src="../shared/cosmos.js"></script>
+    <script src="<?= asset('../shared/cosmos-gl.js') ?>"></script>
+    <script src="<?= asset('../shared/cosmos.js') ?>"></script>
 </body>
 </html>

@@ -11,13 +11,13 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Pergunte ao Orion</title>
-    <link rel="stylesheet" href="./css/dashboard.css">
-    <link rel="stylesheet" href="../shared/cosmos.css">
-    <link rel="stylesheet" href="./css/pomodoro-aviso.css">
-    <link rel="stylesheet" href="../shared/mascote.css">
-    <link rel="stylesheet" href="./css/orion-aba.css">
-    <link rel="stylesheet" href="./css/cursor.css">
-    <link rel="stylesheet" href="../shared/logo.css">
+    <link rel="stylesheet" href="<?= asset('./css/dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= asset('../shared/cosmos.css') ?>">
+    <link rel="stylesheet" href="<?= asset('./css/pomodoro-aviso.css') ?>">
+    <link rel="stylesheet" href="<?= asset('../shared/mascote.css') ?>">
+    <link rel="stylesheet" href="<?= asset('./css/orion-aba.css') ?>">
+    <link rel="stylesheet" href="<?= asset('./css/cursor.css') ?>">
+    <link rel="stylesheet" href="<?= asset('../shared/logo.css') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -147,17 +147,18 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
 
     </div>
 
-    <script src="./js/dashboard.js"></script>
-    <script src="../shared/mascote.js"></script>
-    <script src="./js/orion-aba.js"></script>
+    <script src="<?= asset('./js/util.js') ?>"></script>
+    <script src="<?= asset('./js/dashboard.js') ?>"></script>
+    <script src="<?= asset('../shared/mascote.js') ?>"></script>
+    <script src="<?= asset('./js/orion-aba.js') ?>"></script>
     <!-- O fundo tenta WebGL (cosmos-gl.js); se a máquina não tem ou o shader
          não compila, ele desiste em silêncio e o cosmos.js (Canvas 2D) assume.
          Os dois com defer aqui: scripts defer rodam na ordem do HTML, então o
          cosmos.js continua rodando DEPOIS do cosmos-gl.js, como nas outras
          páginas — sem defer ele rodaria antes e nunca veria o WebGL ligado. -->
-    <script src="../shared/cosmos-gl.js" defer></script>
-    <script src="../shared/cosmos.js" defer></script>
-    <script src="./js/cursor.js" defer></script>
-    <script src="./js/pomodoro-aviso.js"></script>
+    <script src="<?= asset('../shared/cosmos-gl.js') ?>" defer></script>
+    <script src="<?= asset('../shared/cosmos.js') ?>" defer></script>
+    <script src="<?= asset('./js/cursor.js') ?>" defer></script>
+    <script src="<?= asset('./js/pomodoro-aviso.js') ?>"></script>
 </body>
 </html>

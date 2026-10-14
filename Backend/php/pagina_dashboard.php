@@ -29,6 +29,7 @@
 //                 disponivel) — a barra de XP, ver ProgressoService
 //      $PAGINA   (nome do arquivo atual, ex.: "resumos.php")
 //      hesc()    (atalho de htmlspecialchars para imprimir com segurança)
+//      asset()   (caminho de .js/.css com ?v= da última modificação)
 // ============================================================
 
 require_once __DIR__ . '/conexao.php';
@@ -43,6 +44,18 @@ require_once __DIR__ . '/ProgressoService.php';
 /** Escapa texto para imprimir no HTML. */
 function hesc(?string $texto): string {
     return htmlspecialchars((string) $texto, ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * Caminho de um .js/.css da dashboard com "?v=<data de modificação>".
+ * Sem isso, depois de publicar uma mudança o navegador podia continuar
+ * usando a cópia antiga do cache. O caminho é relativo à pasta
+ * Frontend/pages/dashboard/, igual ao que vai no src/href.
+ */
+function asset(string $caminho): string {
+    $arquivo = __DIR__ . '/../../Frontend/pages/dashboard/' . $caminho;
+    $versao  = is_file($arquivo) ? filemtime($arquivo) : 0;
+    return hesc($caminho . '?v=' . $versao);
 }
 
 /** Manda para outra página e encerra (usado pelo porteiro). */

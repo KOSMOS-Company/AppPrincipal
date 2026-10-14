@@ -29,9 +29,10 @@ KOSMOS/
 └── AppPrincipal/
     ├── .htaccess                   # config do Apache (ErrorDocument 404 → página personalizada)
     ├── Backend/
+    │   ├── .htaccess               # nega .sql/.md/.txt pelo navegador (o dump não vaza)
     │   ├── kosmos.sql              # dump do banco (estrutura de todas as tabelas)
-    │   ├── sql/                    # migrações para bancos que já existem
-    │   ├── notes/                  # anotações de desenvolvimento
+    │   ├── sql/                    # migrações + migrar.php (executor, só via linha de comando)
+    │   ├── notes/                  # anotações de desenvolvimento (bloqueadas na web)
     │   ├── uploads/
     │   │   ├── .htaccess           # blinda a pasta: nada aqui pode ser executado
     │   │   └── avatares/           # fotos de perfil enviadas pelos usuários
@@ -42,6 +43,8 @@ KOSMOS/
     │       ├── materias.php        # lista de matérias e cores do avatar (fonte única)
     │       ├── datas.php           # formata datas em pt-BR (sem calcular nada)
     │       ├── login*.php, cadastro.php, sessao.php, senha_*.php
+    │       ├── senha_util.php      # regras de senha (fonte única: tamanho, hash, conferência)
+    │       ├── limite_util.php     # limite de tentativas de login e de "esqueci a senha"
     │       ├── conta_*.php         # perfil, senha, preferências, sessões, avatar, LGPD
     │       ├── flashcards_*.php    # decks, cartões e revisões
     │       ├── resumos_*.php       # listar / salvar / excluir resumos
@@ -61,6 +64,7 @@ KOSMOS/
             │   ├── pomodoro.php    # timer
             │   ├── provas.php     # provas: contagem, o que cai e a nota depois
             │   ├── conta.php       # conta (6 seções)
+            │   ├── js/util.js      # escaparHtml() — carregado antes de todos os scripts
             │   └── partes/         # pedaços reaproveitados (sidebar e modais)
             └── shared/             # recursos comuns (favicon, imagem de compartilhamento, cursor)
 ```
@@ -82,23 +86,24 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
 3. **Crie o banco de dados:**
    - Abra o phpMyAdmin (`http://localhost/phpmyadmin`).
    - Importe o arquivo `Backend/kosmos.sql` — ele já cria o banco `kosmos` e todas as tabelas.
-   - *Já tinha o banco criado antes?* **Não importe o `kosmos.sql` por cima** (ele falha
-     em "Table 'usuarios' already exists" e para no meio). Rode só as migrações que
-     faltam, em ordem:
+   - Depois de importar, registre que o banco já está em dia (o `kosmos.sql` já
+     contém tudo o que as migrações fazem):
      ```bash
-     cd Backend/sql
-     mysql -u root kosmos < 2026-08-25_flashcards.sql   # decks e cartões
-     mysql -u root kosmos < 2026-08-26_conta.sql        # preferências, avatar e sessoes_versao
-     mysql -u root kosmos < 2026-08-27_resumos.sql      # resumos
-     mysql -u root kosmos < 2026-09-08_onboarding.sql   # onboarding
-     mysql -u root kosmos < 2026-09-09_resumo_cadernos.sql      # cadernos
-     mysql -u root kosmos < 2026-09-11_caderno_personalizacao.sql  # cor, ícone e capa
-     mysql -u root kosmos < 2026-09-13_estudo.sql       # sessões, repetição espaçada, provas, busca
-     mysql -u root kosmos < 2026-09-14_provas.sql       # assuntos que caem, anotações e nota
-     mysql -u root kosmos < 2026-09-25_progresso.sql    # XP, níveis, conquistas (+ XP retroativo)
-     mysql -u root kosmos < 2026-09-25_recompensas.sql  # trilha de recompensas do avatar
+     C:\xampp\php\php.exe Backend/sql/migrar.php --marcar-todas
      ```
-     Todas usam `IF NOT EXISTS`, então rodar de novo por engano não quebra nada.
+   - *Já tinha o banco criado antes?* **Não importe o `kosmos.sql` por cima** (ele falha
+     em "Table 'usuarios' already exists" e para no meio). Use o executor de migrações
+     (`Backend/sql/migrar.php`), que guarda na tabela `migracoes` o que já rodou e aplica
+     só o que falta, em ordem:
+     ```bash
+     C:\xampp\php\php.exe Backend/sql/migrar.php --status   # o que está pendente
+     C:\xampp\php\php.exe Backend/sql/migrar.php            # aplica as pendentes
+     ```
+     Na primeira vez num banco antigo ele pede o `--marcar-todas` (rode antes, com o
+     cliente `mysql`, alguma migração que você saiba que falta). Reaplicar tudo às cegas
+     não é seguro: a `2026-09-25_progresso.sql` credita XP retroativo.
+   - Toda migração nova vai em `Backend/sql/` com a data no começo do nome **e** é
+     replicada no `kosmos.sql`.
 
 4. **Configure os arquivos de ambiente** (eles não vêm no repositório por conterem segredos):
    ```bash

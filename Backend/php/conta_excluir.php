@@ -17,6 +17,7 @@ require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/avatar_util.php';
 require_once __DIR__ . '/resumo_imagem_util.php';
+require_once __DIR__ . '/senha_util.php';
 
 $usuario = exigirLogin();
 $id      = (int) $usuario['id'];
@@ -27,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// trim igual ao login/cadastro/troca de senha: lá a senha foi gravada e
-// conferida sem espaços nas pontas, então aqui também tem que ser
-$senha        = trim((string) ($_POST['senha'] ?? ''));
+// lerSenha() corta as pontas, igual ao login/cadastro/troca de senha:
+// lá a senha foi gravada e conferida sem espaços, então aqui também
+$senha        = lerSenha('senha');
 $confirmacao  = strtoupper(trim((string) ($_POST['confirmacao'] ?? '')));
 
 try {
@@ -52,7 +53,7 @@ try {
             echo json_encode(['ok' => false, 'msg' => 'Digite sua senha para confirmar.']);
             exit;
         }
-        if (!password_verify($senha, $row['senha_hash'])) {
+        if (!senhaConfere($senha, $row['senha_hash'])) {
             http_response_code(422);
             echo json_encode(['ok' => false, 'msg' => 'Senha incorreta.']);
             exit;

@@ -129,7 +129,7 @@
             btn.dataset.indice = String(i);
             btn.innerHTML = `
                 <span class="ex-praticar-alt__letra">${letra}</span>
-                <span class="ex-praticar-alt__texto">${escapeHtml(alt)}</span>
+                <span class="ex-praticar-alt__texto">${escaparHtml(alt)}</span>
             `;
             btn.addEventListener("click", () => responder(i, btn));
             alts.appendChild(btn);
@@ -266,11 +266,6 @@
         return indice >= 0 ? String.fromCharCode(65 + indice) : "—";
     }
 
-    function escapeHtml(str) {
-        const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-        return String(str).replace(/[&<>"']/g, (c) => map[c]);
-    }
-
     /* Ícones inline do feedback (no lugar de emojis) */
     const ICONE_OK = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const ICONE_ERRO = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -278,7 +273,7 @@
     function msg(texto, tipo) {
         const m = el("praticarFeedback");
         if (!m) return;
-        m.innerHTML = (tipo === "sucesso" ? ICONE_OK : ICONE_ERRO) + `<span>${escapeHtml(texto)}</span>`;
+        m.innerHTML = (tipo === "sucesso" ? ICONE_OK : ICONE_ERRO) + `<span>${escaparHtml(texto)}</span>`;
         m.className = "msg msg--" + tipo;
         m.hidden = false;
     }

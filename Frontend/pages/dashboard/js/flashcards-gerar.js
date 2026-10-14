@@ -116,7 +116,7 @@
     /** O seletor de baralho, com a opção de criar um novo no fim. */
     function montarDecks(decks, sugerido, nomeSugerido) {
         el.deck.innerHTML = (decks || []).map((d) =>
-            `<option value="${d.id}">${esc(d.nome)} · ${esc(d.materia)} (${d.cartoes})</option>`
+            `<option value="${d.id}">${escaparHtml(d.nome)} · ${escaparHtml(d.materia)} (${d.cartoes})</option>`
         ).join("") + '<option value="0">＋ Criar um baralho novo</option>';
 
         /* Cai no baralho da mesma matéria quando existe: quem já tem
@@ -144,7 +144,7 @@
 
         bloco.innerHTML = `
             <div class="gf-cartao__topo">
-                <span class="gf-cartao__tag">${esc(ORIGENS[origem] || ORIGENS.manual)}</span>
+                <span class="gf-cartao__tag">${escaparHtml(ORIGENS[origem] || ORIGENS.manual)}</span>
                 <button type="button" class="gf-cartao__x" aria-label="Tirar este cartão">&times;</button>
             </div>
             <label class="gf-cartao__rot">Pergunta</label>
@@ -298,12 +298,6 @@
             document.body.appendChild(caixa);
         }
         return caixa;
-    }
-
-    function esc(texto) {
-        return String(texto ?? "").replace(/[&<>"']/g, (c) => ({
-            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-        }[c]));
     }
 
     /* ------------------------------------------------------------

@@ -158,7 +158,7 @@
         }
 
         const chip = (valor, rotulo) =>
-            `<button class="chip${estado.filtro === valor ? " active" : ""}" data-materia="${esc(valor)}">${esc(rotulo)}</button>`;
+            `<button class="chip${estado.filtro === valor ? " active" : ""}" data-materia="${escaparHtml(valor)}">${escaparHtml(rotulo)}</button>`;
 
         filtros.innerHTML = chip("todos", "Todos") + materias.map((m) => chip(m, m)).join("");
     }
@@ -175,16 +175,16 @@
             return `
             <article class="deck-card anim-in" style="animation-delay:${i * 0.05}s">
                 <div class="deck-card__topo">
-                    <span class="materia-tag">${esc(d.materia)}</span>
+                    <span class="materia-tag">${escaparHtml(d.materia)}</span>
                     <div class="deck-card__acoes">
                         <button class="icone-btn" data-editar-deck="${d.id}"
-                                title="Renomear baralho" aria-label="Renomear o baralho ${esc(d.nome)}">${ICONE_EDITAR}</button>
+                                title="Renomear baralho" aria-label="Renomear o baralho ${escaparHtml(d.nome)}">${ICONE_EDITAR}</button>
                         <button class="icone-btn icone-btn--perigo" data-excluir-deck="${d.id}"
-                                title="Excluir baralho" aria-label="Excluir o baralho ${esc(d.nome)}">${ICONE_EXCLUIR}</button>
+                                title="Excluir baralho" aria-label="Excluir o baralho ${escaparHtml(d.nome)}">${ICONE_EXCLUIR}</button>
                     </div>
                 </div>
 
-                <h3 class="deck-card__nome">${esc(d.nome)}</h3>
+                <h3 class="deck-card__nome">${escaparHtml(d.nome)}</h3>
 
                 <span class="deck-card__qtd">
                     <strong>${d.cartoes}</strong> ${plural(d.cartoes, "cartão", "cartões")}
@@ -194,7 +194,7 @@
                 ${semCartoes ? "" : `<div class="deck-card__barra" role="img"
                         aria-label="${dominio}% do baralho dominado"><span style="width:${dominio}%"></span></div>`}
 
-                <span class="deck-card__quando">${esc(d.quando)}</span>
+                <span class="deck-card__quando">${escaparHtml(d.quando)}</span>
 
                 <div class="deck-card__botoes">
                     <button class="dash-btn dash-btn--outline" data-cartoes="${d.id}">Cartões</button>
@@ -260,8 +260,8 @@
                 <span class="cartao-item__estado${estadoClasse}" title="${estadoTitulo}"
                       role="img" aria-label="${estadoTitulo}"></span>
                 <div class="cartao-item__texto">
-                    <strong>${esc(c.frente)}</strong>
-                    <span>${esc(c.verso)}</span>
+                    <strong>${escaparHtml(c.frente)}</strong>
+                    <span>${escaparHtml(c.verso)}</span>
                 </div>
                 <span class="cartao-item__nums">${
                     c.revisoes ? `${c.revisoes} ${plural(c.revisoes, "revisão", "revisões")} · ${c.acertos}/${c.revisoes}` : "novo"
@@ -614,8 +614,8 @@
             confirmar(
                 "Excluir baralho?",
                 deck.cartoes === 0
-                    ? `O baralho <strong>${esc(deck.nome)}</strong> será apagado. Não dá para desfazer.`
-                    : `O baralho <strong>${esc(deck.nome)}</strong> e os seus ${deck.cartoes} `
+                    ? `O baralho <strong>${escaparHtml(deck.nome)}</strong> será apagado. Não dá para desfazer.`
+                    : `O baralho <strong>${escaparHtml(deck.nome)}</strong> e os seus ${deck.cartoes} `
                       + `${plural(deck.cartoes, "cartão", "cartões")} serão apagados. Não dá para desfazer.`,
                 () => excluirDeck(deck)
             );
@@ -645,7 +645,7 @@
 
         confirmar(
             "Excluir cartão?",
-            `O cartão <strong>${esc(recortar(cartao.frente, 60))}</strong> será apagado.`,
+            `O cartão <strong>${escaparHtml(recortar(cartao.frente, 60))}</strong> será apagado.`,
             () => excluirCartao(cartao)
         );
     });
@@ -736,14 +736,6 @@
         Object.entries(views).forEach(([chave, secao]) => { secao.hidden = chave !== nome; });
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
-
-    /** Escapa texto do usuário antes de entrar em innerHTML. */
-    function esc(texto) {
-        return String(texto ?? "").replace(/[&<>"']/g, (c) => ({
-            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-        }[c]));
-    }
-
     function recortar(texto, max) {
         return texto.length > max ? `${texto.slice(0, max)}…` : texto;
     }
