@@ -133,7 +133,7 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
                 <footer class="orion-chat-rodape">
                     <form class="orion-chat-form" id="orionChatForm" onsubmit="return false;">
                         <input type="text" class="orion-chat-input" id="orionChatInput" placeholder="Pergunte ao Orion... (ex: me explique o método Feynman)" autocomplete="off" maxlength="400">
-                        <button type="submit" class="orion-chat-btn-enviar" id="orionChatEnviar" aria-label="Enviar pergunta" title="Enviar pergunta">
+                        <button type="submit" class="orion-chat-btn-enviar btn-ia" id="orionChatEnviar" aria-label="Enviar pergunta" title="Enviar pergunta">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                         </button>
                     </form>

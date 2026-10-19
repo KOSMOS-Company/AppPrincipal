@@ -377,7 +377,7 @@
 
                     <div class="pv-card__acoes">
                         <button type="button" class="dash-btn dash-btn--outline dash-btn--pequeno" data-editar="${p.id}">Editar</button>
-                        <button type="button" class="dash-btn dash-btn--danger dash-btn--pequeno" data-apagar="${p.id}">Apagar</button>
+                        <button type="button" class="dash-btn dash-btn--danger dash-btn--pequeno dash-btn--excluir" data-apagar="${p.id}">Excluir</button>
                     </div>
                 </div>
             </details>
@@ -578,9 +578,9 @@
            leva junto os assuntos da prova, e isso não volta. */
         const ok = window.confirmar
             ? await window.confirmar({
-                  titulo: "Apagar prova",
+                  titulo: "Excluir prova",
                   texto: `"${p.titulo}" sai da sua lista, com os assuntos marcados. Isso não volta.`,
-                  botao: "Apagar",
+                  botao: "Excluir",
                   perigo: true,
               })
             : true;

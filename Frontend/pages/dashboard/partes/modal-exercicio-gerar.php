@@ -77,7 +77,8 @@ if (!isset($USUARIO, $PREF)) {
 
                         <div class="modal__actions">
                             <button type="button" class="dash-btn dash-btn--outline" id="exGerarCancelar">Cancelar</button>
-                            <button type="button" class="dash-btn dash-btn--primary" id="btnGerarComIA">
+                            <button type="button" class="dash-btn dash-btn--primary btn-ia" id="btnGerarComIA">
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 3.5c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5 3-.5 4-1.5 4.5-4.5Z" fill="currentColor"/><path class="ia-estrela-menor" d="M14.5 11.5c.25 1.5.75 2 2.25 2.25-1.5.25-2 .75-2.25 2.25-.25-1.5-.75-2-2.25-2.25 1.5-.25 2-.75 2.25-2.25Z" fill="currentColor"/></svg>
                                 Gerar com IA
                             </button>
                         </div>
@@ -105,7 +106,6 @@ if (!isset($USUARIO, $PREF)) {
                         <div class="modal__actions">
                             <button type="button" class="dash-btn dash-btn--outline" id="exGerarCancelar2">Cancelar</button>
                             <button type="button" class="dash-btn dash-btn--primary" id="btnSalvarExercicio">
-                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 Salvar exercício
                             </button>
                         </div>

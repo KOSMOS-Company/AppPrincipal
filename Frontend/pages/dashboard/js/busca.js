@@ -1,7 +1,7 @@
 /* ============================================================
    KOSMOS — busca.js  (só a página Buscar)
 
-   Busca em resumos, cadernos, baralhos e cartões de uma vez.
+   Busca em resumos, cadernos, baralhos, cartões e exercícios de uma vez.
 
    ── Duas coisas que este arquivo faz de propósito ──
 
@@ -35,6 +35,8 @@
         caderno: "Caderno",
         baralho: "Baralho",
         cartao:  "Cartão",
+        materia_exercicio: "Matéria",
+        exercicio: "Exercício",
     };
 
     let timer = null;
@@ -49,7 +51,7 @@
         if (termo.trim().length < 2) {
             lista.innerHTML = "";
             vazio.hidden = true;
-            resumo.textContent = "Resumos, cadernos, baralhos e cartões.";
+            resumo.textContent = "Resumos, cadernos, flashcards e exercícios.";
             return;
         }
 

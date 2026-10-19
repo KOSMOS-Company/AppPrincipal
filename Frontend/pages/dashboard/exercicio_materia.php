@@ -61,7 +61,7 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
 
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
-        <main class="contMeio">
+        <main class="contMeio pagina-materia">
 <?php if (!$MATERIA): ?>
             <header class="contCabeca">
                 <div class="contCabeca__texto">
@@ -100,8 +100,8 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
                     </p>
                 </div>
                 <div class="rs-acoes">
-                    <button class="dash-btn dash-btn--primary" id="btnNovoExercicio">
-                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <button class="dash-btn dash-btn--primary btn-ia" id="btnNovoExercicio">
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 3.5c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5 3-.5 4-1.5 4.5-4.5Z" fill="currentColor"/><path class="ia-estrela-menor" d="M14.5 11.5c.25 1.5.75 2 2.25 2.25-1.5.25-2 .75-2.25 2.25-.25-1.5-.75-2-2.25-2.25 1.5-.25 2-.75 2.25-2.25Z" fill="currentColor"/></svg>
                         Gerar novo exercício
                     </button>
                     <button class="dash-btn dash-btn--outline" id="btnEditarMateria">
@@ -245,7 +245,6 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
         document.addEventListener('exercicio:salvo', () => {
             carregarExerciciosSalvos();
         });
-
         async function carregarExerciciosSalvos() {
             if (!materiaId) return;
 
@@ -293,16 +292,17 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
                             </div>
                             <span class="exercicio-salvo-card__badge dif-capsula" data-dificuldade="${escapeHtml(dificuldade)}">${escapeHtml(dificuldade)}</span>
                         </div>
+                        <div class="exercicio-salvo-card__trilha" aria-hidden="true">${'<i></i>'.repeat(Math.min(qtdQuestoes, 12))}</div>
                         <div class="exercicio-salvo-card__acoes">
                             <button class="dash-btn dash-btn--outline" onclick="abrirExercicio(${ex.id})">
-                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2l1.8 4.4L16 8l-4.2 1.6L10 14l-1.8-4.4L4 8l4.2-1.6L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 3.5c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5 3-.5 4-1.5 4.5-4.5Z" fill="currentColor"/><path class="ia-estrela-menor" d="M14.5 11.5c.25 1.5.75 2 2.25 2.25-1.5.25-2 .75-2.25 2.25-.25-1.5-.75-2-2.25-2.25 1.5-.25 2-.75 2.25-2.25Z" fill="currentColor"/></svg>
                                 Praticar
                             </button>
                             <button class="dash-btn dash-btn--ghost" data-editar='${JSON.stringify({id: ex.id, titulo: ex.titulo, conteudo: ex.conteudo, dificuldade: ex.dificuldade}).replace(/'/g, '&apos;')}' title="Editar">
                                 <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                             </button>
                             <button class="dash-btn dash-btn--danger" onclick="excluirExercicio(${ex.id})" title="Excluir">
-                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
                         </div>
                     </article>

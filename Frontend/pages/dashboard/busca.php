@@ -1,7 +1,7 @@
 <?php
 // ============================================================
 //  KOSMOS — Busca global
-//  Procura em resumos, cadernos, baralhos e cartões de uma vez.
+//  Procura em resumos, cadernos, baralhos, cartões e exercícios de uma vez.
 //
 //  Quem estuda não lembra ONDE guardou — lembra do assunto. Uma
 //  busca por aba devolveria à pessoa uma decisão que o app pode
@@ -39,7 +39,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <h1>Achar itens de <span class="h-nome">estudo</span></h1>
-                    <p id="buscaResumo">Resumos, cadernos, baralhos e cartões.</p>
+                    <p id="buscaResumo">Resumos, cadernos, flashcards e exercícios.</p>
                 </div>
             </header>
 

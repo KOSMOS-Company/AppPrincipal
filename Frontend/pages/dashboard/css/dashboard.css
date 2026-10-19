@@ -1146,6 +1146,11 @@ progress::-webkit-progress-value {
 .modal__close:hover { color: #fff; }
 .modal__form { display: flex; flex-direction: column; gap: 16px; }
 .modal__actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+/* O botão "Excluir" dos formulários e cartões (não o vermelho de um
+   diálogo de confirmação, que é a ação principal e fica à direita):
+   sempre sozinho à esquerda, longe do Salvar/Cancelar — o botão
+   perigoso nunca fica colado no que se clica sem pensar. */
+.dash-btn--excluir { order: -1; margin-right: auto; }
 
 /* ==== RESPONSIVIDADE ==== */
 @media (max-width: 768px) {
@@ -1712,6 +1717,10 @@ em { font-style: normal; color: var(--accent-lt); }
    gráfico, não à saudação.
    ════════════════════════════════════════════════════════════════ */
 .ini-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
     margin-bottom: 24px;
 }
 .ini-hero__texto { min-width: 0; }
@@ -1740,59 +1749,6 @@ em { font-style: normal; color: var(--accent-lt); }
     margin: 0;
 }
 
-/* ---- O selo da sequência ----
-   O mesmo elemento da prévia na landing page: o número que a pessoa
-   mais quer ver, num lugar fixo e sempre igual. */
-.ini-selo {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 11px 18px;
-    border-radius: 10px;
-    background: rgba(165, 65, 255, .1);
-    border: 1px solid rgba(165, 65, 255, .26);
-}
-.ini-selo__icone {
-    font-size: 1.3rem;
-    line-height: 1;
-    font-style: normal;          /* é um <i>, e o ícone não se inclina */
-}
-
-/* O número e o rótulo empilhados. Antes isto era um <span> (inline) com
-   um bloco dentro — bloco dentro de inline parte a caixa, e era isso que
-   jogava o "DIA SEGUIDO" para fora da pílula. */
-.ini-selo__num {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-    min-width: 0;
-}
-.ini-selo__num strong {
-    font-family: "Syne", sans-serif;
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--accent-lt);
-    line-height: 1;
-}
-.ini-selo__txt {
-    font-style: normal;
-    font-size: .7rem;
-    font-weight: 500;
-    letter-spacing: .07em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    line-height: 1.1;
-    white-space: nowrap;
-}
-/* Sequência zerada: o selo recua em vez de sumir — o lugar continua
-   reservado, então a tela não muda de forma quando ela começa. */
-.ini-selo.ini-stat--vazio {
-    background: rgba(255, 255, 255, .03);
-    border-color: rgba(255, 255, 255, .08);
-}
-.ini-selo.ini-stat--vazio .ini-selo__icone { filter: grayscale(1); opacity: .5; }
 
 /* ---- Estatísticas: números soltos, como no hero da LP ---- */
 .ini-stats {
@@ -1911,6 +1867,111 @@ a.ini-card:focus-visible {
 @media (max-width: 768px) {
     .ini-grid { grid-template-columns: 1fr; gap: 14px; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   INÍCIO SEM CAIXAS
+   Tudo na aba Início era um card (sequência, revisar, o painel da
+   semana, cada atalho, os primeiros passos/missões): a tela virava uma
+   pilha de caixas. Agora o conteúdo fica direto sobre o fundo e as
+   partes se separam por espaço e por uma linha fina — como seções de
+   uma página, não caixas empilhadas.
+
+   Tudo preso em `.pagina-inicio` (a <main> do index.php): as mesmas
+   classes (.painel, .ini-card…) aparecem em Provas, Conta e Resumo,
+   e lá os cards continuam.
+   ════════════════════════════════════════════════════════════════ */
+.pagina-inicio :is(.ini-seq, .ini-revisar, .ini-painel, .ini-card) {
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* As partes da página: espaço e uma linha fina entre elas */
+.pagina-inicio .ini-faixa { margin-bottom: 0; padding-bottom: 28px; }
+.pagina-inicio .ini-painel,
+.pagina-inicio .ini-secao {
+    margin: 0;
+    padding: 28px 0;
+    border-top: 1px solid rgba(255, 255, 255, .07);
+}
+.pagina-inicio .ini-secao:last-child { padding-bottom: 0; }
+
+/* Sequência e Revisar: sem caixa, só o conteúdo */
+.pagina-inicio .ini-seq,
+.pagina-inicio .ini-revisar { padding: 0; }
+.pagina-inicio .ini-revisar:hover { transform: none; box-shadow: none; }
+.pagina-inicio .ini-revisar:hover .ini-revisar__cta { color: #fff; }
+.pagina-inicio .ini-revisar:focus-visible { outline-offset: 6px; border-radius: 6px; }
+/* Os dois lembretes (cartões e exercícios) empilhados, um por linha */
+.pagina-inicio .ini-faixa { row-gap: 14px; }
+
+/* Números do mês: sem caixinhas, um traço roxo marca cada um */
+.pagina-inicio .foco-mes__resumo div {
+    padding: 2px 0 2px 12px;
+    background: none;
+    border: none;
+    border-left: 2px solid rgba(165, 65, 255, .35);
+    border-radius: 0;
+}
+
+/* Atalhos: os ÚNICOS cards que ficaram na aba — mas noutro desenho.
+   Baixos e deitados (ícone à esquerda, título e descrição à direita)
+   em vez das caixas altas de antes, para não voltarem a dominar a
+   tela. No hover a borda e o ícone acendem e o card sobe só 2px. */
+.pagina-inicio .ini-grid {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+}
+.pagina-inicio .ini-grid .ini-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+.pagina-inicio .ini-grid .ini-card__ico {
+    grid-row: span 2;
+    width: 42px;
+    height: 42px;
+    margin: 0;
+    border-radius: 12px;
+    background: rgba(165, 65, 255, .12);
+    color: var(--accent-lt);
+}
+.pagina-inicio .ini-grid .ini-card__ico svg { width: 22px; height: 22px; }
+.pagina-inicio .ini-grid .ini-card__titulo {
+    align-self: end;
+    font-size: 1rem;
+    margin: 0 0 2px;
+    transition: color var(--transition);
+}
+.pagina-inicio .ini-grid .ini-card__desc {
+    align-self: start;
+    font-size: .82rem;
+    line-height: 1.4;
+}
+.pagina-inicio .ini-grid a.ini-card:hover,
+.pagina-inicio .ini-grid a.ini-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 24px -12px rgba(165, 65, 255, .45);
+}
+.pagina-inicio .ini-grid a.ini-card:hover .ini-card__ico {
+    transform: none;
+    background: var(--accent);
+    color: #fff;
+}
+.pagina-inicio .ini-grid a.ini-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 768px) {
+    .pagina-inicio .ini-grid { grid-template-columns: 1fr; gap: 10px; }
+}
+
+/* Primeiros passos / missões: mesmo conteúdo, sem a moldura */
+.pagina-inicio .ini-card.ini-passos { padding: 0; }
 
 /* ════════════════════════════════════════════════════════════════
    O BENTO
@@ -2125,7 +2186,7 @@ a.ini-card:hover .ini-card__ico {
 .ini-col__trilho {
     position: relative;
     width: 100%;
-    max-width: 44px;
+    max-width: 60px;
     flex: 1;
     display: flex;
     align-items: flex-end;
@@ -2159,6 +2220,190 @@ a.ini-card:hover .ini-card__ico {
     max-width: 44ch;
 }
 .ini-chart__aviso[hidden] { display: none; }
+
+/* ---- Semana | Mês: duas "páginas" no mesmo painel ----
+   Pílula no cabeçalho, no mesmo desenho dos modos do Pomodoro. Quem
+   troca é o js/inicio.js (ligarFocoMensal). */
+.ini-vista {
+    flex: none;
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 100px;
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+}
+.ini-vista__btn {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 100px;
+    background: none;
+    font: 600 .8rem "DM Sans", sans-serif;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.ini-vista__btn:hover { color: #fff; background: rgba(255, 255, 255, .06); }
+.ini-vista__btn.ativo { background: rgba(165, 65, 255, .18); color: var(--accent-lt); }
+.ini-vista__btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* A "página" do mês: números à esquerda e calendário à direita quando
+   cabe; um embaixo do outro em painel estreito. */
+.ini-mes__corpo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 20px;
+    align-items: start;
+}
+.ini-mes .foco-mes__resumo { margin: 0; }
+.ini-mes__calendario { min-width: 0; }
+
+/* "Tempo de foco: …" — aparece em cima da coluna ao passar o mouse */
+.ini-col { position: relative; }
+.ini-col__tempo {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    z-index: 3;
+    transform: translate(-50%, 4px);
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    font-size: .76rem;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease, transform .15s ease;
+}
+/* nas pontas, a dica cresce para dentro do gráfico em vez de vazar */
+.ini-col:first-child .ini-col__tempo { left: 0; transform: translate(0, 4px); }
+.ini-col:last-child  .ini-col__tempo { left: auto; right: 0; transform: translate(0, 4px); }
+.ini-col:hover .ini-col__tempo { opacity: 1; transform: translate(-50%, 0); }
+.ini-col:first-child:hover .ini-col__tempo,
+.ini-col:last-child:hover  .ini-col__tempo { transform: translate(0, 0); }
+
+/* Dia da semana que ainda não chegou: só o contorno */
+.ini-col--futuro .ini-col__trilho {
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, .08);
+}
+.ini-col--futuro .ini-col__barra { display: none; }
+.ini-col--futuro .ini-col__dia { opacity: .5; }
+
+/* ---- Frequência mensal de foco (página 'Mês' do painel) ---- */
+.foco-mes__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.foco-mes__titulo {
+    font-family: "Syne", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+.foco-mes__seta {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--accent-lt);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.foco-mes__seta:hover:not(:disabled) { border-color: var(--accent); color: #fff; }
+.foco-mes__seta:disabled { opacity: .3; cursor: default; }
+
+.foco-mes__resumo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 20px;
+}
+.foco-mes__resumo div {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid rgba(255, 255, 255, .06);
+}
+.foco-mes__resumo dt {
+    font-size: .7rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.foco-mes__resumo dd {
+    margin: 4px 0 0;
+    font-family: "Syne", sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent-lt);
+}
+
+.foco-mes__semana,
+.foco-mes__grade {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+.foco-mes__semana { margin-bottom: 6px; }
+.foco-mes__semana span {
+    text-align: center;
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--text-muted);
+}
+.foco-mes__grade { transition: opacity .2s ease; }
+.foco-mes__grade--carregando { opacity: .45; }
+.foco-dia {
+    display: grid;
+    place-items: center;
+    height: 32px;
+    border-radius: 8px;
+    font-size: .78rem;
+    font-weight: 500;
+    color: var(--text-dim);
+}
+.foco-dia--fora { visibility: hidden; }
+.foco-dia--hoje { outline: 2px solid var(--accent-lt); outline-offset: 1px; }
+.foco-dia--futuro {
+    background: transparent !important;
+    border: 1px dashed rgba(255, 255, 255, .07);
+    color: var(--text-muted);
+    opacity: .6;
+}
+/* A cor de cada dia pelo tempo de foco (mesma escala da legenda):
+   n1 até 30 min · n2 até 1 h · n3 até 2 h · n4 2 h ou mais */
+/* Cores SÓLIDAS em degraus iguais: com transparência, sobre o fundo
+   escuro, os níveis baixos viravam quase o mesmo tom. */
+.foco-n0 { background: #2a1240; }
+.foco-n1 { background: #451a70; color: #d9c6f2; }
+.foco-n2 { background: #6a24a8; color: #efe3ff; }
+.foco-n3 { background: #8f35dc; color: #fff; }
+.foco-n4 { background: #b866ff; color: #fff; }
+
+.foco-mes__legenda {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 14px;
+    font-size: .72rem;
+    color: var(--text-muted);
+}
+.foco-mes__legenda span { margin: 0 4px; }
+.foco-mes__legenda i { width: 12px; height: 12px; border-radius: 3px; }
+.foco-mes__erro { margin: 14px 0 0; font-size: .85rem; color: #f87171; }
 
 /* ---- Primeiros passos ---- */
 .ini-passos progress { margin: 0 0 22px; }
@@ -2340,7 +2585,8 @@ a.ini-card:hover .ini-card__ico {
        .topo-sequencia), à direita do logo. Repetir o selo no bloco da
        semana seria o mesmo número duas vezes na mesma tela. */
     .ini-hero { margin-bottom: 24px; }
-    .ini-selo { display: none; }
+    .pagina-inicio .ini-seq { display: none; }   /* vence o display:flex do selo, declarado mais abaixo */
+    .ini-faixa { gap: 0; }
     .ini-secao { margin-bottom: 56px; }
     .ini-hero__cta { margin-bottom: 36px; }
     .ini-hero__cta .dash-btn { flex: 1 1 auto; justify-content: center; }
@@ -2425,6 +2671,48 @@ a.ini-card:hover .ini-card__ico {
 .avatar-cor--laranja { --avatar-grad: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%); background: var(--avatar-grad); }
 .avatar-cor--rosa    { --avatar-grad: linear-gradient(135deg, #f472b6 0%, #be185d 100%); background: var(--avatar-grad); }
 .avatar-cor--ciano   { --avatar-grad: linear-gradient(135deg, #22d3ee 0%, #0e7490 100%); background: var(--avatar-grad); }
+
+/* ---- O seletor de cor, igual em todo lugar ----
+   Cadernos, matérias de exercícios e baralhos usam o mesmo grupo
+   (partes/seletor-cor.php); o avatar da Conta segue o mesmo tamanho
+   e a mesma marcação. Antes das 6 cores vem o "sem cor". */
+.cad-escolha { border: none; padding: 0; margin: 0; }
+.cad-escolha legend { padding: 0; margin-bottom: 8px; font-size: .85rem; font-weight: 500; color: var(--text-dim); }
+.cad-cores { display: flex; gap: 10px; flex-wrap: wrap; }
+.cad-cor {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.cad-cor:hover { transform: scale(1.1); }
+.cad-cor.escolhido { border-color: #fff; box-shadow: 0 0 0 3px rgba(255, 255, 255, .18); }
+.cad-cor:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* Sem cor: o símbolo de "nenhuma cor" — um círculo vazio, com contorno
+   tracejado e um risco diagonal fino. Vazio de propósito: não pode
+   parecer mais uma cor da paleta. */
+.cad-cor--nenhuma {
+    position: relative;
+    background: transparent;
+    border: 2px dashed rgba(255, 255, 255, .32);
+}
+.cad-cor--nenhuma::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 70%;
+    height: 2px;
+    border-radius: 2px;
+    background: #fb7185;
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+.cad-cor--nenhuma:hover { border-color: rgba(255, 255, 255, .55); }
+.cad-cor--nenhuma.escolhido { border-style: solid; border-color: #fff; }
+@media (prefers-reduced-motion: reduce) { .cad-cor:hover { transform: none; } }
 /* ---- Avatar com foto ----
    Fica AQUI (e não no conta.css) porque o cartão da barra lateral
    usa isto em todas as abas — no conta.css a regra só existia na
@@ -2542,18 +2830,244 @@ a.ini-card:hover .ini-card__ico {
    aprende a ignorar — junto com o aviso de verdade quando ele vier.
    ════════════════════════════════════════════════════════════════ */
 
-/* ---- Revisar hoje: a faixa que puxa de volta amanhã ---- */
+/* ---- Revisar hoje: linha própria logo abaixo do topo ----
+   A faixa só tem o "Revisar", e ele nasce escondido (sem cartões
+   vencidos não aparece): aí a faixa inteira some, sem deixar um vão. */
+.ini-faixa {
+    display: grid;
+    margin-bottom: 20px;
+}
+.ini-faixa:not(:has(> :not([hidden]))) { display: none; }
+
 .ini-revisar {
     display: flex;
     align-items: center;
     gap: 14px;
     padding: 14px 20px;
-    margin-bottom: 20px;
     border-radius: var(--radius-card);
-    text-decoration: none;
-    color: inherit;
     background: var(--bg-card);
     border: 1px solid var(--border);
+}
+.ini-revisar__ico {
+    flex: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--accent-lt);
+}
+
+/* ---- O selo da sequência (topo direito, ao lado da saudação) ----
+   Chama num quadradinho + número grande EMPILHADO sobre o rótulo.
+
+   Com os dias tudo esquenta em roxo, sem degraus (--seq-t vem do
+   index.php: 0 no 1º dia, 1 a partir de 30 dias):
+     · a cor do número e da chama vai do lilás claro ao roxo vivo;
+     · o fundo do quadradinho da chama vai de quase nada a roxo marcado;
+     · o contorno do quadradinho aparece e fica mais forte.
+   Tudo em cor sólida, sem brilho. */
+.ini-seq {
+    --seq-t: 0;
+    --seq-cor: color-mix(in oklch, #d4c1f5, #a12eff calc(var(--seq-t) * 100%));
+
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.ini-seq__chama {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    font-size: 2rem;             /* o .ico mede 1em */
+    font-style: normal;          /* a chama é um <i> */
+    line-height: 1;
+    color: var(--seq-cor);
+    background: color-mix(in srgb, var(--seq-cor) calc(8% + var(--seq-t) * 18%), transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--seq-cor) calc(14% + var(--seq-t) * 40%), transparent);
+}
+
+/* Sem <span> aqui dentro (ver o comentário no index.php). O seletor
+   com .ini-seq vence o genérico `.ini-stat strong`. */
+.ini-seq__num {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+}
+.ini-seq .ini-seq__num strong {
+    display: block;
+    font-family: "Syne", sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: .95;
+    letter-spacing: -.03em;
+    color: var(--seq-cor);
+}
+.ini-seq__num b {
+    font-size: .8rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+/* Sequência zerada: a chama e o número apagam */
+.ini-seq.ini-stat--vazio .ini-seq__chama {
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, .04);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+.ini-seq.ini-stat--vazio .ini-seq__num strong { color: var(--text-muted); }
+
+/* ---- O astro da sequência (partes/astro-sequencia.php) ----
+   No lugar do fogo, um astro que evolui por fases: estrela apagada →
+   faísca → estrela → cometa → planeta com anel → galáxia. A cada fase
+   o desenho muda, o movimento fica mais vivo e o brilho cresce. O
+   brilho é SÓ no ícone — o número continua em cor sólida. */
+.ini-seq__chama .astro {
+    width: 34px;
+    height: 34px;
+    overflow: visible;
+}
+/* brilho crescente por fase */
+.ini-seq--f2 .astro { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--seq-cor) 60%, transparent)); }
+.ini-seq--f3 .astro { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--seq-cor) 70%, transparent)); }
+.ini-seq--f4 .astro { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--seq-cor) 75%, transparent)); }
+.ini-seq--f5 .astro { filter: drop-shadow(0 0 6px color-mix(in srgb, #ff9ad5 55%, transparent)) drop-shadow(0 0 3px color-mix(in srgb, var(--seq-cor) 80%, transparent)); }
+
+/* da fase 3 em diante o quadradinho também ganha um brilho em volta */
+.ini-seq--f3 .ini-seq__chama { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--seq-cor) 45%, transparent), 0 0 18px -6px var(--seq-cor); }
+.ini-seq--f4 .ini-seq__chama { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--seq-cor) 55%, transparent), 0 0 22px -6px var(--seq-cor); }
+.ini-seq--f5 .ini-seq__chama { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--seq-cor) 65%, transparent), 0 0 26px -6px #c45bff; }
+
+/* faísca e estrela: pulsam (crescem e acendem) */
+.astro__brilho {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: astroBrilha 2.6s ease-in-out infinite;
+}
+.astro--f1 .astro__brilho { animation-duration: 3.2s; }
+@keyframes astroBrilha {
+    0%, 100% { transform: scale(.88); opacity: .8; }
+    50%      { transform: scale(1.06); opacity: 1; }
+}
+
+/* cintilações pequenas em volta (estrela e galáxia) */
+.astro__pisca {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: astroPisca 2.4s ease-in-out infinite;
+}
+.astro__pisca--2 { animation-delay: .8s; }
+.astro__pisca--3 { animation-delay: 1.6s; }
+@keyframes astroPisca {
+    0%, 100% { transform: scale(.4); opacity: .2; }
+    50%      { transform: scale(1);  opacity: 1; }
+}
+
+/* cometa: a cauda "corre" e a cabeça respira */
+.astro__cauda {
+    stroke-dasharray: 7 3;
+    animation: astroCauda 1.2s linear infinite;
+}
+.astro__cauda--2 { animation-duration: .9s; }
+.astro__cauda--3 { animation-duration: 1.5s; }
+@keyframes astroCauda { to { stroke-dashoffset: 20; } }
+
+.astro__halo {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: astroHalo 2.2s ease-in-out infinite;
+}
+@keyframes astroHalo {
+    0%, 100% { transform: scale(.85); opacity: .22; }
+    50%      { transform: scale(1.12); opacity: .45; }
+}
+
+/* planeta: a lua dá a volta; galáxia: os braços giram devagar */
+.astro__orbita,
+.astro__giro {
+    transform-box: view-box;
+    transform-origin: 12px 12px;
+    animation: astroGira 7s linear infinite;
+}
+.astro__giro { animation-duration: 14s; }
+@keyframes astroGira { to { transform: rotate(360deg); } }
+
+/* ---- O número também evolui por fase, junto com o astro ----
+   Sempre NÍTIDO: o efeito é um degradê recortado dentro das letras
+   (background-clip: text), nunca brilho/sombra em volta do texto.
+     f0–f1  cor sólida (cinza apagado / lilás que esquenta com os dias)
+     f2     estrela  → degradê do branco ao lilás
+     f3     cometa   → + um reflexo de luz atravessando o número
+     f4     planeta  → degradê rosa → roxo (as cores do planeta) + reflexo
+     f5     galáxia  → degradê rosa/roxo/azul fluindo + estrelinhas */
+.ini-seq .ini-seq__num strong { align-self: flex-start; width: fit-content; position: relative; }
+
+.ini-seq:is(.ini-seq--f2, .ini-seq--f3, .ini-seq--f4, .ini-seq--f5) .ini-seq__num strong {
+    --num-fundo: linear-gradient(180deg, #f8f1ff 5%, var(--seq-cor) 85%);
+    --num-reflexo: linear-gradient(transparent, transparent);
+    background-image: var(--num-reflexo), var(--num-fundo);
+    background-size: 250% 100%, 100% 100%;
+    background-position: 130% 0, 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+/* cometa e planeta: uma faixa de luz passa pelo número de tempos em tempos */
+.ini-seq:is(.ini-seq--f3, .ini-seq--f4) .ini-seq__num strong {
+    --num-reflexo: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .95) 50%, transparent 60%);
+    animation: numReflexo 3.8s ease-in-out infinite;
+}
+.ini-seq.ini-seq--f4 .ini-seq__num strong {
+    --num-fundo: linear-gradient(165deg, #ffc6e8 0%, var(--seq-cor) 55%, #7a28e8 100%);
+    animation-duration: 3s;
+}
+@keyframes numReflexo {
+    0%, 35% { background-position: 130% 0, 0 0; }
+    75%, 100% { background-position: -30% 0, 0 0; }
+}
+
+/* galáxia: as cores fluem pelo número sem parar */
+.ini-seq.ini-seq--f5 .ini-seq__num strong {
+    --num-fundo: linear-gradient(90deg, #ff9ad5, #b25cff, #8be3ff, #b25cff, #ff9ad5);
+    background-image: var(--num-fundo);
+    background-size: 300% 100%;
+    background-repeat: repeat-x;   /* o degradê se repete: o número nunca fica sem cor */
+    animation: numGalaxia 7s linear infinite;
+}
+@keyframes numGalaxia { to { background-position: 300% 0; } }
+
+/* ...e estrelinhas cintilando em volta do número da galáxia */
+.ini-seq--f5 .ini-seq__num strong::before,
+.ini-seq--f5 .ini-seq__num strong::after {
+    content: "✦";
+    position: absolute;
+    font-family: "DM Sans", sans-serif;
+    line-height: 1;
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+    pointer-events: none;
+    animation: astroPisca 2.4s ease-in-out infinite;
+}
+.ini-seq--f5 .ini-seq__num strong::after  { top: -6px;  right: -16px; font-size: .95rem; }
+.ini-seq--f5 .ini-seq__num strong::before { bottom: 4px; right: -10px; font-size: .55rem; animation-delay: 1.2s; color: #ffc6e8; -webkit-text-fill-color: #ffc6e8; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ini-seq__chama .astro * { animation: none !important; }
+    .ini-seq .ini-seq__num strong,
+    .ini-seq .ini-seq__num strong::before,
+    .ini-seq .ini-seq__num strong::after { animation: none !important; }
+}
+
+/* ---- Revisar hoje: a faixa que puxa de volta amanhã ---- */
+.ini-revisar {
+    text-decoration: none;
+    color: inherit;
     transition: var(--transition);
 }
 .ini-revisar:hover {
@@ -2562,8 +3076,7 @@ a.ini-card:hover .ini-card__ico {
     box-shadow: var(--shadow-card-hover);
 }
 .ini-revisar:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.ini-revisar__ico { font-size: 1.4rem; line-height: 1; }
-.ini-revisar__txt { flex: 1 1 auto; min-width: 0; }
+.ini-revisar__txt { flex: 1 1 auto; min-width: 0; color: var(--text-dim); }
 .ini-revisar__txt strong {
     font-family: "Syne", sans-serif;
     font-size: 1.2rem;
@@ -2942,3 +3455,101 @@ a.ini-card:hover .ini-card__ico {
 }
 .qtd-stepper__btn:active { background: rgba(165,65,255,.2); }
 .qtd-stepper__btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ============================================================
+/* ============================================================
+   BOTÃO DE IA — um visual só para o que chama a inteligência
+   artificial (gerar exercícios, enviar pergunta ao Orion).
+   Pintado inteiro num degradê de vários roxos (violeta escuro,
+   violeta, roxo-magenta e o roxo da marca) que anda devagar, com
+   um brilho em volta. O primário comum é roxo liso, parado.
+   ============================================================ */
+.btn-ia,
+.dash-btn.btn-ia,
+.btn-ia:is(.orion-chat__btn-enviar, .orion-chat-btn-enviar) {
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: linear-gradient(120deg, #4c1d95 0%, #7c3aed 30%, #c026d3 55%, #a541ff 75%, #4c1d95 100%);
+    background-size: 250% 100%;
+    animation: iaFlui 8s ease-in-out infinite alternate;
+    box-shadow: 0 0 14px rgba(165, 65, 255, .45);
+    transition: box-shadow .25s ease, transform .2s ease, filter .2s ease;
+}
+.btn-ia svg { color: #fff; }
+.btn-ia:hover:not(:disabled),
+.dash-btn.btn-ia:hover:not(:disabled),
+.btn-ia:is(.orion-chat__btn-enviar, .orion-chat-btn-enviar):hover:not(:disabled) {
+    background: linear-gradient(120deg, #4c1d95 0%, #7c3aed 30%, #c026d3 55%, #a541ff 75%, #4c1d95 100%);
+    background-size: 250% 100%;
+    filter: brightness(1.12);
+    box-shadow: 0 0 22px rgba(165, 65, 255, .65);
+    transform: translateY(-1px);
+}
+/* o degradê anda devagar de um lado para o outro: é o que faz o botão
+   de IA nunca parecer um primário comum, mesmo parado */
+@keyframes iaFlui {
+    from { background-position: 0% 50%; }
+    to   { background-position: 100% 50%; }
+}
+.btn-ia:focus-visible { outline: 2px solid #c97cff; outline-offset: 3px; }
+.btn-ia:disabled { opacity: .65; cursor: default; box-shadow: none; }
+
+/* Os detalhes: um reflexo fino no topo (luz de cima), um brilho que
+   atravessa o botão de vez em quando e, no hover, as estrelas do
+   ícone se mexem — a maior gira, a menor pisca. */
+.btn-ia {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+.btn-ia,
+.dash-btn.btn-ia,
+.btn-ia:is(.orion-chat__btn-enviar, .orion-chat-btn-enviar) {
+    box-shadow: 0 0 16px rgba(192, 38, 211, .35), 0 6px 24px -8px rgba(124, 58, 237, .8), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.btn-ia:hover:not(:disabled),
+.dash-btn.btn-ia:hover:not(:disabled),
+.btn-ia:is(.orion-chat__btn-enviar, .orion-chat-btn-enviar):hover:not(:disabled) {
+    box-shadow: 0 0 24px rgba(192, 38, 211, .5), 0 8px 30px -8px rgba(124, 58, 237, 1), inset 0 1px 0 rgba(255, 255, 255, .3);
+}
+.btn-ia::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -60%;
+    width: 45%;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, .22) 50%, transparent 100%);
+    animation: iaReflexo 5s ease-in-out infinite;
+}
+.btn-ia:hover:not(:disabled)::after { animation-duration: 1.6s; }
+@keyframes iaReflexo {
+    0%, 70% { transform: translateX(0); }
+    100%     { transform: translateX(380%); }
+}
+.btn-ia svg:has(.ia-estrela-menor) path { transform-box: fill-box; transform-origin: center; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+.btn-ia:hover:not(:disabled) svg:has(.ia-estrela-menor) path:first-child { transform: rotate(45deg); }
+.btn-ia:hover:not(:disabled) svg .ia-estrela-menor { animation: iaPisca .9s ease-in-out infinite; }
+@keyframes iaPisca {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(.55); opacity: .6; }
+}
+.btn-ia:disabled::after { animation: none; display: none; }
+
+/* Lite: o degradê fica (é o que diz "isto é IA"), o brilho sai — igual à tag */
+html.kosmos-lite .btn-ia,
+html.kosmos-lite .btn-ia:hover:not(:disabled) { box-shadow: none; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+    .btn-ia { transition: none; }
+    .btn-ia:hover:not(:disabled) { transform: none; }
+}
+html.kosmos-lite .btn-ia::after { display: none; }
+html.kosmos-lite .btn-ia svg .ia-estrela-menor { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+    .btn-ia::after { display: none; }
+    .btn-ia svg path, .btn-ia svg .ia-estrela-menor { transition: none; animation: none; }
+}
+html.kosmos-lite .btn-ia { animation: none; background-position: 40% 50%; }
+@media (prefers-reduced-motion: reduce) { .btn-ia { animation: none; } }

@@ -9,9 +9,7 @@
 <div class="orion-launcher" id="orionChatLauncher" role="button" aria-label="Abrir chat com Orion" aria-expanded="false" title="Pergunte ao Orion!">
     <div class="orion-launcher__avatar">
         <div class="mascote" id="orionLauncherMascote" data-mascote aria-hidden="true"></div>
-        <span class="orion-launcher__status" aria-hidden="true"></span>
     </div>
-    <span class="orion-launcher__rotulo">Pergunte ao Orion!</span>
 </div>
 
 <!-- Janela do Chat (Flyout) -->
@@ -62,7 +60,7 @@
     <form class="orion-chat__rodape" id="orionChatForm" onsubmit="return false;">
         <input type="text" class="orion-chat__input" id="orionChatInput"
                placeholder="Pergunte ao Orion..." autocomplete="off" maxlength="300">
-        <button type="submit" class="orion-chat__btn-enviar" id="orionChatEnviar" aria-label="Enviar mensagem">
+        <button type="submit" class="orion-chat__btn-enviar btn-ia" id="orionChatEnviar" aria-label="Enviar mensagem">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
     </form>

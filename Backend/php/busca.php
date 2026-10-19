@@ -4,7 +4,8 @@
 //  Arquivo: Backend/php/busca.php
 //  GET (protegido): ?q=termo
 //
-//  Procura em resumos, cadernos, baralhos e cartões de uma vez.
+//  Procura em resumos, cadernos, baralhos, cartões, matérias de
+//  exercícios e exercícios de uma vez.
 //  Quem estuda não lembra ONDE guardou — lembra do assunto. Fazer
 //  a pessoa escolher a aba antes de procurar devolve a ela uma
 //  decisão que o app pode tomar sozinho.
@@ -133,6 +134,59 @@ try {
             'materia' => $c['materia'],
             'trecho'  => 'em ' . $c['deck'],
             'url'     => 'flashcards.php?deck=' . (int) $c['deck_id'],
+        ];
+    }
+
+    /* ---- Matérias de exercícios ---- */
+    $stmt = $pdo->prepare(
+        'SELECT id, nome, materia FROM exercicio_materias
+          WHERE usuario_id = ? AND (nome LIKE ? OR descricao LIKE ?)
+          ORDER BY nome LIMIT 10'
+    );
+    $stmt->execute([$id, $curinga, $curinga]);
+    foreach ($stmt as $m) {
+        $resultados[] = [
+            'tipo'    => 'materia_exercicio',
+            'id'      => (int) $m['id'],
+            'titulo'  => $m['nome'],
+            'materia' => $m['materia'],
+            'trecho'  => '',
+            'url'     => 'exercicio_materia.php?id=' . (int) $m['id'],
+        ];
+    }
+
+    /* ---- Exercícios ----
+       Pelo título ou pelo texto das questões (o `conteudo` é o JSON
+       das questões, guardado legível). Leva para a matéria onde o
+       exercício mora — é lá que se pratica. O trecho mostra o
+       enunciado que tem o termo, para a pessoa reconhecer a questão. */
+    $stmt = $pdo->prepare(
+        'SELECT e.id, e.titulo, e.conteudo, m.id AS materia_id, m.nome AS materia_nome, m.materia
+           FROM exercicios e
+           JOIN exercicio_materias m ON m.id = e.materia_id
+          WHERE e.usuario_id = ? AND (e.titulo LIKE ? OR e.conteudo LIKE ?)
+          ORDER BY (e.titulo LIKE ?) DESC, e.atualizado_em DESC
+          LIMIT 10'
+    );
+    $stmt->execute([$id, $curinga, $curinga, $curinga]);
+    foreach ($stmt as $e) {
+        $trecho = '';
+        $json = json_decode((string) $e['conteudo'], true);
+        foreach ((array) ($json['questoes'] ?? []) as $questao) {
+            $enunciado = (string) ($questao['enunciado'] ?? '');
+            if ($enunciado !== '' && mb_stripos($enunciado, $q) !== false) {
+                $trecho = trechoComTermo($enunciado, $q);
+                break;
+            }
+        }
+
+        $resultados[] = [
+            'tipo'    => 'exercicio',
+            'id'      => (int) $e['id'],
+            'titulo'  => $e['titulo'],
+            'materia' => $e['materia'],
+            'trecho'  => $trecho !== '' ? $trecho : 'em ' . $e['materia_nome'],
+            'url'     => 'exercicio_materia.php?id=' . (int) $e['materia_id'],
         ];
     }
 

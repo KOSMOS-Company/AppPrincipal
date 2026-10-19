@@ -108,7 +108,7 @@ if (!isset($CADERNOS)) {
                     <div class="msg" id="msgResumo" hidden></div>
 
                     <div class="modal__actions">
-                        <button type="button" class="dash-btn dash-btn--danger" id="btnApagar" hidden>Apagar</button>
+                        <button type="button" class="dash-btn dash-btn--danger dash-btn--excluir" id="btnApagar" hidden>Excluir</button>
                         <button type="button" class="dash-btn dash-btn--outline" id="cancelar">Cancelar</button>
                         <button type="submit" class="dash-btn dash-btn--primary" id="btnSalvar">Salvar</button>
                     </div>

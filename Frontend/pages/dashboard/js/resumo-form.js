@@ -450,38 +450,55 @@
         const id = Number(el("resumoId").value);
         if (!id) return;
 
-        const titulo = el("titulo").value.trim();
+        const btn = el("btnApagar");
+        const apagou = await excluirResumo(id, el("titulo").value.trim(), salvas.length, {
+            aoComecar: () => { btn.disabled = true; btn.textContent = "Excluindo…"; },
+            aoTerminar: () => { btn.disabled = false; btn.textContent = "Excluir"; },
+            aoErrar: (texto) => msg(texto, "erro"),
+        });
+        if (apagou) fechar();
+    }
+
+    /** Confirma e apaga um resumo. Usada pelo botão "Excluir" do modal
+     *  e pela lixeira do cartão (apagarDireto). Devolve true se apagou;
+     *  quem estiver na tela fica sabendo pelo evento "resumo:apagado". */
+    async function excluirResumo(id, titulo, imagens, ganchos = {}) {
         // confirmar() é compartilhada (dashboard.js) e usa o modal de
         // partes/modal-confirma.php
         const ok = await confirmar({
-            titulo: "Apagar este resumo?",
-            texto: `"${titulo}" será apagado da sua conta`
-                 + (salvas.length ? `, com as ${salvas.length === 1 ? "sua imagem" : `suas ${salvas.length} imagens`}` : "")
+            titulo: "Excluir este resumo?",
+            texto: `"${titulo}" será excluído da sua conta`
+                 + (imagens ? `, com as ${imagens === 1 ? "sua imagem" : `suas ${imagens} imagens`}` : "")
                  + ". Não tem como desfazer.",
-            botao: "Apagar",
+            botao: "Excluir",
             perigo: true,
         });
-        if (!ok) return;
+        if (!ok) return false;
 
-        const btn = el("btnApagar");
-        btn.disabled = true;
-        btn.textContent = "Apagando…";
+        const erro = ganchos.aoErrar || ((texto) => alert(texto));
+        ganchos.aoComecar?.();
         try {
             const dados = new FormData();
             dados.append("id", id);
             const resp = await fetch(`${BACKEND}/resumos_excluir.php`, { method: "POST", body: dados });
             const json = await resp.json();
 
-            if (!json.ok) { msg(json.msg || "Não foi possível apagar.", "erro"); return; }
+            if (!json.ok) { erro(json.msg || "Não foi possível apagar."); return false; }
 
             document.dispatchEvent(new CustomEvent("resumo:apagado", { detail: { id } }));
-            fechar();
+            return true;
         } catch (err) {
-            msg("Não foi possível falar com o servidor.", "erro");
+            erro("Não foi possível falar com o servidor.");
+            return false;
         } finally {
-            btn.disabled = false;
-            btn.textContent = "Apagar";
+            ganchos.aoTerminar?.();
         }
+    }
+
+    /** A lixeira do cartão: apaga sem abrir o modal (só pede confirmação). */
+    function apagarDireto(resumo) {
+        if (!resumo) return;
+        return excluirResumo(Number(resumo.id), resumo.titulo || "", Number(resumo.fotos) || 0);
     }
 
     /* Remover uma imagem já salva mexe no resumo na hora: a tela por
@@ -543,5 +560,5 @@
         aplicarCaderno();
     }
 
-    window.KosmosResumoForm = { abrir, fechar, definirCadernos };
+    window.KosmosResumoForm = { abrir, fechar, definirCadernos, apagarDireto };
 })();

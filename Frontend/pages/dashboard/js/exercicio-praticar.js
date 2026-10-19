@@ -113,9 +113,8 @@
         const dica = String(q.dica || "").trim();
         const dicaTexto = el("praticarDica");
         dicaTexto.textContent = dica;
-        dicaTexto.classList.remove("aberta");
+        mostrarDica(false);                 // cada questão começa com a dica fechada
         el("praticarDicaBloco").hidden = dica === "";
-        el("praticarDicaBtn").hidden = dica === "";
 
         // alternativas
         const alts = el("praticarAlts");
@@ -166,7 +165,7 @@
 
         const ultima = atual === questoes.length - 1;
         const prox = el("praticarProxima");
-        prox.textContent = ultima ? "Ver resultado" : "Próxima questão →";
+        prox.textContent = ultima ? "Ver resultado" : "Próxima questão";
         prox.hidden = false;
     }
 
@@ -199,12 +198,17 @@
     /* ------------------------------------------------------------
        Dica
        ------------------------------------------------------------ */
-    function revelarDica() {
-        const dicaTexto = el("praticarDica");
-        if (!dicaTexto.textContent.trim()) return;
+    /* O botão abre E fecha a dica (antes ele sumia depois do clique e a
+       dica ficava aberta de vez). */
+    function mostrarDica(aberta) {
+        el("praticarDica").classList.toggle("aberta", aberta);
+        el("praticarDicaBtn").setAttribute("aria-expanded", aberta ? "true" : "false");
+        el("praticarDicaRotulo").textContent = aberta ? "Esconder dica" : "Ver dica";
+    }
 
-        dicaTexto.classList.add("aberta");
-        el("praticarDicaBtn").hidden = true;
+    function revelarDica() {
+        if (!el("praticarDica").textContent.trim()) return;
+        mostrarDica(!el("praticarDica").classList.contains("aberta"));
     }
 
     /* ------------------------------------------------------------
