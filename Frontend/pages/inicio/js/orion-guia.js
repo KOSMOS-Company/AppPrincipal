@@ -94,6 +94,23 @@
     var visivel = false;
     var escrevendo = null;
 
+    /* Ele só fala DESCENDO a página, e uma vez por seção: subir para
+       reler algo não faz o balão reaparecer. Chegando ao fim do site
+       (o "fim do tour" ou o rodapé), ele para de falar sozinho de vez
+       — tocar nele continua funcionando. */
+    var jaFalou = {};
+    var terminou = false;
+    var ultimoY = window.scrollY;
+    var descendo = true;
+    window.addEventListener('scroll', function () {
+        var y = window.scrollY;
+        if (y !== ultimoY) descendo = y > ultimoY;
+        ultimoY = y;
+
+        var fimDaPagina = y + window.innerHeight >= document.documentElement.scrollHeight - 4;
+        if (fimDaPagina) terminou = true;
+    }, { passive: true });
+
     /* ------------------------------------------------------------
        Falar
        ------------------------------------------------------------ */
@@ -179,16 +196,27 @@
                 if (secoes[i].el === e.target) { nome = secoes[i].nome; break; }
             }
             if (!nome || nome === atual) return;
-            atual = nome;
 
-            // na seção dele, o acompanhante sai de cena
+            // na seção dele, o acompanhante sai de cena (nos dois sentidos:
+            // é para não ter dois Orions na tela, não é uma "aparição")
             if (nome === SECAO_DELE) {
+                atual = nome;
                 mostrar(false);
                 return;
             }
 
-            mostrar(true);
+            // subindo: nada aparece
+            if (!descendo) return;
+
+            atual = nome;
+            mostrar(true);                      // o planetinha volta ao canto, quieto
+
+            // já comentou esta seção, ou o site já chegou ao fim: sem balão
+            if (terminou || jaFalou[nome]) return;
+            jaFalou[nome] = true;
+
             comentar(nome, false);
+            if (nome === 'fim') terminou = true;   // a fala do fim é a última
         });
     }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
 

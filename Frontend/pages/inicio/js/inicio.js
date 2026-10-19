@@ -100,7 +100,7 @@
             el.style.transform = '';
         });
     }
-    if (ponteiroFino && !reduzMovimento) {
+    if (ponteiroFino && !reduzMovimento && !document.documentElement.classList.contains('kosmos-lite')) {
         document.querySelectorAll('.card').forEach(c => aplicarTilt(c, 8, true));
         document.querySelectorAll('.tilt').forEach(t => aplicarTilt(t, 5, false));
     }
@@ -200,7 +200,9 @@
     })();
 
     /* ────────────────────────────────
-       Demo: FlashCard (flip + próximo)
+       Demo: FlashCards — o mesmo fluxo da tela "Revisar" do
+       dashboard: vira o cartão, responde "Ainda não"/"Já sei" e
+       vai para o próximo.
        ──────────────────────────────── */
     (function () {
         const card = document.getElementById('flashcard');
@@ -208,7 +210,9 @@
 
         const frente = document.getElementById('fcFront');
         const verso = document.getElementById('fcBack');
-        const btnNext = document.getElementById('fcNext');
+        const avaliacao = document.getElementById('fcAvaliacao');
+        const contador = document.getElementById('fcContador');
+        const barra = document.getElementById('fcBarra');
 
         const CARDS = [
             { q: 'O que é fotossíntese?', a: 'Processo em que as plantas convertem luz solar em energia, liberando oxigênio.' },
@@ -218,25 +222,42 @@
         ];
         let atual = 0;
 
-        function virar() { card.classList.toggle('flipped'); }
+        function mostrarAvaliacao(sim) {
+            avaliacao.classList.toggle('fc-avaliacao--visivel', sim);
+            avaliacao.setAttribute('aria-hidden', sim ? 'false' : 'true');
+            avaliacao.querySelectorAll('button').forEach(b => { b.tabIndex = sim ? 0 : -1; });
+        }
+
+        function pintarProgresso() {
+            contador.textContent = (atual + 1) + ' de ' + CARDS.length;
+            barra.style.width = ((atual + 1) / CARDS.length * 100) + '%';
+        }
+
+        function virar() {
+            card.classList.toggle('flipped');
+            // como no dashboard: só dá para se avaliar depois de ver a resposta
+            if (card.classList.contains('flipped')) mostrarAvaliacao(true);
+        }
         card.addEventListener('click', virar);
         card.addEventListener('keydown', e => {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); virar(); }
         });
 
-        btnNext.addEventListener('click', () => {
-            atual = (atual + 1) % CARDS.length;
-            const trocar = () => {
-                frente.textContent = CARDS[atual].q;
-                verso.textContent = CARDS[atual].a;
-            };
-            if (card.classList.contains('flipped')) {
+        // "Ainda não" ou "Já sei": na prévia, os dois levam ao próximo cartão
+        avaliacao.querySelectorAll('[data-fc-resposta]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                atual = (atual + 1) % CARDS.length;
+                mostrarAvaliacao(false);
                 card.classList.remove('flipped');
-                setTimeout(trocar, 320);   // troca no meio do giro de volta
-            } else {
-                trocar();
-            }
+                setTimeout(() => {                 // troca no meio do giro de volta
+                    frente.textContent = CARDS[atual].q;
+                    verso.textContent = CARDS[atual].a;
+                    pintarProgresso();
+                }, 320);
+            });
         });
+
+        pintarProgresso();
     })();
 
     /* ────────────────────────────────
@@ -246,26 +267,35 @@
         const tempo = document.getElementById('pomoTime');
         if (!tempo) return;
 
+        const caixa = document.getElementById('pomoDemo');
         const anel = document.getElementById('pomoRing');
         const estado = document.getElementById('pomoState');
         const btnToggle = document.getElementById('pomoToggle');
         const btnReset = document.getElementById('pomoReset');
+        const elCiclos = document.getElementById('pomoCiclos');
+        const modos = caixa.querySelectorAll('.pomo-modo');
 
-        const TOTAL = 25 * 60;   // 25 "minutos" exibidos
-        let restante = TOTAL;
+        // os mesmos textos da aba Pomodoro do dashboard
+        const PARADO = { foco: 'Hora de focar', curta: 'Hora de descansar', longa: 'Hora de descansar' };
+        const FIM    = { foco: 'Ciclo concluído!', curta: 'Pausa encerrada!', longa: 'Pausa encerrada!' };
+
+        let modo = 'foco';
+        let total = 25 * 60;
+        let restante = total;
         let intervalo = null;
+        let ciclos = 0;
 
         function pintar() {
             const m = Math.floor(restante / 60);
             const s = restante % 60;
             tempo.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-            anel.style.strokeDashoffset = 100 - (restante / TOTAL) * 100;
+            anel.style.strokeDashoffset = 100 - (restante / total) * 100;
         }
 
         function parar() {
             clearInterval(intervalo);
             intervalo = null;
-            btnToggle.textContent = restante === TOTAL ? 'Iniciar' : 'Continuar';
+            btnToggle.textContent = restante === total || restante === 0 ? 'Iniciar' : 'Continuar';
         }
 
         function tique() {
@@ -273,30 +303,43 @@
             pintar();
             if (restante === 0) {
                 parar();
-                btnToggle.textContent = 'Iniciar';
-                estado.textContent = 'concluído!';
+                estado.textContent = FIM[modo];
+                if (modo === 'foco') elCiclos.textContent = String(++ciclos);
             }
+        }
+
+        function zerar() {
+            clearInterval(intervalo);
+            intervalo = null;
+            restante = total;
+            estado.textContent = PARADO[modo];
+            btnToggle.textContent = 'Iniciar';
+            pintar();
         }
 
         btnToggle.addEventListener('click', () => {
             if (intervalo) {
                 parar();
-                estado.textContent = 'pausado';
+                estado.textContent = 'Pausado';
                 return;
             }
-            if (restante === 0) { restante = TOTAL; pintar(); }
-            estado.textContent = 'foco';
+            if (restante === 0) { restante = total; pintar(); }
+            estado.textContent = PARADO[modo];
             btnToggle.textContent = 'Pausar';
             intervalo = setInterval(tique, 1000);
         });
 
-        btnReset.addEventListener('click', () => {
-            clearInterval(intervalo);
-            intervalo = null;
-            restante = TOTAL;
-            estado.textContent = 'foco';
-            btnToggle.textContent = 'Iniciar';
-            pintar();
+        btnReset.addEventListener('click', zerar);
+
+        // Foco / Pausa curta / Pausa longa — trocar de modo recomeça o timer
+        modos.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modos.forEach(b => b.classList.toggle('active', b === btn));
+                modo = btn.dataset.modo;
+                total = (+btn.dataset.min || 25) * 60;
+                caixa.classList.toggle('pomo--pausa', modo !== 'foco');
+                zerar();
+            });
         });
 
         pintar();
@@ -310,9 +353,19 @@
         if (!opcoesWrap) return;
 
         const materiaEl = document.getElementById('quizMateria');
+        const progressoEl = document.getElementById('quizProgresso');
         const perguntaEl = document.getElementById('quizPergunta');
         const feedbackEl = document.getElementById('quizFeedback');
         const btnNext = document.getElementById('quizNext');
+        const btnDica = document.getElementById('quizDicaBtn');
+        const rotuloDica = document.getElementById('quizDicaRotulo');
+        const dicaEl = document.getElementById('quizDica');
+
+        btnDica.addEventListener('click', () => {
+            const aberta = dicaEl.classList.toggle('aberta');
+            btnDica.setAttribute('aria-expanded', aberta ? 'true' : 'false');
+            rotuloDica.textContent = aberta ? 'Esconder dica' : 'Ver dica';
+        });
 
         const QUIZ = [
             {
@@ -339,25 +392,38 @@
         ];
         let atual = 0;
 
+        const letra = i => String.fromCharCode(65 + i);   // 0 → A
+
         function render() {
             const q = QUIZ[atual];
             materiaEl.textContent = q.materia;
+            progressoEl.textContent = 'Questão ' + (atual + 1) + ' de ' + QUIZ.length;
             perguntaEl.textContent = q.pergunta;
+            dicaEl.textContent = q.dica;
+            dicaEl.classList.remove('aberta');
+            btnDica.setAttribute('aria-expanded', 'false');
+            rotuloDica.textContent = 'Ver dica';
             feedbackEl.textContent = '';
             feedbackEl.className = 'quiz__feedback';
-            btnNext.disabled = true;
+            btnNext.hidden = true;
             opcoesWrap.innerHTML = '';
 
             q.opcoes.forEach((texto, i) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'quiz__opcao';
-                btn.textContent = texto;
+                const l = document.createElement('span');
+                l.className = 'quiz__letra';
+                l.textContent = letra(i);
+                const t = document.createElement('span');
+                t.textContent = texto;
+                btn.append(l, t);
                 btn.addEventListener('click', () => responder(i, btn));
                 opcoesWrap.appendChild(btn);
             });
         }
 
+        // mesmas mensagens do "Praticar" do dashboard
         function responder(i, btnClicado) {
             const q = QUIZ[atual];
             const botoes = opcoesWrap.querySelectorAll('.quiz__opcao');
@@ -365,14 +431,15 @@
             botoes[q.correta].classList.add('quiz__opcao--correta');
 
             if (i === q.correta) {
-                feedbackEl.textContent = 'Acertou! ' + q.dica;
+                feedbackEl.textContent = 'Você acertou!';
                 feedbackEl.classList.add('quiz__feedback--ok');
             } else {
                 btnClicado.classList.add('quiz__opcao--errada');
-                feedbackEl.textContent = 'Quase! ' + q.dica;
+                feedbackEl.textContent = 'Você errou. A resposta certa era a ' + letra(q.correta) + '.';
                 feedbackEl.classList.add('quiz__feedback--erro');
             }
-            btnNext.disabled = false;
+            btnNext.textContent = atual === QUIZ.length - 1 ? 'Recomeçar' : 'Próxima questão';
+            btnNext.hidden = false;
         }
 
         btnNext.addEventListener('click', () => {
@@ -383,6 +450,171 @@
         render();
     })();
 
+})();
+
+/* ============================================================
+   CARROSSEIS — "Por que nos escolher?" e "Experimente agora mesmo"
+   Antes as duas seções prendiam a rolagem e trocavam os cards /
+   as demonstrações sozinhas. Agora quem troca é a pessoa, pelas
+   setas nas laterais. Roda em qualquer tela e também com "reduzir
+   movimento" (aí só sem a rolagem suave).
+   ============================================================ */
+(function () {
+    'use strict';
+
+    const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        || document.documentElement.classList.contains('kosmos-lite');   // visual leve
+    const MOLA = 'cubic-bezier(.2, .7, .2, 1)';
+
+    /* Clique numa seta: um anel roxo pulsa em volta do botão. */
+    function pulsar(botao) {
+        if (semMovimento || !botao.animate) return;
+        botao.animate([
+            { boxShadow: '0 0 0 0 rgba(165, 65, 255, .55)' },
+            { boxShadow: '0 0 0 12px rgba(165, 65, 255, 0)' },
+        ], { duration: 450, easing: 'ease-out' });
+    }
+
+    /* ── Recursos: a esteira anda um card por clique ── */
+    const esteira = document.getElementById('recursosEsteira');
+    const track = document.getElementById('recursosTrack');
+    const recAnt = document.getElementById('recursosAnt');
+    const recProx = document.getElementById('recursosProx');
+    const recBarra = document.getElementById('recursosBarra');
+
+    if (esteira && track && recAnt && recProx) {
+        const passo = () => {
+            const card = track.querySelector('.card');
+            return card ? card.offsetWidth + 24 : esteira.clientWidth * 0.8;   // 24 = gap
+        };
+        /* Navegou pela seta: os cards que CHEGAM na tela entram
+           deslizando um pouco no sentido da navegação, com um leve
+           crescimento, um depois do outro (quem marca a chegada é o
+           IntersectionObserver lá embaixo). */
+        let navegacao = null;          // { lado, ate } — vale só logo depois do clique
+        let atrasoChegada = 0;
+        function chegar(card) {
+            if (semMovimento || !navegacao || Date.now() > navegacao.ate || !card.animate) return;
+            card.animate([
+                { opacity: .3, transform: 'translateX(' + (28 * navegacao.lado) + 'px) scale(.95)' },
+                { opacity: 1, transform: 'translateX(0) scale(1)' },
+            ], { duration: 420, easing: MOLA, delay: atrasoChegada, fill: 'backwards' });
+            atrasoChegada += 70;
+        }
+
+        const andar = (lado, botao) => {
+            pulsar(botao);
+            navegacao = { lado: lado, ate: Date.now() + 900 };
+            atrasoChegada = 0;
+            esteira.scrollBy({ left: lado * passo(), behavior: semMovimento ? 'auto' : 'smooth' });
+        };
+
+        recAnt.addEventListener('click', () => andar(-1, recAnt));
+        recProx.addEventListener('click', () => andar(1, recProx));
+
+        function atualizar() {
+            const max = esteira.scrollWidth - esteira.clientWidth;
+            recAnt.disabled = esteira.scrollLeft <= 2;
+            recProx.disabled = esteira.scrollLeft >= max - 2;
+            if (recBarra) {
+                // a barra mostra o trecho visível: começa no tamanho da
+                // tela e chega a 100% no último card
+                const fim = (esteira.scrollLeft + esteira.clientWidth) / esteira.scrollWidth;
+                recBarra.style.width = (Math.min(1, fim) * 100).toFixed(2) + '%';
+            }
+        }
+        esteira.addEventListener('scroll', atualizar, { passive: true });
+        window.addEventListener('resize', atualizar);
+        atualizar();
+
+        /* Foco no que está à vista: o card cortado na borda fica meio
+           apagado e acende quando entra inteiro (o CSS faz o fade). */
+        if ('IntersectionObserver' in window) {
+            const foco = new IntersectionObserver((entradas) => {
+                entradas.forEach(e => {
+                    const estavaNaBorda = e.target.classList.contains('card--borda');
+                    const naBorda = e.intersectionRatio < 0.85;
+                    e.target.classList.toggle('card--borda', naBorda);
+                    // passou a aparecer inteiro por causa de uma seta: anima a chegada
+                    if (estavaNaBorda && !naBorda) chegar(e.target);
+                });
+            }, { root: esteira, threshold: [0, 0.85, 1] });
+            track.querySelectorAll('.card').forEach(c => foco.observe(c));
+        }
+    }
+
+    /* ── Experimente: abas 1-2-3 + setas nas laterais ── */
+    const passos = Array.from(document.querySelectorAll('.demo__passo'));
+    const paineis = Array.from(document.querySelectorAll('.demo__stage .demo__panel'));
+    const trilho = document.getElementById('demoTrilho');
+    const demoAnt = document.getElementById('demoAnt');
+    const demoProx = document.getElementById('demoProx');
+
+    if (paineis.length) {
+        let atual = Math.max(0, paineis.findIndex(p => p.classList.contains('demo__panel--ativa')));
+
+        /* Transição simples: a demonstração que sai desliza um pouco
+           para um lado e some; a que entra vem do outro lado. `lado`
+           é +1 indo para a próxima e -1 voltando. */
+        function deslizar(sai, entra, lado) {
+            if (semMovimento || !entra.animate || sai === entra) return;
+            sai.animate([
+                { opacity: 1, transform: 'translateX(0) scale(1)' },
+                { opacity: 0, transform: 'translateX(' + (-40 * lado) + 'px) scale(.97)' },
+            ], { duration: 260, easing: 'ease-in' });
+            entra.animate([
+                { opacity: 0, transform: 'translateX(' + (40 * lado) + 'px) scale(.97)' },
+                { opacity: 1, transform: 'translateX(0) scale(1)' },
+            ], { duration: 420, easing: MOLA });
+        }
+
+        /* o número do passo que acabou de ficar ativo dá um pulinho */
+        function pularNumero(passo) {
+            const num = passo && passo.querySelector('.demo__passo-num');
+            if (semMovimento || !num || !num.animate) return;
+            num.animate([
+                { transform: 'scale(1)' },
+                { transform: 'scale(1.22)' },
+                { transform: 'scale(1)' },
+            ], { duration: 360, easing: 'ease-out' });
+        }
+
+        function ativar(idx, lado) {
+            const antes = paineis[atual];
+            const novo = (idx + paineis.length) % paineis.length;   // dá a volta nas pontas
+            if (lado === undefined) lado = novo >= atual ? 1 : -1;
+            const mudou = novo !== atual;
+            atual = novo;
+            deslizar(antes, paineis[atual], lado);
+            if (mudou) pularNumero(passos[atual]);
+            paineis.forEach((p, i) => {
+                const ativo = i === atual;
+                p.classList.toggle('demo__panel--ativa', ativo);
+                p.setAttribute('aria-hidden', ativo ? 'false' : 'true');
+                p.inert = !ativo;                                    // tab não entra no painel escondido
+            });
+            passos.forEach((p, i) => {
+                const ativo = i === atual;
+                p.classList.toggle('demo__passo--ativo', ativo);
+                p.setAttribute('aria-selected', ativo ? 'true' : 'false');
+            });
+            if (trilho) trilho.style.height = ((atual + 1) / paineis.length * 100).toFixed(2) + '%';
+        }
+
+        // os passos à esquerda viram abas clicáveis (e de teclado)
+        passos.forEach((p, i) => {
+            p.setAttribute('role', 'tab');
+            p.tabIndex = 0;
+            p.addEventListener('click', () => ativar(i));
+            p.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ativar(i); }
+            });
+        });
+        if (demoAnt) demoAnt.addEventListener('click', () => { pulsar(demoAnt); ativar(atual - 1, -1); });
+        if (demoProx) demoProx.addEventListener('click', () => { pulsar(demoProx); ativar(atual + 1, 1); });
+
+        ativar(atual);
+    }
 })();
 
 /* ============================================================
@@ -397,6 +629,8 @@
 
     const reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduzMovimento) return;   // sem scrollytelling — tudo fica no layout padrão
+    // visual leve (escolhido no dashboard): também sem — seções comuns, sem parallax
+    if (document.documentElement.classList.contains('kosmos-lite')) return;
 
     document.documentElement.classList.add('scrolly');   // liga o CSS do V3
 
@@ -471,46 +705,10 @@
         });
     });
 
-    /* ── RECURSOS: esteira horizontal pinada ── */
-    const recPin = document.getElementById('recursosPin');
-    const recTrack = document.getElementById('recursosTrack');
-    const recBarra = document.getElementById('recursosBarra');
-    const recGhost = document.querySelector('.recursos .ghost');
-    if (recPin && recTrack) {
-        const vista = recPin.querySelector('.recursos__vista');
-        tarefas.push(() => {
-            if (!mqDesktop.matches) {
-                recTrack.style.transform = '';
-                return;
-            }
-            const p = progressoPin(recPin);
-            const desloc = Math.max(0, recTrack.scrollWidth - vista.clientWidth);
-            recTrack.style.transform = 'translate3d(' + (-p * desloc).toFixed(1) + 'px, 0, 0)';
-            if (recBarra) recBarra.style.width = (p * 100).toFixed(2) + '%';
-            if (recGhost) recGhost.style.setProperty('--gp', p.toFixed(4));
-        });
-    }
-
-    /* ── SOBRE e NOSSA HISTÓRIA: pinadas, com entrada em camadas ──
-       As duas têm a mesma forma, então usam o mesmo código: o
-       progresso do pin vira --sp, e o CSS decide o que fazer com ele
-       (aproximar a imagem, escalonar a entrada do texto). Manter o
-       cálculo aqui e a aparência lá evita que ajustar uma animação
-       exija mexer em JavaScript. */
-    [['sobrePin', '.sobre__vista'], ['historiaPin', '.historia__vista']]
-        .forEach(([idPin, seletorVista]) => {
-            const pin = document.getElementById(idPin);
-            const vista = pin && pin.querySelector(seletorVista);
-            if (!pin || !vista) return;
-
-            tarefas.push(() => {
-                if (!mqDesktop.matches) {
-                    vista.style.removeProperty('--sp');
-                    return;
-                }
-                vista.style.setProperty('--sp', progressoPin(pin).toFixed(4));
-            });
-        });
+    /* RECURSOS, SOBRE, NOSSA HISTÓRIA e DEMO não prendem mais a
+       rolagem: "Por que nos escolher" e "Experimente" viraram
+       carrosséis com setas (bloco CARROSSEIS, logo acima deste
+       arquivo), e Sobre/História entram só com o .reveal leve. */
 
     /* ── ORION: a apresentação dirigida pela rolagem ──
        A seção fica pinada por ~3,6 telas e o progresso escolhe qual
@@ -525,9 +723,133 @@
 
     if (orionPin && orionPassos.length) {
         let orionAtual = -1;
+        let orionUltimoY = window.scrollY;
+        let orionVisto = false;
+        let orionPercorrida = false;   // a pessoa rolou DENTRO da seção (e não pulou por cima dela)
+        const orionSecao = orionPin.closest('.orion');
+
+        /* A visita guiada acontece UMA vez por visita ao site: passou do
+           fim da seção, ela acaba e só volta quando a pessoa fechar a aba
+           e abrir o site de novo (sessionStorage vive até a aba fechar). */
+        const CHAVE_ORION_VISTO = 'kosmos:orion-visita-feita';
+        try {
+            if (sessionStorage.getItem(CHAVE_ORION_VISTO) === '1') {
+                orionVisto = true;
+                orionSecao.classList.add('orion--visto');
+                if (orionTrilho) orionTrilho.style.width = '100%';   // a visita já foi completa
+            }
+        } catch (e) { /* modo privado: vale só para esta página */ }
+
+        /* Passou pela seção inteira uma vez: ela para de prender a
+           rolagem. O pin (520vh) encolhe para uma tela só e a posição
+           da rolagem é compensada NO MESMO quadro — o que está na tela
+           não se mexe, e voltar para cima passa direto pela seção. */
+        function soltarOrion() {
+            orionVisto = true;
+            // lembra até a aba ser fechada: recarregar não traz a visita de volta
+            try { sessionStorage.setItem(CHAVE_ORION_VISTO, '1'); } catch (e) { /* modo privado */ }
+
+            // rolagem rápida: quanto a pessoa já passou do fim do pin
+            const r = orionPin.getBoundingClientRect();
+            const passou = Math.max(0, -r.top - (orionPin.offsetHeight - window.innerHeight));
+            // o palco gruda abaixo do cabeçalho: na tela ele está a `colado` px do topo
+            const colado = parseFloat(getComputedStyle(orionVista).top) || 0;
+
+            orionSecao.classList.add('orion--visto');
+
+            /* No fim do pin a vista está colada no topo da tela. Solto,
+               ela passa a começar no topo da seção — então a rolagem vai
+               PARA LÁ, em posição absoluta. (Não dá para só "descontar a
+               diferença": o navegador já reajusta sozinho quando algo
+               acima encolhe, e somar os dois jogava a pessoa de volta
+               ao começo da seção.) E sem animação: o html tem
+               scroll-behavior: smooth, que transformaria o ajuste num
+               salto visível. */
+            const html = document.documentElement;
+            const antes = html.style.scrollBehavior;
+            html.style.scrollBehavior = 'auto';
+            const topoVista = orionPin.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo(0, topoVista - colado + passou);
+            html.style.scrollBehavior = antes;
+
+            if (orionTrilho) orionTrilho.style.width = '100%';
+        }
+
+        /* Rede de segurança contra o corte: o palco do Orion tem a
+           altura da tela e esconde o que passa dela. Se o conteúdo
+           não couber (notebook baixo, zoom alto…), a seção deixa de
+           prender a rolagem (.orion--sem-pin) e nada fica cortado.
+           Mede de novo quando a janela muda e quando tudo carrega. */
+        const orionVista = orionPin.querySelector('.orion__vista');
+        const orionDicaEl = document.getElementById('orionConversaDica');
+        const orionDicaPin = orionDicaEl ? orionDicaEl.textContent.trim() : '';
+        let orionSemPin = false;
+        function medirOrion() {
+            if (!orionVista || orionVisto) return;
+            const conteudo = orionVista.firstElementChild;
+            if (!conteudo) return;
+
+            /* Mede a versão APERTADA (a do pin), que é a que precisa caber
+               numa tela: sem a classe, ela volta por um instante, mede e
+               a classe é decidida em seguida — tudo no mesmo quadro. */
+            orionSecao.classList.remove('orion--sem-pin');
+            conteudo.style.zoom = '';
+            // a área útil é a tela menos o espaço do cabeçalho fixo (padding-top do palco)
+            const estilo = getComputedStyle(orionVista);
+            const util = window.innerHeight - (parseFloat(estilo.top) || 0) - (parseFloat(estilo.paddingTop) || 0);
+            // +28: o passo ativo abre a descrição (uma linha) e fica mais alto que os outros
+            const precisa = conteudo.offsetHeight + 28;
+
+            /* Não coube? Primeiro REDUZ proporcionalmente (zoom) só o que
+               falta — a visita pela rolagem continua funcionando em
+               notebook baixo. Só se precisasse encolher mais de 30% (tela
+               baixíssima, zoom alto no navegador) a seção é solta. */
+            let escala = 1;
+            if (mqDesktop.matches && precisa > util) escala = util / precisa;
+            const naoCabe = escala < 0.7;
+            if (!naoCabe && escala < 1) conteudo.style.zoom = escala.toFixed(3);
+
+            orionSecao.classList.toggle('orion--sem-pin', naoCabe);
+            orionSemPin = naoCabe;
+
+            // solta, a rolagem não conduz a visita: a dica fala só do toque
+            if (orionDicaEl) {
+                orionDicaEl.textContent = naoCabe ? 'Toque num passo para o Orion explicar:' : orionDicaPin;
+            }
+        }
+        medirOrion();
+        window.addEventListener('load', medirOrion);
+
+        /* As fontes do site (Syne / DM Sans, do Google Fonts) chegam DEPOIS
+           da primeira medida. Medida com a fonte provisória, a seção parecia
+           maior do que é e ganhava um zoom à toa — numa aba nova ela abria
+           pequena, e só um Ctrl+Shift+R (fontes já em cache) acertava.
+           Então: mede de novo a cada fonte que termina de carregar... */
+        if (document.fonts) {
+            if (document.fonts.ready) document.fonts.ready.then(medirOrion);
+            if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', medirOrion);
+        }
+        /* ...e mais uma vez quando a pessoa está chegando na seção (uma
+           tela antes), quando tudo já carregou de verdade. */
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver((entradas) => {
+                if (entradas.some(e => e.isIntersecting)) medirOrion();
+            }, { rootMargin: '100% 0px' }).observe(orionSecao);
+        }
+        let orionResize = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(orionResize);
+            orionResize = setTimeout(medirOrion, 150);
+        });
 
         tarefas.push(() => {
-            if (!mqDesktop.matches) return;
+            if (!mqDesktop.matches || orionVisto || orionSemPin) return;
+
+            /* Enquanto a pessoa ainda não passou da seção, os passos seguem
+               a rolagem nos DOIS sentidos (sair por cima e voltar funciona).
+               Só o "soltar" no fim exige estar descendo. */
+            const descendo = window.scrollY >= orionUltimoY;
+            orionUltimoY = window.scrollY;
 
             const p = progressoPin(orionPin);
 
@@ -551,51 +873,26 @@
                 // sobe no começo e volta: dá a sensação de aproximação
                 orionCorpoEl.style.setProperty('--op', Math.sin(p * Math.PI).toFixed(4));
             }
+
+            // chegou ao fim da seção descendo: solta o pin de vez
+            /* Conta como percorrida só quem rolou POR DENTRO da seção. Um
+               salto direto para baixo dela (o navegador restaurando a
+               rolagem ao recarregar, por exemplo) não encerra a visita. */
+            if (p > 0.05 && p < 0.95) orionPercorrida = true;
+
+            if (descendo && orionPercorrida && p >= 0.999) soltarOrion();
         });
 
         /* Clicar num passo rola até o trecho dele, como nos passos do
            demo: quem prefere clicar não fica preso à rolagem. */
         orionPassos.forEach((passo, i) => {
             passo.addEventListener('click', () => {
-                if (!mqDesktop.matches) return;
+                if (!mqDesktop.matches || orionVisto || orionSemPin) return;   // solto: o passo aparece (orion.js) sem rolar
                 const topo = orionPin.getBoundingClientRect().top + window.scrollY;
                 const total = orionPin.offsetHeight - window.innerHeight;
                 const inicio = 0.12;
                 const frac = inicio + (1 - inicio) * ((i + 0.5) / orionPassos.length);
                 window.scrollTo({ top: topo + total * frac, behavior: 'smooth' });
-            });
-        });
-    }
-
-    /* ── DEMO: scrollytelling em 3 passos ── */
-    const demoPin = document.getElementById('demoPin');
-    const passos = Array.from(document.querySelectorAll('.demo__passo'));
-    const paineis = Array.from(document.querySelectorAll('.demo__stage .demo__panel'));
-    const trilho = document.getElementById('demoTrilho');
-    const demoGhost = document.querySelector('.ghost--demo');
-    if (demoPin && paineis.length === 3) {
-        let ativoAtual = 0;
-        function ativar(idx) {
-            if (idx === ativoAtual) return;
-            ativoAtual = idx;
-            passos.forEach((p, i) => p.classList.toggle('demo__passo--ativo', i === idx));
-            paineis.forEach((p, i) => p.classList.toggle('demo__panel--ativa', i === idx));
-        }
-        tarefas.push(() => {
-            if (!mqDesktop.matches) return;
-            const p = progressoPin(demoPin);
-            ativar(p < 1 / 3 ? 0 : p < 2 / 3 ? 1 : 2);
-            if (trilho) trilho.style.height = (p * 100).toFixed(2) + '%';
-            if (demoGhost) demoGhost.style.setProperty('--gp', p.toFixed(4));
-        });
-
-        // clicar num passo rola até o trecho correspondente do pin
-        passos.forEach((passo, i) => {
-            passo.addEventListener('click', () => {
-                const topo = demoPin.getBoundingClientRect().top + window.scrollY;
-                const total = demoPin.offsetHeight - window.innerHeight;
-                const alvo = topo + total * ((i + 0.5) / 3);
-                window.scrollTo({ top: alvo, behavior: 'smooth' });
             });
         });
     }

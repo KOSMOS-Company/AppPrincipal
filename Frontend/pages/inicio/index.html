@@ -35,6 +35,17 @@
     <meta name="twitter:description" content="Organize seus estudos com resumos, flashcards, exercícios com IA e Pomodoro. 100% gratuito.">
     <meta name="twitter:image" content="../shared/og-image.png">
 
+    <!-- Visual leve: a escolha é feita no dashboard (Conta › Estudo ou a
+         engrenagem) e fica salva neste aparelho. A página inicial lê a
+         mesma escolha ANTES de pintar: céu parado, sem parallax, sem a
+         seção que prende a rolagem, sem vidro e com o cursor do sistema. -->
+    <script>
+        try {
+            if (localStorage.getItem('kosmos_visual') === 'lite') {
+                document.documentElement.classList.add('kosmos-lite');
+            }
+        } catch (e) { /* navegação privada: visual completo */ }
+    </script>
     <link rel="stylesheet" href="./css/inicio.css">
     <link rel="stylesheet" href="../shared/cosmos.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
@@ -127,7 +138,6 @@
             <div class="hero__cta">
                 <a href="../cadastro/index.html" class="btn btn--primary btn--lg">
                     Comece agora
-                    <svg class="btn__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </a>
                 <a href="#demo" class="btn btn--outline btn--lg">Experimente grátis</a>
             </div>
@@ -208,7 +218,7 @@
       </div>
     </section>
 
-    <!-- ───── RECURSOS (pinada: esteira horizontal no desktop) ───── -->
+    <!-- ───── RECURSOS (carrossel com setas) ───── -->
     <section class="recursos" id="recursos">
       <div class="recursos__pin" id="recursosPin">
         <div class="recursos__vista">
@@ -219,7 +229,11 @@
                     <p class="recursos__subtitle">Tudo que você precisa para estudar de forma organizada, em um só lugar.</p>
                 </div>
             </div>
-            <div class="recursos__esteira">
+            <!-- Carrossel: as setas nas laterais passam os cards; a barra
+                 embaixo mostra a posição. No celular também dá para arrastar. -->
+            <div class="carrossel recursos__carrossel">
+            <button type="button" class="carrossel__seta carrossel__seta--ant" id="recursosAnt" aria-label="Recursos anteriores" disabled><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div class="recursos__esteira" id="recursosEsteira">
             <div class="recursos__grid" id="recursosTrack">
                 <!-- Exercícios com IA — PRIMEIRO e em destaque.
                      Estava em 4º, com o mesmo peso visual do Pomodoro, que
@@ -331,16 +345,18 @@
 
             </div>
             </div>
+                <button type="button" class="carrossel__seta carrossel__seta--prox" id="recursosProx" aria-label="Próximos recursos"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
             <div class="recursos__barra" aria-hidden="true"><span id="recursosBarra"></span></div>
         </div>
       </div>
     </section>
 
-    <!-- ───── DEMO INTERATIVA (scrollytelling pinado no desktop) ───── -->
+    <!-- ───── DEMO INTERATIVA (abas com setas: o usuário troca a demonstração) ───── -->
     <section class="demo" id="demo">
       <div class="demo__pin" id="demoPin">
         <div class="demo__vista">
-            <div class="demo__orb" aria-hidden="true" data-parallax="60"></div>
+            <div class="demo__orb" aria-hidden="true" data-parallax="16"></div>
             <span class="ghost ghost--demo" aria-hidden="true">Experimente</span>
             <div class="container demo__scrolly">
 
@@ -349,7 +365,7 @@
                         <h2 class="section-title">Experimente <em>agora mesmo</em></h2>
                         <p class="recursos__subtitle">Sem cadastro e sem espera — brinque com uma prévia real das nossas ferramentas.</p>
                     </div>
-                    <ol class="demo__lista" aria-hidden="true">
+                    <ol class="demo__lista">
                         <li class="demo__passo demo__passo--ativo" data-passo="0">
                             <span class="demo__passo-num">1</span>
                             <div>
@@ -375,39 +391,59 @@
                     <div class="demo__trilho" aria-hidden="true"><span id="demoTrilho"></span></div>
                 </div>
 
+                <!-- Palco: uma demonstração por vez; as setas nas laterais (e os
+                     passos 1-2-3 ao lado) trocam qual aparece. -->
+                <div class="demo__palco carrossel">
+                <button type="button" class="carrossel__seta carrossel__seta--ant" id="demoAnt" aria-label="Demonstração anterior"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                 <div class="demo__grid demo__stage" id="demoStage">
 
-                <!-- Demo: FlashCard -->
+                <!-- As três prévias abaixo copiam o desenho das abas do
+                     dashboard (revisar.php, pomodoro.php e o modal de
+                     praticar exercícios). Se uma aba mudar de cara, mude
+                     a prévia junto — o visitante vê aqui o que vai usar. -->
+
+                <!-- Demo: FlashCards (igual à tela "Revisar") -->
                 <div class="demo__panel demo__panel--ativa">
                     <div class="demo__panel-head">
                         <h3 class="demo__panel-title">FlashCards</h3>
+                        <span class="demo__contador" id="fcContador">1 de 4</span>
                     </div>
-                    <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Virar flashcard">
+                    <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Virar o cartão">
                         <div class="flashcard__inner">
                             <div class="flashcard__face flashcard__face--front">
                                 <span class="flashcard__label">Pergunta</span>
                                 <p id="fcFront">O que é fotossíntese?</p>
-                                <span class="flashcard__hint">clique para virar ↻</span>
+                                <span class="flashcard__hint">Clique para ver a resposta</span>
                             </div>
                             <div class="flashcard__face flashcard__face--back">
                                 <span class="flashcard__label">Resposta</span>
                                 <p id="fcBack">Processo em que as plantas convertem luz solar em energia, liberando oxigênio.</p>
-                                <span class="flashcard__hint">clique para voltar ↻</span>
+                                <span class="flashcard__hint">Clique para voltar</span>
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn--ghost demo__action" id="fcNext" type="button">
-                        Próximo card
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </button>
+                    <!-- Só acende depois de virar, como no dashboard -->
+                    <div class="fc-avaliacao" id="fcAvaliacao" aria-hidden="true">
+                        <span class="fc-avaliacao__pergunta">Você lembrava dessa?</span>
+                        <div class="fc-avaliacao__botoes">
+                            <button class="btn fc-btn--errei" type="button" data-fc-resposta tabindex="-1">Ainda não</button>
+                            <button class="btn fc-btn--acertei" type="button" data-fc-resposta tabindex="-1">Já sei</button>
+                        </div>
+                    </div>
+                    <div class="demo__progresso" aria-hidden="true"><span id="fcBarra"></span></div>
                 </div>
 
-                <!-- Demo: Pomodoro -->
+                <!-- Demo: Pomodoro (igual à aba Pomodoro) -->
                 <div class="demo__panel">
                     <div class="demo__panel-head">
                         <h3 class="demo__panel-title">Pomodoro</h3>
                     </div>
-                    <div class="pomo">
+                    <div class="pomo" id="pomoDemo">
+                        <div class="pomo__modos" role="group" aria-label="Modo do timer">
+                            <button class="pomo-modo active" type="button" data-modo="foco" data-min="25">Foco</button>
+                            <button class="pomo-modo" type="button" data-modo="curta" data-min="5">Pausa curta</button>
+                            <button class="pomo-modo" type="button" data-modo="longa" data-min="15">Pausa longa</button>
+                        </div>
                         <div class="pomo__circle">
                             <svg class="pomo__ring" viewBox="0 0 120 120">
                                 <circle class="pomo__ring-bg" cx="60" cy="60" r="52"/>
@@ -415,34 +451,41 @@
                             </svg>
                             <div class="pomo__center">
                                 <span class="pomo__time" id="pomoTime">25:00</span>
-                                <span class="pomo__state" id="pomoState">foco</span>
+                                <span class="pomo__state" id="pomoState">Hora de focar</span>
                             </div>
                         </div>
                         <div class="pomo__controls">
-                            <button class="btn btn--primary demo__action" id="pomoToggle" type="button">Iniciar</button>
-                            <button class="btn btn--ghost demo__action" id="pomoReset" type="button">Reiniciar</button>
+                            <button class="btn btn--primary pomo__play" id="pomoToggle" type="button">Iniciar</button>
+                            <button class="btn btn--outline" id="pomoReset" type="button">Reiniciar</button>
                         </div>
+                        <p class="pomo__ciclos">Ciclos de foco concluídos: <strong id="pomoCiclos">0</strong></p>
                         <p class="demo__note">Demonstração acelerada: 1 segundo = 1 minuto.</p>
                     </div>
                 </div>
 
-                <!-- Demo: Quiz IA -->
+                <!-- Demo: Exercícios com IA (igual ao "Praticar" da aba Exercícios) -->
                 <div class="demo__panel">
                     <div class="demo__panel-head">
                         <h3 class="demo__panel-title">Exercícios com IA</h3>
+                        <span class="demo__contador" id="quizMateria">Matemática</span>
                     </div>
                     <div class="quiz">
-                        <span class="quiz__materia" id="quizMateria">Matemática</span>
+                        <p class="quiz__progresso" id="quizProgresso">Questão 1 de 3</p>
                         <p class="quiz__pergunta" id="quizPergunta">Qual é o valor de x em 2x + 6 = 14?</p>
+                        <div class="quiz__dica">
+                            <button type="button" class="quiz__dica-botao" id="quizDicaBtn" aria-expanded="false" aria-controls="quizDica">
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.75a4.75 4.75 0 0 0-2.7 8.65c.55.4.95 1.05.95 1.85h3.5c0-.8.4-1.45.95-1.85A4.75 4.75 0 0 0 10 2.75zM8.75 15.75h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span id="quizDicaRotulo">Ver dica</span>
+                            </button>
+                            <div class="quiz__dica-texto" id="quizDica" role="note"></div>
+                        </div>
                         <div class="quiz__opcoes" id="quizOpcoes"></div>
                         <p class="quiz__feedback" id="quizFeedback" aria-live="polite"></p>
                     </div>
-                    <button class="btn btn--ghost demo__action" id="quizNext" type="button" disabled>
-                        Outra pergunta
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </button>
+                    <button class="btn btn--ghost demo__action" id="quizNext" type="button" hidden>Próxima questão</button>
                 </div>
-
+                </div>
+                <button type="button" class="carrossel__seta carrossel__seta--prox" id="demoProx" aria-label="Próxima demonstração"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                 </div>
             </div>
         </div>
@@ -495,17 +538,26 @@
             <div class="orion__grid"></div>
         </div>
 
+        <!-- O título fica FORA do pin, no tamanho padrão das outras
+             seções, e rola normalmente. Dentro do pin só o palco (Orion,
+             balão e passos): assim ele cabe até em notebook baixo e a
+             visita guiada pela rolagem continua funcionando. -->
+        <div class="container orion__topo">
+            <div class="orion__cabeca reveal reveal--up">
+                <h2 class="section-title">Deixa o <em>Orion</em> te mostrar a Kosmos</h2>
+            </div>
+        </div>
+
         <div class="orion__pin" id="orionPin">
             <div class="orion__vista">
                 <div class="container">
 
-                    <div class="orion__cabeca reveal reveal--up">
-                        <h2 class="section-title">Deixa o <em>Orion</em> te mostrar a Kosmos</h2>
-                    </div>
-
                     <div class="orion__palco">
 
                         <!-- ── Lado esquerdo: o anfitrião ── -->
+                        <!-- Coluna esquerda: o Orion e, logo abaixo, o teste de senha —
+                             o Orion que tapa os olhos fica bem em cima dos campos. -->
+                        <div class="orion__esquerda">
                         <div class="orion__figura reveal reveal--left" data-plano="meio">
                             <div class="orion__halo" aria-hidden="true"></div>
                             <div class="orion__orbita" aria-hidden="true">
@@ -526,6 +578,41 @@
                             </button>
 
                             <p class="orion__dica" id="orionDica">Clique nele</p>
+                        </div>
+
+                        <!-- O teste de verdade: digite uma senha e o Orion tapa os olhos -->
+                        <div class="orion__teste orion__teste--lateral">
+                            <div class="orion__teste-texto">
+                                <h3>Teste a privacidade: digite uma senha.</h3>
+                                <p>O Orion tapa os olhos enquanto você digita — igual no cadastro real. Vá em frente, pode confiar.</p>
+                            </div>
+            
+                            <div class="orion__campos">
+                                <label class="orion__campo">
+                                    <span>Um e-mail qualquer</span>
+                                    <input type="email" id="orionEmail" placeholder="voce@email.com"
+                                           autocomplete="off" spellcheck="false">
+                                </label>
+            
+                                <label class="orion__campo">
+                                    <span>Uma senha de mentira</span>
+                                    <span class="orion__campo-senha">
+                                        <input type="password" id="orionSenha" placeholder="pode inventar"
+                                               autocomplete="off">
+                                        <button type="button" class="orion__olho" id="orionOlho"
+                                                aria-label="Mostrar a senha" aria-pressed="false">
+                                            <svg viewBox="0 0 20 20" fill="none" class="orion__olho-fechado" aria-hidden="true" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
+                                            <svg viewBox="0 0 20 20" fill="none" class="orion__olho-aberto" aria-hidden="true"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                                        </button>
+                                    </span>
+                                </label>
+                            </div>
+            
+                            <p class="orion__aviso">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                Nada aqui é enviado nem guardado — é só uma demonstração.
+                            </p>
+                        </div>
                         </div>
 
                         <!-- ── Lado direito: a fala e o roteiro ── -->
@@ -559,7 +646,7 @@
                                         <span class="orion-passo__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11.6" r="6.3"/><ellipse cx="12" cy="11.6" rx="10.6" ry="3.5" transform="rotate(-22 12 11.6)"/></svg></span>
                                         <span class="orion-passo__texto">
                                             <strong>Esta é a Kosmos</strong>
-                                            <strong>Seu QG de estudos: resumos, flashcards, pomodoro, IA — tudo grátis.</strong>
+                                            <span>Seu QG de estudos: resumos, flashcards, pomodoro, IA — tudo grátis.</span>
                                         </span>
                                     </button>
                                 </li>
@@ -615,41 +702,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- ── Fora do pin: o teste de verdade, com rolagem livre ── -->
-        <div class="container">
-            <div class="orion__teste reveal reveal--up" data-relevo>
-                <div class="orion__teste-texto">
-                    <h3>Teste a privacidade: digite uma senha.</h3>
-                    <p>O Orion tapa os olhos enquanto você digita — igual no cadastro real. Vá em frente, pode confiar.</p>
-                </div>
-
-                <div class="orion__campos">
-                    <label class="orion__campo">
-                        <span>Um e-mail qualquer</span>
-                        <input type="email" id="orionEmail" placeholder="voce@email.com"
-                               autocomplete="off" spellcheck="false">
-                    </label>
-
-                    <label class="orion__campo">
-                        <span>Uma senha de mentira</span>
-                        <span class="orion__campo-senha">
-                            <input type="password" id="orionSenha" placeholder="pode inventar"
-                                   autocomplete="off">
-                            <button type="button" class="orion__olho" id="orionOlho"
-                                    aria-label="Mostrar a senha" aria-pressed="false">
-                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
-                            </button>
-                        </span>
-                    </label>
-                </div>
-
-                <p class="orion__aviso">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Nada aqui é enviado nem guardado — é só uma demonstração.
-                </p>
             </div>
         </div>
     </section>
@@ -735,7 +787,6 @@
                     <p class="footer__tagline">Estudar nunca foi difícil.</p>
                     <a href="../cadastro/index.html" class="btn btn--primary footer__cta">
                         Criar conta grátis
-                        <svg class="btn__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
                     <!-- Redes sociais (placeholder: troque o href="#" pelos perfis reais) -->
                     <div class="footer__social">

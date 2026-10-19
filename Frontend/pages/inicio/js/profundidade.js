@@ -43,13 +43,17 @@
 
     var semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (semMovimento.matches) return;
+    // visual leve (escolhido no dashboard, vale aqui também): sem parallax nem relevo
+    if (document.documentElement.classList.contains('kosmos-lite')) return;
 
     var ponteiroFino = window.matchMedia('(hover: hover) and (pointer: fine)');
 
     /* Os três planos, em pixels de deslocamento ao longo do percurso.
        A proporção entre eles é o que cria a profundidade: a frente
        anda seis vezes mais que o fundo. */
-    var PLANOS = { fundo: -18, meio: -55, frente: -110 };
+    // Bem mais sutil que antes (-18/-55/-110): a profundidade ainda existe,
+    // mas quase não se nota — a página não "escorrega" ao rolar.
+    var PLANOS = { fundo: -6, meio: -16, frente: -30 };
 
     /* ------------------------------------------------------------
        Coleta
