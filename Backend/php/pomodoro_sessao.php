@@ -63,9 +63,28 @@ if ($fim < $agora - 7 * 24 * 3600 || $fim > $agora + 300) {
     estErro('Instante fora da janela aceita.', 422);
 }
 
+/* O ciclo é DE UMA CONTA. O navegador guarda o timer por conta e
+   manda junto o id de quem o iniciou: se quem está logado agora é
+   outra pessoa (fechou a aba e entrou com outra conta no mesmo
+   navegador), a sessão não é dela e não entra. Sem `conta` (estado
+   salvo antes desta regra), vale a checagem da data de criação. */
+if (isset($corpo['conta']) && (int) $corpo['conta'] !== (int) $usuario['id']) {
+    estErro('Esta sessão de foco é de outra conta.', 409);
+}
+
 try {
     $pdo = conectar();
     liberarSessao();
+
+    /* Uma sessão que terminou ANTES de a conta existir não pode ser
+       dela — foi exatamente o que acontecia quando o timer de uma
+       conta era registrado na conta nova que entrou depois. */
+    $stmt = $pdo->prepare('SELECT UNIX_TIMESTAMP(criado_em) FROM usuarios WHERE id = ?');
+    $stmt->execute([$usuario['id']]);
+    $criadaEm = (int) $stmt->fetchColumn();
+    if ($criadaEm > 0 && $fim < $criadaEm) {
+        estErro('Esta sessão de foco é anterior à criação da conta.', 409);
+    }
 
     /* FROM_UNIXTIME converte no relógio do MYSQL, e o `dia` sai da
        mesma conversão. É a regra do projeto: data se calcula num

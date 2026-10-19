@@ -8,7 +8,7 @@
 .pomo-selo {
     position: fixed;
     right: 24px;
-    bottom: 88px; /* Posicionado com folga acima do botão flutuante do Orion */
+    bottom: 104px; /* padrão: com folga acima do Orion (68px a 24px do rodapé). A pessoa pode arrastar. */
     z-index: 850;
 
     display: flex;
@@ -35,6 +35,23 @@
 .pomo-selo:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 4px;
+}
+
+/* Arrastável (js/pomodoro-aviso.js): sem rolar a página nem selecionar
+   texto ao arrastar com o dedo/mouse. Enquanto arrasta, nada de
+   transição — o selo tem que grudar no ponteiro, não vir atrás dele. */
+.pomo-selo {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.pomo-selo--arrastando,
+.pomo-selo--arrastando:hover {
+    transition: none;
+    animation: none;
+    transform: scale(1.04);
+    border-color: var(--accent);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, .6), 0 0 36px rgba(165, 65, 255, .35);
 }
 
 /* pontinho que pulsa: o sinal de "está correndo agora" */
@@ -92,7 +109,7 @@
 @media (max-width: 768px) {
     .pomo-selo {
         right: 16px;
-        bottom: calc(var(--barra-mobile, 70px) + 80px);
+        bottom: calc(var(--barra-mobile, 70px) + 88px);
         padding: 10px 15px 10px 13px;
         z-index: 850;
     }

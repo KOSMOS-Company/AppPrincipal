@@ -24,8 +24,8 @@
    ============================================================ */
 
 (() => {
-    const CHAVE   = "kosmos:pomodoro";
-    const CHAVE_AV = "kosmos:pomodoro:avisado";   // fimEm do último ciclo avisado
+    const CHAVE   = (window.kosmosChaveConta ? window.kosmosChaveConta("kosmos:pomodoro") : "kosmos:pomodoro");
+    const CHAVE_AV = (window.kosmosChaveConta ? window.kosmosChaveConta("kosmos:pomodoro:avisado") : "kosmos:pomodoro:avisado");   // fimEm do último ciclo avisado
 
     const ROTULOS = {
         foco:  "Foco",
@@ -152,6 +152,159 @@
         document.body.appendChild(selo);
         seloTempo = selo.querySelector(".pomo-selo__tempo");
         seloModo  = selo.querySelector(".pomo-selo__modo");
+
+        ligarArraste();
+        window.addEventListener("resize", aplicarPosicao);
+    }
+
+    /* ------------------------------------------------------------
+       Arrastar o selo para onde a pessoa quiser
+       A posição fica no localStorage (vale para todas as abas) como
+       FRAÇÃO da área livre da tela — 0 = encostado à esquerda/no
+       topo, 1 = à direita/embaixo. Assim o selo continua no mesmo
+       canto quando a janela muda de tamanho, e nunca sai da tela.
+       Sem posição salva, fica no lugar padrão do CSS.
+       ------------------------------------------------------------ */
+    const CHAVE_POS = "kosmos:pomodoro:posicao";
+    const MARGEM    = 8;        // folga mínima da borda da tela
+    const LIMIAR    = 5;        // px que separam um clique de um arrasto
+
+    let arrastando = false;
+    let ignorarClique = false;  // o clique que vem logo depois de soltar um arrasto
+
+    function lerPosicao() {
+        try {
+            const p = JSON.parse(localStorage.getItem(CHAVE_POS) || "null");
+            return p && isFinite(p.x) && isFinite(p.y) ? p : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function salvarPosicao(p) {
+        try { localStorage.setItem(CHAVE_POS, JSON.stringify(p)); } catch (e) { /* ignora */ }
+    }
+
+    /** A área onde o selo pode ficar. No celular, sem invadir a barra de baixo. */
+    function areaLivre() {
+        let baixo = MARGEM;
+        if (window.matchMedia("(max-width: 768px)").matches) {
+            const barra = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--barra-mobile"));
+            baixo += isFinite(barra) ? barra : 70;
+        }
+        return {
+            larg: Math.max(0, window.innerWidth  - selo.offsetWidth  - MARGEM * 2),
+            alt:  Math.max(0, window.innerHeight - selo.offsetHeight - MARGEM - baixo),
+        };
+    }
+
+    /**
+     * O selo não pode cobrir o botão do Orion. Se a posição cair em cima
+     * dele, empurra o selo para o lado livre mais próximo (acima, à
+     * esquerda, abaixo ou à direita), sem sair da área da tela.
+     */
+    const FOLGA_ORION = 8;
+    function longeDoOrion(left, top, area) {
+        const orion = document.getElementById("orionChatLauncher");
+        if (!orion) return { left, top };
+        const o = orion.getBoundingClientRect();
+        if (!o.width) return { left, top };              // Orion escondido
+
+        const w = selo.offsetWidth, h = selo.offsetHeight;
+        const caixa = {
+            l: o.left - FOLGA_ORION, t: o.top - FOLGA_ORION,
+            r: o.right + FOLGA_ORION, b: o.bottom + FOLGA_ORION,
+        };
+        const sobrepoe = left < caixa.r && left + w > caixa.l && top < caixa.b && top + h > caixa.t;
+        if (!sobrepoe) return { left, top };
+
+        const minL = MARGEM, maxL = MARGEM + area.larg;
+        const minT = MARGEM, maxT = MARGEM + area.alt;
+        const opcoes = [
+            { left, top: caixa.t - h },                  // acima
+            { left: caixa.l - w, top },                  // à esquerda
+            { left, top: caixa.b },                      // abaixo
+            { left: caixa.r, top },                      // à direita
+        ].filter((p) => p.left >= minL && p.left <= maxL && p.top >= minT && p.top <= maxT);
+
+        if (!opcoes.length) return { left, top };
+        opcoes.sort((a, b) =>
+            Math.hypot(a.left - left, a.top - top) - Math.hypot(b.left - left, b.top - top));
+        return opcoes[0];
+    }
+
+    function posicionar(left, top) {
+        selo.style.left   = `${left}px`;
+        selo.style.top    = `${top}px`;
+        selo.style.right  = "auto";
+        selo.style.bottom = "auto";
+    }
+
+    function aplicarPosicao() {
+        if (!selo || selo.hidden || arrastando) return;
+        const p = lerPosicao();
+        if (!p) return;                                  // lugar padrão (CSS)
+        const area = areaLivre();
+        const x = Math.min(1, Math.max(0, p.x));
+        const y = Math.min(1, Math.max(0, p.y));
+        const pos = longeDoOrion(MARGEM + x * area.larg, MARGEM + y * area.alt, area);
+        posicionar(pos.left, pos.top);
+    }
+
+    function ligarArraste() {
+        selo.draggable = false;                              // sem o "arrastar link" do navegador
+        selo.addEventListener("dragstart", (e) => e.preventDefault());
+
+        let inicio = null;
+
+        selo.addEventListener("pointerdown", (e) => {
+            if (e.button !== 0) return;
+            const r = selo.getBoundingClientRect();
+            inicio = { x: e.clientX, y: e.clientY, left: r.left, top: r.top };
+            selo.setPointerCapture(e.pointerId);
+        });
+
+        selo.addEventListener("pointermove", (e) => {
+            if (!inicio) return;
+            const dx = e.clientX - inicio.x;
+            const dy = e.clientY - inicio.y;
+            if (!arrastando) {
+                if (Math.hypot(dx, dy) < LIMIAR) return;     // ainda é um clique
+                arrastando = true;
+                selo.classList.add("pomo-selo--arrastando");
+            }
+            const area = areaLivre();
+            const left = Math.min(MARGEM + area.larg, Math.max(MARGEM, inicio.left + dx));
+            const top  = Math.min(MARGEM + area.alt,  Math.max(MARGEM, inicio.top + dy));
+            const pos  = longeDoOrion(left, top, area);
+            posicionar(pos.left, pos.top);
+        });
+
+        const soltar = () => {
+            if (!inicio) return;
+            inicio = null;
+            if (!arrastando) return;                         // foi clique: deixa abrir o Pomodoro
+            arrastando = false;
+            ignorarClique = true;
+            selo.classList.remove("pomo-selo--arrastando");
+
+            const area = areaLivre();
+            const r = selo.getBoundingClientRect();
+            salvarPosicao({
+                x: area.larg ? (r.left - MARGEM) / area.larg : 0,
+                y: area.alt  ? (r.top  - MARGEM) / area.alt  : 0,
+            });
+        };
+        selo.addEventListener("pointerup", soltar);
+        selo.addEventListener("pointercancel", soltar);
+
+        // Soltar um arrasto não pode virar "abrir o Pomodoro"
+        selo.addEventListener("click", (e) => {
+            if (ignorarClique) {
+                e.preventDefault();
+                ignorarClique = false;
+            }
+        });
     }
 
     function pintarSelo(s, restante) {
@@ -159,13 +312,15 @@
 
         // só interessa enquanto há um ciclo de verdade em andamento
         const mostrar = !!s && s.rodando && restante > 0;
+        const apareceuAgora = mostrar && selo.hidden;
         selo.hidden = !mostrar;
         if (!mostrar) return;
+        if (apareceuAgora) aplicarPosicao();   // só agora o selo tem tamanho para medir
 
         seloTempo.textContent = formatar(restante);
         seloModo.textContent  = ROTULOS[s.modo];
         selo.classList.toggle("pomo-selo--pausa", s.modo !== "foco");
-        selo.title = `${ROTULOS[s.modo]} — ${formatar(restante)} restantes. Abrir o Pomodoro.`;
+        selo.title = `${ROTULOS[s.modo]} — ${formatar(restante)} restantes. Clique para abrir o Pomodoro ou arraste para mudar de lugar.`;
     }
 
     /* ------------------------------------------------------------
@@ -213,6 +368,7 @@
             body: JSON.stringify({
                 fim: Math.floor(s.fimEm / 1000),   // o PHP espera SEGUNDOS
                 minutos,
+                conta: s.conta,                    // o servidor recusa se for de outra conta
             }),
             keepalive: true,   // sobrevive se a pessoa fechar a aba agora
         }).catch(() => { /* ver o comentário acima */ });

@@ -110,7 +110,7 @@
         }
 
         // Histórico de mensagens na sessão
-        const STORAGE_KEY = 'kosmos_orion_chat_session';
+        const STORAGE_KEY = (window.kosmosChaveConta ? window.kosmosChaveConta('kosmos_orion_chat_session') : 'kosmos_orion_chat_session');
         let historico = [];
 
         try {

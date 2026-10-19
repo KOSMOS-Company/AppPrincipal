@@ -69,7 +69,6 @@ html.kosmos-lite *::after {
 html.kosmos-lite .modal { background: rgba(4, 0, 10, .8); }
 html.kosmos-lite .conf__menu { background: var(--material-fino); }
 html.kosmos-lite .orion-chat-header { background: rgba(13, 1, 24, .96); }
-html.kosmos-lite .orion-launcher { background: rgba(22, 4, 38, .97); }
 html.kosmos-lite .xp-aviso { background: rgba(28, 6, 50, .98); }
 
 /* ============================================================
@@ -117,8 +116,6 @@ html.kosmos-lite :is(.onb-progresso-barra,
                      .onb-materia-chip input:checked + .onb-materia-nome) { box-shadow: none; }
 
 /* ── Orion ── */
-html.kosmos-lite .orion-launcher { box-shadow: var(--shadow-neutral); }
-html.kosmos-lite .orion-launcher:hover { box-shadow: var(--shadow-card-hover); }
 html.kosmos-lite .orion-chat { box-shadow: 0 24px 60px rgba(0, 0, 0, .85); }
 html.kosmos-lite :is(.orion-chat-header__avatar, .orion-msg-avatar,
                      .orion-chat__btn-enviar:hover) { box-shadow: none; }
@@ -173,6 +170,39 @@ html.kosmos-lite.has-dash-cursor :is(input:not([type="checkbox"]):not([type="rad
 /* Cards não "levantam" no hover — a sombra neutra já marca */
 html.kosmos-lite :is(.resumo-card, .caderno-card, .deck-card, .exercicio-materia-card, a.ini-card):hover {
     transform: none;
+}
+
+/* ── Início: o selo da sequência ──
+   O astro continua MUDANDO DE FORMA por fase (estrela, cometa,
+   planeta, galáxia) — isso é informação. O que sai é o movimento
+   contínuo (piscar, cauda correndo, órbita, giro) e o brilho. O
+   número fica em cor sólida, sem reflexo nem degradê fluindo. */
+html.kosmos-lite .ini-seq__chama .astro,
+html.kosmos-lite .ini-seq__chama .astro * {
+    animation: none !important;
+    filter: none !important;
+}
+html.kosmos-lite .ini-seq .ini-seq__chama {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--seq-cor) 35%, transparent);
+}
+html.kosmos-lite .ini-seq .ini-seq__num strong {
+    animation: none;
+    background: none;
+    color: var(--seq-cor);
+    -webkit-text-fill-color: var(--seq-cor);
+}
+html.kosmos-lite .ini-seq.ini-stat--vazio .ini-seq__num strong {
+    color: var(--text-muted);
+    -webkit-text-fill-color: var(--text-muted);
+}
+html.kosmos-lite .ini-seq .ini-seq__num strong::before,
+html.kosmos-lite .ini-seq .ini-seq__num strong::after { display: none; }
+
+/* ── Início: atalhos não sobem nem ganham brilho roxo ── */
+html.kosmos-lite .pagina-inicio .ini-grid a.ini-card:hover,
+html.kosmos-lite .pagina-inicio .ini-grid a.ini-card:focus-visible {
+    transform: none;
+    box-shadow: var(--shadow-neutral);
 }
 
 /* ============================================================
@@ -250,7 +280,7 @@ html.kosmos-lite :is(.resumo-card, .caderno-card, .deck-card, .exercicio-materia
 
 /* Item do menu da engrenagem: rótulo à esquerda, mini-chave à direita */
 .conf__item--visual { width: 100%; }
-.conf__item--visual .conf__chave {
+:is(.conf__item--visual, .visual-foco) .conf__chave {
     margin-left: auto;
     position: relative;
     width: 30px;
@@ -260,7 +290,7 @@ html.kosmos-lite :is(.resumo-card, .caderno-card, .deck-card, .exercicio-materia
     flex: none;
     transition: background-color .2s ease;
 }
-.conf__item--visual .conf__chave::after {
+:is(.conf__item--visual, .visual-foco) .conf__chave::after {
     content: "";
     position: absolute;
     top: 3px;
@@ -271,8 +301,8 @@ html.kosmos-lite :is(.resumo-card, .caderno-card, .deck-card, .exercicio-materia
     background: var(--text-muted);
     transition: transform .2s ease, background-color .2s ease;
 }
-.conf__item--visual[aria-checked="true"] .conf__chave { background: var(--accent); }
-.conf__item--visual[aria-checked="true"] .conf__chave::after { transform: translateX(12px); background: #fff; }
+:is(.conf__item--visual, .visual-foco)[aria-checked="true"] .conf__chave { background: var(--accent); }
+:is(.conf__item--visual, .visual-foco)[aria-checked="true"] .conf__chave::after { transform: translateX(12px); background: #fff; }
 
 @media (max-width: 600px) {
     .visual-opcoes { gap: 10px; }
@@ -281,4 +311,134 @@ html.kosmos-lite :is(.resumo-card, .caderno-card, .deck-card, .exercicio-materia
 }
 @media (max-width: 340px) {
     .visual-opcoes { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   MODO FOCO (js/visual.js) — complemento do Lite: some o que disputa a atenção
+   (só vale com o Lite ligado; com o visual completo, nada some)
+   O Orion flutuante (e o chat dele) e os avisos de "+XP" /
+   "conquista desbloqueada". O XP continua contando; a barra de
+   nível e a aba Conquistas mostram tudo.
+   ============================================================ */
+html:is(.kosmos-lite.kosmos-foco, .kosmos-foco-pomodoro) :is(.orion-launcher, .orion-chat, .xp-avisos) { display: none !important; }
+
+/* o interruptor só aparece com o Lite escolhido: o foco é um complemento dele */
+html:not(.kosmos-lite) .visual-foco[data-foco-alternar] { display: none; }
+
+/* o interruptor do modo foco na Conta › Estudo */
+.visual-foco {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .03);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .2s ease, background-color .2s ease;
+}
+.visual-foco:hover { border-color: rgba(201, 124, 255, .35); }
+.visual-foco:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.visual-foco[aria-checked="true"] { border-color: var(--accent); background: rgba(165, 65, 255, .1); }
+.visual-foco__texto { display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0; }
+.visual-foco__texto strong { font-size: .95rem; font-weight: 600; }
+.visual-foco__texto span { font-size: .82rem; color: var(--text-muted); line-height: 1.45; }
+
+/* ============================================================
+   SUGESTÃO DO LITE (js/visual.js) — aparece uma vez, em aparelho
+   que dá sinais de ser modesto. Centralizado embaixo: não disputa
+   o canto do Orion nem o contador de foco.
+   ============================================================ */
+.visual-sugestao {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 900;
+    width: min(420px, calc(100vw - 32px));
+    padding: 16px 18px;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
+    opacity: 0;
+    transform: translate(-50%, 12px);
+    transition: opacity .25s ease, transform .25s ease;
+}
+.visual-sugestao--dentro { opacity: 1; transform: translate(-50%, 0); }
+.visual-sugestao__txt { margin: 0 0 12px; font-size: .88rem; line-height: 1.5; color: var(--text-dim); }
+.visual-sugestao__txt strong { color: var(--text); }
+.visual-sugestao__acoes { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.visual-sugestao__acoes .dash-btn { padding: 8px 14px; font-size: .84rem; }
+@media (max-width: 768px) {
+    .visual-sugestao { bottom: calc(var(--barra-mobile, 70px) + 16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .visual-sugestao { transition: none; }
+}
+
+/* ── Redesenho das abas: no Lite, sem cintilar ──
+   As estrelas da constelação ficam paradas e as cartas não
+   sobem no hover. */
+html.kosmos-lite .pagina-exercicios .ex-ponto::before { animation: none; }
+html.kosmos-lite .pagina-flashcards .cartao-item:hover { transform: none; }
+
+/* ── Redesenho das abas: o que faltava no Lite ──
+   O maço do baralho não se abre no hover (as cartas de trás ficam
+   onde estão), as estrelas perdem o halo colorido e não giram, e o
+   card de exercício perde o brilho do canto. */
+html.kosmos-lite .deck-card:hover::before {
+    transform: rotate(-2.4deg)
+               translate(calc(5px * var(--desvio)), calc(7px * var(--desvio)));
+}
+html.kosmos-lite .deck-card:hover::after {
+    transform: rotate(1.9deg)
+               translate(calc(10px * var(--desvio)), calc(13px * var(--desvio)));
+}
+html.kosmos-lite .pagina-exercicios .ex-ponto,
+html.kosmos-lite .pagina-exercicios .ex-ponto:hover,
+html.kosmos-lite .pagina-exercicios .ex-ponto:focus-visible { background: none; }
+html.kosmos-lite .pagina-exercicios .ex-linha:hover .ex-linha__ponto,
+html.kosmos-lite .pagina-materia .exercicio-salvo-card:hover .exercicio-salvo-card__info::before { transform: none; }
+html.kosmos-lite .pagina-materia .exercicio-salvo-card { background: var(--bg-card); }
+
+/* ============================================================
+   MODO FOCO — estudo em tela cheia e leitura limpa
+   (vale com o Lite + foco, ou sozinho durante um ciclo do Pomodoro)
+   ============================================================ */
+
+/* Estudando (flashcards, Revisar hoje): a barra lateral sai e fica
+   só a carta. A saída continua no caminho do topo da página. */
+html:is(.kosmos-lite.kosmos-foco, .kosmos-foco-pomodoro) body:has(#viewEstudo:not([hidden])) .contLateral,
+html:is(.kosmos-lite.kosmos-foco, .kosmos-foco-pomodoro) body:has(.pagina-revisar #revArea:not([hidden])) .contLateral {
+    display: none;
+}
+
+/* Praticando exercícios: o modal cobre a tela inteira, sem a
+   página aparecendo atrás, e a questão fica no meio. */
+html:is(.kosmos-lite.kosmos-foco, .kosmos-foco-pomodoro) #modalPraticarExercicio { background: #0d0118; }
+html:is(.kosmos-lite.kosmos-foco, .kosmos-foco-pomodoro) .modal__box--praticar {
+    max-width: 720px;
+    max-height: none;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+/* Lendo um resumo: o caminho e os botões ficam apagados até a
+   pessoa ir até o cabeçalho (mouse ou teclado). Sobra a folha. */
+html:is(.kosmos-lite.kosmos-foco, .kosmos-foco-pomodoro) .pagina-resumo .contCabeca :is(.caminho, .resumo-acoes) {
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+html:is(.kosmos-lite.kosmos-foco, .kosmos-foco-pomodoro) .pagina-resumo .contCabeca:is(:hover, :focus-within) :is(.caminho, .resumo-acoes) {
+    opacity: 1;
+}
+@media (hover: none) {
+    /* no toque não existe "passar o mouse": os botões ficam visíveis */
+    html:is(.kosmos-lite.kosmos-foco, .kosmos-foco-pomodoro) .pagina-resumo .contCabeca :is(.caminho, .resumo-acoes) { opacity: 1; }
 }

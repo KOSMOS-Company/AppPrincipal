@@ -293,7 +293,6 @@ $ESTILO_ABAS = [
                                 <div class="conta-form__acoes">
                                     <!-- só acende quando algo mudou (conta.js) -->
                                     <button type="submit" class="dash-btn dash-btn--primary" id="btnPerfil" disabled>
-                                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                         Salvar alterações
                                     </button>
                                 </div>
@@ -418,6 +417,25 @@ $ESTILO_ABAS = [
                                     <span>Céu parado, sem brilho. Mais leve e com mais bateria.</span>
                                 </button>
                             </div>
+
+                            <?php /* Modo foco: um COMPLEMENTO do Lite. Só aparece com o Lite
+                                     escolhido e só vale junto com ele (css/lite.css). O de
+                                     baixo, "durante o Pomodoro", vale nos dois visuais.
+                                     Tudo só neste aparelho — js/visual.js. */ ?>
+                            <button type="button" class="visual-foco" role="switch" aria-checked="false" data-foco-alternar>
+                                <span class="visual-foco__texto">
+                                    <strong>Adicionar o modo foco</strong>
+                                    <span>Junto com o Lite, esconde o Orion flutuante e os avisos de "+XP" e de conquista, deixa o estudo em tela cheia e limpa a leitura dos resumos. O XP continua contando normalmente.</span>
+                                </span>
+                                <span class="conf__chave" aria-hidden="true"></span>
+                            </button>
+                            <button type="button" class="visual-foco" role="switch" aria-checked="false" data-foco-pomodoro-alternar>
+                                <span class="visual-foco__texto">
+                                    <strong>Ligar o foco durante o Pomodoro</strong>
+                                    <span>Enquanto um ciclo de foco estiver rodando, o modo foco liga sozinho, no visual Completo ou no Lite; nas pausas, volta ao normal.</span>
+                                </span>
+                                <span class="conf__chave" aria-hidden="true"></span>
+                            </button>
                         </div>
 
                         <div class="ini-card conta-cartao">
@@ -498,7 +516,6 @@ $ESTILO_ABAS = [
 
                         <div class="conta-acoes">
                             <button type="button" class="dash-btn dash-btn--primary" id="btnSalvarEstudo" disabled>
-                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 Salvar preferências
                             </button>
                             <div class="msg" id="msgEstudo" hidden></div>
@@ -633,7 +650,6 @@ $ESTILO_ABAS = [
                     <button type="button" class="conta-enquadre__centro" id="centralizarFoto">Centralizar</button>
                     <button type="button" class="dash-btn dash-btn--outline" id="cancelarFoto">Cancelar</button>
                     <button type="button" class="dash-btn dash-btn--primary" id="salvarPosFoto">
-                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.83 17.5H4.17A1.67 1.67 0 0 1 2.5 15.83V4.17A1.67 1.67 0 0 1 4.17 2.5h9.16l4.17 4.17v9.16a1.67 1.67 0 0 1-1.67 1.67z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.17 17.5v-6.67H5.83v6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.83 2.5v4.17h6.67" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Salvar posição
                 </button>
                 </div>

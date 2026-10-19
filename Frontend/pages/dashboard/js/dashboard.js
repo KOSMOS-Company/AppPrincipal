@@ -676,3 +676,54 @@ function ativarTransicoes() {
         });
     });
 }
+
+/* ------------------------------------------------------------
+   Capas sob demanda (economia de dados)
+   As capas dos cadernos são imagem de fundo, e imagem de fundo não
+   tem loading="lazy": a lista inteira baixava todas de uma vez,
+   inclusive as que estavam bem abaixo da tela. Agora o card traz a
+   URL em data-capa e a imagem só entra quando ele chega perto da
+   tela (300px antes, para já estar pronta quando aparecer).
+   Vale para os cards pintados pelo PHP e para os que o JS cria
+   depois (busca, filtros, novo caderno) — por isso o
+   MutationObserver.
+   ------------------------------------------------------------ */
+(function () {
+    const aplicar = (el) => {
+        const url = el.getAttribute("data-capa");
+        if (!url) return;
+        el.style.backgroundImage = "url(" + JSON.stringify(url) + ")";
+        el.removeAttribute("data-capa");
+    };
+
+    // sem IntersectionObserver (navegador muito antigo): carrega tudo, como antes
+    if (!("IntersectionObserver" in window)) {
+        const tudo = () => document.querySelectorAll("[data-capa]").forEach(aplicar);
+        document.addEventListener("DOMContentLoaded", tudo);
+        new MutationObserver(tudo).observe(document.documentElement, { childList: true, subtree: true });
+        return;
+    }
+
+    const io = new IntersectionObserver((entradas) => {
+        entradas.forEach((e) => {
+            if (!e.isIntersecting) return;
+            aplicar(e.target);
+            io.unobserve(e.target);
+        });
+    }, { rootMargin: "300px 0px" });
+
+    const vigiar = (raiz) => {
+        if (raiz.nodeType !== 1) return;
+        if (raiz.hasAttribute("data-capa")) io.observe(raiz);
+        raiz.querySelectorAll("[data-capa]").forEach((el) => io.observe(el));
+    };
+
+    const iniciar = () => {
+        vigiar(document.body);
+        new MutationObserver((mudancas) => {
+            mudancas.forEach((m) => m.addedNodes.forEach(vigiar));
+        }).observe(document.body, { childList: true, subtree: true });
+    };
+    if (document.body) iniciar();
+    else document.addEventListener("DOMContentLoaded", iniciar);
+})();

@@ -19,37 +19,60 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$token = $_POST['credential'] ?? '';
-if ($token === '') {
+// Aceita o ID token (credential) ou o access token do popup de
+// "escolher conta" (google.accounts.oauth2 — usado pelos botões).
+$idToken     = $_POST['credential'] ?? '';
+$accessToken = $_POST['access_token'] ?? '';
+if ($idToken === '' && $accessToken === '') {
     echo json_encode(['ok' => false, 'msg' => 'Token do Google ausente.']);
     exit;
 }
 
-
+function googleGet(string $url, array $headers = []): ?array
+{
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 15,
+        CURLOPT_HTTPHEADER     => $headers,
+    ]);
+    $resp = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($resp === false || $code !== 200) {
+        return null;
+    }
+    $json = json_decode($resp, true);
+    return is_array($json) ? $json : null;
+}
 
 // ---------- Verifica o token no Google ----------
-$ch = curl_init('https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($token));
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT        => 15,
-]);
-$resp = curl_exec($ch);
-$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+$info = $idToken !== ''
+    ? googleGet('https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($idToken))
+    : googleGet('https://oauth2.googleapis.com/tokeninfo?access_token=' . urlencode($accessToken));
 
-if ($resp === false || $code !== 200) {
+if ($info === null) {
     http_response_code(401);
     echo json_encode(['ok' => false, 'msg' => 'Não foi possível validar a conta Google.']);
     exit;
 }
 
-$info = json_decode($resp, true);
-
-// O token tem que ser para ESTE app (audience = nosso Client ID)
-if (!is_array($info) || ($info['aud'] ?? '') !== GOOGLE_CLIENT_ID) {
+// O token tem que ser para ESTE app (audience = nosso Client ID).
+// Sem isso, um access token emitido para outro site seria aceito aqui.
+if (($info['aud'] ?? '') !== GOOGLE_CLIENT_ID) {
     http_response_code(401);
     echo json_encode(['ok' => false, 'msg' => 'Token do Google inválido para este app.']);
     exit;
+}
+
+// O tokeninfo de access token não traz o nome: busca no userinfo
+if ($accessToken !== '' && $idToken === '') {
+    $perfil = googleGet('https://openidconnect.googleapis.com/v1/userinfo', [
+        'Authorization: Bearer ' . $accessToken,
+    ]);
+    if ($perfil !== null && ($perfil['sub'] ?? '') === ($info['sub'] ?? '')) {
+        $info['name'] = $perfil['name'] ?? '';
+    }
 }
 
 $emailVerificado = ($info['email_verified'] ?? '') === 'true' || ($info['email_verified'] ?? false) === true;

@@ -121,8 +121,8 @@
 }
 .conta-cores__lista { display: flex; flex-wrap: wrap; gap: 10px; }
 .conta-cor {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     border: 2px solid transparent;
     cursor: pointer;
@@ -130,10 +130,10 @@
     position: relative;
     transition: var(--transition);
 }
-.conta-cor:hover { transform: scale(1.08); }
+.conta-cor:hover { transform: scale(1.1); }
 .conta-cor.ativa {
     border-color: #fff;
-    box-shadow: 0 0 0 3px rgba(165,65,255,.35);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .18);   /* igual ao .cad-cor.escolhido */
 }
 .conta-cor:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 

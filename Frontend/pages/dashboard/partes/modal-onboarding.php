@@ -136,7 +136,7 @@
                     <label class="onb-opcao-card">
                         <input type="radio" name="onb_meta" value="120">
                         <div class="onb-opcao-conteudo">
-                            <span class="onb-opcao-icone"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2.5c.5 3-1.6 4.7-3.2 6.7C7.5 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1-3.9-2.2-5.3-.3 1.1-.9 1.9-1.7 2.4.5-3.4-.3-6.8-1.4-9.6Z"/><path d="M11.9 18.19a2.13 2.13 0 0 1-2.13-2.12c0-1.19 1.02-1.96 1.7-3.06 0.34 0.85 1.36 1.36 1.36 2.72 0 1.44-.34 2.46-.93 2.46Z"/></svg></span>
+                            <span class="onb-opcao-icone"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.4 20.7C5.9 19.7 3.8 15.5 4.7 10.4 5.8 11.8 7 12.7 8.2 13.1 8.3 9 9.9 6 11.8 3.2 12.3 5.8 16.8 8.4 16.4 13.4 17.2 12.6 18 11.7 18.5 10.5 20.1 15.3 18 19.6 14.3 20.7 15.3 18.4 15.1 15 12 13.1 11 14 10.6 16 10.8 17.4L7.9 16.4C8 18 8.6 19.6 9.4 20.7Z"/></svg></span>
                             <div class="onb-opcao-textos">
                                 <strong>2 horas / dia</strong>
                                 <span>Ritmo acelerado para reta final e editais</span>
@@ -167,7 +167,7 @@
                     Pular por enquanto
                 </button>
                 <button type="button" class="onb-btn onb-btn--primary" id="onbBtnAvancar">
-                    Continuar →
+                    Continuar
                 </button>
             </div>
         </form>

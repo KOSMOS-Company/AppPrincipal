@@ -68,9 +68,9 @@
             // Texto do botão avançar
             if (btnAvancar) {
                 if (n === totalEtapas) {
-                    btnAvancar.textContent = 'Salvar e começar →';
+                    btnAvancar.textContent = 'Salvar e começar';
                 } else {
-                    btnAvancar.textContent = 'Continuar →';
+                    btnAvancar.textContent = 'Continuar';
                 }
             }
 

@@ -181,49 +181,61 @@ function passoFeito(array $passos, string $slug): bool {
                     </p>
                 </div>
 
-                <!-- O selo da sequência. `.ini-stat` continua aqui porque é
-                     por ele que o js/inicio.js apaga o número quando zera
-                     (`el.closest('.ini-stat')`) — a classe é contrato, não
-                     enfeite. -->
-                <div class="ini-selo ini-stat<?= $USUARIO['sequencia'] === 0 ? ' ini-stat--vazio' : '' ?>">
-                    <!-- Nada de <span> aqui dentro, de propósito. Este bloco
-                         precisa da classe `.ini-stat` porque é por ela que o
-                         js/inicio.js apaga o número quando a sequência zera
-                         (`el.closest('.ini-stat')`) — é contrato, não estilo.
-                         Só que junto com a classe vêm as regras genéricas
-                         `.ini-stat span { display:block; text-transform:
-                         uppercase; margin-top:5px }`, escritas para os
-                         números soltos do Flashcards. Elas acertavam a chama
-                         e o rótulo e desmontavam o selo. Trocar as tags
-                         resolve na raiz; brigar por especificidade só
-                         adiaria o problema para o próximo que mexer. -->
-                    <i class="ini-selo__icone" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2.5c.5 3-1.6 4.7-3.2 6.7C7.5 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1-3.9-2.2-5.3-.3 1.1-.9 1.9-1.7 2.4.5-3.4-.3-6.8-1.4-9.6Z"/><path d="M11.9 18.19a2.13 2.13 0 0 1-2.13-2.12c0-1.19 1.02-1.96 1.7-3.06 0.34 0.85 1.36 1.36 1.36 2.72 0 1.44-.34 2.46-.93 2.46Z"/></svg></i>
-                    <div class="ini-selo__num">
-                        <strong data-metrica="sequencia"><?= (int) $USUARIO['sequencia'] ?></strong>
-                        <i class="ini-selo__txt"><?= $USUARIO['sequencia'] === 1 ? 'dia seguido' : 'dias seguidos' ?></i>
-                    </div>
+                <!-- O selo da sequência, no topo direito, ao lado da saudação:
+                     é a primeira coisa que o olho encontra junto do nome.
+                     O astro num quadradinho + número grande EMPILHADO sobre o
+                     rótulo. O astro EVOLUI com os dias (estrela → cometa →
+                     planeta → galáxia, ver partes/astro-sequencia.php), e o
+                     fundo dele e o número ficam mais roxos e fortes (--seq-t: 0 no 1º dia,
+                     1 a partir de 30; as cores moram no dashboard.css).
+
+                     `.ini-stat` é contrato: é por ela que o js/inicio.js
+                     apaga o número quando zera (`el.closest('.ini-stat')`).
+                     Por isso também nada de <span> aqui dentro — as regras
+                     genéricas `.ini-stat span` desmontariam o selo. -->
+                <?php
+                    $seq  = (int) $USUARIO['sequencia'];
+                    $seqT = round(min(max($seq - 1, 0), 29) / 29, 2);
+                    require_once __DIR__ . '/partes/astro-sequencia.php';
+                    $fase = astroFase($seq);   // 0 a 5: qual astro desenhar (ver partes/astro-sequencia.php)
+                ?>
+                <div class="ini-seq ini-seq--f<?= $fase ?> ini-stat<?= $seq === 0 ? ' ini-stat--vazio' : '' ?>" style="--seq-t: <?= $seqT ?>">
+                    <i class="ini-seq__chama" aria-hidden="true"><?= astroSequencia($seq) ?></i>
+                    <p class="ini-seq__num">
+                        <strong data-metrica="sequencia"><?= $seq ?></strong>
+                        <b><?= $seq === 1 ? 'dia de sequência' : 'dias de sequência' ?></b>
+                    </p>
                 </div>
             </header>
 
             <!-- ==========================================================
                  REVISAR HOJE
-
-                 A fila de revisão atravessando todos os baralhos. É o
-                 motivo de voltar amanhã, então fica acima de tudo.
-
-                 Nasce escondida e só aparece quando há o que revisar
-                 (js/inicio.js). Um aviso permanente dizendo "0 cartões"
-                 vira ruído, e ruído a pessoa aprende a ignorar — junto
-                 com o aviso de verdade quando ele chegar.
+                 Some (junto com a faixa) quando não há cartões vencidos.
                  ========================================================== -->
-            <a class="ini-revisar" id="iniRevisar" href="revisar.php" hidden>
-                <span class="ini-revisar__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></span>
-                <span class="ini-revisar__txt">
-                    <strong data-revisar-n>0</strong>
-                    <span data-revisar-txt>cartões esperando revisão</span>
-                </span>
-                <span class="ini-revisar__cta" aria-hidden="true">Revisar agora →</span>
-            </a>
+            <div class="ini-faixa">
+                <!-- REVISAR HOJE: a fila de revisão atravessando todos os
+                     baralhos. Nasce escondida e só aparece quando há o que
+                     revisar (js/inicio.js) — "0 cartões" seria ruído. -->
+                <a class="ini-revisar" id="iniRevisar" href="revisar.php" hidden>
+                    <span class="ini-revisar__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></span>
+                    <span class="ini-revisar__txt">
+                        <strong data-revisar-n>0</strong>
+                        <span data-revisar-txt>cartões esperando revisão</span>
+                    </span>
+                    <span class="ini-revisar__cta" aria-hidden="true">Revisar agora</span>
+                </a>
+                <!-- REFAZER EXERCÍCIOS: o mesmo lembrete, para os exercícios
+                     com questão errada na última tentativa. Também nasce
+                     escondido; leva à matéria quando é uma só (js/inicio.js). -->
+                <a class="ini-revisar ini-revisar--ex" id="iniRevisarEx" href="exercicios.php" hidden>
+                    <span class="ini-revisar__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.2" width="15" height="17.6" rx="2.2"/><path d="M8.5 8.5h7M8.5 12.5h4"/><path d="m13.6 16.4 1.6 1.6 3.2-3.4"/></svg></span>
+                    <span class="ini-revisar__txt">
+                        <strong data-revisar-ex-n>0</strong>
+                        <span data-revisar-ex-txt>exercícios para refazer</span>
+                    </span>
+                    <span class="ini-revisar__cta" aria-hidden="true">Refazer agora</span>
+                </a>
+            </div>
 
             <!-- ==========================================================
                  ESTA SEMANA — o painel principal
@@ -233,18 +245,63 @@ function passoFeito(array $passos, string $slug): bool {
                  indo". Por isso subiu: antes estava no fim da página.
                  ========================================================== -->
             <section class="ini-painel painel">
+                <!-- Duas "páginas" no mesmo painel: a semana (gráfico) e o
+                     mês (calendário de frequência). Quem troca é o js/inicio.js;
+                     os dados do mês vêm do Backend/php/foco_mensal.php. -->
                 <div class="ini-painel__cabeca">
-                    <h2>Esta semana</h2>
-                    <span class="ini-painel__nota" data-total-semana>últimos 7 dias</span>
+                    <h2 id="iniPainelTitulo">Esta semana</h2>
+                    <div class="ini-vista" role="tablist" aria-label="Período">
+                        <button type="button" role="tab" class="ini-vista__btn ativo" id="iniVistaSemana"
+                                aria-selected="true" aria-controls="iniSemana">Semana</button>
+                        <button type="button" role="tab" class="ini-vista__btn" id="iniVistaMes"
+                                aria-selected="false" aria-controls="iniMes" tabindex="-1">Mês</button>
+                    </div>
                 </div>
 
-                <!-- as colunas são desenhadas pelo inicio.js (CSS puro, sem biblioteca) -->
-                <div class="ini-chart" id="iniChart" role="img"
-                     aria-label="Minutos estudados nos últimos sete dias"></div>
-                <p class="ini-chart__aviso" id="iniChartAviso">
-                    Ainda não há sessões registradas. Assim que você estudar com o
-                    Pomodoro, seus dias aparecem aqui.
-                </p>
+                <!-- as duas visões moram juntas: é esta caixa que muda de altura na troca -->
+                <div class="ini-vistas" id="iniVistas">
+                    <div id="iniSemana" role="tabpanel" aria-labelledby="iniVistaSemana">
+                        <!-- As colunas são desenhadas pelo inicio.js (CSS puro, sem
+                             biblioteca), sempre de domingo a sábado. -->
+                        <div class="ini-chart" id="iniChart" role="img"
+                             aria-label="Tempo de foco desta semana"></div>
+                        <p class="ini-chart__aviso" id="iniChartAviso">
+                            Ainda não há sessões registradas. Assim que você estudar com o
+                            Pomodoro, seus dias aparecem aqui.
+                        </p>
+                    </div>
+
+                    <div class="ini-mes" id="iniMes" role="tabpanel" aria-labelledby="iniVistaMes" hidden>
+                        <div class="foco-mes__nav">
+                            <button type="button" class="foco-mes__seta" id="focoMesAnterior" aria-label="Mês anterior">‹</button>
+                            <strong class="foco-mes__titulo" id="focoMesTitulo" aria-live="polite">—</strong>
+                            <button type="button" class="foco-mes__seta" id="focoMesProximo" aria-label="Próximo mês">›</button>
+                        </div>
+
+                        <div class="ini-mes__corpo">
+                            <dl class="foco-mes__resumo">
+                                <div><dt>Total no mês</dt><dd data-foco="total">—</dd></div>
+                                <div><dt>Dias com foco</dt><dd data-foco="dias">—</dd></div>
+                                <div><dt>Média por dia de foco</dt><dd data-foco="media">—</dd></div>
+                                <div><dt>Melhor dia</dt><dd data-foco="melhor">—</dd></div>
+                            </dl>
+
+                            <div class="ini-mes__calendario">
+                                <div class="foco-mes__semana" aria-hidden="true">
+                                    <span>dom</span><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span>
+                                </div>
+                                <div class="foco-mes__grade" id="focoMesGrade" role="group" aria-label="Tempo de foco por dia"></div>
+                                <div class="foco-mes__legenda" aria-hidden="true">
+                                    <span>menos</span>
+                                    <i class="foco-n0"></i><i class="foco-n1"></i><i class="foco-n2"></i><i class="foco-n3"></i><i class="foco-n4"></i>
+                                    <span>mais</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="foco-mes__erro" id="focoMesErro" hidden>Não foi possível carregar este mês.</p>
+                    </div>
+                </div>
 
                 <!-- A meta do dia. A coluna `meta_diaria` existe em
                      usuario_preferencias desde agosto e NENHUM código a
@@ -290,7 +347,6 @@ function passoFeito(array $passos, string $slug): bool {
                  depois. Nada disso cabia numa lista no rodapé do Início.
                  ========================================================== -->
             <section class="ini-secao">
-                <br>
                 <h2 class="ini-titulo">Atalhos</h2>
 
                 <div class="ini-grid">

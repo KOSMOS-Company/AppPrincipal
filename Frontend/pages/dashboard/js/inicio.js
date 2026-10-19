@@ -20,7 +20,14 @@
 (() => {
     "use strict";
 
-    const DIAS_GRAFICO = 7;
+    // A semana do gráfico é SEMPRE esta, nesta ordem (domingo primeiro)
+    const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+
+    // Altura das colunas: 3 h enchem a coluna. É uma escala FIXA, e não
+    // "o maior dia da semana = 100%": assim 20 min é sempre uma coluna
+    // baixinha e 3 h uma coluna cheia. Quem passar de 3 h num dia
+    // estica a escala (de hora em hora) para nada vazar do gráfico.
+    const ESCALA_MIN_MINUTOS = 180;
 
     let graficoComDados = false;   // evita que o estado vazio apague dados já desenhados
 
@@ -30,6 +37,7 @@
 
         mostrarDataESaudacao();
         if (!graficoComDados) renderGrafico(null);   // desenha os 7 dias em estado vazio
+        ligarFocoMensal();
         carregarDados();
     });
 
@@ -86,47 +94,45 @@
        Gráfico semanal — barras em CSS puro (sem biblioteca)
        ------------------------------------------------------------ */
     /**
-     * Desenha os últimos 7 dias (hoje na ponta direita).
-     * @param {Array<{data:string, minutos:number}>|null} serie
-     *        `data` no formato "YYYY-MM-DD". Passe null/[] para
-     *        o estado vazio. Dias sem entrada valem zero.
-     *
-     * OBS. p/ quando ligar no backend: mande a data já pronta do
-     * servidor e num só relógio (o projeto tem PHP e MySQL em
-     * fusos diferentes — ver "Problemas conhecidos" no README).
+     * Desenha a semana de domingo a sábado — sempre nessa ordem,
+     * qualquer que seja o dia de hoje.
+     * @param {Array<{data:string, minutos:number, hoje:boolean, futuro:boolean}>|null} serie
+     *        Os 7 dias, de domingo a sábado, como o inicio_dados.php
+     *        manda (as datas vêm do MySQL — o projeto tem PHP e MySQL
+     *        em fusos diferentes, ver README). Passe null para o
+     *        estado vazio: aí o "hoje" sai do relógio do navegador.
      */
     function renderGrafico(serie) {
         const chart = document.getElementById("iniChart");
         if (!chart) return;
 
-        const porData = new Map(
-            (serie || []).map((d) => [d.data, Number(d.minutos) || 0])
-        );
-
-        // Últimos 7 dias, do mais antigo para hoje
-        const hoje = new Date();
-        const dias = [];
-        for (let i = DIAS_GRAFICO - 1; i >= 0; i--) {
-            const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - i);
-            dias.push({ data: d, minutos: porData.get(chaveISO(d)) || 0 });
+        let dias;
+        if (Array.isArray(serie) && serie.length === 7) {
+            dias = serie.map((d) => ({
+                minutos: Number(d.minutos) || 0,
+                hoje:    !!d.hoje,
+                futuro:  !!d.futuro,
+            }));
+        } else {
+            const hoje = new Date().getDay();               // 0 = domingo
+            dias = DIAS_SEMANA.map((_, i) => ({ minutos: 0, hoje: i === hoje, futuro: i > hoje }));
         }
 
-        const maior = Math.max(...dias.map((d) => d.minutos));
-        const total = dias.reduce((s, d) => s + d.minutos, 0);
-        const vazio = total === 0;
+        const maior  = Math.max(...dias.map((d) => d.minutos));
+        const escala = Math.max(ESCALA_MIN_MINUTOS, Math.ceil(maior / 60) * 60);
+        const total  = dias.reduce((s, d) => s + d.minutos, 0);
+        const vazio  = total === 0;
         graficoComDados = !vazio;
 
         chart.innerHTML = "";
         dias.forEach((dia, i) => {
-            const ehHoje = i === dias.length - 1;
-            const altura = maior > 0 ? Math.round((dia.minutos / maior) * 100) : 0;
+            const altura = Math.min(100, Math.round((dia.minutos / escala) * 100));
 
             const col = document.createElement("div");
             col.className = "ini-col"
-                + (ehHoje ? " ini-col--hoje" : "")
+                + (dia.hoje ? " ini-col--hoje" : "")
+                + (dia.futuro ? " ini-col--futuro" : "")
                 + (dia.minutos === 0 ? " ini-col--vazio" : "");
-            col.title = `${rotuloCompleto(dia.data)} — `
-                + (dia.minutos ? formatarDuracao(dia.minutos) : "sem registro");
 
             const trilho = document.createElement("div");
             trilho.className = "ini-col__trilho";
@@ -135,9 +141,18 @@
             barra.className = "ini-col__barra";
             barra.style.setProperty("--h", altura + "%");
 
+            // O "Tempo de foco" de cada coluna (aparece ao passar o mouse).
+            // Dia que ainda não chegou não tem o que dizer.
+            if (!dia.futuro) {
+                const dica = document.createElement("span");
+                dica.className = "ini-col__tempo";
+                dica.textContent = `Tempo de foco: ${duracaoExtenso(dia.minutos)}`;
+                col.appendChild(dica);
+            }
+
             const rotulo = document.createElement("span");
             rotulo.className = "ini-col__dia";
-            rotulo.textContent = ehHoje ? "hoje" : rotuloCurto(dia.data);
+            rotulo.textContent = DIAS_SEMANA[i];
 
             trilho.appendChild(barra);
             col.appendChild(trilho);
@@ -146,33 +161,239 @@
         });
 
         chart.setAttribute("aria-label", vazio
-            ? "Nenhum estudo registrado nos últimos sete dias"
-            : `Estudo dos últimos sete dias, ${formatarDuracao(total)} no total`);
+            ? "Nenhum tempo de foco nesta semana"
+            : `Tempo de foco desta semana: ${duracaoExtenso(total)}`);
 
         const aviso = document.getElementById("iniChartAviso");
         if (aviso) aviso.hidden = !vazio;
+    }
 
-        const elTotal = document.querySelector("[data-total-semana]");
-        if (elTotal) {
-            elTotal.textContent = vazio
-                ? "últimos 7 dias"
-                : `${formatarDuracao(total)} nos últimos 7 dias`;
+    /** "1 hora e 20 minutos", "45 minutos", "2 horas", "0 minutos" */
+    function duracaoExtenso(min) {
+        const h = Math.floor(min / 60);
+        const m = min % 60;
+        const horas   = `${h} ${h === 1 ? "hora" : "horas"}`;
+        const minutos = `${m} ${m === 1 ? "minuto" : "minutos"}`;
+        if (!h) return minutos;
+        return m ? `${horas} e ${minutos}` : horas;
+    }
+
+    /* ------------------------------------------------------------
+       Frequência mensal de foco
+       Uma segunda "página" dentro do próprio painel: o botão "Mês"
+       do cabeçalho troca o gráfico da semana pelo calendário do mês,
+       com a cor de cada dia pelo tempo de foco; "Semana" volta.
+       Os dados vêm do foco_mensal.php — datas pelo MySQL.
+       ------------------------------------------------------------ */
+    const MESES_ABREV = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    let focoMesPedido = 0;          // descarta resposta atrasada de um mês que já foi trocado
+    let focoMesCarregado = false;   // busca o mês só na primeira vez que a pessoa abre
+
+    function ligarFocoMensal() {
+        const btnSemana = document.getElementById("iniVistaSemana");
+        const btnMes    = document.getElementById("iniVistaMes");
+        if (!btnSemana || !btnMes) return;
+
+        const vistas = [
+            { btn: btnSemana, painel: document.getElementById("iniSemana"), titulo: "Esta semana" },
+            { btn: btnMes,    painel: document.getElementById("iniMes"),    titulo: "Este mês" },
+        ];
+        const titulo = document.getElementById("iniPainelTitulo");
+        let atual = vistas[0];
+
+        const mostrar = (escolhida) => {
+            if (escolhida === atual) return;
+            const de = atual;
+            atual = escolhida;
+
+            vistas.forEach((v) => {
+                const ativa = v === escolhida;
+                v.btn.classList.toggle("ativo", ativa);
+                v.btn.setAttribute("aria-selected", ativa ? "true" : "false");
+                v.btn.tabIndex = ativa ? 0 : -1;
+            });
+
+            // Semana → Mês desliza para a esquerda; a volta, para a direita
+            const lado = vistas.indexOf(escolhida) > vistas.indexOf(de) ? 1 : -1;
+            trocarVista(de.painel, escolhida.painel, lado, titulo, escolhida.titulo);
+        };
+
+        // O mês já vem buscado: quando a pessoa clicar em "Mês" ele está
+        // pronto, sem aparecer vazio e "pular" quando os dados chegam.
+        focoMesCarregado = true;
+        carregarFocoMes(null);
+
+        vistas.forEach((v) => v.btn.addEventListener("click", () => mostrar(v)));
+
+        // setas ← → trocam de aba, como em qualquer tablist
+        vistas.forEach((v, i) => v.btn.addEventListener("keydown", (e) => {
+            if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+            const outra = vistas[(i + 1) % vistas.length];
+            mostrar(outra);
+            outra.btn.focus();
+        }));
+
+        document.getElementById("focoMesAnterior").addEventListener("click", (e) => {
+            if (e.currentTarget.dataset.mes) carregarFocoMes(e.currentTarget.dataset.mes);
+        });
+        document.getElementById("focoMesProximo").addEventListener("click", (e) => {
+            if (e.currentTarget.dataset.mes) carregarFocoMes(e.currentTarget.dataset.mes);
+        });
+    }
+
+    /* ------------------------------------------------------------
+       Transição entre Semana e Mês
+       A visão de saída some deslizando para um lado, a de entrada vem
+       do outro, e a caixa (#iniVistas) muda de altura suavemente em
+       vez de pular — o mês é mais alto que o gráfico. Quem pediu
+       "reduzir movimento" no sistema recebe a troca seca.
+       ------------------------------------------------------------ */
+    // sem animação para quem pediu "reduzir movimento" OU está no visual leve
+    // (função: o Lite pode ser ligado na hora, pela engrenagem)
+    const REDUZ_MOVIMENTO = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const semMovimento = () => REDUZ_MOVIMENTO || document.documentElement.classList.contains("kosmos-lite");
+    const MOLA = "cubic-bezier(.2, .7, .2, 1)";
+
+    /** Muda o conteúdo da caixa com `mudar()` e anima a altura dela do
+        tamanho antigo para o novo. */
+    function animarAltura(caixa, mudar, duracao = 300) {
+        const antes = caixa.offsetHeight;
+        mudar();
+        const depois = caixa.offsetHeight;
+        if (semMovimento() || !caixa.animate || antes === depois) return Promise.resolve();
+
+        caixa.style.overflow = "hidden";   // nada vaza enquanto a caixa cresce/encolhe
+        const anim = caixa.animate(
+            [{ height: `${antes}px` }, { height: `${depois}px` }],
+            { duration: duracao, easing: MOLA }
+        );
+        return anim.finished.catch(() => {}).then(() => { caixa.style.overflow = ""; });
+    }
+
+    let trocaAtual = 0;                     // clique rápido: só a última troca mexe na tela
+
+    async function trocarVista(sai, entra, lado, elTitulo, novoTitulo) {
+        const caixa = document.getElementById("iniVistas");
+        const minhaTroca = ++trocaAtual;
+
+        if (semMovimento() || !caixa || !sai.animate) {
+            sai.hidden = true;
+            entra.hidden = false;
+            elTitulo.textContent = novoTitulo;
+            return;
+        }
+
+        // cancela o que ainda estiver rodando (clique rápido nas duas abas)
+        [sai, entra, caixa, elTitulo].forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
+        caixa.style.overflow = "";
+
+        // 1) sai: desliza um pouco e some
+        const saida = sai.animate(
+            [{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translateX(${-24 * lado}px)` }],
+            { duration: 160, easing: "ease-in", fill: "forwards" }
+        );
+        elTitulo.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" });
+        await saida.finished.catch(() => {});
+        if (minhaTroca !== trocaAtual) return;     // outra troca já assumiu
+
+        // 2) troca, com a altura da caixa indo de uma para a outra
+        const altura = animarAltura(caixa, () => {
+            sai.hidden = true;
+            entra.hidden = false;
+        });
+        saida.cancel();                     // tira o "forwards" da que saiu (ela já está escondida)
+        elTitulo.textContent = novoTitulo;
+        elTitulo.getAnimations().forEach((a) => a.cancel());
+        elTitulo.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220 });
+
+        // 3) entra: vem do outro lado
+        const entrada = entra.animate(
+            [{ opacity: 0, transform: `translateX(${24 * lado}px)` }, { opacity: 1, transform: "none" }],
+            { duration: 280, easing: MOLA }
+        );
+        await Promise.all([altura, entrada.finished.catch(() => {})]);
+    }
+
+    async function carregarFocoMes(mes) {
+        const pedido = ++focoMesPedido;
+        const erro = document.getElementById("focoMesErro");
+        erro.hidden = true;
+        document.getElementById("focoMesGrade").classList.add("foco-mes__grade--carregando");
+
+        let dados = null;
+        try {
+            const url = "../../../Backend/php/foco_mensal.php" + (mes ? `?mes=${encodeURIComponent(mes)}` : "");
+            const r = await fetch(url, { credentials: "same-origin" });
+            if (r.ok) dados = await r.json();
+        } catch {
+            dados = null;
+        }
+        if (pedido !== focoMesPedido) return;      // a pessoa já trocou de mês
+
+        document.getElementById("focoMesGrade").classList.remove("foco-mes__grade--carregando");
+        if (!dados || !dados.ok) {
+            erro.hidden = false;
+            return;
+        }
+        // Trocar de mês pode mudar o calendário de 5 para 6 semanas: com
+        // o mês à vista, a caixa acompanha suave em vez de pular.
+        const caixa = document.getElementById("iniVistas");
+        if (caixa && !document.getElementById("iniMes").hidden) {
+            animarAltura(caixa, () => renderFocoMes(dados), 240);
+        } else {
+            renderFocoMes(dados);
         }
     }
 
-    function chaveISO(d) {
-        const mes = String(d.getMonth() + 1).padStart(2, "0");
-        const dia = String(d.getDate()).padStart(2, "0");
-        return `${d.getFullYear()}-${mes}-${dia}`;
+    function renderFocoMes(d) {
+        const titulo = d.titulo.charAt(0).toUpperCase() + d.titulo.slice(1);
+        document.getElementById("focoMesTitulo").textContent = titulo;
+
+        const ant = document.getElementById("focoMesAnterior");
+        const prox = document.getElementById("focoMesProximo");
+        ant.disabled  = !d.anterior;
+        prox.disabled = !d.proximo;
+        ant.dataset.mes  = d.anterior || "";
+        prox.dataset.mes = d.proximo || "";
+
+        const mesNum = Number(d.mes.slice(5, 7));
+        const r = d.resumo;
+        const set = (chave, txt) => { document.querySelector(`[data-foco="${chave}"]`).textContent = txt; };
+        set("total", r.total ? formatarDuracao(r.total) : "—");
+        set("dias", `${r.dias_com_foco} de ${d.hoje ?? d.dias.length}`);
+        set("media", r.media ? formatarDuracao(r.media) : "—");
+        set("melhor", r.melhor
+            ? `${r.melhor.dia} ${MESES_ABREV[mesNum - 1]} · ${formatarDuracao(r.melhor.minutos)}`
+            : "—");
+
+        const grade = document.getElementById("focoMesGrade");
+        grade.innerHTML = "";
+        for (let i = 0; i < d.inicio; i++) {
+            const vazio = document.createElement("span");
+            vazio.className = "foco-dia foco-dia--fora";
+            grade.appendChild(vazio);
+        }
+        d.dias.forEach(({ dia, minutos }) => {
+            const futuro = d.hoje !== null && dia > d.hoje;
+            const cel = document.createElement("span");
+            cel.className = `foco-dia foco-n${nivelFoco(minutos)}`
+                + (dia === d.hoje ? " foco-dia--hoje" : "")
+                + (futuro ? " foco-dia--futuro" : "");
+            cel.textContent = dia;
+            cel.title = futuro
+                ? `${dia} de ${d.titulo.split(" ")[0]}`
+                : `${dia} de ${d.titulo.split(" ")[0]} — Tempo de foco: ${duracaoExtenso(minutos)}`;
+            grade.appendChild(cel);
+        });
     }
 
-    function rotuloCurto(d) {
-        // "seg." -> "seg"
-        return d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "");
-    }
-
-    function rotuloCompleto(d) {
-        return d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+    /** Intensidade da cor no calendário (mesma da legenda do modal) */
+    function nivelFoco(min) {
+        if (min <= 0)  return 0;
+        if (min < 30)  return 1;
+        if (min < 60)  return 2;
+        if (min < 120) return 3;
+        return 4;
     }
 
     function formatarDuracao(min) {
@@ -312,6 +533,7 @@
 
         renderMeta(dados.hoje, dados.meta);
         renderRevisar(dados.metricas?.vencidos);
+        renderRevisarExercicios(dados.metricas?.exercicios_revisar, dados.metricas?.exercicios_revisar_materia);
         renderPassos(dados.passos);
         renderMissoes(dados.missoes);
     }
@@ -350,6 +572,23 @@
         el.querySelector("[data-revisar-n]").textContent = n;
         el.querySelector("[data-revisar-txt]").textContent =
             n === 1 ? "cartão esperando revisão" : "cartões esperando revisão";
+    }
+
+    /** O mesmo lembrete para os exercícios: só aparece quando algum tem
+        questão errada na última tentativa. Se todos são da mesma
+        matéria, leva direto a ela; senão, à lista de matérias. */
+    function renderRevisarExercicios(n, materiaId) {
+        const el = document.getElementById("iniRevisarEx");
+        if (!el) return;
+
+        n = +n || 0;
+        el.hidden = n === 0;
+        if (n === 0) return;
+
+        el.href = materiaId ? `exercicio_materia.php?id=${+materiaId}` : "exercicios.php";
+        el.querySelector("[data-revisar-ex-n]").textContent = n;
+        el.querySelector("[data-revisar-ex-txt]").textContent =
+            n === 1 ? "exercício com questões para refazer" : "exercícios com questões para refazer";
     }
 
     /* ------------------------------------------------------------

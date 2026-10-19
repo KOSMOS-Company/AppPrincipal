@@ -14,7 +14,7 @@
     // são três níveis até a raiz, como o API do revisar.js.
     var ENDPOINT_IA = '../../../Backend/php/gerar_exercicios.php';
 
-    var STORAGE_KEY = 'kosmos_orion_chat_historico';
+    var STORAGE_KEY = (window.kosmosChaveConta ? window.kosmosChaveConta('kosmos_orion_chat_historico') : 'kosmos_orion_chat_historico');
 
     document.addEventListener('DOMContentLoaded', function () {
         var launcher = document.getElementById('orionChatLauncher');

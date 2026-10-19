@@ -4,7 +4,7 @@
 //  Arquivo: Backend/php/inicio_dados.php
 //  GET (protegido). Devolve num fôlego só o que a tela precisa:
 //
-//    semana   -> [{data:"YYYY-MM-DD", minutos:N}] dos últimos 7 dias
+//    semana   -> [{data:"YYYY-MM-DD", minutos:N, hoje, futuro}] de domingo a sábado da semana atual
 //    hoje     -> minutos estudados hoje
 //    meta     -> a meta diária salva em usuario_preferencias
 //    metricas -> resumos, flashcards e cartões vencidos para hoje
@@ -31,24 +31,27 @@ try {
     $pdo = conectar();
     liberarSessao();
 
-    /* ---- Os sete dias ----
+    /* ---- A semana: sempre de domingo a sábado ----
        A tabela só tem linha para dia estudado. Se devolvêssemos só
        o que existe, o gráfico teria buracos e o JS teria de
        adivinhar as datas que faltam — cada um com o seu relógio.
        Então a SEQUÊNCIA de dias vem daqui, do MySQL, completa: dia
-       sem estudo vem com zero. */
+       sem estudo vem com zero.
+
+       É a semana do calendário (DAYOFWEEK: 1 = domingo), e não "os
+       últimos 7 dias": a coluna de cada dia fica sempre no mesmo
+       lugar. Os dias que ainda não chegaram vêm com `futuro`. */
     $semana = [];
     $stmt = $pdo->prepare(
         'SELECT DATE_FORMAT(d.dia, "%Y-%m-%d") AS data,
-                COALESCE(SUM(s.minutos), 0)    AS minutos
+                d.dia = CURDATE()               AS hoje,
+                d.dia > CURDATE()               AS futuro,
+                COALESCE(SUM(s.minutos), 0)     AS minutos
            FROM (
-                  SELECT CURDATE() - INTERVAL 6 DAY AS dia
-                  UNION ALL SELECT CURDATE() - INTERVAL 5 DAY
-                  UNION ALL SELECT CURDATE() - INTERVAL 4 DAY
-                  UNION ALL SELECT CURDATE() - INTERVAL 3 DAY
-                  UNION ALL SELECT CURDATE() - INTERVAL 2 DAY
-                  UNION ALL SELECT CURDATE() - INTERVAL 1 DAY
-                  UNION ALL SELECT CURDATE()
+                  SELECT w.domingo + INTERVAL k.n DAY AS dia
+                    FROM (SELECT CURDATE() - INTERVAL (DAYOFWEEK(CURDATE()) - 1) DAY AS domingo) AS w
+                   CROSS JOIN (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3
+                               UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6) AS k
                 ) AS d
            LEFT JOIN pomodoro_sessoes s
                   ON s.dia = d.dia AND s.usuario_id = ?
@@ -60,6 +63,8 @@ try {
         $semana[] = [
             'data'    => $linha['data'],
             'minutos' => (int) $linha['minutos'],
+            'hoje'    => (bool) $linha['hoje'],
+            'futuro'  => (bool) $linha['futuro'],
         ];
     }
 
@@ -106,10 +111,37 @@ try {
     /* Questões certas: consulta à parte porque a tabela vem da migração
        de progresso — sem ela o número fica em "—" e o resto segue. */
     $exercicios = null;
+    $exRevisar  = 0;      // exercícios com questão para refazer
+    $exMateria  = null;   // se todos forem da mesma matéria, o lembrete leva direto a ela
     try {
         $stmt = $pdo->prepare('SELECT COUNT(*) FROM exercicio_respostas WHERE usuario_id = ? AND acertou = 1');
         $stmt->execute([$id]);
         $exercicios = (int) $stmt->fetchColumn();
+
+        /* O lembrete de exercícios: um exercício entra quando alguma
+           questão dele tem a ÚLTIMA resposta errada (a de maior id é a
+           mais recente). Acertou na volta, a questão sai — e quando
+           todas saem, o exercício sai do lembrete. */
+        $stmt = $pdo->prepare(
+            'SELECT r.exercicio_id, e.materia_id
+               FROM exercicio_respostas r
+               JOIN (SELECT MAX(id) AS id
+                       FROM exercicio_respostas
+                      WHERE usuario_id = ?
+                      GROUP BY exercicio_id, questao) u ON u.id = r.id
+               JOIN exercicios e ON e.id = r.exercicio_id AND e.usuario_id = ?
+              WHERE r.acertou = 0
+              GROUP BY r.exercicio_id, e.materia_id'
+        );
+        $stmt->execute([$id, $id]);
+        $materias = [];
+        foreach ($stmt as $linhaEx) {
+            $exRevisar++;
+            $materias[(int) $linhaEx['materia_id']] = true;
+        }
+        if (count($materias) === 1) {
+            $exMateria = array_key_first($materias);
+        }
     } catch (PDOException $e) {
         $exercicios = null;
     }
@@ -123,6 +155,8 @@ try {
             'flashcards' => (int) ($contagens['cartoes'] ?? 0),
             'vencidos'   => (int) ($contagens['vencidos'] ?? 0),
             'exercicios' => $exercicios,
+            'exercicios_revisar' => $exRevisar,
+            'exercicios_revisar_materia' => $exMateria,
         ],
         /* Os "primeiros passos" da Início. O index.php já pinta a lista
            pelo servidor; isto aqui é para ela se corrigir sozinha sem

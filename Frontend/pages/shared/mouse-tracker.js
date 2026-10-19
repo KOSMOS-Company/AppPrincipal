@@ -13,7 +13,7 @@
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const coarsePointer = window.matchMedia('(pointer: coarse)');
 
-    if (reducedMotion.matches || coarsePointer.matches) {
+    if (reducedMotion.matches || coarsePointer.matches || document.documentElement.classList.contains('kosmos-lite')) {
         tracker.style.display = 'none';
         return;
     }

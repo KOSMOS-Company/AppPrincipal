@@ -75,7 +75,145 @@
     // Outra aba mudou a escolha: esta acompanha
     window.addEventListener("storage", (e) => {
         if (e.key === CHAVE) definir(e.newValue, false);
+        if (e.key === CHAVE_FOCO) definirFoco(e.newValue === "1", false);
     });
 
+    /* ------------------------------------------------------------
+       MODO FOCO (complemento do Lite, desligado por padrão)
+       O Lite é sobre o aparelho; o Foco é sobre a ATENÇÃO: some o
+       Orion flutuante e os avisos de "+XP" / "conquista desbloqueada"
+       (o XP continua contando — dá para ver na barra e em Conquistas).
+       Também por aparelho, lido pelo partes/fundo.php antes da pintura.
+       Controle: [data-foco-alternar] na Conta › Estudo, que só aparece com
+       o Lite escolhido; o efeito também só vale com o Lite (css/lite.css).
+       ------------------------------------------------------------ */
+    const CHAVE_FOCO = "kosmos_foco";
+    const CHAVE_FOCO_POMO = "kosmos_foco_pomodoro";
+    const lerChave = (k) => { try { return localStorage.getItem(k) === "1"; } catch (e) { return false; } };
+    const gravarChave = (k, ligar) => {
+        try {
+            if (ligar) localStorage.setItem(k, "1");
+            else localStorage.removeItem(k);
+        } catch (e) { /* navegação privada */ }
+    };
+
+    /* A escolha da pessoa (o interruptor) é uma coisa; a classe no
+       <html> é outra: com "ligar durante o Pomodoro", o foco também
+       vale enquanto um ciclo de FOCO está correndo, sem mexer na
+       escolha salva. */
+    let focoEscolhido = lerChave(CHAVE_FOCO) || raiz.classList.contains("kosmos-foco");
+    const focoAtivo = () => focoEscolhido;
+
+    function pomodoroEmFoco() {
+        if (!lerChave(CHAVE_FOCO_POMO)) return false;
+        try {
+            const chave = window.kosmosChaveConta ? window.kosmosChaveConta("kosmos:pomodoro") : "kosmos:pomodoro";
+            const s = JSON.parse(localStorage.getItem(chave) || "null");
+            return !!s && s.modo === "foco" && !!s.rodando && (!s.fimEm || s.fimEm > Date.now());
+        } catch (e) {
+            return false;
+        }
+    }
+
+    /* O foco escolhido no interruptor segue sendo do Lite. O do Pomodoro
+       tem classe própria (kosmos-foco-pomodoro) porque vale nos dois
+       visuais: o css/lite.css trata as duas classes como "foco". */
+    function aplicarFoco() {
+        raiz.classList.toggle("kosmos-foco", focoEscolhido);
+        raiz.classList.toggle("kosmos-foco-pomodoro", pomodoroEmFoco());
+    }
+
+    function sincronizarFoco() {
+        document.querySelectorAll("[data-foco-alternar]").forEach((el) => {
+            el.setAttribute("aria-checked", String(focoEscolhido));
+        });
+        document.querySelectorAll("[data-foco-pomodoro-alternar]").forEach((el) => {
+            el.setAttribute("aria-checked", String(lerChave(CHAVE_FOCO_POMO)));
+        });
+    }
+    function definirFoco(ligar, salvar = true) {
+        focoEscolhido = !!ligar;
+        if (salvar) gravarChave(CHAVE_FOCO, focoEscolhido);
+        aplicarFoco();
+        sincronizarFoco();
+    }
+    document.addEventListener("click", (e) => {
+        if (e.target.closest("[data-foco-alternar]")) definirFoco(!focoAtivo());
+        if (e.target.closest("[data-foco-pomodoro-alternar]")) {
+            gravarChave(CHAVE_FOCO_POMO, !lerChave(CHAVE_FOCO_POMO));
+            aplicarFoco();
+            sincronizarFoco();
+        }
+    });
+    window.KosmosVisual.foco = { ativo: focoAtivo, definir: definirFoco };
+
+    // O Pomodoro anda sozinho (e muda em outra aba): confere de tempos em tempos
+    aplicarFoco();
+    sincronizarFoco();
+    setInterval(aplicarFoco, 2000);
+    window.addEventListener("storage", (e) => {
+        if (e.key === CHAVE_FOCO_POMO || (e.key && e.key.indexOf("kosmos:pomodoro") !== -1)) {
+            aplicarFoco();
+            sincronizarFoco();
+        }
+    });
+
+    /* ------------------------------------------------------------
+       SUGERIR O LITE EM APARELHO MAIS FRACO — uma vez só
+       Muita gente não sabe que o Lite existe. Se o aparelho dá sinais
+       de ser modesto (pouca memória, poucos núcleos), se o navegador
+       está em economia de dados, ou se o sistema pede menos
+       transparência, um aviso discreto oferece a troca. Respondeu
+       (sim ou não) ou fechou: não volta mais neste aparelho.
+       ------------------------------------------------------------ */
+    const CHAVE_SUGERIU = "kosmos_visual_sugerido";
+
+    function aparelhoModesto() {
+        const memoria = navigator.deviceMemory;                 // GB (Chrome/Edge)
+        const nucleos = navigator.hardwareConcurrency;
+        const conexao = navigator.connection;
+        return (memoria && memoria <= 4)
+            || (nucleos && nucleos <= 2)
+            || (conexao && conexao.saveData)
+            || window.matchMedia("(prefers-reduced-transparency: reduce)").matches;
+    }
+
+    function sugerirLite() {
+        if (atual() === "lite") return;
+        try { if (localStorage.getItem(CHAVE_SUGERIU)) return; } catch (e) { return; }
+        if (!aparelhoModesto()) return;
+
+        const marcar = () => { try { localStorage.setItem(CHAVE_SUGERIU, "1"); } catch (e) { /* ignora */ } };
+
+        const aviso = document.createElement("div");
+        aviso.className = "visual-sugestao";
+        aviso.setAttribute("role", "dialog");
+        aviso.setAttribute("aria-label", "Sugestão de visual leve");
+        aviso.innerHTML =
+            '<p class="visual-sugestao__txt"><strong>Seu aparelho parece mais modesto.</strong> ' +
+            'Quer usar o visual leve? Menos brilho e movimento, mais fluidez e bateria.</p>' +
+            '<div class="visual-sugestao__acoes">' +
+                '<button type="button" class="dash-btn dash-btn--outline" data-sug="nao">Agora não</button>' +
+                '<button type="button" class="dash-btn dash-btn--primary" data-sug="sim">Usar visual leve</button>' +
+            '</div>';
+        document.body.appendChild(aviso);
+        requestAnimationFrame(() => aviso.classList.add("visual-sugestao--dentro"));
+
+        const fechar = () => {
+            aviso.classList.remove("visual-sugestao--dentro");
+            setTimeout(() => aviso.remove(), 300);
+        };
+        aviso.addEventListener("click", (e) => {
+            const b = e.target.closest("[data-sug]");
+            if (!b) return;
+            marcar();
+            if (b.dataset.sug === "sim") definir("lite");
+            fechar();
+        });
+    }
+
     sincronizar();
+    sincronizarFoco();
+    // dá um respiro depois de a página abrir: o aviso não disputa a primeira olhada
+    setTimeout(sugerirLite, 2500);
 })();

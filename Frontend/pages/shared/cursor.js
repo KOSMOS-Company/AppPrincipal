@@ -10,7 +10,9 @@
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const smallScreen = window.matchMedia('(max-width: 768px)').matches;
-    if (!finePointer || reduceMotion || smallScreen) return;
+    // no visual leve (kosmos-lite, escolhido no dashboard) fica o cursor do sistema
+    const lite = document.documentElement.classList.contains('kosmos-lite');
+    if (!finePointer || reduceMotion || smallScreen || lite) return;
 
     const root = document.documentElement;
     root.classList.add('kcursor');

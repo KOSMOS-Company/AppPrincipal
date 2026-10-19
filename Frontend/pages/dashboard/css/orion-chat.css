@@ -3,7 +3,11 @@
    Widget flutuante de chat com o assistente acadêmico.
    ============================================================ */
 
-/* ── Botão Flutuante (Launcher) ── */
+/* ── Botão Flutuante (Launcher) ──
+   Só o Orion no canto. Já foi uma cápsula com fundo, borda e o texto
+   "Pergunte ao Orion!" — larga o bastante para cobrir textos e
+   botões do canto da página. O texto ficou no `title` (dica ao passar
+   o mouse) e no aria-label. */
 .orion-launcher {
     position: fixed;
     bottom: 24px;
@@ -11,68 +15,41 @@
     z-index: 800;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    background: rgba(22, 4, 38, 0.88);
-    border: 1px solid rgba(165, 65, 255, 0.45);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(130, 0, 219, 0.35);
-    border-radius: 100px;
-    padding: 6px 18px 6px 8px;
+    justify-content: center;
+    padding: 0;
+    background: none;
+    border: none;
     cursor: pointer;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    transition: transform .22s cubic-bezier(.2,.8,.2,1), border-color .2s, box-shadow .2s;
+    /* uma sombra leve só para o Orion se destacar do que estiver atrás */
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .55));
+    transition: transform .22s cubic-bezier(.2,.8,.2,1);
     user-select: none;
 }
-.orion-launcher:hover {
-    transform: translateY(-3px) scale(1.02);
-    border-color: #a541ff;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75), 0 0 28px rgba(165, 65, 255, 0.55);
-}
+.orion-launcher:hover { transform: translateY(-3px) scale(1.06); }
+.orion-launcher:focus-visible { outline: 2px solid #a541ff; outline-offset: 4px; border-radius: 50%; }
 
 .orion-launcher__avatar {
     position: relative;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+    width: 68px;
+    height: 68px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .orion-launcher__avatar .mascote {
-    --mascote-tam: 44px;
-    width: 44px;
-    height: 44px;
-}
-
-.orion-launcher__status {
-    position: absolute;
-    bottom: 1px;
-    right: 1px;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: #34d399;
-    border: 2px solid #130324;
-    box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
-}
-
-.orion-launcher__rotulo {
-    font-family: 'DM Sans', sans-serif;
-    font-size: .88rem;
-    font-weight: 700;
-    letter-spacing: .02em;
-    color: #f3e8ff;
-    white-space: nowrap;
+    --mascote-tam: 68px;
+    width: 68px;
+    height: 68px;
 }
 
 /* ── Janela do Chat (Flyout Panel) ── */
 .orion-chat {
     position: fixed;
-    bottom: 84px;
+    bottom: 104px;
     right: 24px;
     width: 380px;
     height: 520px;
-    max-height: calc(100vh - 110px);
+    max-height: calc(100vh - 130px);
     z-index: 850;
     background: #120224;
     border: 1px solid rgba(165, 65, 255, 0.42);
@@ -340,22 +317,19 @@
         bottom: calc(var(--barra-mobile, 70px) + 14px);
         right: 16px;
         padding: 0;
-        width: 52px;
-        height: 52px;
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
         justify-content: center;
     }
-    .orion-launcher__rotulo {
-        display: none !important;
-    }
     .orion-launcher__avatar {
-        width: 48px;
-        height: 48px;
+        width: 60px;
+        height: 60px;
     }
     .orion-launcher__avatar .mascote {
-        --mascote-tam: 48px;
-        width: 48px;
-        height: 48px;
+        --mascote-tam: 60px;
+        width: 60px;
+        height: 60px;
     }
 
     .orion-chat {

@@ -70,6 +70,28 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     document.documentElement.classList.add('lateral-recolhida');
                 }
             } catch (e) { /* navegação privada: segue aberta, sem drama */ }
+
+            /* Tudo que é DA CONTA e fica guardado no navegador (o Pomodoro
+               em andamento, a conversa com o Orion, a ordem das listas) usa
+               uma chave com o id da conta. Sem isso, duas contas no mesmo
+               navegador dividiam os dados — e um ciclo de Pomodoro iniciado
+               numa conta era registrado na outra que entrasse depois.
+               (Preferências do APARELHO — barra recolhida, modo leve,
+               posição do contador — continuam valendo para todos.) */
+            window.KOSMOS_CONTA = <?= (int) $USUARIO['id'] ?>;
+            window.kosmosChaveConta = function (base) { return base + ':conta' + window.KOSMOS_CONTA; };
+
+            // As chaves antigas eram compartilhadas: não dá para saber de qual
+            // conta é o ciclo guardado nelas, então saem (uma vez só).
+            try {
+                localStorage.removeItem('kosmos:pomodoro');
+                localStorage.removeItem('kosmos:pomodoro:avisado');
+                localStorage.removeItem('kosmos_ordem_flashcards');
+                localStorage.removeItem('kosmos_ordem_exercicios');
+                localStorage.removeItem('kosmos_ordem_biblioteca');
+                sessionStorage.removeItem('kosmos_orion_chat_historico');
+                sessionStorage.removeItem('kosmos_orion_chat_session');
+            } catch (e) { /* navegação privada */ }
         </script>
         <link rel="stylesheet" href="<?= asset('./css/progresso.css') ?>">
         <link rel="stylesheet" href="<?= asset('./css/recompensas.css') ?>">
@@ -140,7 +162,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                         aria-haspopup="dialog" aria-expanded="false" aria-controls="statusPainel"
                         aria-label="<?= $seqTexto ?>, nível <?= (int) $PROGRESSO['nivel'] ?>. Ver progresso">
                     <span class="topo-status__seq">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2.5c.5 3-1.6 4.7-3.2 6.7C7.5 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1-3.9-2.2-5.3-.3 1.1-.9 1.9-1.7 2.4.5-3.4-.3-6.8-1.4-9.6Z"/><path d="M11.9 18.19a2.13 2.13 0 0 1-2.13-2.12c0-1.19 1.02-1.96 1.7-3.06 0.34 0.85 1.36 1.36 1.36 2.72 0 1.44-.34 2.46-.93 2.46Z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.4 20.7C5.9 19.7 3.8 15.5 4.7 10.4 5.8 11.8 7 12.7 8.2 13.1 8.3 9 9.9 6 11.8 3.2 12.3 5.8 16.8 8.4 16.4 13.4 17.2 12.6 18 11.7 18.5 10.5 20.1 15.3 18 19.6 14.3 20.7 15.3 18.4 15.1 15 12 13.1 11 14 10.6 16 10.8 17.4L7.9 16.4C8 18 8.6 19.6 9.4 20.7Z"/></svg>
                         <strong><?= $seq ?></strong>
                     </span>
                     <span class="topo-status__nivel" aria-hidden="true">
@@ -157,7 +179,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     <p class="status-painel__titulo" id="statusTitulo">Seu progresso</p>
 
                     <div class="status-painel__item">
-                        <span class="status-painel__ico<?= $seq === 0 ? ' status-painel__ico--apagado' : '' ?>"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2.5c.5 3-1.6 4.7-3.2 6.7C7.5 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1-3.9-2.2-5.3-.3 1.1-.9 1.9-1.7 2.4.5-3.4-.3-6.8-1.4-9.6Z"/><path d="M11.9 18.19a2.13 2.13 0 0 1-2.13-2.12c0-1.19 1.02-1.96 1.7-3.06 0.34 0.85 1.36 1.36 1.36 2.72 0 1.44-.34 2.46-.93 2.46Z"/></svg></span>
+                        <span class="status-painel__ico<?= $seq === 0 ? ' status-painel__ico--apagado' : '' ?>"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.4 20.7C5.9 19.7 3.8 15.5 4.7 10.4 5.8 11.8 7 12.7 8.2 13.1 8.3 9 9.9 6 11.8 3.2 12.3 5.8 16.8 8.4 16.4 13.4 17.2 12.6 18 11.7 18.5 10.5 20.1 15.3 18 19.6 14.3 20.7 15.3 18.4 15.1 15 12 13.1 11 14 10.6 16 10.8 17.4L7.9 16.4C8 18 8.6 19.6 9.4 20.7Z"/></svg></span>
                         <span class="status-painel__txt">
                             <strong><?= $seqTexto ?></strong>
                             <span data-status-hoje><?= !empty($PROGRESSO['estudou_hoje'])
@@ -187,7 +209,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                 <?php else: ?>
                 <span class="topo-sequencia<?= $seq === 0 ? ' topo-sequencia--vazia' : '' ?>" role="img"
                       aria-label="Sequência: <?= $seqTexto ?>" title="<?= $seqTexto ?>">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2.5c.5 3-1.6 4.7-3.2 6.7C7.5 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1-3.9-2.2-5.3-.3 1.1-.9 1.9-1.7 2.4.5-3.4-.3-6.8-1.4-9.6Z"/><path d="M11.9 18.19a2.13 2.13 0 0 1-2.13-2.12c0-1.19 1.02-1.96 1.7-3.06 0.34 0.85 1.36 1.36 1.36 2.72 0 1.44-.34 2.46-.93 2.46Z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.4 20.7C5.9 19.7 3.8 15.5 4.7 10.4 5.8 11.8 7 12.7 8.2 13.1 8.3 9 9.9 6 11.8 3.2 12.3 5.8 16.8 8.4 16.4 13.4 17.2 12.6 18 11.7 18.5 10.5 20.1 15.3 18 19.6 14.3 20.7 15.3 18.4 15.1 15 12 13.1 11 14 10.6 16 10.8 17.4L7.9 16.4C8 18 8.6 19.6 9.4 20.7Z"/></svg>
                     <strong><?= $seq ?></strong>
                 </span>
                 <?php endif; ?>

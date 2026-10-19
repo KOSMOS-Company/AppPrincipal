@@ -10,3 +10,20 @@ ErrorDocument 404 /KOSMOS/AppPrincipal/Frontend/pages/404.html
 # Ao publicar num domínio onde AppPrincipal/ (ou Frontend/) for a raiz do site,
 # ajuste para o caminho correspondente, por exemplo:
 #   ErrorDocument 404 /Frontend/pages/404.html
+
+# ------------------------------------------------------------
+# Cache: CSS, JS e HTML SEMPRE conferem com o servidor
+#
+# Sem isto o navegador reaproveitava a versão antiga dos arquivos
+# num recarregamento comum, e só um Ctrl+F5 mostrava a mudança. Com
+# "no-cache" ele continua guardando a cópia, mas pergunta antes de
+# usar: se nada mudou, o Apache responde 304 (sem baixar de novo) —
+# rápido do mesmo jeito, e nunca desatualizado.
+# (O dashboard já se protegia com o asset() do PHP; a página inicial
+# e as de login/cadastro são .html puro e dependem disto.)
+# ------------------------------------------------------------
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|html)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>

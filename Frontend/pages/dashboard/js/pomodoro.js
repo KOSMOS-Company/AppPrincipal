@@ -7,7 +7,7 @@
    ============================================================ */
 
 const CIRC = 2 * Math.PI * 125;   // circunferência do anel (r = 125)
-const CHAVE = "kosmos:pomodoro";  // onde a sessão fica guardada
+const CHAVE = (window.kosmosChaveConta ? window.kosmosChaveConta("kosmos:pomodoro") : "kosmos:pomodoro");  // onde a sessão fica guardada
 
 const ESTADOS = {
     foco:  { texto: "Hora de focar",     pausa: false },
@@ -60,6 +60,7 @@ function salvar() {
             encerrado,
             ciclos,
             dia: hoje(),
+            conta: window.KOSMOS_CONTA,   // de quem é este ciclo (o servidor confere ao registrar)
         }));
     } catch (e) { /* storage indisponível — o timer só perde a memória */ }
 }

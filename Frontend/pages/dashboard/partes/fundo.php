@@ -39,6 +39,10 @@ if (!isset($USUARIO, $PREF)) { http_response_code(403); exit('Esta página não 
             if (localStorage.getItem('kosmos_visual') === 'lite') {
                 document.documentElement.classList.add('kosmos-lite');
             }
+            // Modo foco (some o Orion flutuante e os avisos de XP) — js/visual.js
+            if (localStorage.getItem('kosmos_foco') === '1') {
+                document.documentElement.classList.add('kosmos-foco');
+            }
         } catch (e) { /* navegação privada: visual completo */ }
     </script>
     <canvas class="cosmos" id="cosmos" data-calmo aria-hidden="true"></canvas>

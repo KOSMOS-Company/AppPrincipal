@@ -74,11 +74,7 @@
                     </div>
 
                     <div class="divider"><span>ou</span></div>
-                                    <!-- Google Identity Services -->
-                                    <div id="g_id_onload"
-                                         data-client_id="848162979346-58d2pq44nmhbrabsnhl6i1o1j2pnm7mu.apps.googleusercontent.com"
-                                         data-callback="onGoogleLogin"
-                                         data-auto_prompt="false"></div>
+                                    <!-- Google Identity Services (popup de escolher conta) -->
                                     <div class="google-btn-wrap">
                                         <button type="button" class="btn--google" onclick="googlePrompt()">
                                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -94,7 +90,6 @@
 
                     <button type="submit" class="btn-submit">
                         Entrar na conta
-                        <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M4 10h12M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </button>
                 </form>
 
@@ -179,17 +174,42 @@
         }
 
         /* --- Login com Google --- */
+        // Abre o popup "Escolha uma conta" do Google. O One Tap
+        // (google.accounts.id.prompt) era silenciosamente bloqueado
+        // pelo navegador (cooldown/FedCM/cookies), por isso o botão "não fazia nada".
+        const GOOGLE_CLIENT_ID = '848162979346-58d2pq44nmhbrabsnhl6i1o1j2pnm7mu.apps.googleusercontent.com';
+        let googleClient = null;
+
         function googlePrompt() {
-            if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-                google.accounts.id.prompt();
+            if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+                document.querySelector('.msg-feedback')?.remove();
+                mostrarMsg('O Google ainda está carregando. Tente de novo em instantes.', 'erro');
+                return;
             }
+            if (!googleClient) {
+                googleClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'openid email profile',
+                    prompt: 'select_account',
+                    callback: (r) => {
+                        if (r && r.access_token) onGoogleLogin({ access_token: r.access_token });
+                    },
+                    error_callback: (err) => {
+                        if (err && err.type === 'popup_failed_to_open') {
+                            document.querySelector('.msg-feedback')?.remove();
+                            mostrarMsg('O navegador bloqueou o pop-up do Google. Permita pop-ups e tente de novo.', 'erro');
+                        }
+                    },
+                });
+            }
+            googleClient.requestAccessToken();
         }
 
-        async function onGoogleLogin(response) {
+        async function onGoogleLogin(campos) {
             document.querySelector('.msg-feedback')?.remove();
             try {
                 const dados = new FormData();
-                dados.append('credential', response.credential);
+                for (const k in campos) dados.append(k, campos[k]);
                 const resposta = await fetch('../../../Backend/php/login_google.php', { method: 'POST', body: dados });
                 const json = await resposta.json();
                 mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
