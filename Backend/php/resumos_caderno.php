@@ -168,7 +168,7 @@ function apiLerCaderno(): array {
     // cor e ícone só podem sair das listas conhecidas (materias.php):
     // qualquer outra coisa vira o padrão, em vez de derrubar o salvamento
     $cor = (string) ($_POST['cor'] ?? '');
-    if (!in_array($cor, CORES_CADERNO_KOSMOS, true)) {
+    if (!in_array($cor, CORES_ITEM_KOSMOS, true)) {   // 6 cores, 'auto' ou 'nenhuma'
         $cor = CORES_CADERNO_KOSMOS[0];
     }
 

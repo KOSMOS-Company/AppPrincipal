@@ -24,6 +24,10 @@ if (!$ERRO_BANCO) {
 
 $TOTAL_MATERIAS = count($MATERIAS);
 
+/* As estrelas se agrupam por matéria (uma constelação cada) */
+$MATERIAS_DOS_PONTOS = array_map(fn($m) => (string) ($m['materia'] ?? ''), $MATERIAS);
+$POSICOES = posicoesConstelacoes($MATERIAS_DOS_PONTOS);
+
 /* Só as matérias que aparecem viram filtro */
 $MATERIAS_USADAS = array_values(array_unique(array_column($MATERIAS, 'materia')));
 sort($MATERIAS_USADAS);
@@ -61,20 +65,78 @@ function resumoDaEstanteExercicios(int $materias): string {
    quando a prateleira muda (criou, apagou) ou quando a tela muda de
    largura. Se mexer em uma, mexa na outra. */
 
-/** Onde o ponto $i fica, em % do painel (espiral de Vogel, ângulo
- *  áureo). A faixa é larga e baixa, então o raio também é. */
-function posicaoEstrela(int $i, int $n): array {
-    if ($n <= 1) {
-        return [50.0, 50.0];
+/** Onde cada ponto fica, em % do painel. Cada MATÉRIA (o campo
+ *  "materia": Matemática, Física…) é uma constelação: um aglomerado
+ *  com centro próprio, lado a lado no céu; dentro dele os pontos se
+ *  espalham numa espiral de Vogel pequena. Recebe a lista de matérias
+ *  (uma por ponto, na ordem dos pontos) e devolve [x, y] de cada um. */
+function posicoesConstelacoes(array $materias): array {
+    $grupos = [];
+    $indice = [];
+    $membro = [];
+    foreach ($materias as $m) {
+        if (!isset($indice[$m])) {
+            $indice[$m] = count($grupos);
+            $grupos[] = 0;
+        }
+        $g = $indice[$m];
+        $membro[] = [$g, $grupos[$g]++];
+    }
+    $G = max(1, count($grupos));
+    $meia = 40 / $G;
+
+    $pos = [];
+    foreach ($membro as [$g, $j]) {
+        $k = $grupos[$g];
+        $cx = 10 + (80 / $G) * ($g + .5);
+        $cy = $G > 1 ? 50 + sin($g * 2.1) * 10 : 50;
+        $x = $cx;
+        $y = $cy;
+        if ($k > 1) {
+            $rxc = min($G === 1 ? 30 : 18, $meia * .8);
+            $ryc = 32 - abs($cy - 50);
+            $ang = deg2rad($j * 137.508 + $g * 57);
+            $raio = sqrt(($j + .5) / $k);
+            $x = $cx + $raio * cos($ang) * $rxc;
+            $y = $cy + $raio * sin($ang) * $ryc;
+        }
+        $pos[] = [round($x, 2), round($y, 2)];
     }
 
-    $ang = deg2rad($i * 137.508);
-    $raio = sqrt($i / ($n - 1));
+    return $pos;
+}
 
-    return [
-        round(50 + $raio * cos($ang) * 40, 2),
-        round(50 + $raio * sin($ang) * 34, 2),
-    ];
+/** Os traços: a árvore mínima (Prim) entre os pontos da MESMA
+ *  matéria. $ar é a proporção largura/altura do painel (aqui um
+ *  palpite; o JS recalcula com a medida de verdade). */
+function linhasConstelacoes(array $materias, array $pos, float $ar = 5): array {
+    $porMateria = [];
+    foreach ($materias as $i => $m) {
+        $porMateria[$m][] = $i;
+    }
+
+    $linhas = [];
+    foreach ($porMateria as $idx) {
+        $dentro = [array_shift($idx)];
+        while ($idx) {
+            $melhor = null;
+            foreach ($dentro as $a) {
+                foreach ($idx as $f => $b) {
+                    $dx = ($pos[$a][0] - $pos[$b][0]) * $ar;
+                    $dy = $pos[$a][1] - $pos[$b][1];
+                    $d = $dx * $dx + $dy * $dy;
+                    if ($melhor === null || $d < $melhor[3]) {
+                        $melhor = [$a, $b, $f, $d];
+                    }
+                }
+            }
+            $linhas[] = [$melhor[0], $melhor[1]];
+            $dentro[] = $melhor[1];
+            unset($idx[$melhor[2]]);
+        }
+    }
+
+    return $linhas;
 }
 
 /** O tamanho do ponto é a quantidade de exercícios guardados nela.
@@ -149,7 +211,7 @@ function alturaMapa(int $materias): string {
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
         <!-- Main -->
-        <main class="contMeio">
+        <main class="contMeio pagina-exercicios">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <?php $CAMINHO = [['Exercícios', null]]; require __DIR__ . '/partes/caminho.php'; ?>
@@ -174,11 +236,11 @@ function alturaMapa(int $materias): string {
                  prateleira muda. -->
             <div class="ex-mapa<?= $TOTAL_MATERIAS === 0 ? ' ex-mapa--vazio' : '' ?>" id="gridMaterias" style="--altura-mapa: <?= hesc(alturaMapa($TOTAL_MATERIAS)) ?>">
                 <svg class="ex-mapa__linhas" id="exMapaLinhas" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false" aria-hidden="true">
-<?php for ($linha = 1; $linha < $TOTAL_MATERIAS; $linha++):
-        $de = posicaoEstrela($linha - 1, $TOTAL_MATERIAS);
-        $para = posicaoEstrela($linha, $TOTAL_MATERIAS); ?>
+<?php foreach (linhasConstelacoes($MATERIAS_DOS_PONTOS, $POSICOES) as [$a, $b]):
+        $de = $POSICOES[$a];
+        $para = $POSICOES[$b]; ?>
                     <line x1="<?= $de[0] ?>" y1="<?= $de[1] ?>" x2="<?= $para[0] ?>" y2="<?= $para[1] ?>" vector-effect="non-scaling-stroke" />
-<?php endfor; ?>
+<?php endforeach; ?>
                 </svg>
 <?php foreach ($MATERIAS as $i => $m): ?>
 <?php include __DIR__ . '/partes/exercicio-mapa-ponto.php'; ?>

@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS `flashcard_decks` (
   `usuario_id`     int(10) UNSIGNED NOT NULL,
   `nome`           varchar(120) NOT NULL,
   `materia`        varchar(40)  NOT NULL,
+  `cor`            varchar(16)  DEFAULT NULL,             -- NULL = automática (pela matéria)
   `criado_em`      datetime NOT NULL DEFAULT current_timestamp(),
   `revisoes`       int(10) UNSIGNED NOT NULL DEFAULT 0,  -- sessões de estudo concluídas
   `ultima_revisao` datetime DEFAULT NULL,

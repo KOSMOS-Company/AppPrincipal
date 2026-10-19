@@ -41,7 +41,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
-        <main class="contMeio">
+        <main class="contMeio pagina-revisar">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <span class="section-tag">Revisão</span>

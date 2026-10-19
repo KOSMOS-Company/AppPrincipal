@@ -128,7 +128,7 @@ function criarPontoMateria(m) {
     tpl.innerHTML = `
         <a class="ex-ponto${qtd === 0 ? " ex-ponto--vazia" : ""} ex-ponto--${escaparHtml(m.cor)}"
            href="exercicio_materia.php?id=${id}"
-           data-id="${id}" data-qtd="${qtd}" data-nome="${escaparHtml(m.nome)}"
+           data-id="${id}" data-materia="${escaparHtml(m.materia)}" data-qtd="${qtd}" data-nome="${escaparHtml(m.nome)}"
            data-x="50" data-y="50" data-tamanho="${tamanho}"
            aria-label="${escaparHtml(m.nome + " — " + rotuloQtdExercicios(qtd))}"
            style="--x: 50%; --y: 50%; --tamanho: ${tamanho}px"></a>
@@ -185,7 +185,7 @@ function criarLinhaMateria(m) {
    preferência é do navegador (kosmos_ordem_exercicios), não da conta —
    é o mesmo desenho da lateral guardada no dashboard.js, e a
    navegação privada só perde a lembrança. */
-const ORDEM_CHAVE = "kosmos_ordem_exercicios";
+const ORDEM_CHAVE = (window.kosmosChaveConta ? window.kosmosChaveConta("kosmos_ordem_exercicios") : "kosmos_ordem_exercicios");
 
 /** Qual linha vai antes de qual, para cada escolha da pessoa. */
 function comparadorOrdem(chave) {
@@ -308,7 +308,7 @@ if (ordemMaterias) {
 /* ============================================================
    O PANORAMA — as matérias como pontos de uma constelação
    ============================================================
-   Tudo aqui tem gêmeo em exercicios.php (posicaoEstrela,
+   Tudo aqui tem gêmeo em exercicios.php (posicoesConstelacoes, linhasConstelacoes,
    tamanhoEstrela, intensidadeQtd, alturaMapa): o PHP monta a
    primeira pintura para o painel chegar pronto do servidor, e o JS
    redesenha quando a prateleira muda (criou, apagou) ou quando a tela
@@ -323,15 +323,74 @@ if (ordemMaterias) {
 
 const NS_SVG = "http://www.w3.org/2000/svg";
 
-/** Onde o ponto i fica, em % do painel (espiral de Vogel, ângulo áureo). */
-function posicaoEstrela(i, n, rx, ry) {
-    if (n <= 1) return { x: 50, y: 50 };
-    const ang = (i * 137.508) * Math.PI / 180;
-    const raio = Math.sqrt(i / (n - 1));
-    return {
-        x: Math.round((50 + raio * Math.cos(ang) * rx) * 100) / 100,
-        y: Math.round((50 + raio * Math.sin(ang) * ry) * 100) / 100,
-    };
+/** Onde cada ponto fica, em % do painel. Cada MATÉRIA (o campo
+ *  "materia": Matemática, Física…) é uma constelação: um aglomerado
+ *  com centro próprio, lado a lado no céu. Dentro dele, os pontos se
+ *  espalham numa espiral de Vogel pequena. O desenho é feito para o
+ *  raio 40×34 e depois encolhido para o rx×ry que cabe no painel.
+ *  Gêmeo de posicoesConstelacoes() no exercicios.php. */
+function posicoesConstelacoes(materias, rx, ry) {
+    const grupos = [];
+    const indice = new Map();
+    const membro = materias.map((m) => {
+        if (!indice.has(m)) { indice.set(m, grupos.length); grupos.push(0); }
+        const g = indice.get(m);
+        return { g, j: grupos[g]++ };
+    });
+    const G = grupos.length;
+    const meia = 40 / Math.max(1, G);
+    return membro.map(({ g, j }) => {
+        const k = grupos[g];
+        const cx = 10 + (80 / G) * (g + .5);
+        const cy = G > 1 ? 50 + Math.sin(g * 2.1) * 10 : 50;
+        let x = cx;
+        let y = cy;
+        if (k > 1) {
+            const rxc = Math.min(G === 1 ? 30 : 18, meia * .8);
+            const ryc = 32 - Math.abs(cy - 50);
+            const ang = (j * 137.508 + g * 57) * Math.PI / 180;
+            const raio = Math.sqrt((j + .5) / k);
+            x = cx + raio * Math.cos(ang) * rxc;
+            y = cy + raio * Math.sin(ang) * ryc;
+        }
+        return {
+            x: Math.round((50 + (x - 50) * rx / 40) * 100) / 100,
+            y: Math.round((50 + (y - 50) * ry / 34) * 100) / 100,
+        };
+    });
+}
+
+/** Os traços de uma constelação: a árvore mínima (Prim) entre os
+ *  pontos da MESMA matéria — liga cada estrela à vizinha mais perto
+ *  sem cruzar o céu inteiro. `ar` é a proporção largura/altura do
+ *  painel, para medir distância em tela e não em %.
+ *  Gêmeo de linhasConstelacoes() no exercicios.php. */
+function linhasConstelacoes(materias, pos, ar) {
+    const porMateria = new Map();
+    materias.forEach((m, i) => {
+        if (!porMateria.has(m)) porMateria.set(m, []);
+        porMateria.get(m).push(i);
+    });
+    const linhas = [];
+    for (const idx of porMateria.values()) {
+        const dentro = [idx[0]];
+        const fora = idx.slice(1);
+        while (fora.length) {
+            let melhor = null;
+            for (const a of dentro) {
+                fora.forEach((b, f) => {
+                    const dx = (pos[a].x - pos[b].x) * ar;
+                    const dy = pos[a].y - pos[b].y;
+                    const d = dx * dx + dy * dy;
+                    if (!melhor || d < melhor.d) melhor = { a, b, f, d };
+                });
+            }
+            linhas.push([melhor.a, melhor.b]);
+            dentro.push(melhor.b);
+            fora.splice(melhor.f, 1);
+        }
+    }
+    return linhas;
 }
 
 /** O tamanho do ponto é a quantidade de exercícios guardados nela. */
@@ -416,8 +475,9 @@ function reposicionarMapa() {
     }
 
     const { rx, ry } = espalhamento(pontos);
+    const posicoes = posicoesConstelacoes(pontos.map((p) => p.dataset.materia ?? ""), rx, ry);
     pontos.forEach((p, i) => {
-        const pos = posicaoEstrela(i, pontos.length, rx, ry);
+        const pos = posicoes[i];
         p.style.setProperty("--x", pos.x + "%");
         p.style.setProperty("--y", pos.y + "%");
         p.dataset.x = pos.x;
@@ -427,18 +487,20 @@ function reposicionarMapa() {
     desenharLinhas();
 }
 
-/* As linhas finas que ligam um ponto ao seguinte. */
+/* As linhas finas: só entre estrelas da mesma matéria. */
 function desenharLinhas() {
     const svg = document.getElementById("exMapaLinhas");
     if (!svg) return;
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     const pontos = pontosMapa();
-    for (let k = 1; k < pontos.length; k++) {
+    const pos = pontos.map((p) => ({ x: Number(p.dataset.x), y: Number(p.dataset.y) }));
+    const ar = gridMaterias.clientHeight ? gridMaterias.clientWidth / gridMaterias.clientHeight : 5;
+    for (const [a, b] of linhasConstelacoes(pontos.map((p) => p.dataset.materia ?? ""), pos, ar)) {
         const linha = document.createElementNS(NS_SVG, "line");
-        linha.setAttribute("x1", pontos[k - 1].dataset.x);
-        linha.setAttribute("y1", pontos[k - 1].dataset.y);
-        linha.setAttribute("x2", pontos[k].dataset.x);
-        linha.setAttribute("y2", pontos[k].dataset.y);
+        linha.setAttribute("x1", pos[a].x);
+        linha.setAttribute("y1", pos[a].y);
+        linha.setAttribute("x2", pos[b].x);
+        linha.setAttribute("y2", pos[b].y);
         linha.setAttribute("vector-effect", "non-scaling-stroke");
         svg.appendChild(linha);
     }

@@ -37,7 +37,7 @@ $mostrarMateria = $mostrarMateria ?? true;
                             <h3 class="resumo-card__title"><?= hesc($r['titulo']) ?></h3>
                             <div class="resumo-card__meta">
                                 <span><?= hesc($r['quando']) ?></span>
-                                <span>Ler →</span>
+                                <span>Ler</span>
                             </div>
                         </div>
                     </a>
@@ -55,6 +55,11 @@ $mostrarMateria = $mostrarMateria ?? true;
                                 title="Editar este resumo"
                                 aria-label="Editar o resumo <?= hesc($r['titulo']) ?>">
                             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        </button>
+                        <button type="button" class="resumo-card__botao resumo-card__botao--apagar" data-apagar-resumo="<?= (int) $r['id'] ?>"
+                                title="Excluir este resumo"
+                                aria-label="Excluir o resumo <?= hesc($r['titulo']) ?>">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                     </div>
                 </article>

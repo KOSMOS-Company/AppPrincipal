@@ -86,7 +86,8 @@
             nome.value    = materia.nome;
             materiaSelect.value = materia.materia;
             desc.value    = materia.descricao || "";
-            cor           = materia.cor || "roxo";
+            // "auto" (antigo) abre marcado na cor que ele dava
+            cor           = materia.cor_escolha === "auto" ? materia.cor : (materia.cor_escolha || materia.cor || "roxo");
             icone         = materia.icone || "";
             el("exercicioMateriaApagar").hidden = false;
         } else {
@@ -179,7 +180,7 @@
         const previa = el("exercicioMateriaPrevia");
         if (!previa) return;
 
-        previa.className = `cad-previa exercicio-materia-card--${cor}`;
+        previa.className = `cad-previa exercicio-materia-card--${corDoItem(cor, el("exercicioMateriaMateria")?.value)}`;
 
         el("exercicioMateriaPreviaNome").textContent = el("exercicioMateriaNome").value.trim() || "Nome da matéria";
         el("exercicioMateriaPreviaMateria").textContent = el("exercicioMateriaMateria").value || "Matéria";

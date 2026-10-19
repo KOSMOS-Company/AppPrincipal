@@ -16,6 +16,7 @@
 // ============================================================
 
 require_once __DIR__ . '/resumo_imagem_util.php';   // urlCadernoCapa()
+require_once __DIR__ . '/materias.php';                // corDoItem()
 
 /**
  * A ordem da estante.
@@ -39,7 +40,8 @@ function cadernoDaLinha(array $c): array {
         'id'        => (int) $c['id'],
         'nome'      => $c['nome'],
         'materia'   => $c['materia'],
-        'cor'       => $c['cor'] ?: 'roxo',
+        'cor'       => corDoItem($c['cor'] ?: 'roxo', (string) $c['materia']),   // a que a tela pinta
+        'cor_escolha' => $c['cor'] ?: 'roxo',                                 // a que o formulário marca
         'icone'     => $c['icone'] ?? '',
         'descricao' => $c['descricao'] ?? '',
         'capa'      => urlCadernoCapa($c['capa_arquivo'] ?? null),

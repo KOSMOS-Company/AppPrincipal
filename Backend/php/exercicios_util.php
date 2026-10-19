@@ -4,6 +4,8 @@
 //  Arquivo: backend/php/exercicios_util.php
 // ============================================================
 
+require_once __DIR__ . '/materias.php';   // corDoItem()
+
 /**
  * A ordem das matérias de exercícios.
  */
@@ -18,7 +20,8 @@ function exercicioMateriaDaLinha(array $m): array {
         'id'        => (int) $m['id'],
         'nome'      => $m['nome'],
         'materia'   => $m['materia'],
-        'cor'       => $m['cor'] ?: 'roxo',
+        'cor'       => corDoItem($m['cor'] ?: 'roxo', (string) $m['materia']),   // a que a tela pinta
+        'cor_escolha' => $m['cor'] ?: 'roxo',                                 // a que o formulário marca
         'icone'     => $m['icone'] ?? '📝',
         'descricao' => $m['descricao'] ?? '',
         'ordem'     => (int) ($m['ordem'] ?? 0),

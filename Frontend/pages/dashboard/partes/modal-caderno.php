@@ -75,15 +75,8 @@ if (!isset($USUARIO, $PREF)) {
                     <!-- ---------- Cor ---------- -->
                     <fieldset class="campo cad-escolha">
                         <legend>Cor</legend>
-                        <div class="cad-cores" id="cadCores" role="radiogroup" aria-label="Cor do caderno">
-<?php foreach (CORES_CADERNO_KOSMOS as $i => $cor): ?>
-                            <button type="button" class="cad-cor avatar-cor--<?= hesc($cor) ?>"
-                                    data-cor="<?= hesc($cor) ?>" role="radio"
-                                    aria-checked="<?= $i === 0 ? 'true' : 'false' ?>"
-                                    title="<?= hesc(ucfirst($cor)) ?>"
-                                    aria-label="Cor <?= hesc($cor) ?>"></button>
-<?php endforeach; ?>
-                        </div>
+<?php $SC_ID = 'cadCores'; $SC_ROTULO = 'Cor do caderno'; $SC_MARCADA = 'roxo';
+      require __DIR__ . '/seletor-cor.php'; ?>
                     </fieldset>
 
                     <!-- ---------- Ícone ---------- -->
@@ -131,7 +124,7 @@ if (!isset($USUARIO, $PREF)) {
                     <div class="msg" id="msgCaderno" hidden></div>
 
                     <div class="modal__actions">
-                        <button type="button" class="dash-btn dash-btn--danger" id="cadernoApagar" hidden>Excluir</button>
+                        <button type="button" class="dash-btn dash-btn--danger dash-btn--excluir" id="cadernoApagar" hidden>Excluir</button>
                         <button type="button" class="dash-btn dash-btn--outline" id="cadernoCancelar">Cancelar</button>
                         <button type="submit" class="dash-btn dash-btn--primary" id="cadernoSalvar">Criar caderno</button>
                     </div>

@@ -78,7 +78,7 @@ if ($id > 0 && !$ERRO_BANCO) {
 
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
-        <main class="contMeio">
+        <main class="contMeio pagina-resumo">
 <?php if (!$RESUMO): ?>
             <header class="contCabeca">
                 <div class="contCabeca__texto">

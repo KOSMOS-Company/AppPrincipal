@@ -42,7 +42,8 @@
     const cartoesLista = $("#cartoesLista");
     const cartoesVazio = $("#cartoesVazio");
 
-    const ICONE_EDITAR  = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 20h4l10-10a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+    // o mesmo lápis da Biblioteca e dos Exercícios (caderno-card / ex-linha)
+    const ICONE_EDITAR  = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
     const ICONE_EXCLUIR = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
     /* ============================================================
@@ -175,14 +176,15 @@
             const semCartoes = d.cartoes === 0;
 
             return `
-            <article class="deck-card" style="animation-delay:${i * 0.05}s"
+            <article class="deck-card" style="animation-delay:${i * 0.05}s; --tom:${tomDoBaralho(d)}"
                      data-id="${d.id}" data-nome="${escaparHtml(d.nome)}" data-materia="${escaparHtml(d.materia)}"
                      data-cartoes="${d.cartoes}" data-criado="${escaparHtml(d.criado_em || '')}">
+                <span class="deck-card__face" aria-hidden="true"></span>
                 <div class="deck-card__topo">
                     <span class="materia-tag">${escaparHtml(d.materia)}</span>
                     <div class="deck-card__acoes">
                         <button class="icone-btn" data-editar-deck="${d.id}"
-                                title="Renomear baralho" aria-label="Renomear o baralho ${escaparHtml(d.nome)}">${ICONE_EDITAR}</button>
+                                title="Personalizar este baralho" aria-label="Personalizar o baralho ${escaparHtml(d.nome)}">${ICONE_EDITAR}</button>
                         <button class="icone-btn icone-btn--perigo" data-excluir-deck="${d.id}"
                                 title="Excluir baralho" aria-label="Excluir o baralho ${escaparHtml(d.nome)}">${ICONE_EXCLUIR}</button>
                     </div>
@@ -254,6 +256,7 @@
         $("#btnEstudarDaqui").disabled = total === 0;
         cartoesVazio.hidden = total > 0;
 
+        cartoesLista.style.setProperty("--tom", tomDoBaralho(estado.deck));
         cartoesLista.innerHTML = estado.cartoes.map((c, i) => {
             const estadoClasse = c.ultimo === null ? "" : (c.ultimo ? " cartao-item__estado--ok" : " cartao-item__estado--rev");
             const estadoTitulo = c.ultimo === null
@@ -262,13 +265,12 @@
 
             return `
             <li class="cartao-item anim-in" style="animation-delay:${Math.min(i, 12) * 0.03}s">
-                <span class="cartao-item__estado${estadoClasse}" title="${estadoTitulo}"
-                      role="img" aria-label="${estadoTitulo}"></span>
                 <div class="cartao-item__texto">
                     <strong>${escaparHtml(c.frente)}</strong>
                     <span>${escaparHtml(c.verso)}</span>
                 </div>
-                <span class="cartao-item__nums">${
+                <span class="cartao-item__nums"><span class="cartao-item__estado${estadoClasse}" title="${estadoTitulo}"
+                      role="img" aria-label="${estadoTitulo}"></span>${
                     c.revisoes ? `${c.revisoes} ${plural(c.revisoes, "revisão", "revisões")} · ${c.acertos}/${c.revisoes}` : "novo"
                 }</span>
                 <div class="cartao-item__acoes">
@@ -294,6 +296,7 @@
     async function iniciarEstudo(deckId) {
         // sempre busca do banco: assim o estudo já sai com o deck atualizado
         await abrirCartoes(deckId, false);
+        flashcard.style.setProperty("--tom", tomDoBaralho(estado.deck));
 
         if (!estado.cartoes.length) {
             aviso("Este baralho ainda não tem cartões.", true);
@@ -450,7 +453,7 @@
 
     function abrirModalDeck(deck) {
         deckEditando = deck ? deck.id : null;
-        $("#modalDeckTitulo").textContent = deck ? "Editar baralho" : "Novo baralho";
+        $("#modalDeckTitulo").textContent = deck ? "Personalizar baralho" : "Novo baralho";
         $("#btnSalvarDeck").textContent   = deck ? "Salvar" : "Criar baralho";
         $("#nomeDeck").value = deck ? deck.nome : "";
 
@@ -464,8 +467,36 @@
             materia.value = "";
         }
 
+        // sem cor salva (automática, dos baralhos antigos): marca a cor que ela dava
+        escolherCorDeck(deck ? (deck.cor || corDaMateria(deck.materia)) : "roxo");
         abrirModal(modalDeck, $("#nomeDeck"));
     }
+
+    /* Seletor de cor do baralho (grupo de rádio, como o dos cadernos) */
+    const corDeck = $("#corDeck");
+    function escolherCorDeck(cor) {
+        corDeck.querySelectorAll(".cad-cor").forEach((b) => {
+            const sim = b.dataset.cor === cor;
+            b.classList.toggle("escolhido", sim);
+            b.setAttribute("aria-checked", String(sim));
+            b.tabIndex = sim ? 0 : -1;
+        });
+    }
+    const corDeckEscolhida = () => corDeck.querySelector(".cad-cor.escolhido")?.dataset.cor || "";
+    corDeck.addEventListener("click", (e) => {
+        const b = e.target.closest(".cad-cor");
+        if (b) escolherCorDeck(b.dataset.cor);
+    });
+    corDeck.addEventListener("keydown", (e) => {
+        if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+        e.preventDefault();
+        const botoes = [...corDeck.querySelectorAll(".cad-cor")];
+        const atual = botoes.findIndex((b) => b.classList.contains("escolhido"));
+        const passo = e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 1;
+        const prox = botoes[(atual + passo + botoes.length) % botoes.length];
+        escolherCorDeck(prox.dataset.cor);
+        prox.focus();
+    });
 
     function abrirModalCartao(cartao) {
         cartaoEditando = cartao ? cartao.id : null;
@@ -500,6 +531,7 @@
                 acao: deckEditando ? "editar" : "criar",
                 nome: $("#nomeDeck").value.trim(),
                 materia: $("#materiaDeck").value.trim(),
+                cor: corDeckEscolhida(),
             };
             if (deckEditando) dados.id = deckEditando;
 
@@ -511,6 +543,9 @@
             if (estado.deck && estado.deck.id === deckEditando) {
                 estado.deck.nome    = dados.nome;
                 estado.deck.materia = dados.materia;
+                estado.deck.cor     = dados.cor || null;
+                cartoesLista.style.setProperty("--tom", tomDoBaralho(estado.deck));
+                flashcard.style.setProperty("--tom", tomDoBaralho(estado.deck));
                 $("#cartoesTitulo").textContent  = dados.nome;
                 $("#cartoesMateria").textContent = dados.materia;
                 pinarCaminhoCartoes(dados.nome);
@@ -758,6 +793,11 @@
     function plural(n, singular, plural) {
         return n === 1 ? singular : plural;
     }
+    /** A cor da moldura do baralho: a escolhida (6 cores ou "nenhuma")
+     *  ou, sem escolha, a automática da matéria — corDoItem() do util.js. */
+    function tomDoBaralho(deck) {
+        return HEX_DAS_CORES[corDoItem(deck?.cor || "auto", deck?.materia)];
+    }
 
     /** Fisher-Yates: devolve uma cópia embaralhada. */
     function embaralhar(lista) {
@@ -780,7 +820,7 @@
         avisoTimer = setTimeout(() => { caixa.hidden = true; }, erro ? 5000 : 2600);
     }
 
-    const ORDEM_CHAVE_FC = "kosmos_ordem_flashcards";
+    const ORDEM_CHAVE_FC = (window.kosmosChaveConta ? window.kosmosChaveConta("kosmos_ordem_flashcards") : "kosmos_ordem_flashcards");
 
     function comparadorOrdemFc(chave) {
         const nome = (el) => el.dataset.nome || "";

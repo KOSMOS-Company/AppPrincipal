@@ -91,7 +91,7 @@ $OUTROS = array_values(array_filter($CADERNOS, fn($c) => $c['id'] !== ($CADERNO[
 
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
-        <main class="contMeio">
+        <main class="contMeio pagina-caderno">
 <?php if (!$CADERNO): ?>
             <header class="contCabeca">
                 <div class="contCabeca__texto">

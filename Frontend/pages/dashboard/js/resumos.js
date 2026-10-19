@@ -122,6 +122,15 @@
 
     /** Lápis e menu "⋮" dos cartões de resumo. */
     function cliqueNoResumo(e) {
+        // lixeira: confirma e apaga; o "resumo:apagado" tira o cartão da tela
+        const lixeira = e.target.closest("[data-apagar-resumo]");
+        if (lixeira) {
+            e.preventDefault();
+            const resumo = soltos.find((r) => r.id === Number(lixeira.dataset.apagarResumo));
+            if (resumo) window.KosmosResumoForm?.apagarDireto(resumo);
+            return;
+        }
+
         const lapis = e.target.closest("[data-editar]");
         if (lapis) {
             e.preventDefault();
@@ -420,7 +429,7 @@
                 <a class="caderno-card__link" href="caderno.php?id=${c.id}" draggable="false">
                     <span class="caderno-card__lombada" aria-hidden="true"></span>
                     ${c.capa ? `<span class="caderno-card__capa" aria-hidden="true"
-                          style="background-image:url('${escaparHtml(c.capa)}')"></span>` : ""}
+                          data-capa="${escaparHtml(c.capa)}"></span>` : ""}
                     <div class="caderno-card__body">
                         <div class="caderno-card__topo">
                             ${c.icone ? `<span class="caderno-card__icone" aria-hidden="true">${escaparHtml(c.icone)}</span>` : ""}
@@ -435,7 +444,7 @@
                                     : ""
                             }
                         </span>
-                        <span class="caderno-card__abrir">Abrir →</span>
+                        <span class="caderno-card__abrir">Abrir</span>
                     </div>
                 </a>
                 <div class="caderno-card__acoes">
@@ -502,7 +511,7 @@
                         <h3 class="resumo-card__title">${escaparHtml(r.titulo)}</h3>
                         <div class="resumo-card__meta">
                             <span>${escaparHtml(r.quando || "hoje")}</span>
-                            <span>Ler →</span>
+                            <span>Ler</span>
                         </div>
                     </div>
                 </a>
@@ -513,6 +522,9 @@
                     <button type="button" class="resumo-card__botao" data-editar="${r.id}"
                             title="Editar este resumo"
                             aria-label="Editar o resumo ${escaparHtml(r.titulo)}">${ICONE_LAPIS}</button>
+                    <button type="button" class="resumo-card__botao resumo-card__botao--apagar" data-apagar-resumo="${r.id}"
+                            title="Excluir este resumo"
+                            aria-label="Excluir o resumo ${escaparHtml(r.titulo)}">${ICONE_LIXEIRA}</button>
                 </div>
             </article>`;
     }
@@ -581,7 +593,7 @@
     }
 
 
-    const ORDEM_CHAVE_BIB = "kosmos_ordem_biblioteca";
+    const ORDEM_CHAVE_BIB = (window.kosmosChaveConta ? window.kosmosChaveConta("kosmos_ordem_biblioteca") : "kosmos_ordem_biblioteca");
 
     function comparadorOrdemBib(chave) {
         const nome = (el) => el.dataset.nome || "";

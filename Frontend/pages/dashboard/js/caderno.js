@@ -56,6 +56,15 @@
 
     /** Lápis e menu "⋮" dos cartões. */
     function cliqueNoResumo(e) {
+        // lixeira: confirma e apaga; o "resumo:apagado" tira o cartão da tela
+        const lixeira = e.target.closest("[data-apagar-resumo]");
+        if (lixeira) {
+            e.preventDefault();
+            const resumo = resumos.find((r) => r.id === Number(lixeira.dataset.apagarResumo));
+            if (resumo) window.KosmosResumoForm?.apagarDireto(resumo);
+            return;
+        }
+
         const lapis = e.target.closest("[data-editar]");
         if (lapis) {
             e.preventDefault();
@@ -226,7 +235,8 @@
        false): o PHP faz a primeira pintura, aqui repintamos.
        ============================================================ */
     const ICONE_LAPIS = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
-    const ICONE_MENU  = '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><circle cx="10" cy="4" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="10" cy="16" r="1.6"/></svg>';
+    const ICONE_LIXEIRA_RESUMO = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const ICONE_MENU  ='<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><circle cx="10" cy="4" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="10" cy="16" r="1.6"/></svg>';
     const ICONE_DOC   = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
     const ICONE_FOTO  = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="10" r="1.6" stroke="currentColor" stroke-width="1.4"/><path d="M4 17l5-4 3 2.5 3-2.5 5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
@@ -247,7 +257,7 @@
                         <h3 class="resumo-card__title">${escaparHtml(r.titulo)}</h3>
                         <div class="resumo-card__meta">
                             <span>${escaparHtml(r.quando || "hoje")}</span>
-                            <span>Ler →</span>
+                            <span>Ler</span>
                         </div>
                     </div>
                 </a>
@@ -258,6 +268,9 @@
                     <button type="button" class="resumo-card__botao" data-editar="${r.id}"
                             title="Editar este resumo"
                             aria-label="Editar o resumo ${escaparHtml(r.titulo)}">${ICONE_LAPIS}</button>
+                    <button type="button" class="resumo-card__botao resumo-card__botao--apagar" data-apagar-resumo="${r.id}"
+                            title="Excluir este resumo"
+                            aria-label="Excluir o resumo ${escaparHtml(r.titulo)}">${ICONE_LIXEIRA_RESUMO}</button>
                 </div>
             </article>`).join("");
 

@@ -12,7 +12,7 @@
 //  nome continua morando na lista, que é onde se lê.
 //
 //  A posição e o tamanho saem das funções do exercicios.php
-//  (posicaoEstrela, tamanhoEstrela) — o mesmo desenho existe em
+//  ($POSICOES, tamanhoEstrela) — o mesmo desenho existe em
 //  js/exercicios.js (criarPontoMateria), onde o PHP monta a primeira
 //  pintura e o JS repinta quando a prateleira muda.
 //  Mexeu aqui, mexa lá — os dois estão marcados com este aviso.
@@ -21,13 +21,14 @@ if (!isset($m)) {
     return;
 }
 $i = $i ?? 0;
-$pos = posicaoEstrela($i, $TOTAL_MATERIAS ?? ($i + 1));
+$pos = $POSICOES[$i] ?? [50.0, 50.0];
 $qtd = (int) ($m['qtd'] ?? 0);
 $tamanho = tamanhoEstrela($qtd);
 ?>
                 <a class="ex-ponto<?= $qtd === 0 ? ' ex-ponto--vazia' : '' ?> ex-ponto--<?= hesc($m['cor']) ?>"
                    href="exercicio_materia.php?id=<?= (int) $m['id'] ?>"
                    data-id="<?= (int) $m['id'] ?>"
+                   data-materia="<?= hesc($m['materia'] ?? '') ?>"
                    data-qtd="<?= $qtd ?>"
                    data-nome="<?= hesc($m['nome']) ?>"
                    data-x="<?= $pos[0] ?>"

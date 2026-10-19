@@ -105,7 +105,8 @@
             nome.value    = caderno.nome;
             materia.value = caderno.materia;
             desc.value    = caderno.descricao || "";
-            cor           = caderno.cor || "roxo";
+            // "auto" (antigo) abre marcado na cor que ele dava
+            cor           = caderno.cor_escolha === "auto" ? caderno.cor : (caderno.cor_escolha || caderno.cor || "roxo");
             icone         = caderno.icone || "";
             capaSalva     = caderno.capa || null;
             el("cadernoApagar").hidden = false;
@@ -202,7 +203,7 @@
         const previa = el("cadPrevia");
         if (!previa) return;
 
-        previa.className = `cad-previa caderno-card--${cor}`;
+        previa.className = `cad-previa caderno-card--${corDoItem(cor, el("cadernoMateria").value)}`;
 
         el("cadPreviaNome").textContent = el("cadernoNome").value.trim() || "Nome do caderno";
         el("cadPreviaMateria").textContent = el("cadernoMateria").value || "Matéria";

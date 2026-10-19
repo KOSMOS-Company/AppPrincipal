@@ -485,3 +485,233 @@
     padding: 40px 0;
     text-align: center;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   REDESENHO — tarô cósmico, minimalista
+   Cada baralho é uma carta de tarô: uma moldura fina na cor da
+   matéria (--tom, vem do JS), tudo
+   centralizado e as cartas de trás lisas. Os cartões de dentro e a
+   carta de estudo seguem a mesma carta. Sem ícone, sem estampa.
+   ════════════════════════════════════════════════════════════════ */
+.pagina-flashcards { --tom: var(--accent); }
+
+/* ---- O baralho ---- */
+.pagina-flashcards .decks-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.pagina-flashcards .deck-card {
+    min-height: 330px;
+    padding: 34px 26px 24px;
+    border-radius: 14px;
+    border-color: rgba(201, 124, 255, .18);
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    box-shadow: none;
+}
+.pagina-flashcards .deck-card:hover {
+    border-color: color-mix(in srgb, var(--tom) 45%, transparent);
+    box-shadow: var(--shadow-card-hover);
+}
+
+/* A face da carta da frente. Com `isolation` no baralho, as cartas de
+   trás (z-index -1) são pintadas por cima do FUNDO do próprio cartão —
+   então a face opaca é uma camada à parte, entre elas e o conteúdo. */
+.deck-card__face {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: #160426;
+    pointer-events: none;
+}
+/* a moldura fina por dentro, na cor da matéria */
+.deck-card__face::before {
+    content: "";
+    position: absolute;
+    inset: 9px;
+    border: 1px solid color-mix(in srgb, var(--tom) 38%, transparent);
+    border-radius: 8px;
+    transition: border-color .25s ease;
+}
+.pagina-flashcards .deck-card:hover .deck-card__face::before {
+    border-color: color-mix(in srgb, var(--tom) 70%, transparent);
+}
+.pagina-flashcards .deck-card > :not(.deck-card__face),
+.pagina-flashcards .deck-card .materia-tag {
+    position: relative;
+    z-index: 1;
+}
+
+/* as cartas de trás: lisas */
+.pagina-flashcards .deck-card::before,
+.pagina-flashcards .deck-card::after {
+    background: #12021f;
+    border-color: rgba(201, 124, 255, .14);
+}
+
+/* matéria em letras pequenas e ações discretas no canto */
+.pagina-flashcards .deck-card__topo { display: contents; }
+.pagina-flashcards .deck-card__acoes {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+    display: flex;
+    gap: 4px;
+}
+.pagina-flashcards .deck-card .materia-tag {
+    margin-top: auto;
+    padding: 0;
+    background: none;
+    border: 0;
+    font-size: .66rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.pagina-flashcards .deck-card .materia-tag::before { background: var(--tom); box-shadow: none; }
+.pagina-flashcards .deck-card__nome { font-size: 1.1rem; }
+/* o fio curto embaixo do nome */
+.pagina-flashcards .deck-card__nome::after {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 1px;
+    margin: 14px auto 0;
+    background: color-mix(in srgb, var(--tom) 70%, transparent);
+}
+.pagina-flashcards .deck-card__qtd { font-size: .8rem; }
+.pagina-flashcards .deck-card__qtd strong { color: var(--text); }
+.pagina-flashcards .deck-card__barra {
+    width: 60%;
+    height: 2px;
+    background: rgba(255, 255, 255, .08);
+}
+.pagina-flashcards .deck-card__barra span { background: var(--tom); }
+.pagina-flashcards .deck-card__quando {
+    font-size: .64rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+.pagina-flashcards .deck-card__botoes { width: 100%; margin-top: auto; }
+
+/* ════════ DENTRO DO BARALHO — os cartões são cartas ════════ */
+.pagina-flashcards .cartoes-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+}
+.pagina-flashcards .cartao-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    min-height: 260px;
+    padding: 34px 22px 18px;
+    border-radius: 14px;
+    border-color: rgba(201, 124, 255, .18);
+    background: #160426;
+    text-align: center;
+    box-shadow: inset 0 0 0 9px #160426, inset 0 0 0 10px color-mix(in srgb, var(--tom) 34%, transparent);
+}
+.pagina-flashcards .cartao-item:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--tom) 45%, transparent);
+    box-shadow: inset 0 0 0 9px #160426, inset 0 0 0 10px color-mix(in srgb, var(--tom) 65%, transparent), var(--shadow-neutral);
+}
+.pagina-flashcards .cartao-item__texto {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.pagina-flashcards .cartao-item__texto strong {
+    font-family: "DM Sans", sans-serif;
+    font-size: .95rem;
+    margin: 0;
+}
+/* o fio entre a pergunta e a resposta */
+.pagina-flashcards .cartao-item__texto strong::after {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 1px;
+    margin: 12px auto;
+    background: color-mix(in srgb, var(--tom) 70%, transparent);
+}
+.pagina-flashcards .cartao-item__texto span {
+    font-size: .82rem;
+    color: var(--text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+/* o rodapé: a bolinha do estado e as revisões, em letras pequenas */
+.pagina-flashcards .cartao-item__nums {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .64rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+.pagina-flashcards .cartao-item__estado { width: 6px; height: 6px; margin: 0; box-shadow: none; }
+.pagina-flashcards .cartao-item__acoes {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    gap: 4px;
+}
+
+/* ════════ A CARTA DE ESTUDO (aqui e no Revisar hoje) ════════
+   A mesma moldura fina; o verso fica num tom mais escuro. */
+.pagina-revisar { --tom: var(--accent); }
+:is(.pagina-flashcards, .pagina-revisar) .flashcard__face {
+    background: #160426;
+    border-color: rgba(201, 124, 255, .18);
+    box-shadow: inset 0 0 0 11px #160426, inset 0 0 0 12px color-mix(in srgb, var(--tom) 36%, transparent);
+}
+:is(.pagina-flashcards, .pagina-revisar) .flashcard__face--verso {
+    background: #10021c;
+    box-shadow: inset 0 0 0 11px #10021c, inset 0 0 0 12px color-mix(in srgb, var(--tom) 50%, transparent);
+}
+
+@media (max-width: 600px) {
+    .pagina-flashcards .cartoes-lista { grid-template-columns: 1fr; }
+    .pagina-flashcards .cartao-item { min-height: 0; }
+    .pagina-flashcards .deck-card { min-height: 290px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pagina-flashcards .cartao-item:hover { transform: none; }
+}
+
+/* Personalizar / excluir: o mesmo mini botão da Biblioteca e dos
+   Exercícios (.caderno-card__editar / .ex-linha__editar) — caixinha
+   com borda, aparece no hover do baralho ou do cartão. */
+.pagina-flashcards :is(.deck-card__acoes, .cartao-item__acoes) .icone-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-nav);
+    color: var(--text-dim);
+    opacity: 0;
+}
+.pagina-flashcards :is(.deck-card, .cartao-item):is(:hover, :focus-within) .icone-btn { opacity: 1; }
+.pagina-flashcards :is(.deck-card__acoes, .cartao-item__acoes) .icone-btn:hover {
+    color: #fff;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, .1);
+}
+/* só a lixeira fica vermelha — e só quando o mouse vai até ela */
+.pagina-flashcards :is(.deck-card__acoes, .cartao-item__acoes) .icone-btn--perigo:hover {
+    color: #fff;
+    border-color: var(--erro);
+    background: rgba(239, 68, 68, .12);
+}
+.pagina-flashcards :is(.deck-card__acoes, .cartao-item__acoes) .icone-btn:focus-visible { opacity: 1; }
+@media (hover: none) {
+    .pagina-flashcards :is(.deck-card__acoes, .cartao-item__acoes) .icone-btn { opacity: 1; }
+}

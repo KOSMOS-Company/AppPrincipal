@@ -38,8 +38,9 @@ if ($c['fotos'] > 0) {
                         <span class="caderno-card__lombada" aria-hidden="true"></span>
 
 <?php if ($c['capa']): ?>
+                        <?php /* a imagem entra só quando o card aparece na tela (js/dashboard.js) */ ?>
                         <span class="caderno-card__capa" aria-hidden="true"
-                              style="background-image:url('<?= hesc($c['capa']) ?>')"></span>
+                              data-capa="<?= hesc($c['capa']) ?>"></span>
 <?php endif; ?>
 
                         <div class="caderno-card__body">
@@ -62,7 +63,7 @@ if ($c['fotos'] > 0) {
                                 if ($c['fotos'] > 0): ?> · <strong><?= (int) $c['fotos'] ?></strong>
                                 <?= $c['fotos'] === 1 ? 'imagem' : 'imagens' ?><?php endif; ?>
                             </span>
-                            <span class="caderno-card__abrir">Abrir →</span>
+                            <span class="caderno-card__abrir">Abrir</span>
                         </div>
                     </a>
 

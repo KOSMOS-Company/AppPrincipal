@@ -109,7 +109,7 @@
     resize: vertical;
 }
 /* o "Apagar" fica na ponta esquerda, longe do "Salvar" */
-.modal__box--resumo #btnApagar { margin-right: auto; }
+/* #btnApagar à esquerda: regra geral no dashboard.css (.modal__actions .dash-btn--danger) */
 
 /* Modal de caderno: mais largo que o padrão, com scroll próprio */
 .modal__box--caderno { 
@@ -739,6 +739,7 @@ body.sem-rolagem { overflow: hidden; }
 .caderno-card--laranja { --cad: #fbbf24; --cad-esc: #ea580c; }
 .caderno-card--rosa    { --cad: #f472b6; --cad-esc: #be185d; }
 .caderno-card--ciano   { --cad: #22d3ee; --cad-esc: #0e7490; }
+.caderno-card--nenhuma { --cad: #b9adc9; --cad-esc: #4d4260; }   /* sem cor: tom neutro */
 
 /* O gradiente da cor é o FUNDO da lombada (lá em cima, no .caderno-card);
    aqui a lombada é só a dobra da capa, que é sombra. */
@@ -891,7 +892,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 }
 
 /* ============================================================
-   AÇÕES DO CARTÃO DE RESUMO (menu ⋮ e lápis)
+   AÇÕES DO CARTÃO DE RESUMO (menu ⋮, lápis e lixeira)
    ============================================================ */
 .resumo-card__acoes {
     flex: none;
@@ -927,6 +928,12 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     color: #fff;
     border-color: var(--accent);
     background: rgba(255,255,255,.1);
+}
+/* só a lixeira fica vermelha — e só quando o mouse vai até ela */
+.resumo-card__botao--apagar:hover {
+    color: #fff;
+    border-color: var(--erro);
+    background: rgba(239, 68, 68, .12);
 }
 .resumo-card__botao:focus-visible {
     opacity: 1;
@@ -1060,30 +1067,8 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 }
 
 /* ---- Grupos de escolha (cor e ícone) ---- */
-.cad-escolha { border: none; padding: 0; margin: 0; }
-.cad-escolha legend {
-    padding: 0;
-    margin-bottom: 8px;
-    font-size: .85rem;
-    font-weight: 500;
-    color: var(--text-dim);
-}
-
-.cad-cores { display: flex; gap: 10px; flex-wrap: wrap; }
-.cad-cor {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.cad-cor:hover { transform: scale(1.1); }
-.cad-cor.escolhido {
-    border-color: #fff;
-    box-shadow: 0 0 0 3px rgba(255,255,255,.18);
-}
-.cad-cor:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* O seletor de cor (.cad-escolha, .cad-cores, .cad-cor) mora no
+   dashboard.css: é o mesmo em cadernos, exercícios e baralhos. */
 
 .cad-icones {
     display: grid;
@@ -1190,6 +1175,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 .tema-caderno--laranja { --cad: #fbbf24; }
 .tema-caderno--rosa    { --cad: #f472b6; }
 .tema-caderno--ciano   { --cad: #22d3ee; }
+.tema-caderno--nenhuma { --cad: #b9adc9; }
 
 .caderno-titulo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .caderno-titulo__icone { font-size: .9em; line-height: 1; }
@@ -1533,4 +1519,125 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 @media (max-width: 560px) {
     .gf-lista { max-height: 50vh; }
     .gf-cabeca { flex-wrap: wrap; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REDESENHO — a Biblioteca parece biblioteca de verdade
+   A mesma ideia de antes (lombadas em pé numa prateleira; dentro do
+   caderno, as folhas), com cara de objeto e sem excesso: a lombada
+   tem volume e um friso na cabeça e no pé; o caderno por dentro é
+   papel pautado com uma margem fina.
+   Tudo continua no roxo escuro do app — o papel é noturno.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ---- A estante: prancha com volume e sombra embaixo ---- */
+.pagina-biblioteca .cadernos-grid {
+    gap: 6px;
+    border-bottom: 0;
+    padding-bottom: 14px;
+    background:
+        linear-gradient(180deg, #2c0b4c 0, #1c0632 8px, #12021f 14px) bottom / 100% 14px no-repeat,
+        radial-gradient(60% 40px at 50% 100%, rgba(0, 0, 0, .55), transparent 70%) bottom / 100% 60px no-repeat;
+    box-shadow: 0 22px 34px -24px rgba(0, 0, 0, .95);
+}
+
+/* ---- A lombada: volume de livro (sombra nas bordas, luz em 1/3) ---- */
+.pagina-biblioteca .caderno-card {
+    width: 58px;
+    border-radius: 4px 4px 2px 2px;
+    background:
+        linear-gradient(90deg,
+            rgba(0, 0, 0, .28) 0%,
+            rgba(255, 255, 255, .12) 30%,
+            rgba(0, 0, 0, 0) 60%,
+            rgba(0, 0, 0, .30) 100%),
+        linear-gradient(180deg, var(--cad) 0%, var(--cad-esc) 100%);
+    box-shadow: 0 14px 22px -14px rgba(0, 0, 0, .9);
+}
+.pagina-biblioteca .caderno-card:nth-child(4n+2) { width: 50px; }
+.pagina-biblioteca .caderno-card:nth-child(6n+4) { width: 64px; }
+
+/* A dobra antiga vira um friso fino na borda */
+.pagina-biblioteca .caderno-card__lombada { width: 4px; opacity: .8; }
+
+/* Um friso fino na cabeça e no pé do livro (no link, que recorta) */
+.pagina-biblioteca .caderno-card__link::before,
+.pagina-biblioteca .caderno-card__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    height: 1px;
+    pointer-events: none;
+    background: rgba(255, 255, 255, .22);
+}
+.pagina-biblioteca .caderno-card__link::before { top: 14px; }
+.pagina-biblioteca .caderno-card__link::after  { bottom: 14px; }
+
+.pagina-biblioteca .caderno-card__body { padding: 26px 8px 28px; }
+.pagina-biblioteca .caderno-card:hover .caderno-card__body,
+.pagina-biblioteca .caderno-card:focus-within .caderno-card__body { padding-bottom: 76px; }
+
+/* ════════ DENTRO DO CADERNO (e os resumos soltos) — folha de caderno ════════
+   A lista dos resumos vira uma folha de caderno: margem fina
+   e uma linha de pauta por resumo. Os soltos da Biblioteca
+   usam a mesma folha. */
+:is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumos-grid {
+    position: relative;
+    padding: 12px 0 12px 44px;
+    border-radius: 14px;
+    background:
+        linear-gradient(90deg, transparent 30px, rgba(244, 114, 182, .4) 30px, rgba(244, 114, 182, .4) 31px, transparent 31px),
+        rgba(255, 255, 255, .02);
+    border: 1px solid rgba(201, 124, 255, .12);
+}
+:is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumo-card {
+    min-height: 66px;
+    border-bottom: 1px solid rgba(147, 197, 253, .10);
+}
+:is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumo-card:last-child { border-bottom: 0; }
+.pagina-biblioteca .rs-soltos .resumos-grid:empty { padding: 0; border: 0; background: none; }
+:is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumo-card:hover,
+:is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumo-card:focus-within {
+    background: rgba(255, 255, 255, .03);
+    box-shadow: none;
+}
+/* o ícone some: num índice de caderno o título é que manda */
+:is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumo-card__thumb { display: none; }
+:is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumo-card__body { padding-left: 4px; }
+:is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumo-card:hover .resumo-card__title { color: var(--accent-lt); }
+
+/* ════════ O RESUMO — uma página de caderno ════════
+   As linhas da pauta ficam exatamente sob o texto (o line-height é
+   o espaçamento da pauta, em px) e uma margem fina à esquerda. */
+.pagina-resumo .resumo-leitura {
+    --linha: 30px;
+    position: relative;
+    max-width: 78ch;
+    padding: 45px 36px 45px 72px;
+    line-height: var(--linha);
+    color: #e9dcff;
+    border-radius: 14px;
+    border: 1px solid rgba(201, 124, 255, .12);
+    background:
+        linear-gradient(90deg, transparent 50px, rgba(244, 114, 182, .4) 50px, rgba(244, 114, 182, .4) 51px, transparent 51px),
+        repeating-linear-gradient(180deg,
+            transparent 0, transparent 29px,
+            rgba(147, 197, 253, .10) 29px, rgba(147, 197, 253, .10) 30px)
+            0 41px / 100% 100% no-repeat,
+        rgba(255, 255, 255, .02);
+}
+@media (max-width: 768px) {
+    .pagina-resumo .resumo-leitura {
+        padding: 45px 18px 45px 46px;
+        background:
+            linear-gradient(90deg, transparent 30px, rgba(244, 114, 182, .4) 30px, rgba(244, 114, 182, .4) 31px, transparent 31px),
+            repeating-linear-gradient(180deg,
+                transparent 0, transparent 29px,
+                rgba(147, 197, 253, .10) 29px, rgba(147, 197, 253, .10) 30px)
+                0 41px / 100% 100% no-repeat,
+            rgba(255, 255, 255, .02);
+    }
+    :is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumos-grid { padding-left: 40px; }
 }

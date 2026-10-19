@@ -49,6 +49,7 @@ try {
             'id'      => (int) $deck['id'],
             'nome'    => $deck['nome'],
             'materia' => $deck['materia'],
+            'cor'     => $deck['cor'],
         ],
         'cartoes' => $cartoes,
     ]);

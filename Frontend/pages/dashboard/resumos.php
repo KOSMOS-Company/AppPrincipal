@@ -104,7 +104,7 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
         <!-- Main -->
-        <main class="contMeio">
+        <main class="contMeio pagina-biblioteca">
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <?php $CAMINHO = [['Biblioteca', null]]; require __DIR__ . '/partes/caminho.php'; ?>

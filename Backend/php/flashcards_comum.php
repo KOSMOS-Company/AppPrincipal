@@ -78,7 +78,7 @@ function fcDeckDoUsuario(PDO $pdo, int $deckId, int $usuarioId): ?array {
     }
 
     $stmt = $pdo->prepare(
-        'SELECT id, nome, materia FROM flashcard_decks WHERE id = ? AND usuario_id = ? LIMIT 1'
+        'SELECT id, nome, materia, cor FROM flashcard_decks WHERE id = ? AND usuario_id = ? LIMIT 1'
     );
     $stmt->execute([$deckId, $usuarioId]);
     $deck = $stmt->fetch();

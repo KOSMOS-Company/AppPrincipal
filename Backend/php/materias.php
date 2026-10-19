@@ -47,6 +47,33 @@ const CORES_AVATAR_KOSMOS = ['roxo', 'azul', 'verde', 'laranja', 'rosa', 'ciano'
    uma cor nova aqui não custa nenhum CSS. */
 const CORES_CADERNO_KOSMOS = CORES_AVATAR_KOSMOS;
 
+/* Além das 6 cores, os itens com cor (cadernos, matérias de exercícios
+   e baralhos) aceitam duas escolhas especiais:
+     'auto'    -> automática: a cor sai da MATÉRIA (a mesma matéria tem
+                  sempre a mesma cor);
+     'nenhuma' -> sem cor: um tom neutro, sem cor de marca.
+   O que fica gravado é a ESCOLHA; o que vai para a tela é a cor
+   efetiva (corDoItem). Gêmeo em js/util.js (corDoItem). */
+const CORES_ESPECIAIS_KOSMOS = ['auto', 'nenhuma'];
+const CORES_ITEM_KOSMOS = [...CORES_ESPECIAIS_KOSMOS, ...CORES_CADERNO_KOSMOS];
+
+/** A cor automática de uma matéria (mesmo cálculo do js/util.js). */
+function corDaMateria(string $materia): string {
+    $h = 0;
+    foreach (mb_str_split($materia) as $ch) {
+        $h = ($h * 31 + mb_ord($ch)) & 0xFFFFFFFF;
+    }
+    return CORES_CADERNO_KOSMOS[$h % count(CORES_CADERNO_KOSMOS)];
+}
+
+/** A escolha gravada -> a cor que a tela pinta (classe *--{cor}). */
+function corDoItem(?string $escolha, string $materia): string {
+    if ($escolha === 'nenhuma') return 'nenhuma';
+    if (in_array($escolha, CORES_CADERNO_KOSMOS, true)) return $escolha;
+    if ($escolha === 'auto') return corDaMateria($materia);
+    return 'roxo';
+}
+
 /**
  * Ícones que o caderno pode usar.
  *

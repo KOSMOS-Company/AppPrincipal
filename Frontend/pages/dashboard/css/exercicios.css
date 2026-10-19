@@ -401,6 +401,7 @@
 :is(.ex-ponto--laranja, .ex-linha--laranja, .exercicio-materia-card--laranja) { --cad: #fbbf24; --cad-esc: #ea580c; }
 :is(.ex-ponto--rosa,    .ex-linha--rosa,    .exercicio-materia-card--rosa)    { --cad: #f472b6; --cad-esc: #be185d; }
 :is(.ex-ponto--ciano,   .ex-linha--ciano,   .exercicio-materia-card--ciano)   { --cad: #22d3ee; --cad-esc: #0e7490; }
+:is(.ex-ponto--nenhuma, .ex-linha--nenhuma, .exercicio-materia-card--nenhuma) { --cad: #b9adc9; --cad-esc: #4d4260; }   /* sem cor */
 
 /* Sem movimento para quem pediu assim: o céu continua inteiro e a
    lista continua muda, só param de respirar. */
@@ -500,30 +501,8 @@
 }
 
 /* ---- Grupos de escolha (cor e ícone) ---- */
-.cad-escolha { border: none; padding: 0; margin: 0; }
-.cad-escolha legend {
-    padding: 0;
-    margin-bottom: 8px;
-    font-size: .85rem;
-    font-weight: 500;
-    color: var(--text-dim);
-}
-
-.cad-cores { display: flex; gap: 10px; flex-wrap: wrap; }
-.cad-cor {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.cad-cor:hover { transform: scale(1.1); }
-.cad-cor.escolhido {
-    border-color: #fff;
-    box-shadow: 0 0 0 3px rgba(255,255,255,.18);
-}
-.cad-cor:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* O seletor de cor (.cad-escolha, .cad-cores, .cad-cor) mora no
+   dashboard.css: é o mesmo em cadernos, exercícios e baralhos. */
 
 .cad-icones {
     display: grid;
@@ -867,21 +846,18 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(165,65,255,.08);
-    border: 1px solid rgba(165,65,255,.25);
+    padding: 2px 0;
+    background: none;
+    border: none;
     color: var(--accent-lt);
     font-family: "DM Sans", sans-serif;
     font-size: .82rem;
     font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 999px;
+    border-radius: 4px;
     cursor: pointer;
     transition: var(--transition);
 }
-.ex-praticar__dica-botao:hover {
-    background: rgba(165,65,255,.16);
-    border-color: var(--accent);
-}
+.ex-praticar__dica-botao:hover { color: #fff; }
 .ex-praticar__dica-botao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ex-praticar__dica-botao svg { width: 14px; height: 14px; flex: none; }
 
@@ -1067,3 +1043,164 @@
     font-size: .8rem;
     color: var(--text-muted);
 }
+
+/* ════════════════════════════════════════════════════════════════
+   REDESENHO — a constelação parece céu de verdade
+   A mesma ideia (cada matéria é uma estrela, ligadas por traços),
+   agora com ESTRELAS: um brilho de quatro pontas com o miolo branco
+   e um halo na cor da matéria. O céu fica limpo: só uma poeira de
+   estrelas bem fraca e traços finos.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ---- O céu ---- */
+.pagina-exercicios .ex-mapa {
+    overflow: visible;
+    background:
+        radial-gradient(1px 1px at 12% 22%, rgba(255, 255, 255, .35) 50%, transparent 51%) 0 0 / 150px 120px,
+        radial-gradient(1px 1px at 68% 74%, rgba(255, 255, 255, .25) 50%, transparent 51%) 0 0 / 150px 120px,
+        radial-gradient(1px 1px at 40% 55%, rgba(220, 205, 255, .3) 50%, transparent 51%) 0 0 / 230px 170px,
+        rgba(8, 0, 16, .45);
+}
+
+/* ---- Os traços: finos e discretos ---- */
+.pagina-exercicios .ex-mapa__linhas line {
+    stroke: rgba(220, 205, 255, .22);
+    stroke-width: 1;
+}
+.pagina-exercicios .ex-mapa__linhas line:last-of-type { stroke: rgba(220, 205, 255, .34); }
+
+/* ---- A estrela ----
+   O ponto vira só o HALO (um brilho redondo na cor da matéria); a
+   estrela de quatro pontas é o ::before, maior que o ponto, com o
+   miolo branco. A área de clique continua sendo o ponto. */
+.pagina-exercicios .ex-ponto {
+    background: radial-gradient(circle, color-mix(in srgb, var(--cad) 55%, transparent) 0%, transparent 68%);
+    box-shadow: none;
+}
+.pagina-exercicios .ex-ponto:hover,
+.pagina-exercicios .ex-ponto:focus-visible {
+    background: radial-gradient(circle, color-mix(in srgb, var(--cad) 80%, transparent) 0%, transparent 72%);
+    box-shadow: none;
+}
+.pagina-exercicios .ex-ponto::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--tamanho, 17px) * 2.1);
+    height: calc(var(--tamanho, 17px) * 2.1);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background: radial-gradient(circle,
+                #fff 0%,
+                color-mix(in srgb, var(--cad) 35%, #fff 65%) 14%,
+                var(--cad) 42%,
+                color-mix(in srgb, var(--cad) 70%, transparent) 100%);
+    /* quatro pontas com as laterais curvas, como um brilho de estrela */
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C53 37 63 47 100 50C63 53 53 63 50 100C47 63 37 53 0 50C37 47 47 37 50 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C53 37 63 47 100 50C63 53 53 63 50 100C47 63 37 53 0 50C37 47 47 37 50 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    animation: estrelaCintila 3.6s ease-in-out infinite;
+}
+.pagina-exercicios .ex-ponto:nth-child(3n)::before   { animation-delay: -1.2s; animation-duration: 4.2s; }
+.pagina-exercicios .ex-ponto:nth-child(3n+1)::before { animation-delay: -2.4s; animation-duration: 3.1s; }
+@keyframes estrelaCintila {
+    0%, 100% { opacity: .85; transform: translate(-50%, -50%) scale(.9); }
+    50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.06); }
+}
+/* estrela sem exercícios: apagada e parada (ainda não acendeu) */
+.pagina-exercicios .ex-ponto--vazia {
+    background: radial-gradient(circle, color-mix(in srgb, var(--cad) 22%, transparent) 0%, transparent 65%);
+}
+.pagina-exercicios .ex-ponto--vazia::before {
+    animation: none;
+    opacity: .4;
+    transform: translate(-50%, -50%) scale(.8);
+}
+.pagina-exercicios .ex-ponto--vazia:hover::before { opacity: .7; }
+
+@media (prefers-reduced-motion: reduce) {
+    .pagina-exercicios .ex-ponto::before { animation: none; }
+}
+
+/* ---- A forma da estrela, usada na lista e dentro da matéria ---- */
+:is(.pagina-exercicios, .pagina-materia) {
+    --forma-estrela: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C53 37 63 47 100 50C63 53 53 63 50 100C47 63 37 53 0 50C37 47 47 37 50 0Z'/%3E%3C/svg%3E");
+}
+
+/* ---- A lista embaixo do céu: a bolinha de cada matéria vira estrela ---- */
+.pagina-exercicios .ex-linha__ponto {
+    width: 20px;
+    height: 20px;
+    border-radius: 0;
+    box-shadow: none;
+    background: radial-gradient(circle,
+                #fff 0%,
+                color-mix(in srgb, var(--cad, var(--accent)) 35%, #fff 65%) 14%,
+                var(--cad, var(--accent)) 45%);
+    -webkit-mask: var(--forma-estrela) center / contain no-repeat;
+            mask: var(--forma-estrela) center / contain no-repeat;
+}
+.pagina-exercicios .ex-linha--vazia .ex-linha__ponto { opacity: .45; }
+.pagina-exercicios .ex-linha:hover .ex-linha__ponto { transform: scale(1.15) rotate(15deg); }
+
+/* ════════ DENTRO DA MATÉRIA — cada exercício é uma pequena constelação ════════
+   O título ganha a estrela da matéria e, embaixo, uma trilha com uma
+   estrela por questão (até 12), ligadas por um traço fino. */
+.pagina-materia .exercicio-salvo-card {
+    position: relative;
+    border-color: color-mix(in srgb, var(--cad, var(--accent)) 18%, transparent);
+    background:
+        radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--cad, var(--accent)) 10%, transparent), transparent 60%),
+        var(--bg-card);
+}
+.pagina-materia .exercicio-salvo-card:hover {
+    border-color: color-mix(in srgb, var(--cad, var(--accent)) 40%, transparent);
+}
+/* a estrela antes do título */
+.pagina-materia .exercicio-salvo-card__info {
+    position: relative;
+    padding-left: 24px;
+}
+.pagina-materia .exercicio-salvo-card__info::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle, #fff 0%, var(--cad, var(--accent)) 45%);
+    -webkit-mask: var(--forma-estrela) center / contain no-repeat;
+            mask: var(--forma-estrela) center / contain no-repeat;
+    transition: transform var(--transition);
+}
+.pagina-materia .exercicio-salvo-card:hover .exercicio-salvo-card__info::before { transform: rotate(20deg) scale(1.1); }
+
+/* a trilha: uma estrela por questão, num traço fino */
+.pagina-materia .exercicio-salvo-card__trilha {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: max-content;
+    max-width: 100%;
+    min-height: 12px;
+    background: linear-gradient(color-mix(in srgb, var(--cad, var(--accent)) 30%, transparent), color-mix(in srgb, var(--cad, var(--accent)) 30%, transparent)) center / calc(100% - 10px) 1px no-repeat;
+}
+.pagina-materia .exercicio-salvo-card__trilha:empty { display: none; }
+.pagina-materia .exercicio-salvo-card__trilha i {
+    flex: none;
+    width: 12px;
+    height: 12px;
+    background: color-mix(in srgb, var(--cad, var(--accent)) 70%, #fff 30%);
+    -webkit-mask: var(--forma-estrela) center / contain no-repeat;
+            mask: var(--forma-estrela) center / contain no-repeat;
+    opacity: .75;
+}
+.pagina-materia .exercicio-salvo-card__trilha i:nth-child(odd) { width: 15px; height: 15px; opacity: 1; }
+
+/* O botão Praticar: ícone (o brilho da IA) e texto centralizados */
+.pagina-materia .exercicio-salvo-card__acoes .dash-btn--outline {
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+.pagina-materia .exercicio-salvo-card__acoes .dash-btn--outline svg { width: 16px; height: 16px; flex: none; }

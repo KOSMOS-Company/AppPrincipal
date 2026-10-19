@@ -28,7 +28,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
-        <main class="contMeio">
+        <main class="contMeio pagina-flashcards">
 
             <!-- ============================================================
                  VISÃO 1 — SEUS DECKS
@@ -234,6 +234,13 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 <?php endforeach; ?>
                     </datalist>
                 </div>
+                <!-- Cor da moldura: "automática" segue a matéria; as outras
+                     são a mesma paleta dos cadernos (.avatar-cor--*) -->
+                <fieldset class="campo cad-escolha">
+                    <legend>Cor</legend>
+<?php $SC_ID = 'corDeck'; $SC_ROTULO = 'Cor do baralho'; $SC_MARCADA = 'roxo';
+      require __DIR__ . '/partes/seletor-cor.php'; ?>
+                </fieldset>
                 <div class="modal__actions">
                     <button type="button" class="dash-btn dash-btn--outline" data-fechar-modal>Cancelar</button>
                     <button type="submit" class="dash-btn dash-btn--primary" id="btnSalvarDeck">Criar baralho</button>
