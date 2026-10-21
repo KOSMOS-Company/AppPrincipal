@@ -10,15 +10,16 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Flashcards</title>
+    <link rel="stylesheet" href="<?= asset('../shared/tokens.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/dashboard.css') ?>">
     <link rel="stylesheet" href="<?= asset('../shared/cosmos.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/pomodoro-aviso.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/flashcards.css') ?>">
-    <link rel="stylesheet" href="<?= asset('./css/cursor.css') ?>">
+    <link rel="stylesheet" href="<?= asset('../shared/cursor.css') ?>">
     <link rel="stylesheet" href="<?= asset('../shared/logo.css') ?>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="preload" href="../shared/fontes/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../shared/fontes/syne-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="<?= asset('../shared/fontes.css') ?>">
 </head>
 <body class="dashboard-fundo-estatico">
 
@@ -279,22 +280,9 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
         </div>
     </div>
 
-    <!-- ============================================================
-         MODAL — confirmar exclusão
-         ============================================================ -->
-    <div class="modal" id="modalConfirma" role="dialog" aria-modal="true" aria-labelledby="modalConfirmaTitulo">
-        <div class="modal__box modal__box--estreito">
-            <div class="modal__head">
-                <h3 id="modalConfirmaTitulo">Tem certeza?</h3>
-                <button class="modal__close" data-fechar-modal aria-label="Fechar">&times;</button>
-            </div>
-            <p class="modal__texto" id="confirmaTexto">Esta ação não pode ser desfeita.</p>
-            <div class="modal__actions">
-                <button type="button" class="dash-btn dash-btn--outline" data-fechar-modal>Cancelar</button>
-                <button type="button" class="dash-btn fc-btn--perigo" id="btnConfirmar">Excluir</button>
-            </div>
-        </div>
-    </div>
+    <!-- Confirmar exclusão: o modal compartilhado das outras abas
+         (quem preenche e responde é o confirmar() do dashboard.js) -->
+    <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
 
     <!-- Aviso curto de sucesso/erro -->
     <div class="fc-aviso" id="aviso" role="status" aria-live="polite" hidden></div>
@@ -304,7 +292,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
     <script src="<?= asset('./js/pomodoro-aviso.js') ?>"></script>
     <script src="<?= asset('./js/combo-materia.js') ?>"></script>
     <script src="<?= asset('./js/flashcards.js') ?>"></script>
-    <script src="<?= asset('./js/cursor.js') ?>"></script>
+    <script src="<?= asset('../shared/cursor.js') ?>"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta
          primeiro e, se não houver placa ou o shader não compilar, ele
          desiste em silêncio e o cosmos.js (Canvas 2D) assume — por isso

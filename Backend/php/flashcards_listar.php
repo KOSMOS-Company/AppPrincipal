@@ -72,6 +72,7 @@ try {
         'decks'  => $decks,
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     fcErro('Não foi possível carregar seus flashcards.', 500);
 }
 

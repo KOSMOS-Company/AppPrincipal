@@ -6,26 +6,22 @@
 //  no Google, cria/loga o usuário e abre a sessão.
 // ============================================================
 
-header('Content-Type: application/json; charset=utf-8');
-
-
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/config.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'msg' => 'Método não permitido.']);
-    exit;
-}
+apiExigirPost();
+// Mesmo motivo do login.php: sem isso, outro site podia logar a vítima
+// na conta Google do atacante (login CSRF)
+exigirMesmaOrigem();
 
 // Aceita o ID token (credential) ou o access token do popup de
 // "escolher conta" (google.accounts.oauth2 — usado pelos botões).
 $idToken     = $_POST['credential'] ?? '';
 $accessToken = $_POST['access_token'] ?? '';
 if ($idToken === '' && $accessToken === '') {
-    echo json_encode(['ok' => false, 'msg' => 'Token do Google ausente.']);
-    exit;
+    apiErro('Token do Google ausente.', 400);
 }
 
 function googleGet(string $url, array $headers = []): ?array
@@ -52,17 +48,13 @@ $info = $idToken !== ''
     : googleGet('https://oauth2.googleapis.com/tokeninfo?access_token=' . urlencode($accessToken));
 
 if ($info === null) {
-    http_response_code(401);
-    echo json_encode(['ok' => false, 'msg' => 'Não foi possível validar a conta Google.']);
-    exit;
+    apiErro('Não foi possível validar a conta Google.', 401);
 }
 
 // O token tem que ser para ESTE app (audience = nosso Client ID).
 // Sem isso, um access token emitido para outro site seria aceito aqui.
 if (($info['aud'] ?? '') !== GOOGLE_CLIENT_ID) {
-    http_response_code(401);
-    echo json_encode(['ok' => false, 'msg' => 'Token do Google inválido para este app.']);
-    exit;
+    apiErro('Token do Google inválido para este app.', 401);
 }
 
 // O tokeninfo de access token não traz o nome: busca no userinfo
@@ -81,8 +73,7 @@ $googleId = $info['sub'] ?? '';
 
 // sub vazio faria a busca por google_id casar contas com google_id ''
 if (!$emailVerificado || $email === '' || $googleId === '') {
-    echo json_encode(['ok' => false, 'msg' => 'A conta Google não tem e-mail verificado.']);
-    exit;
+    apiErro('A conta Google não tem e-mail verificado.', 422);
 }
 
 $nome = trim($info['name'] ?? '');
@@ -153,13 +144,13 @@ try {
 
     // precisa_senha = conta sem senha própria (só Google). O frontend leva
     // esse usuário para a tela de criação de senha antes do dashboard.
-    echo json_encode([
+    apiResponder([
         'ok'            => true,
         'msg'           => 'Login com Google realizado!',
         'nome'          => $nomeFinal,
         'precisa_senha' => !$temSenha,
     ]);
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'msg' => 'Erro ao entrar com o Google.']);
+    registrarErro($e, 'login Google');
+    apiErro('Erro ao entrar com o Google.', 500);
 }

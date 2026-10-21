@@ -6,28 +6,23 @@
 //  grava a nova senha e invalida o token (uso único).
 // ============================================================
 
-header('Content-Type: application/json; charset=utf-8');
-
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/senha_util.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'msg' => 'Método não permitido.']);
-    exit;
-}
+apiExigirPost();
+exigirMesmaOrigem();
 
 $token = trim($_POST['token']      ?? '');
 $nova  = lerSenha('senha_nova');
 
-if ($token === '') {
-    echo json_encode(['ok' => false, 'msg' => 'Token ausente.']);
-    exit;
+// O token do e-mail é sempre 64 caracteres hexadecimais (32 bytes)
+if (!preg_match('/^[0-9a-f]{64}$/', $token)) {
+    apiErro('Link inválido ou expirado. Solicite um novo.', 400);
 }
 if (($erro = erroNovaSenha($nova)) !== null) {
-    http_response_code(422);
-    echo json_encode(['ok' => false, 'msg' => $erro]);
-    exit;
+    apiErro($erro, 422);
 }
 
 try {
@@ -40,22 +35,20 @@ try {
     $user = $stmt->fetch();
 
     if (!$user) {
-        echo json_encode(['ok' => false, 'msg' => 'Link inválido ou expirado. Solicite um novo.']);
-        exit;
+        apiErro('Link inválido ou expirado. Solicite um novo.', 400);
     }
 
     // Grava a nova senha, invalida o token (uso único) e sobe a geração de
     // sessões: se a senha foi redefinida porque vazou, quem estava logado
     // com ela cai no próximo acesso (ver sessaoAindaValida em sessao.php)
-    $novoHash = gerarHashSenha($nova);
     $upd = $pdo->prepare('UPDATE usuarios
                              SET senha_hash = ?, reset_token = NULL, reset_expira = NULL,
                                  sessoes_versao = sessoes_versao + 1
                            WHERE id = ?');
-    $upd->execute([$novoHash, $user['id']]);
+    $upd->execute([gerarHashSenha($nova), $user['id']]);
 
-    echo json_encode(['ok' => true, 'msg' => 'Senha redefinida com sucesso! Você já pode entrar.']);
+    apiResponder(['ok' => true, 'msg' => 'Senha redefinida com sucesso! Você já pode entrar.']);
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'msg' => 'Não foi possível redefinir a senha.']);
+    registrarErro($e, 'redefinir senha');
+    apiErro('Não foi possível redefinir a senha.', 500);
 }

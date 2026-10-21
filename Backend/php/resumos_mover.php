@@ -75,5 +75,6 @@ try {
         ],
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível mover o resumo.', 500);
 }

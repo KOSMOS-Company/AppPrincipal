@@ -806,9 +806,19 @@
 .ex-gerar-alt.correta { border-color: rgba(52,211,153,.5) !important; background: rgba(52,211,153,.12) !important; }
 .ex-gerar-alt.correta:hover { background: rgba(52,211,153,.18) !important; }
 
-/* Spinner para botões */
+/* Spinner para botões (antes vinha inteiro num style="" dentro do JS) */
 @keyframes spin { to { transform: rotate(360deg); } }
-.spinner { display: inline-block; vertical-align: middle; }
+.spinner {
+    display: inline-block;
+    vertical-align: middle;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
 
 /* ============================================================
    MODAL PRATICAR — quiz de uma questão por vez

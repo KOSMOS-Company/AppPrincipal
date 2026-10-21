@@ -59,16 +59,17 @@ if ($id > 0 && !$ERRO_BANCO) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title><?= $RESUMO ? hesc($RESUMO['titulo']) . ' — Kosmos' : 'Kosmos — Resumo' ?></title>
+    <link rel="stylesheet" href="<?= asset('../shared/tokens.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/dashboard.css') ?>">
     <link rel="stylesheet" href="<?= asset('../shared/cosmos.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/pomodoro-aviso.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/resumos.css') ?>">
-    <link rel="stylesheet" href="<?= asset('./css/cursor.css') ?>">
+    <link rel="stylesheet" href="<?= asset('../shared/cursor.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/impressao.css') ?>" media="print">
     <link rel="stylesheet" href="<?= asset('../shared/logo.css') ?>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="preload" href="../shared/fontes/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../shared/fontes/syne-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="<?= asset('../shared/fontes.css') ?>">
 </head>
 <body class="dashboard-fundo-estatico">
 
@@ -211,7 +212,7 @@ if ($id > 0 && !$ERRO_BANCO) {
     <script src="<?= asset('./js/flashcards-gerar.js') ?>"></script>
     <script src="<?= asset('./js/resumo.js') ?>"></script>
     <script src="<?= asset('./js/resumo-revisao.js') ?>"></script>
-    <script src="<?= asset('./js/cursor.js') ?>"></script>
+    <script src="<?= asset('../shared/cursor.js') ?>"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta
          primeiro e, se não houver placa ou o shader não compilar, ele
          desiste em silêncio e o cosmos.js (Canvas 2D) assume — por isso

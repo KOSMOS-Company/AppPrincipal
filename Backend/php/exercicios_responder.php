@@ -84,5 +84,6 @@ try {
         'progresso' => $progresso,
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível registrar a resposta.', 500);
 }

@@ -32,8 +32,8 @@
 .modal,
 #voltar,
 .caminho,
-.dash-cursor,
-.dash-cursor__dot {
+.kcursor-dot,
+.kcursor-ring {
     display: none !important;
 }
 

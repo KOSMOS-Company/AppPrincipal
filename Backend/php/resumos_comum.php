@@ -10,8 +10,8 @@
 //  um relógio só. (Ver "Problemas conhecidos": fuso PHP × MySQL.)
 // ============================================================
 
-header('Content-Type: application/json; charset=utf-8');
-
+// apiResponder(), apiErro() e apiExigirPost() vêm do api_util.php
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/materias.php';
@@ -27,25 +27,6 @@ const RS_MAX_CORPO  = 20000;     // mediumtext aguenta muito mais; isto é o lim
 const RS_MAX_CADERNO   = 120;
 const RS_MAX_MATERIA   = 40;
 const RS_MAX_DESCRICAO = 160;
-
-/** Responde em JSON e encerra. */
-function apiResponder(array $dados, int $codigo = 200): void {
-    http_response_code($codigo);
-    echo json_encode($dados, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-/** Erro simples ("não deu certo, e o motivo"). */
-function apiErro(string $msg, int $codigo = 400): void {
-    apiResponder(['ok' => false, 'msg' => $msg], $codigo);
-}
-
-/** Recusa qualquer coisa que não seja POST. */
-function apiExigirPost(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        apiErro('Método não permitido.', 405);
-    }
-}
 
 /** Lê um campo de texto do POST já validado. */
 function apiTexto(string $campo, string $rotulo, int $max, array &$erros, bool $obrigatorio = true): string {

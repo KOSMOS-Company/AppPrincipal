@@ -161,11 +161,11 @@ html.kosmos-lite .pomo-selo__pulso { animation: none; box-shadow: none; }
 
 /* O cursor de anel e ponto é um laço de quadros: no Lite, o nativo.
    (O cursor.js já não liga no Lite; isto cobre a troca na hora.) */
-html.kosmos-lite :is(.dash-cursor, .dash-cursor__dot) { display: none !important; }
-html.kosmos-lite.has-dash-cursor,
-html.kosmos-lite.has-dash-cursor * { cursor: auto !important; }
-html.kosmos-lite.has-dash-cursor :is(a, button, [role="button"], label, summary, select) { cursor: pointer !important; }
-html.kosmos-lite.has-dash-cursor :is(input:not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable]) { cursor: text !important; }
+html.kosmos-lite :is(.kcursor-dot, .kcursor-ring) { display: none !important; }
+html.kosmos-lite.kcursor,
+html.kosmos-lite.kcursor * { cursor: auto !important; }
+html.kosmos-lite.kcursor :is(a, button, [role="button"], label, summary, select) { cursor: pointer !important; }
+html.kosmos-lite.kcursor :is(input:not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable]) { cursor: text !important; }
 
 /* Cards não "levantam" no hover — a sombra neutra já marca */
 html.kosmos-lite :is(.resumo-card, .caderno-card, .deck-card, .exercicio-materia-card, a.ini-card):hover {

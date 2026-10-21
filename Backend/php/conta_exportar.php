@@ -64,6 +64,7 @@ try {
             $st->execute($params);
             return $st->fetchAll();
         } catch (PDOException $e) {
+            registrarErro($e);
             return [];
         }
     };
@@ -134,7 +135,7 @@ try {
                            WHERE uc.usuario_id = ?
                            ORDER BY uc.desbloqueado_em', [$id]);
 
-    // Data da exportação pelo relógio do MySQL (o PHP roda em outro fuso)
+    // Data da exportação pelo relógio do MySQL (a regra de datas do projeto, ver README)
     $agora = $pdo->query('SELECT NOW() AS agora, CURDATE() AS hoje')->fetch();
 
     $dados = [
@@ -175,6 +176,7 @@ try {
     header('Content-Disposition: attachment; filename="' . $nomeArquivo . '"');
     echo json_encode($dados, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (PDOException $e) {
+    registrarErro($e);
     header('Content-Type: application/json; charset=utf-8');
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Não foi possível exportar seus dados.']);

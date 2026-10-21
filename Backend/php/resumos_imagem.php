@@ -120,6 +120,7 @@ try {
             apiErro('Ação desconhecida.');
     }
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível salvar as imagens.', 500);
 }
 

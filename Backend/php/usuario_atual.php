@@ -65,6 +65,7 @@ try {
         $avatarPos = ['x' => (int) $pref['avatar_pos_x'], 'y' => (int) $pref['avatar_pos_y']];
     }
 } catch (PDOException $e) {
+    registrarErro($e);
     $sequencia = 0;
 }
 

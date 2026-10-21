@@ -202,6 +202,7 @@ try {
             $PREF['avatar_emblema'] = $r['avatar_emblema'];
         }
     } catch (PDOException $e) {
+        registrarErro($e);
         // sem as colunas: avatar como sempre foi
     }
 
@@ -255,6 +256,7 @@ try {
         error_log('[KOSMOS progresso] ' . $e->getMessage());
     }
 } catch (PDOException $e) {
+    registrarErro($e);
     // Banco fora do ar: a página abre com os padrões acima e avisa.
     $ERRO_BANCO = true;
 }

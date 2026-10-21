@@ -29,10 +29,12 @@
 //     ganhos. As checagens que dependem da ação (Pomodoro sobreposto,
 //     cartão já revisado hoje, questão já respondida hoje) ficam no
 //     endpoint, que é quem conhece o contexto.
-//   - Datas sempre pelo relógio do MySQL (CURDATE/NOW): PHP e MySQL
-//     rodam em fusos diferentes neste projeto.
+//   - Datas sempre pelo relógio do MySQL (CURDATE/NOW): um relógio
+//     só (regra de datas do projeto, ver README).
 //   - xp_atual = SUM(historico_xp). Nada soma XP sem deixar linha.
 // ============================================================
+
+require_once __DIR__ . '/bootstrap.php';   // registrarErro()
 
 require_once __DIR__ . '/conquistas_icones.php';
 
@@ -572,6 +574,7 @@ final class ProgressoService
                     'SELECT slug, tipo, nome, descricao, nivel_minimo, valor FROM recompensas ORDER BY nivel_minimo, ordem'
                 )->fetchAll();
             } catch (PDOException $e) {
+                registrarErro($e);
                 $rows = [];
             }
             self::$catalogo = array_map(fn($r) => [
@@ -632,6 +635,7 @@ final class ProgressoService
             $stmt->execute([$usuarioId]);
             $p = $stmt->fetch();
         } catch (PDOException $e) {
+            registrarErro($e);
             $p = false;   // colunas ainda não migradas
         }
         return [

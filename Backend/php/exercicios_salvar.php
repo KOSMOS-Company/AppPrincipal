@@ -120,7 +120,9 @@ try {
             apiErro('Ação desconhecida.');
     }
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível salvar o exercício.', 500);
 } catch (Throwable $e) {
+    registrarErro($e);
     apiErro('Erro inesperado ao salvar o exercício.', 500);
 }

@@ -62,5 +62,6 @@ try {
 
     estResponder(['cartoes' => $cartoes]);
 } catch (PDOException $e) {
+    registrarErro($e);
     estErro('Não foi possível montar a fila.', 500);
 }

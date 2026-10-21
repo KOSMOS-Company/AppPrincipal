@@ -71,6 +71,7 @@ try {
             fcErro('Ação desconhecida.');
     }
 } catch (PDOException $e) {
+    registrarErro($e);
     fcErro('Não foi possível salvar o deck.', 500);
 }
 

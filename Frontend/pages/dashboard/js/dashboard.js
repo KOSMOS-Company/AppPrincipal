@@ -639,7 +639,7 @@ function ativarSair() {
     botao.addEventListener("click", async () => {
         botao.disabled = true;
         try {
-            await fetch(`${API}/logout.php`);
+            await fetch(`${API}/logout.php`, { method: "POST" });
         } catch (err) {
             /* mesmo se falhar, vamos para o login */
         }

@@ -98,8 +98,8 @@
      * qualquer que seja o dia de hoje.
      * @param {Array<{data:string, minutos:number, hoje:boolean, futuro:boolean}>|null} serie
      *        Os 7 dias, de domingo a sábado, como o inicio_dados.php
-     *        manda (as datas vêm do MySQL — o projeto tem PHP e MySQL
-     *        em fusos diferentes, ver README). Passe null para o
+     *        manda (as datas vêm do MySQL — regra de datas do
+     *        projeto, ver README). Passe null para o
      *        estado vazio: aí o "hoje" sai do relógio do navegador.
      */
     function renderGrafico(serie) {

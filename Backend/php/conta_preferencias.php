@@ -175,6 +175,7 @@ try {
         'cores_disponiveis'    => CORES_AVATAR,
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Não foi possível carregar/salvar as preferências.']);
 }

@@ -111,5 +111,6 @@ try {
 
     apiResponder($resposta);
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível carregar seus resumos.', 500);
 }

@@ -66,6 +66,7 @@ try {
         'avatar_url'    => urlAvatar(avatarDoUsuario($pdo, (int) $usuario['id'])),
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Erro ao carregar os dados da conta.']);
 }

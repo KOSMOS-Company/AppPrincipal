@@ -47,5 +47,6 @@ try {
 
     apiResponder(['ok' => true, 'exercicios' => $exercicios]);
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível listar os exercícios.', 500);
 }

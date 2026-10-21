@@ -436,11 +436,9 @@
 
     const modalDeck     = $("#modalDeck");
     const modalCartao   = $("#modalCartao");
-    const modalConfirma = $("#modalConfirma");
 
     let deckEditando   = null;   // id ou null (= criando)
     let cartaoEditando = null;
-    let aoConfirmar    = null;   // callback do modal de exclusão
 
     function abrirModal(modal, focar) {
         modal.classList.add("open");
@@ -448,7 +446,7 @@
     }
 
     function fecharModais() {
-        [modalDeck, modalCartao, modalConfirma].forEach((m) => m.classList.remove("open"));
+        [modalDeck, modalCartao].forEach((m) => m.classList.remove("open"));
     }
 
     function abrirModalDeck(deck) {
@@ -508,11 +506,13 @@
         abrirModal(modalCartao, $("#frenteCartao"));
     }
 
-    function confirmar(titulo, texto, callback) {
-        $("#modalConfirmaTitulo").textContent = titulo;
-        $("#confirmaTexto").innerHTML = texto;
-        aoConfirmar = callback;
-        abrirModal(modalConfirma, $("#btnConfirmar"));
+    /* Usa o modal de confirmação compartilhado (confirmar() do
+       dashboard.js + partes/modal-confirma.php), o mesmo das outras
+       abas. Antes esta aba tinha uma cópia própria, com o texto
+       montado em innerHTML. */
+    async function confirmarExclusao(titulo, texto, callback) {
+        const ok = await window.confirmar({ titulo, texto, botao: "Excluir", perigo: true });
+        if (ok) await callback();
     }
 
     /* ============================================================
@@ -601,13 +601,6 @@
         }
     });
 
-    $("#btnConfirmar").addEventListener("click", async () => {
-        const acao = aoConfirmar;
-        aoConfirmar = null;
-        fecharModais();
-        if (acao) await acao();
-    });
-
     async function excluirDeck(deck) {
         try {
             const json = await pedir("flashcards_deck.php", { acao: "excluir", id: deck.id });
@@ -653,11 +646,11 @@
         if (alvo.dataset.cartoes)     return abrirCartoes(id);
         if (alvo.dataset.editarDeck)  return abrirModalDeck(deck);
         if (alvo.dataset.excluirDeck) {
-            confirmar(
+            confirmarExclusao(
                 "Excluir baralho?",
                 deck.cartoes === 0
-                    ? `O baralho <strong>${escaparHtml(deck.nome)}</strong> será apagado. Não dá para desfazer.`
-                    : `O baralho <strong>${escaparHtml(deck.nome)}</strong> e os seus ${deck.cartoes} `
+                    ? `O baralho "${deck.nome}" será apagado. Não dá para desfazer.`
+                    : `O baralho "${deck.nome}" e os seus ${deck.cartoes} `
                       + `${plural(deck.cartoes, "cartão", "cartões")} serão apagados. Não dá para desfazer.`,
                 () => excluirDeck(deck)
             );
@@ -685,9 +678,9 @@
 
         if (alvo.dataset.editarCartao) return abrirModalCartao(cartao);
 
-        confirmar(
+        confirmarExclusao(
             "Excluir cartão?",
-            `O cartão <strong>${escaparHtml(recortar(cartao.frente, 60))}</strong> será apagado.`,
+            `O cartão "${recortar(cartao.frente, 60)}" será apagado.`,
             () => excluirCartao(cartao)
         );
     });
@@ -740,7 +733,7 @@
     document.querySelectorAll("[data-fechar-modal]").forEach((botao) => {
         botao.addEventListener("click", fecharModais);
     });
-    [modalDeck, modalCartao, modalConfirma].forEach((modal) => {
+    [modalDeck, modalCartao].forEach((modal) => {
         modal.addEventListener("click", (e) => { if (e.target === modal) fecharModais(); });
     });
 

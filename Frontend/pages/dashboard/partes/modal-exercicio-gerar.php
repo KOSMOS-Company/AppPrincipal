@@ -31,7 +31,7 @@ if (!isset($USUARIO, $PREF)) {
 
                         <div class="campo">
                             <label for="exGerarConteudo">Conteúdo específico <span class="campo__opcional">(obrigatório)</span></label>
-                            <textarea id="exGerarConteudo" rows="4" placeholder="Descreva o tópico exato para gerar exercícios direcionados...&#10;Ex: Derivadas de funções polinomiais, regra da cadeia, derivadas de funções trigonométricas" required></textarea>
+                            <textarea id="exGerarConteudo" rows="4" maxlength="1000" placeholder="Descreva o tópico exato para gerar exercícios direcionados...&#10;Ex: Derivadas de funções polinomiais, regra da cadeia, derivadas de funções trigonométricas" required></textarea>
                             <span class="campo__dica">Quanto mais específico você for, melhor a IA acerta no foco.</span>
                         </div>
 

@@ -35,5 +35,6 @@ try {
 } catch (DomainException $e) {
     apiErro($e->getMessage(), 422);
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível equipar agora.', 500);
 }

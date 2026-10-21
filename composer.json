@@ -1,0 +1,21 @@
+{
+    "name": "kosmos-company/app-principal",
+    "description": "KOSMOS — plataforma de organização de estudos (TCC). O projeto não usa pacotes do Composer: este arquivo existe para DECLARAR a versão do PHP e as extensões de que o backend depende (rode `composer check-platform-reqs` para conferir o seu ambiente).",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.1",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-mbstring": "*",
+        "ext-curl": "*",
+        "ext-fileinfo": "*",
+        "ext-json": "*"
+    },
+    "suggest": {
+        "ext-gd": "Reduz e regera as fotos de perfil no servidor (sem ela, o navegador já reduz antes do envio)."
+    },
+    "scripts": {
+        "test": "php Backend/testes/rodar.php"
+    }
+}

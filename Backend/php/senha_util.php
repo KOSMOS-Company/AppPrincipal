@@ -45,3 +45,14 @@ function gerarHashSenha(string $senha): string {
 function senhaConfere(string $senha, string $hash): bool {
     return password_verify($senha, $hash);
 }
+
+/**
+ * Hash bcrypt de uma senha aleatória descartada, com o mesmo custo (12)
+ * dos de verdade. O login confere contra ele quando o e-mail não
+ * existe, para a resposta levar o mesmo tempo nos dois casos. É fixo
+ * de propósito: gerá-lo na hora custaria um segundo bcrypt e
+ * recriaria a diferença de tempo. Ninguém sabe a senha que o gerou.
+ */
+function senhaHashFalso(): string {
+    return '$2y$12$nNBJ9cnB4G2WiuLILDbGAeXgeYILWieXByzSavOBn3P.hoAhY5J/y';
+}

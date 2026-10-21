@@ -1,15 +1,84 @@
 # ============================================================
 #  KOSMOS — configuração do Apache (raiz do app: AppPrincipal/)
+#
+#  Nada aqui depende da pasta onde o app foi instalado: as regras
+#  são relativas a este arquivo. (Antes o 404 apontava para
+#  /KOSMOS/AppPrincipal/..., que só existia numa máquina.)
+#
+#  Módulos usados: mod_rewrite e mod_headers (ligados no XAMPP) e
+#  mod_deflate e mod_expires (DESLIGADOS no XAMPP — para ativar,
+#  tire o "#" das linhas LoadModule deles no httpd.conf). Cada bloco
+#  está num <IfModule>: sem o módulo, o bloco é ignorado e o site
+#  continua abrindo (só perde aquela melhoria).
 # ============================================================
-# Página de erro 404 personalizada (com a identidade do projeto).
-#
-# No XAMPP local o app é servido em /KOSMOS/AppPrincipal/, então o caminho
-# abaixo é absoluto a partir da raiz do servidor:
-ErrorDocument 404 /KOSMOS/AppPrincipal/Frontend/pages/404.html
-#
-# Ao publicar num domínio onde AppPrincipal/ (ou Frontend/) for a raiz do site,
-# ajuste para o caminho correspondente, por exemplo:
-#   ErrorDocument 404 /Frontend/pages/404.html
+
+# Sem listagem de pastas: sem isto, abrir Backend/uploads/avatares/
+# no navegador mostrava a lista das fotos de todo mundo.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Arquivos e pastas ocultos (.git, .opencode, .htaccess...) nunca
+    # saem pelo navegador — o .git inteiro (histórico, config) ficava
+    # público por estar dentro do htdocs.
+    RewriteRule (^|/)\. - [F]
+
+    # Entrar pela pasta do app (ex.: http://localhost/AppPrincipal/)
+    # leva para a landing page. Antes o Apache mostrava a lista de
+    # arquivos; sem a listagem (Options -Indexes, acima), essas pastas
+    # dariam 403. O %{REQUEST_URI} mantém o caminho de qualquer
+    # instalação, sem nome de pasta fixo.
+    RewriteRule ^$                %{REQUEST_URI}Frontend/pages/inicio/index.html [R=302,L]
+    RewriteRule ^Frontend/$       %{REQUEST_URI}pages/inicio/index.html          [R=302,L]
+    RewriteRule ^Frontend/pages/$ %{REQUEST_URI}inicio/index.html                [R=302,L]
+
+    # Página 404 personalizada. Caminho relativo a esta pasta, então
+    # vale em qualquer instalação. A própria 404.php descobre a base
+    # para montar os links (ver o cabeçalho dela).
+    # Obs.: se o app for publicado por um Alias do Apache (e não
+    # dentro do DocumentRoot), acrescente aqui: RewriteBase /<alias>/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ Frontend/pages/404.php [L]
+</IfModule>
+
+# ---------- Cabeçalhos de segurança ----------
+# Valem para os arquivos estáticos (HTML, CSS, JS). As respostas do
+# PHP recebem os mesmos cabeçalhos pelo Backend/php/bootstrap.php —
+# assim eles existem mesmo fora do Apache (ex.: nginx).
+<IfModule mod_headers.c>
+    # o navegador não "adivinha" tipo: um .jpg nunca roda como script
+    Header set X-Content-Type-Options "nosniff"
+    # ninguém embute o app num <iframe> de outro site (clickjacking)
+    Header set X-Frame-Options "SAMEORIGIN"
+    # link de redefinição de senha leva token na URL: outros sites
+    # recebem só a origem, nunca o caminho completo
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header set Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
+</IfModule>
+
+# ---------- Compressão ----------
+# Texto comprimido no envio: o dashboard.css (≈3 mil linhas) cai para
+# uma fração do tamanho sem precisar de etapa de build/minificação.
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript text/javascript application/json image/svg+xml
+</IfModule>
+
+# ---------- Cache de fontes e imagens ----------
+# Só fontes e imagens, que quase nunca mudam. CSS, JS e HTML ficam de
+# fora DE PROPÓSITO: eles seguem a regra "no-cache" logo abaixo (o
+# navegador sempre confere com o servidor), e um prazo aqui iria
+# contra ela.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType font/woff2              "access plus 1 year"
+    ExpiresByType image/svg+xml           "access plus 1 month"
+    ExpiresByType image/png               "access plus 1 month"
+    ExpiresByType image/jpeg              "access plus 1 month"
+    ExpiresByType image/webp              "access plus 1 month"
+</IfModule>
 
 # ------------------------------------------------------------
 # Cache: CSS, JS e HTML SEMPRE conferem com o servidor

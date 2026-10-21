@@ -7,6 +7,9 @@
 
 // exigirLogin() confere a versão da sessão no banco, então precisa de conectar()
 require_once __DIR__ . '/conexao.php';
+// fuso, log e cabeçalhos — o conexao.php novo já carrega; isto cobre
+// quem ainda tem uma cópia antiga dele (ver bootstrap.php)
+require_once __DIR__ . '/bootstrap.php';
 
 /**
  * Inicia a sessão do PHP (apenas uma vez, com segurança).
@@ -125,6 +128,7 @@ function exigirLogin(): array {
         try {
             $valida = sessaoAindaValida(conectar(), (int) $usuario['id']);
         } catch (Throwable $e) {
+            registrarErro($e);
             // Banco fora do ar: não derruba o login por isso — o próprio
             // endpoint vai falhar ao consultar e responder o erro dele.
             $valida = true;

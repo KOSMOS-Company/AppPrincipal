@@ -7,23 +7,19 @@
 //  envia o e-mail com o link de redefinição.
 // ============================================================
 
-header('Content-Type: application/json; charset=utf-8');
-
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/limite_util.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'msg' => 'Método não permitido.']);
-    exit;
-}
+apiExigirPost();
+exigirMesmaOrigem();
 
 $email = trim($_POST['email'] ?? '');
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(['ok' => false, 'msg' => 'Informe um e-mail válido.']);
-    exit;
+    apiErro('Informe um e-mail válido.', 422);
 }
 
 // Resposta SEMPRE genérica (não revela se o e-mail existe ou não)
@@ -32,6 +28,32 @@ $respostaGenerica = [
     'msg' => 'Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha.',
 ];
 
+/**
+ * Endereço das páginas do frontend, para montar o link do e-mail.
+ *
+ * Em produção o APP_URL do config.php é OBRIGATÓRIO. Montar o link a
+ * partir do cabeçalho Host da requisição deixaria um atacante pedir o
+ * reset da vítima com Host: site-dele.com — e o e-mail verdadeiro
+ * levaria o token para lá ("reset poisoning").
+ *
+ * Em desenvolvimento (localhost) o APP_URL pode ficar vazio: o link é
+ * descoberto pela pasta onde o app está, em qualquer instalação.
+ */
+function urlDoFrontend(): ?string {
+    if (defined('APP_URL') && APP_URL !== '') {
+        return rtrim(APP_URL, '/');
+    }
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+    if (!preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i', $host)) {
+        error_log('[KOSMOS reset] APP_URL vazio no config.php fora do localhost: e-mail não enviado.');
+        return null;
+    }
+    // .../Backend/php/senha_esqueci.php -> raiz do app
+    $raiz = dirname(str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '')), 3);
+    $esquema = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') ? 'https' : 'http';
+    return $esquema . '://' . $host . rtrim($raiz, '/') . '/Frontend/pages';
+}
+
 try {
     $pdo = conectar();
 
@@ -39,8 +61,7 @@ try {
     // caixa de alguém de e-mails. Conta mesmo quando o e-mail não existe,
     // e a resposta continua genérica para não revelar se a conta existe.
     if (limiteExcedido($pdo, 'reset', $email)) {
-        echo json_encode($respostaGenerica);
-        exit;
+        apiResponder($respostaGenerica);
     }
     registrarTentativa($pdo, 'reset', $email);
 
@@ -49,28 +70,25 @@ try {
     $user = $stmt->fetch();
 
     // Se não existe, respondemos genérico (sem fazer nada)
-    if (!$user) {
-        echo json_encode($respostaGenerica);
-        exit;
+    $base = urlDoFrontend();
+    if (!$user || $base === null) {
+        apiResponder($respostaGenerica);
     }
 
     // Gera o token: o valor "puro" vai no link; no banco guardamos só o hash
-    $token   = bin2hex(random_bytes(32));
-    $hash    = hash('sha256', $token);
+    $token = bin2hex(random_bytes(32));
+    $hash  = hash('sha256', $token);
 
-    // Validade de 1 hora calculada pelo relógio do MySQL: o senha_resetar.php
-    // compara com NOW() do banco, e o PHP roda em outro fuso (Europe/Berlin).
-    // Com date() do PHP o link já nascia expirado ou durava horas a mais.
+    // Validade de 1 hora pelo relógio do MySQL (o senha_resetar.php
+    // compara com NOW() do banco — um relógio só)
     $upd = $pdo->prepare('UPDATE usuarios SET reset_token = ?, reset_expira = NOW() + INTERVAL 1 HOUR WHERE id = ?');
     $upd->execute([$hash, $user['id']]);
 
     // Monta o link e pede ao n8n para enviar o e-mail
-    $link = APP_URL . '/login/redefinir.html?token=' . $token;
-
     $payload = json_encode([
         'email' => $email,
         'nome'  => $user['nome'],
-        'link'  => $link,
+        'link'  => $base . '/login/redefinir.html?token=' . $token,
     ], JSON_UNESCAPED_UNICODE);
 
     $ch = curl_init(N8N_RESET_URL);
@@ -82,13 +100,21 @@ try {
             'Content-Type: application/json',
             N8N_TOKEN_HEADER . ': ' . N8N_TOKEN_VALOR,
         ],
+        CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_TIMEOUT        => 20,
     ]);
-    curl_exec($ch);   // se falhar, ignoramos (resposta continua genérica)
+    $resp = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    // A pessoa continua vendo a resposta genérica; quem mantém o app
+    // fica sabendo pelo log que o e-mail não saiu
+    if ($resp === false || $code >= 400) {
+        error_log("[KOSMOS reset] n8n não enviou o e-mail (HTTP $code).");
+    }
 
-    echo json_encode($respostaGenerica);
+    apiResponder($respostaGenerica);
 } catch (PDOException $e) {
     // Mesmo em erro interno, não vazamos detalhes
-    echo json_encode($respostaGenerica);
+    registrarErro($e, 'esqueci a senha');
+    apiResponder($respostaGenerica);
 }

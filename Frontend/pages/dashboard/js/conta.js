@@ -613,7 +613,7 @@
         pendentes.clear();   // já confirmou a perda; não avisa de novo ao navegar
 
         try {
-            await fetch(`${BACKEND}/logout.php`);
+            await fetch(`${BACKEND}/logout.php`, { method: "POST" });
         } catch (err) {
             /* mesmo se falhar, vamos para o login */
         }

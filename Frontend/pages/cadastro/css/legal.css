@@ -1,24 +1,12 @@
-/* Termos de Uso — estilos (identidade visual Kosmos + animações da LP) */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+/* Termos de Uso e Política de Privacidade — estilos compartilhados
+   (identidade visual Kosmos + animações da LP). As duas páginas
+   tinham cópias idênticas deste arquivo; agora é um só.
+   As fontes vêm de shared/fontes.css, carregado pelo HTML. */
 
 :root{
-    --black:#000;
-    --bg-deep:#0d0118;
-    --bg-nav:#12011f;
-    --bg-card:#1a0230;
-    --accent:#a541ff;
-    --accent-lt:#c97cff;
-    --text:#fff;
-    --text-dim:#b8a8cc;
-    --text-muted:#7a6890;
-    --ok:#22c55e;
-    --erro:#ef4444;
+    /* Base (cores, raios, sombras): shared/tokens.css, carregado antes.
+       Aqui fica só o que é desta página. */
     --border:rgba(165,65,255,.14);
-    --radius-sm:8px;
-    --radius-md:16px;
-    --radius-lg:28px;
-    --transition:.25s cubic-bezier(.4,0,.2,1);
-    --shadow-neutral:0 4px 12px rgba(0,0,0,.4);
 
     /* ── O céu ──
        As regras de `.cosmos` e `.veu` estão em ../shared/cosmos.css: são

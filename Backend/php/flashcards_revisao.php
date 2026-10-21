@@ -77,8 +77,8 @@ try {
     $pdo->beginTransaction();
 
     /* A data da próxima revisão sai de CURDATE() + INTERVAL, no
-       MySQL. Calcular em PHP daria o dia errado na virada: os dois
-       rodam em fusos diferentes neste projeto. */
+       MySQL. Um relógio só para todas as datas (regra do projeto: os
+       fusos já divergiram e isso causou bug, ver README). */
     $atualizar = $pdo->prepare(
         'UPDATE flashcard_cartoes
             SET revisoes         = revisoes + 1,
@@ -190,6 +190,7 @@ try {
         'progresso' => progressoRegistrar($pdo, (int) $usuario['id'], $itens),
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     if (isset($pdo) && $pdo->inTransaction()) {
         $pdo->rollBack();
     }

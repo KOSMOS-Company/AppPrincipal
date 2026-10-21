@@ -52,7 +52,9 @@ CREATE TABLE `usuarios` (
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `uk_google_id` (`google_id`),   -- 2026-10-19_seguranca.sql
+  ADD KEY `idx_reset_token` (`reset_token`);     -- 2026-10-19_seguranca.sql
 
 --
 -- AUTO_INCREMENT para tabelas despejadas
@@ -693,7 +695,7 @@ UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava a moldura Big Bang
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `tentativas_acesso` (
   `id`        int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `tipo`      enum('login','reset') NOT NULL,
+  `tipo`      enum('login','reset','cadastro','ia') NOT NULL,   -- cadastro/ia: 2026-10-19_seguranca.sql
   `email`     varchar(180) NOT NULL,
   `ip`        varchar(45) NOT NULL,
   `criado_em` datetime NOT NULL DEFAULT current_timestamp(),

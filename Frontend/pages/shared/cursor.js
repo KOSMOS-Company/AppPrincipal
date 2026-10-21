@@ -55,7 +55,8 @@
     requestAnimationFrame(loop);
 
     // realce sobre elementos clicáveis
-    const seletorClicavel = 'a, button, input[type="submit"], input[type="button"], label, select, summary, [role="button"], .btn, .card, .faq__pergunta, .g_id_signin';
+    // (lista única para o site todo: as classes do fim são da dashboard)
+    const seletorClicavel = 'a, button, input[type="submit"], input[type="button"], label, select, summary, [role="button"], .btn, .card, .faq__pergunta, .g_id_signin, .chip, .alt, .flashcard, .deck-card, .resumo-card';
     document.addEventListener('mouseover', (e) => {
         if (e.target.closest && e.target.closest(seletorClicavel)) {
             root.classList.add('kcursor--hover');

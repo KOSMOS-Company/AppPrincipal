@@ -54,5 +54,6 @@ try {
         'cartoes' => $cartoes,
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     fcErro('Não foi possível carregar os cartões.', 500);
 }

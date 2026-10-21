@@ -1,0 +1,4 @@
+# Logs do PHP (Backend/php/bootstrap.php). Nada daqui vai para o git.
+*
+!.gitignore
+!.htaccess

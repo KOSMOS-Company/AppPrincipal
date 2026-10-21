@@ -127,13 +127,20 @@
                 payload.materias = formData.getAll('onb_materias[]');
             }
 
-            fetch('../../Backend/php/onboarding_salvar.php', {
+            // Caminho a partir de Frontend/pages/dashboard/ — são TRÊS
+            // níveis até a raiz. Com dois ("../../"), o pedido ia para
+            // Frontend/Backend/..., que não existe: dava 404, o catch
+            // fechava o modal calado e as respostas nunca eram salvas.
+            fetch('../../../Backend/php/onboarding_salvar.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
             .then(function (res) { return res.json(); })
             .then(function (json) {
+                if (!json || !json.ok) {
+                    console.warn('[KOSMOS onboarding] não salvou:', json && json.msg);
+                }
                 if (mascoteEl && mascoteEl.mascote) {
                     mascoteEl.mascote.humor('feliz');
                     mascoteEl.mascote.piscar(300);

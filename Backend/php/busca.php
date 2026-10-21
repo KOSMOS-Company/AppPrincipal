@@ -192,6 +192,7 @@ try {
 
     estResponder(['q' => $q, 'resultados' => $resultados]);
 } catch (PDOException $e) {
+    registrarErro($e);
     estErro('A busca falhou.', 500);
 }
 

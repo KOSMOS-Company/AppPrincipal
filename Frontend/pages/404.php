@@ -1,24 +1,41 @@
+<?php
+// ============================================================
+//  KOSMOS — Página 404
+//  Arquivo: Frontend/pages/404.php
+//
+//  Quem manda o visitante para cá é o .htaccess da raiz (regra de
+//  rewrite para "arquivo ou pasta que não existe"). Antes era um
+//  ErrorDocument com caminho fixo (/KOSMOS/AppPrincipal/...), que
+//  quebrava em qualquer instalação com outra pasta.
+//
+//  A página é servida no endereço que deu 404 — que pode estar em
+//  qualquer profundidade —, então os links relativos não serviriam.
+//  O <base> abaixo aponta para esta pasta (Frontend/pages/), seja
+//  qual for o lugar onde o app foi instalado.
+// ============================================================
+http_response_code(404);
+$base = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/")), "/") . "/";
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <base href="<?= htmlspecialchars($base, ENT_QUOTES, "UTF-8") ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
     <meta name="theme-color" content="#0d0118">
-    <link rel="icon" type="image/svg+xml" href="/KOSMOS/AppPrincipal/Frontend/pages/shared/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="shared/favicon.svg">
     <title>Kosmos — Página não encontrada</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/KOSMOS/AppPrincipal/Frontend/pages/shared/cursor.css">
-    <link rel="stylesheet" href="/KOSMOS/AppPrincipal/Frontend/pages/shared/cosmos.css">
-    <link rel="stylesheet" href="/KOSMOS/AppPrincipal/Frontend/pages/shared/mascote.css">
-    <script src="/KOSMOS/AppPrincipal/Frontend/pages/shared/mascote.js" defer></script>
+    <link rel="stylesheet" href="shared/fontes.css">
+    <link rel="stylesheet" href="shared/cursor.css">
+    <link rel="stylesheet" href="shared/cosmos.css">
+    <link rel="stylesheet" href="shared/mascote.css">
+    <script src="shared/mascote.js" defer></script>
     <style>
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --accent:#a541ff; --accent-lt:#c97cff;
-            --text:#fff; --text-dim:#b8a8cc; --text-muted:#6a5880;
+            --text:#fff; --text-dim:#b8a8cc; --text-muted:#9180a8;  /* contraste AA (≥4,5:1) nos fundos escuros; antes #6a5880 */
             --transition:.22s cubic-bezier(.4,0,.2,1);
 
             /* ── O céu ──
@@ -98,17 +115,17 @@
         <p>O link que você seguiu pode estar quebrado ou a página foi movida para outra órbita.</p>
 
         <div class="actions">
-            <a href="/KOSMOS/AppPrincipal/Frontend/pages/inicio/index.html" class="btn btn--primary">
+            <a href="inicio/index.html" class="btn btn--primary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 Voltar ao início
             </a>
-            <a href="/KOSMOS/AppPrincipal/Frontend/pages/login/index.html" class="btn btn--ghost">Fazer login</a>
+            <a href="login/index.html" class="btn btn--ghost">Fazer login</a>
         </div>
     </div>
 
-    <script src="/KOSMOS/AppPrincipal/Frontend/pages/shared/cursor.js"></script>
+    <script src="shared/cursor.js"></script>
     <!-- WebGL primeiro; sem placa, o Canvas 2D assume. A ordem importa. -->
-    <script src="/KOSMOS/AppPrincipal/Frontend/pages/shared/cosmos-gl.js"></script>
-    <script src="/KOSMOS/AppPrincipal/Frontend/pages/shared/cosmos.js"></script>
+    <script src="shared/cosmos-gl.js"></script>
+    <script src="shared/cosmos.js"></script>
 </body>
 </html>

@@ -1,0 +1,74 @@
+/* ============================================================
+   KOSMOS — Fontes servidas pelo próprio projeto
+   Arquivo: Frontend/pages/shared/fontes.css
+
+   Antes cada página buscava Syne e DM Sans no Google Fonts: dois
+   domínios a mais para resolver, e a primeira pintura esperava a
+   resposta deles (170–240 ms medidos). Agora os arquivos moram em
+   shared/fontes/ e saem do mesmo servidor que o resto da página.
+
+   São fontes VARIÁVEIS: um arquivo cobre todos os pesos (Syne
+   400–800, DM Sans 300–600, com o eixo de tamanho óptico), então
+   font-weight continua funcionando igual ao que era antes.
+
+   Só os subconjuntos latin e latin-ext — tudo o que o português
+   usa. O unicode-range faz o navegador baixar o latin-ext apenas se
+   aparecer um caractere dele na página.
+
+   Licença: as duas fontes são SIL Open Font License 1.1, que permite
+   redistribuir junto com o projeto (ver shared/fontes/LICENCA.txt).
+   ============================================================ */
+
+/* ---------- Syne (títulos) ---------- */
+@font-face {
+    font-family: 'Syne';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url('fontes/syne-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Syne';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url('fontes/syne-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------- DM Sans (corpo) ---------- */
+@font-face {
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 300 600;
+    font-display: swap;
+    src: url('fontes/dm-sans-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 300 600;
+    font-display: swap;
+    src: url('fontes/dm-sans-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Itálico: só a landing usa, então o navegador só baixa lá */
+@font-face {
+    font-family: 'DM Sans';
+    font-style: italic;
+    font-weight: 300 600;
+    font-display: swap;
+    src: url('fontes/dm-sans-italico-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'DM Sans';
+    font-style: italic;
+    font-weight: 300 600;
+    font-display: swap;
+    src: url('fontes/dm-sans-italico-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}

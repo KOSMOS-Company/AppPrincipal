@@ -115,6 +115,7 @@ try {
             apiErro('Ação desconhecida.');
     }
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível salvar a matéria.', 500);
 }
 

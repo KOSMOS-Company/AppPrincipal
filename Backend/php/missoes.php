@@ -13,14 +13,16 @@
 //  semana, igual aos primeiros passos. Sem tabela nova, sem estado
 //  para dessincronizar, e a lista se corrige sozinha.
 //
-//  Datas: TODAS as contas de dia/semana são feitas pelo MySQL (o PHP
-//  deste projeto roda em outro fuso — ver README). O PHP só compara
+//  Datas: TODAS as contas de dia/semana são feitas pelo MySQL (um relógio
+//  só — regra de datas do projeto, ver README). O PHP só compara
 //  números com alvos.
 //
 //  Usado por:
 //    Frontend/pages/dashboard/index.php  (primeira pintura)
 //    Backend/php/inicio_dados.php        (a tela se atualiza sozinha)
 // ============================================================
+
+require_once __DIR__ . '/bootstrap.php';   // registrarErro()
 
 /** Nomes das semanas (a viagem pelo cosmos). Depois da última, repete com número. */
 const MISSOES_NOMES_SEMANA = [
@@ -134,6 +136,7 @@ function missoesEstado(PDO $pdo, int $usuarioId): ?array
         $stmt->execute([$usuarioId, $usuarioId, $usuarioId]);
         $base = $stmt->fetch();
     } catch (PDOException $e) {
+        registrarErro($e);
         return null;   // tabela de estudo ausente: fica nos primeiros passos
     }
     if (!$base || $base['inicio'] === null) {
@@ -157,6 +160,7 @@ function missoesEstado(PDO $pdo, int $usuarioId): ?array
             }
             return $saida;
         } catch (PDOException $e) {
+            registrarErro($e);
             return [];   // tabela opcional ausente: a missão fica em zero
         }
     };

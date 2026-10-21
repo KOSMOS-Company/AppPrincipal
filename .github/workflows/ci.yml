@@ -1,0 +1,57 @@
+# ============================================================
+#  KOSMOS — Integração contínua
+#  Roda a cada push e pull request. Não precisa de banco nem de n8n:
+#   1. sintaxe de todo arquivo PHP (php -l);
+#   2. os testes de lógica pura (Backend/testes/rodar.php);
+#   3. sintaxe de todo arquivo JavaScript (node --check);
+#   4. nenhum segredo commitado por engano (config.php / conexao.php).
+# ============================================================
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.2 (a mesma versão do XAMPP do projeto)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, curl, fileinfo
+          coverage: none
+
+      - name: Sintaxe do PHP
+        run: |
+          falhou=0
+          while IFS= read -r -d '' f; do
+            php -l "$f" > /dev/null || falhou=1
+          done < <(find . -name '*.php' -not -path './.git/*' -print0)
+          exit $falhou
+
+      - name: Testes (Backend/testes/rodar.php)
+        run: php Backend/testes/rodar.php
+
+      - name: Node (para conferir o JavaScript)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sintaxe do JavaScript
+        run: |
+          falhou=0
+          while IFS= read -r -d '' f; do
+            node --check "$f" || falhou=1
+          done < <(find Frontend -name '*.js' -print0)
+          exit $falhou
+
+      - name: Nenhum segredo no repositório
+        run: |
+          if git ls-files --error-unmatch Backend/php/config.php Backend/php/conexao.php 2>/dev/null; then
+            echo "config.php / conexao.php estão versionados — eles contêm segredos."
+            exit 1
+          fi

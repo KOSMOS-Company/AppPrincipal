@@ -4,9 +4,13 @@
 //  Arquivo: Backend/testes/rodar.php
 //
 //  Cobre o que não depende de banco nem de sessão: repetição
-//  espaçada dos flashcards, datas em pt-BR e regras de senha.
-//  Lógica que mexe no banco (XP, sequência, limite de tentativas)
-//  fica de fora — testar isso pediria um banco só de teste.
+//  espaçada dos flashcards, datas em pt-BR, regras de senha, o fuso
+//  do bootstrap, a configuração dos limites e a leitura da resposta
+//  da IA (sem chamar a IA). Lógica que mexe no banco (XP, sequência,
+//  contagem das tentativas) fica de fora — testar isso pediria um
+//  banco só de teste.
+//
+//  Roda também na integração contínua (.github/workflows/ci.yml).
 //
 //  Uso (da raiz do AppPrincipal):
 //      C:\xampp\php\php.exe Backend/testes/rodar.php
@@ -18,9 +22,12 @@ if (PHP_SAPI !== 'cli') {
     exit;
 }
 
+require_once __DIR__ . '/../php/bootstrap.php';
 require_once __DIR__ . '/../php/flashcards_srs.php';
 require_once __DIR__ . '/../php/datas.php';
 require_once __DIR__ . '/../php/senha_util.php';
+require_once __DIR__ . '/../php/limite_util.php';
+require_once __DIR__ . '/../php/exercicios_ia_util.php';
 
 $falhas = 0;
 $total  = 0;
@@ -90,6 +97,70 @@ confere('campo ausente vira vazio', lerSenha('nao_existe'), '');
 $hash = gerarHashSenha('gato1234');
 confere('senha certa confere', senhaConfere('gato1234', $hash), true);
 confere('senha errada não confere', senhaConfere('gato12345', $hash), false);
+
+$falso = password_get_info(senhaHashFalso());
+confere('hash falso do login é bcrypt', $falso['algoName'], 'bcrypt');
+confere('hash falso tem o mesmo custo dos reais (tempo igual)', $falso['options']['cost'] ?? null, 12);
+confere('nenhuma senha comum confere com o hash falso',
+    senhaConfere('12345678', senhaHashFalso()) || senhaConfere('', senhaHashFalso()), false);
+
+// ---------------------------------------------------------------
+echo "Ambiente (bootstrap.php)\n";
+
+confere('PHP no fuso de São Paulo', date_default_timezone_get(), 'America/Sao_Paulo');
+confere('o fuso do MySQL bate com o do PHP',
+    (new DateTimeZone(APP_FUSO))->getOffset(new DateTime('2026-07-01')) / 3600, -3);
+confere('registrarErro existe para os catch', function_exists('registrarErro'), true);
+
+// ---------------------------------------------------------------
+echo "Limites de tentativas (limite_util.php)\n";
+
+foreach (['login', 'reset', 'cadastro', 'ia'] as $tipo) {
+    $cfg = LIMITES[$tipo] ?? [];
+    confere("limite '$tipo' tem janela, teto por chave e por IP",
+        isset($cfg['minutos'], $cfg['email'], $cfg['ip']) && min($cfg) > 0, true);
+}
+confere('o teto por IP nunca é menor que o por e-mail',
+    count(array_filter(LIMITES, fn($c) => $c['ip'] < $c['email'])), 0);
+
+// ---------------------------------------------------------------
+echo "Resposta da IA (exercicios_ia_util.php)\n";
+
+$q = ['enunciado' => 'Quanto é 2+2?', 'alts' => ['3', '4', '5', '6', '7'], 'correta' => 1];
+$json = json_encode(['questoes' => [$q]]);
+
+confere('lê JSON puro', count(extrairQuestoes($json)), 1);
+confere('lê bloco ```json', count(extrairQuestoes("Aqui está:\n```json\n$json\n```")), 1);
+confere('lê JSON no meio de prosa', count(extrairQuestoes("Claro! $json Bons estudos.")), 1);
+confere('texto sem JSON não vira questão', extrairQuestoes('Não consegui gerar agora.'), []);
+confere('texto vazio não vira questão', extrairQuestoes('   '), []);
+
+confere('aceita os nomes alternativos dos campos', normalizarQuestoes([[
+    'pergunta' => 'P?', 'alternativas' => ['a', 'b'], 'resposta' => 1,
+]])[0], ['enunciado' => 'P?', 'alts' => ['a', 'b'], 'correta' => 1]);
+confere('descarta questão sem enunciado', normalizarQuestoes([['alts' => ['a', 'b']]]), []);
+confere('descarta questão com menos de 2 alternativas',
+    normalizarQuestoes([['enunciado' => 'P?', 'alts' => ['a']]]), []);
+confere('correta fora da faixa vira a primeira',
+    normalizarQuestoes([['enunciado' => 'P?', 'alts' => ['a', 'b'], 'correta' => 9]])[0]['correta'], 0);
+confere('dica vazia não entra (o botão nem aparece)',
+    array_key_exists('dica', normalizarQuestoes([$q + ['dica' => '  ']])[0]), false);
+
+confere('rótulo sem acento vira o canônico', rotuloDificuldade('Facil'), 'Fácil');
+confere('rótulo em caixa alta também', rotuloDificuldade('DIFÍCIL'), 'Difícil');
+confere('rótulo desconhecido vira vazio', rotuloDificuldade('extremo'), '');
+
+$plano = [['dificuldade' => 'Fácil', 'qtd' => 2], ['dificuldade' => 'Difícil', 'qtd' => 1]];
+$saida = aplicarDificuldades(array_fill(0, 3, $q), $plano);
+confere('sem rótulo da IA, segue a ordem do plano',
+    array_column($saida, 'dificuldade'), ['Fácil', 'Fácil', 'Difícil']);
+$saida = aplicarDificuldades([$q + ['dificuldade' => 'Difícil'], $q, $q], $plano);
+confere('rótulo válido da IA é respeitado e o resto completa o plano',
+    array_count_values(array_column($saida, 'dificuldade')), ['Difícil' => 1, 'Fácil' => 2]);
+
+confere('detecta limite diário com acento', indicioDeLimiteDiario('Você atingiu o limite diário.'), true);
+confere('detecta limite em inglês', indicioDeLimiteDiario('Error: daily quota exceeded'), true);
+confere('erro comum não é limite', indicioDeLimiteDiario('Error in workflow'), false);
 
 // ---------------------------------------------------------------
 echo "\n" . ($total - $falhas) . " de $total testes passaram.\n";

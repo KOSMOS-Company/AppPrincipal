@@ -4,26 +4,24 @@
 //  Arquivo: backend/php/login.php
 // ============================================================
 
-header('Content-Type: application/json; charset=utf-8');
-
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/senha_util.php';
 require_once __DIR__ . '/limite_util.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'msg' => 'Método não permitido.']);
-    exit;
-}
+apiExigirPost();
+// Login vindo de outro site é recusado: sem isso, uma página maliciosa
+// podia logar a vítima na conta do ATACANTE (login CSRF) e ler o que
+// ela estudasse depois. O SameSite não ajuda aqui — o cookie está
+// sendo criado, não enviado.
+exigirMesmaOrigem();
 
 $email = trim($_POST['email'] ?? '');
 $senha = lerSenha('senha');
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $senha === '') {
-    http_response_code(422);
-    echo json_encode(['ok' => false, 'msg' => 'Preencha e-mail e senha.']);
-    exit;
+    apiErro('Preencha e-mail e senha.', 422);
 }
 
 try {
@@ -31,21 +29,23 @@ try {
 
     // Muitas falhas seguidas: nem confere a senha (ver limite_util.php)
     if (limiteExcedido($pdo, 'login', $email)) {
-        http_response_code(429);
-        echo json_encode(['ok' => false, 'msg' => 'Muitas tentativas. Aguarde alguns minutos e tente de novo.']);
-        exit;
+        apiErro('Muitas tentativas. Aguarde alguns minutos e tente de novo.', 429);
     }
 
     $stmt = $pdo->prepare('SELECT id, nome, senha_hash FROM usuarios WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
+    // Confere a senha mesmo quando o e-mail não existe (contra um hash
+    // de mentira): o bcrypt leva ~0,2 s, e sem isso a resposta rápida
+    // denunciava quais e-mails têm conta.
+    $hash   = ($user && !empty($user['senha_hash'])) ? $user['senha_hash'] : senhaHashFalso();
+    $confere = senhaConfere($senha, $hash);
+
     // senha_hash vazio = conta criada só com o Google
-    if (!$user || empty($user['senha_hash']) || !senhaConfere($senha, $user['senha_hash'])) {
+    if (!$user || empty($user['senha_hash']) || !$confere) {
         registrarTentativa($pdo, 'login', $email);
-        http_response_code(401);
-        echo json_encode(['ok' => false, 'msg' => 'E-mail ou senha incorretos.']);
-        exit;
+        apiErro('E-mail ou senha incorretos.', 401);
     }
 
     limparTentativas($pdo, 'login', $email);
@@ -67,13 +67,13 @@ try {
     // Guarda a geração de sessões (ver "sair de todos os dispositivos")
     marcarVersaoSessao($pdo, (int) $user['id']);
 
-    echo json_encode([
+    apiResponder([
         'ok'   => true,
         'msg'  => 'Login realizado!',
         'nome' => $user['nome'],
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'msg' => 'Erro interno. Tente novamente.']);
+    registrarErro($e, 'login');
+    apiErro('Erro interno. Tente novamente.', 500);
 }

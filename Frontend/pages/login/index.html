@@ -7,15 +7,16 @@
     <meta name="theme-color" content="#0d0118">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Entrar</title>
+    <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/login.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
     <link rel="stylesheet" href="../shared/cursor.css">
     <link rel="stylesheet" href="../shared/logo.css">
     <link rel="stylesheet" href="../shared/mascote.css">
     <script src="../shared/mascote.js" defer></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link rel="preload" href="../shared/fontes/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../shared/fontes/syne-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../shared/fontes.css">
     <link rel="stylesheet" href="../shared/cosmos.css">
 </head>
 <body>
@@ -173,59 +174,7 @@
             document.querySelector('.form').after(div);
         }
 
-        /* --- Login com Google --- */
-        // Abre o popup "Escolha uma conta" do Google. O One Tap
-        // (google.accounts.id.prompt) era silenciosamente bloqueado
-        // pelo navegador (cooldown/FedCM/cookies), por isso o botão "não fazia nada".
-        const GOOGLE_CLIENT_ID = '848162979346-58d2pq44nmhbrabsnhl6i1o1j2pnm7mu.apps.googleusercontent.com';
-        let googleClient = null;
-
-        function googlePrompt() {
-            if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-                document.querySelector('.msg-feedback')?.remove();
-                mostrarMsg('O Google ainda está carregando. Tente de novo em instantes.', 'erro');
-                return;
-            }
-            if (!googleClient) {
-                googleClient = google.accounts.oauth2.initTokenClient({
-                    client_id: GOOGLE_CLIENT_ID,
-                    scope: 'openid email profile',
-                    prompt: 'select_account',
-                    callback: (r) => {
-                        if (r && r.access_token) onGoogleLogin({ access_token: r.access_token });
-                    },
-                    error_callback: (err) => {
-                        if (err && err.type === 'popup_failed_to_open') {
-                            document.querySelector('.msg-feedback')?.remove();
-                            mostrarMsg('O navegador bloqueou o pop-up do Google. Permita pop-ups e tente de novo.', 'erro');
-                        }
-                    },
-                });
-            }
-            googleClient.requestAccessToken();
-        }
-
-        async function onGoogleLogin(campos) {
-            document.querySelector('.msg-feedback')?.remove();
-            try {
-                const dados = new FormData();
-                for (const k in campos) dados.append(k, campos[k]);
-                const resposta = await fetch('../../../Backend/php/login_google.php', { method: 'POST', body: dados });
-                const json = await resposta.json();
-                mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
-                if (json.ok) {
-                    sessionStorage.setItem('kosmos_usuario', json.nome);
-                    sessionStorage.setItem('kosmos_intro', '1');
-                    // Conta do Google ainda sem senha: cria a senha antes de entrar
-                    const destino = json.precisa_senha
-                        ? 'criar-senha.html'
-                        : '../dashboard/index.php';
-                    setTimeout(() => { window.location.href = destino; }, 1000);
-                }
-            } catch (err) {
-                mostrarMsg('Não foi possível conectar ao servidor.', 'erro');
-            }
-        }
+        /* --- Entrar com o Google: shared/google-login.js (usa o mostrarMsg acima) --- */
 
         /* --- Modal "Esqueceu a senha?" --- */
         const modalEsqueci = document.getElementById('modalEsqueci');
@@ -287,6 +236,7 @@
             senha.addEventListener('blur', () => { aviso.hidden = true; });
         })();
     </script>
+    <script src="../shared/google-login.js"></script>
     <script src="https://accounts.google.com/gsi/client" async></script>
     <script src="../shared/mouse-tracker.js"></script>
     <script src="../shared/cursor.js"></script>

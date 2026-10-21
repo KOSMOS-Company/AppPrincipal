@@ -7,6 +7,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/senha_util.php';
@@ -14,18 +15,14 @@ require_once __DIR__ . '/senha_util.php';
 $usuario = exigirLogin();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'msg' => 'Método não permitido.']);
-    exit;
+    apiErro('Método não permitido.', 405);
 }
 
 $atual = lerSenha('senha_atual');
 $nova  = lerSenha('senha_nova');
 
 if (($erro = erroNovaSenha($nova)) !== null) {
-    http_response_code(422);
-    echo json_encode(['ok' => false, 'msg' => $erro]);
-    exit;
+    apiErro($erro, 422);
 }
 
 try {
@@ -35,9 +32,7 @@ try {
     $row = $stmt->fetch();
 
     if (!$row) {
-        http_response_code(404);
-        echo json_encode(['ok' => false, 'msg' => 'Usuário não encontrado.']);
-        exit;
+        apiErro('Usuário não encontrado.', 404);
     }
 
     $temSenha = !empty($row['senha_hash']);
@@ -45,17 +40,13 @@ try {
     if ($temSenha) {
         // Conta com senha: precisa confirmar a senha atual
         if ($atual === '') {
-            echo json_encode(['ok' => false, 'msg' => 'Informe a senha atual.']);
-            exit;
+            apiErro('Informe a senha atual.', 422);
         }
         if (!senhaConfere($atual, $row['senha_hash'])) {
-            http_response_code(422);
-            echo json_encode(['ok' => false, 'msg' => 'A senha atual está incorreta.']);
-            exit;
+            apiErro('A senha atual está incorreta.', 422);
         }
         if (senhaConfere($nova, $row['senha_hash'])) {
-            echo json_encode(['ok' => false, 'msg' => 'A nova senha deve ser diferente da atual.']);
-            exit;
+            apiErro('A nova senha deve ser diferente da atual.', 422);
         }
     }
     // Conta só do Google (sem senha): cria a senha sem pedir a atual
@@ -79,6 +70,7 @@ try {
 
     echo json_encode(['ok' => true, 'msg' => $msg]);
 } catch (PDOException $e) {
+    registrarErro($e);
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Não foi possível salvar a senha.']);
 }

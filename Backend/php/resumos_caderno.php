@@ -147,6 +147,7 @@ try {
             apiErro('Ação desconhecida.');
     }
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível salvar o caderno.', 500);
 }
 

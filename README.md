@@ -1,5 +1,7 @@
 # 🌌 KOSMOS
 
+[![CI](https://github.com/KOSMOS-Company/AppPrincipal/actions/workflows/ci.yml/badge.svg)](https://github.com/KOSMOS-Company/AppPrincipal/actions/workflows/ci.yml)
+
 Plataforma web de organização de estudos para estudantes do ensino médio / vestibular.
 Projeto de **TCC** (curso técnico de T.I.), 100% gratuito e com interface em português.
 
@@ -10,130 +12,137 @@ Projeto de **TCC** (curso técnico de T.I.), 100% gratuito e com interface em po
 | Camada | Stack |
 |---|---|
 | **Frontend** | HTML, CSS e JavaScript puro (sem framework/bundler) |
-| **Backend** | PHP + MySQL |
-| **Servidor** | XAMPP (Apache + MySQL) |
-| **Integrações** | n8n (self-hosted) para IA e envio de e-mails |
+| **Backend** | PHP 8.1+ e MySQL/MariaDB |
+| **Servidor** | Apache 2.4 (no desenvolvimento, o XAMPP) |
+| **Integrações** | n8n (self-hosted) para IA e envio de e-mails; Google OAuth |
 
-Identidade visual: tema escuro "cósmico" roxo, fontes Syne (títulos) + DM Sans (corpo).
+Identidade visual: tema escuro "cósmico" roxo, com as fontes Syne (títulos) e DM Sans (corpo),
+servidas pelo próprio projeto (`Frontend/pages/shared/fontes/`).
 
 A **parte pública** (landing page, login, cadastro) é HTML estático que conversa com o
 PHP por `fetch`. A **dashboard** é renderizada no servidor: as páginas são `.php` e já
 chegam ao navegador com os dados do usuário dentro do HTML.
+
+### 📚 Documentação
+
+| Documento | O quê |
+|---|---|
+| [docs/API.md](docs/API.md) | todos os endpoints: método, entrada, códigos de erro e limites |
+| [docs/BANCO.md](docs/BANCO.md) | diagrama do banco, as 21 tabelas e como fazer uma migração |
+| [docs/PRODUCAO.md](docs/PRODUCAO.md) | publicar em servidor: HTTPS, usuário de banco restrito, agendamentos, checklist |
 
 ---
 
 ## 📁 Estrutura do projeto
 
 ```
-KOSMOS/
-└── AppPrincipal/
-    ├── .htaccess                   # config do Apache (ErrorDocument 404 → página personalizada)
-    ├── Backend/
-    │   ├── .htaccess               # nega .sql/.md/.txt pelo navegador (o dump não vaza)
-    │   ├── kosmos.sql              # dump do banco (estrutura de todas as tabelas)
-    │   ├── sql/                    # migrações + migrar.php (executor, só via linha de comando)
-    │   ├── notes/                  # anotações de desenvolvimento (bloqueadas na web)
-    │   ├── uploads/
-    │   │   ├── .htaccess           # blinda a pasta: nada aqui pode ser executado
-    │   │   └── avatares/           # fotos de perfil enviadas pelos usuários
-    │   └── php/                    # endpoints + páginas do servidor
-    │       ├── conexao.php         # conexão com o banco  (NÃO versionado — ver .example)
-    │       ├── config.php          # segredos/integrações  (NÃO versionado — ver .example)
-    │       ├── pagina_dashboard.php # "porteiro" das páginas da dashboard (ver abaixo)
-    │       ├── materias.php        # lista de matérias e cores do avatar (fonte única)
-    │       ├── datas.php           # formata datas em pt-BR (sem calcular nada)
-    │       ├── login*.php, cadastro.php, sessao.php, senha_*.php
-    │       ├── senha_util.php      # regras de senha (fonte única: tamanho, hash, conferência)
-    │       ├── limite_util.php     # limite de tentativas de login e de "esqueci a senha"
-    │       ├── conta_*.php         # perfil, senha, preferências, sessões, avatar, LGPD
-    │       ├── flashcards_*.php    # decks, cartões e revisões
-    │       ├── resumos_*.php       # listar / salvar / excluir resumos
-    │       └── gerar_exercicios.php # ponte para o n8n (exercícios com IA)
-    └── Frontend/
-        └── pages/
-            ├── 404.html            # página de erro 404 personalizada (usada pelo .htaccess)
-            ├── inicio/             # landing page (ponto de entrada)
-            ├── login/              # login, redefinição de senha e criar-senha.html
-            ├── cadastro/           # cadastro + termos de uso + política de privacidade
-            ├── dashboard/          # área logada — páginas .php
-            │   ├── index.php       # Início
-            │   ├── resumos.php     # lista de resumos
-            │   ├── resumo.php      # prévia/leitura de um resumo (?id=)
-            │   ├── flashcards.php  # baralhos e cartões
-            │   ├── exercicios.php  # exercícios com IA
-            │   ├── pomodoro.php    # timer
-            │   ├── provas.php     # provas: contagem, o que cai e a nota depois
-            │   ├── conta.php       # conta (6 seções)
-            │   ├── js/util.js      # escaparHtml() — carregado antes de todos os scripts
-            │   └── partes/         # pedaços reaproveitados (sidebar e modais)
-            └── shared/             # recursos comuns (favicon, imagem de compartilhamento, cursor)
+AppPrincipal/
+├── .htaccess                   # 404 portátil, bloqueio do .git, sem listagem de pastas,
+│                               # cabeçalhos de segurança, compressão e cache
+├── composer.json               # declara a versão do PHP e as extensões (sem pacotes)
+├── .github/workflows/ci.yml    # integração contínua: sintaxe PHP/JS + testes
+├── docs/                       # API, banco e produção
+├── Backend/
+│   ├── .htaccess               # nega .sql/.md/.txt/.log pelo navegador
+│   ├── kosmos.sql              # estrutura completa do banco (importação inicial)
+│   ├── sql/                    # migrações datadas + migrar.php (só pelo terminal)
+│   ├── testes/rodar.php        # testes da lógica pura (sem banco)
+│   ├── tarefas/                # scripts agendados (notificações por e-mail)
+│   ├── logs/                   # php-erros.log (fora do git, bloqueado na web)
+│   ├── uploads/                # fotos (avatares, resumos, capas) — nada aqui executa
+│   └── php/
+│       ├── bootstrap.php       # fuso, log de erros, cabeçalhos e conectar() — roda em toda requisição
+│       ├── api_util.php        # formato único das respostas JSON
+│       ├── conexao.php         # credenciais do banco  (NÃO versionado — ver .example)
+│       ├── config.php          # segredos/integrações  (NÃO versionado — ver .example)
+│       ├── sessao.php          # login, sessão, "sair de todos os aparelhos", CSRF
+│       ├── pagina_dashboard.php # "porteiro" das páginas da dashboard (ver abaixo)
+│       ├── limite_util.php     # limite de tentativas (login, cadastro, senha, IA)
+│       ├── senha_util.php      # regras de senha (tamanho, hash, conferência)
+│       ├── ProgressoService.php # XP, níveis, conquistas e recompensas
+│       ├── exercicios_ia_util.php # leitura da resposta da IA (testada)
+│       └── ...                 # endpoints — lista completa em docs/API.md
+└── Frontend/
+    └── pages/
+        ├── 404.php             # página 404 (descobre sozinha onde o app está instalado)
+        ├── inicio/             # landing page (ponto de entrada)
+        ├── login/              # login, redefinição de senha e criar-senha.html
+        ├── cadastro/           # cadastro + termos de uso + política de privacidade
+        ├── dashboard/          # área logada — páginas .php
+        │   ├── js/util.js      # escaparHtml() — carregado antes de todos os scripts
+        │   └── partes/         # pedaços reaproveitados (sidebar, modais)
+        └── shared/             # o que todas as páginas usam:
+            ├── tokens.css      #   cores, raios e sombras (fonte única)
+            ├── fontes.css      #   Syne e DM Sans locais
+            ├── cursor.*        #   cursor do site inteiro
+            ├── google-login.js #   "Entrar com o Google" (login e cadastro)
+            └── cosmos*, mascote*, logo.css ...
 ```
 
 Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagens/`.
-
-> **📣 Para a equipe:** as páginas da dashboard mudaram de `.html` para `.php`
-> (ex.: `dashboard/index.html` → `dashboard/index.php`). Links antigos salvos no
-> navegador vão dar 404 — atualize os favoritos.
 
 ---
 
 ## 🚀 Como rodar localmente
 
-1. **Instale o [XAMPP](https://www.apachefriends.org/)** e inicie **Apache** e **MySQL** no painel de controle.
+> **📣 Para a equipe (2026-10-19):** o `conexao.php` mudou de formato e agora guarda
+> **só as credenciais**. A função `conectar()` passou para o `bootstrap.php`, que é
+> versionado. Copie de novo o `conexao.example.php` para `conexao.php` e reponha a
+> sua senha, se tiver uma. Um `conexao.php` antigo continua funcionando, mas sem o
+> fuso do MySQL. Rode também `migrar.php`: há a migração nova `2026-10-19_seguranca.sql`.
 
-2. **Coloque o projeto** dentro de `C:\xampp\htdocs\` (ex.: `C:\xampp\htdocs\KOSMOS\AppPrincipal`).
+1. **Instale o [XAMPP](https://www.apachefriends.org/)** (Windows, macOS ou Linux) e
+   inicie **Apache** e **MySQL**. Em Linux sem XAMPP, veja [docs/PRODUCAO.md](docs/PRODUCAO.md).
+
+2. **Coloque o projeto** dentro de `htdocs` (ex.: `C:\xampp\htdocs\AppPrincipal` ou
+   `/opt/lampp/htdocs/AppPrincipal`). **Qualquer nome de pasta funciona:** nenhum caminho
+   do projeto é fixo.
 
 3. **Crie o banco de dados:**
    - Abra o phpMyAdmin (`http://localhost/phpmyadmin`).
-   - Importe o arquivo `Backend/kosmos.sql` — ele já cria o banco `kosmos` e todas as tabelas.
+   - Importe o arquivo `Backend/kosmos.sql`. Ele já cria o banco `kosmos` e todas as tabelas.
    - Depois de importar, registre que o banco já está em dia (o `kosmos.sql` já
      contém tudo o que as migrações fazem):
      ```bash
      C:\xampp\php\php.exe Backend/sql/migrar.php --marcar-todas
      ```
    - *Já tinha o banco criado antes?* **Não importe o `kosmos.sql` por cima** (ele falha
-     em "Table 'usuarios' already exists" e para no meio). Use o executor de migrações
-     (`Backend/sql/migrar.php`), que guarda na tabela `migracoes` o que já rodou e aplica
-     só o que falta, em ordem:
+     em "Table 'usuarios' already exists" e para no meio). Use o executor de migrações,
+     que guarda na tabela `migracoes` o que já rodou e aplica só o que falta, em ordem:
      ```bash
      C:\xampp\php\php.exe Backend/sql/migrar.php --status   # o que está pendente
      C:\xampp\php\php.exe Backend/sql/migrar.php            # aplica as pendentes
      ```
-     Na primeira vez num banco antigo ele pede o `--marcar-todas` (rode antes, com o
-     cliente `mysql`, alguma migração que você saiba que falta). Reaplicar tudo às cegas
-     não é seguro: a `2026-09-25_progresso.sql` credita XP retroativo.
+     Reaplicar tudo às cegas não é seguro: a `2026-09-25_progresso.sql` credita XP retroativo.
    - Toda migração nova vai em `Backend/sql/` com a data no começo do nome **e** é
-     replicada no `kosmos.sql`.
+     replicada no `kosmos.sql` (passo a passo em [docs/BANCO.md](docs/BANCO.md)).
 
-4. **Configure os arquivos de ambiente** (eles não vêm no repositório por conterem segredos):
+4. **Configure os arquivos de ambiente** (não vêm no repositório porque contêm segredos):
    ```bash
    cd Backend/php
    cp conexao.example.php conexao.php
    cp config.example.php  config.php
    ```
-   Depois, edite `config.php` e preencha o token do n8n, o Google Client ID e as URLs.
-   O `conexao.php` já vem com os padrões do XAMPP (usuário `root`, senha vazia).
+   O `conexao.php` já vem com os padrões do XAMPP (usuário `root`, senha vazia). No
+   `config.php`, preencha o token do n8n e o Google Client ID. O `APP_URL` pode ficar
+   **vazio** no `localhost`: o app descobre sozinho a pasta onde está instalado.
 
-5. **Acesse pelo navegador** (sempre via `http://localhost`, nunca via Live Server — o PHP só roda no Apache):
+5. **Acesse pelo navegador** (sempre via `http://localhost`, nunca via Live Server, porque o
+   PHP só roda no Apache):
    ```
-   http://localhost/KOSMOS/AppPrincipal/Frontend/pages/inicio/index.html
+   http://localhost/AppPrincipal/Frontend/pages/inicio/index.html
    ```
-   > Se você colocar o projeto em outra pasta, ajuste esse caminho e a constante `APP_URL` no `config.php`.
 
----
+6. **Rode os testes** (não precisam do banco):
+   ```bash
+   C:\xampp\php\php.exe Backend/testes/rodar.php
+   ```
+   Os mesmos testes, mais a checagem de sintaxe de todo PHP e JS, rodam no GitHub a cada push.
 
-## 🗄️ Tabelas do banco
-
-| Tabela | Para quê |
-|---|---|
-| `usuarios` | conta, senha (bcrypt), Google, sequência de dias, `sessoes_versao` |
-| `usuario_preferencias` | avatar (cor, foto e enquadramento), tempos do pomodoro, meta diária, matérias favoritas, notificações |
-| `flashcard_decks` / `flashcard_cartoes` | baralhos, cartões e estatísticas de revisão |
-| `resumos` | título, matéria e o texto do resumo |
-
-Todas as tabelas filhas apontam para `usuarios` com `ON DELETE CASCADE`: apagar a conta
-apaga os dados junto. E **toda** consulta filtra por `usuario_id` — é isso que impede
-uma pessoa de abrir o conteúdo de outra trocando o `?id=` na URL.
+**Dependências**: PHP 8.1+ com `pdo_mysql`, `mbstring`, `curl` e `fileinfo` (o XAMPP já traz
+todas) e Apache com `mod_rewrite` e `mod_headers`. Para comprimir e fazer cache dos arquivos,
+ligue também `mod_deflate` e `mod_expires`, que vêm desligados no XAMPP: tire o `#` das
+linhas `LoadModule` deles no `httpd.conf`. A lista formal está no `composer.json`.
 
 ---
 
@@ -147,20 +156,21 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 
 Esse "porteiro" roda **antes de qualquer HTML** e cuida de:
 
-- **barrar quem não está logado** — redireciona (302) para o login, em vez de mostrar a
+- **barrar quem não está logado**: redireciona (302) para o login, em vez de mostrar a
   tela e esconder depois com JavaScript;
-- **derrubar sessões antigas** — compara a sessão com `usuarios.sessoes_versao` (é assim
+- **derrubar sessões antigas**: compara a sessão com `usuarios.sessoes_versao` (é assim
   que o "sair de todos os aparelhos" funciona);
-- **exigir senha de quem entrou com o Google** — manda para `login/criar-senha.html`;
+- **exigir senha de quem entrou com o Google**: manda para `login/criar-senha.html`;
 - **entregar os dados prontos** em `$USUARIO` (nome, inicial, avatar, sequência,
-  contagem de decks, cartões e resumos) e `$PREF` (preferências), além de `hesc()` para
-  escapar o que vai para a tela.
+  contagem de decks, cartões e resumos), `$PREF` (preferências) e `$PROGRESSO` (XP),
+  além de `hesc()` para escapar o que vai para a tela.
 
-A sidebar e os modais ficam em `dashboard/partes/` e são incluídos com `include` —
-existe **uma** cópia de cada, não seis.
+A sidebar e os modais ficam em `dashboard/partes/` e são incluídos com `include`.
+Existe **uma** cópia de cada, não seis.
 
 **Regra de datas:** nenhuma data é calculada no PHP. O MySQL devolve `DAY()`, `MONTH()`
-e `YEAR()`, e o PHP só formata (`datas.php`). Motivo no "Problemas conhecidos" abaixo.
+e `YEAR()`, e o PHP só formata (`datas.php`). Desde 2026-10-19 os dois relógios também estão
+alinhados (ver "Resolvidos" abaixo), e a regra continua como segunda proteção.
 
 ---
 
@@ -168,69 +178,101 @@ e `YEAR()`, e o PHP só formata (`datas.php`). Motivo no "Problemas conhecidos" 
 
 | Funcionalidade | Status |
 |---|---|
-| Cadastro (bcrypt, validações, e-mail único) | ✅ Funcional |
-| Login por e-mail/senha | ✅ Funcional |
+| Cadastro (bcrypt, validações, e-mail único, limite de tentativas) | ✅ Funcional |
+| Login por e-mail/senha (limite de tentativas) | ✅ Funcional |
 | Login com Google (OAuth) | ✅ Funcional |
 | Senha obrigatória depois do login com Google | ✅ Funcional |
 | Sessões reais + proteção da dashboard **no servidor** | ✅ Funcional |
 | Redefinição de senha (e-mail via n8n) | ✅ Funcional |
-| **Conta modular** (perfil, segurança, estudo, notificações, privacidade, sobre) | ✅ Funcional |
+| **Conta** (perfil, segurança, estudo, notificações, privacidade, sobre) | ✅ Funcional |
 | **Foto de perfil** (upload + escolher o enquadramento) | ✅ Funcional |
-| LGPD: exportar meus dados / excluir a conta | ✅ Funcional |
+| LGPD: exportar meus dados / excluir a conta (apaga tudo junto) | ✅ Funcional |
+| Onboarding (pesquisa de perfil no primeiro acesso) | ✅ Funcional |
 | Sequência de dias (streak) | ✅ Funcional |
-| Pomodoro (com os tempos salvos nas preferências) | ✅ Funcional |
-| **Flashcards** (decks, cartões, estudo e estatísticas) | ✅ Funcional |
-| **Resumos** (escrever, editar, apagar, prévia de leitura) | ✅ Funcional |
-| **Provas** (contagem, assuntos que caem, material da matéria e a nota) | ✅ Funcional |
+| **Pomodoro** (sessões gravadas, gráfico "Esta semana", calendário do mês) | ✅ Funcional |
+| **Primeiros passos e missões da semana** (lidos do banco, não do navegador) | ✅ Funcional |
+| **Resumos e cadernos** (texto, imagens, capas, arrastar entre cadernos) | ✅ Funcional |
+| **Flashcards** com repetição espaçada + fila "Revisar hoje" | ✅ Funcional |
 | **Gerar flashcards de um resumo** (o app sugere, você confere e salva) | ✅ Funcional |
-| Preferências de e-mail de notificação | 🟡 Salvam, mas o envio ainda não existe |
-| Gráfico "Esta semana" da Início | 🟡 Estado vazio honesto — falta gravar as sessões do pomodoro |
-| "Primeiros passos" da Início | 🟡 Marcado só no navegador (`localStorage`), não na conta |
-| Exercícios com IA (n8n + Groq) | 🔴 Travado — ver abaixo |
+| **Provas** (contagem, assuntos que caem, material da matéria e a nota) | ✅ Funcional |
+| **Progressão** (XP, 50 níveis, conquistas, molduras e emblemas) | ✅ Funcional |
+| **Busca** em resumos, cadernos, baralhos, cartões e exercícios | ✅ Funcional |
+| Exercícios: matérias, listas salvas, prática com correção no servidor | ✅ Funcional |
+| Geração de exercícios com IA (n8n + Groq) | 🔴 Travado no n8n — ver abaixo |
+| E-mails de notificação (lembrete diário, resumo semanal) | 🟡 Disparador pronto (`Backend/tarefas/notificacoes.php`); falta o fluxo no n8n e agendar |
+| Confirmação de e-mail no cadastro | 🔴 Não existe — ver abaixo |
 
 ---
 
 ## ⚠️ Problemas conhecidos (a resolver)
 
-- **Fuso horário do PHP × MySQL divergem.** No XAMPP, o PHP roda em `Europe/Berlin` e o
-  MySQL em `America/Sao_Paulo` (`@@system_time_zone`), então `new DateTime('today')` (PHP)
-  e `CURDATE()` (MySQL) podem cair em **dias diferentes**. Isso já causou um bug na
-  **sequência de dias (streak)**, que somava +1 a cada recarga; foi **contornado** fazendo
-  o cálculo 100% no MySQL em `Backend/php/sessao.php`. **Mas a causa raiz continua:**
-  qualquer nova funcionalidade que misture datas do PHP e do MySQL pode quebrar.
-  - **A resolver:** padronizar o fuso — ex.: `date_default_timezone_set('America/Sao_Paulo')`
-    num bootstrap do PHP **e** `SET time_zone = '-03:00'` (ou `America/Sao_Paulo`) na
-    conexão MySQL.
-  - *Obs.: os valores de `usuarios.sequencia` que haviam inflado por causa desse bug já
-    foram resetados (2026-07-15).*
+- **Geração de exercícios com IA: o webhook responde `500 {"message":"Error in workflow"}`.**
+  O lado do PHP está certo (o webhook de produção está registrado e recusa token errado com
+  403), então o erro é **dentro do fluxo do n8n**. As suspeitas são a chave ou o modelo do
+  Groq, ou o nó de Code. A resposta exata do n8n agora fica em `Backend/logs/php-erros.log`
+  (linha `[KOSMOS IA]`), o que deve ajudar a achar o nó com problema.
 
-- **Exercícios com IA: o webhook responde `500 {"message":"Error in workflow"}`.** O lado
-  do PHP está certo (o webhook de produção está registrado e recusa token errado com 403),
-  então o erro é **dentro do fluxo do n8n** — suspeitas: a chave/modelo do Groq ou o nó de
-  Code. A tela já trata a falha, mas nenhuma questão é gerada.
+- **E-mails de notificação ainda não saem.** As preferências são salvas e o disparador
+  existe (`php Backend/tarefas/notificacoes.php lembrete|resumo`, que só simula sem
+  `--enviar`). Falta criar no n8n o fluxo que recebe o JSON e envia o e-mail, preencher
+  `N8N_NOTIF_URL` no `config.php` e agendar (ver [docs/PRODUCAO.md](docs/PRODUCAO.md)).
 
-- **As sessões do pomodoro não são gravadas.** Sem uma tabela `pomodoro_sessoes`, o
-  gráfico "Esta semana" fica sempre vazio, a meta diária não tem como avançar e a
-  métrica de exercícios da Início continua em "—".
-
-- **E-mails de notificação não são enviados.** As preferências (`notif_lembrete`,
-  `notif_resumo`) são salvas, mas falta o gatilho que dispara o envio pelo n8n.
+- **O e-mail do cadastro não é confirmado.** Qualquer pessoa pode criar uma conta com o
+  e-mail de outra. Já existem duas proteções: o limite de tentativas, e o login com Google
+  descarta a senha de uma conta "pré-cadastrada" quando o dono de verdade entra. Pela mesma
+  razão, o cadastro ainda responde "este e-mail já está cadastrado", porque sem link de
+  confirmação não há outro jeito honesto de avisar quem errou de tela. A solução é enviar um
+  link de confirmação pelo n8n (o mesmo esquema da redefinição de senha).
 
 - **Sem a extensão GD no PHP local.** Por isso a foto de perfil é **reduzida no navegador**
-  antes do upload, e o servidor só valida (tipo real, tamanho e dimensões). A pasta
-  `Backend/uploads/` tem um `.htaccess` que bloqueia execução em três camadas.
+  antes do upload, e o servidor só valida (tipo real, tamanho e dimensões).
 
-- **Fontes vindas do Google Fonts** bloqueiam a primeira renderização (170–240 ms medidos).
-  A resolver: servir Syne e DM Sans do próprio projeto.
+- **CSS sem minificação.** O projeto não tem etapa de build, de propósito. Com o
+  `mod_deflate` ligado (ver "Dependências"), o Apache comprime os arquivos no envio.
+
+### Resolvidos em 2026-10-19
+
+- **Fuso horário do PHP × MySQL.** O PHP do XAMPP rodava em `Europe/Berlin` e o MySQL em
+  `America/Sao_Paulo`, e isso já tinha feito a sequência de dias somar +1 a cada recarga.
+  Agora o `bootstrap.php` põe os dois no mesmo fuso, em toda requisição.
+- **Caminho fixo `/KOSMOS/AppPrincipal/`.** A página 404 e o `APP_URL` só funcionavam numa
+  máquina. Agora nada depende da pasta de instalação.
+- **Onboarding não salvava.** O JS chamava `../../Backend/...` (um nível a menos), recebia
+  404 e fechava o modal sem avisar.
+- **Erros não iam para log nenhum.** Agora todo `catch` registra em `Backend/logs/php-erros.log`.
+- **Fontes do Google atrasavam a primeira pintura.** Agora são servidas pelo projeto.
+- **`.git` e listagem de pastas expostos no navegador.** Agora o `.htaccess` da raiz bloqueia os dois.
 
 ---
 
-## 🔒 Configuração e segredos
+## 🔒 Segurança
 
-- `config.php` e `conexao.php` **não são versionados** (estão no `.gitignore`).
+| Proteção | Onde |
+|---|---|
+| Consultas com parâmetros preparados (sem SQL montado com texto do usuário) | todo o backend |
+| Senhas em bcrypt (custo 12), limite de 72 bytes | `senha_util.php` |
+| Cookie de sessão `HttpOnly`, `SameSite=Lax`, `Secure` sob HTTPS, ID renovado no login | `sessao.php` |
+| POST vindo de outro site é recusado, inclusive em login, cadastro e logout | `exigirMesmaOrigem()` |
+| Logout só por POST (um `<img>` de outro site não desloga mais ninguém) | `logout.php` |
+| Limite de tentativas: login, cadastro, "esqueci a senha" e geração por IA | `limite_util.php` |
+| Login leva o mesmo tempo exista o e-mail ou não (não revela contas) | `login.php` |
+| Token de redefinição: aleatório, guardado como hash, uso único, 1 hora | `senha_*.php` |
+| Link do e-mail nunca montado a partir do cabeçalho `Host` em produção | `senha_esqueci.php` |
+| Login com Google conferido no Google, com o `aud` (Client ID) | `login_google.php` |
+| Uploads: tipo detectado pelo conteúdo, nome sorteado, pasta que não executa código | `conta_avatar.php`, `uploads/.htaccess` |
+| Cabeçalhos: `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, CSP `frame-ancestors` (e HSTS sob HTTPS) | `.htaccess` + `bootstrap.php` |
+| Bloqueados na web: `.git`, listagem de pastas, `.sql`, notas, logs, scripts de terminal | `.htaccess` |
+| Erros nunca aparecem na tela, só no log | `bootstrap.php` |
+
+**Configuração e segredos**
+
+- `config.php` e `conexao.php` **não são versionados** (estão no `.gitignore`, e o CI
+  falha se algum deles for commitado).
 - Use os arquivos `*.example.php` como modelo.
-- Nunca commite tokens, senhas ou chaves de API.
-- As fotos enviadas (`Backend/uploads/avatares/`) também ficam fora do repositório.
+- Nunca commite tokens, senhas ou chaves de API. O Client ID do Google não é segredo
+  e chega ao navegador por `config_publica.php`.
+- Para publicar: HTTPS e um usuário de banco só com `SELECT/INSERT/UPDATE/DELETE`
+  (ver [docs/PRODUCAO.md](docs/PRODUCAO.md)).
 
 ---
 

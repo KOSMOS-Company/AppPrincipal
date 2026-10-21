@@ -17,8 +17,8 @@
 //    resumo    -> total, dias_com_foco, media (dos dias com foco), melhor {dia, minutos}
 //
 //  Mesma regra do inicio_dados.php: TODA conta de data é do MySQL.
-//  O PHP só conta de 1 até o número de dias que o MySQL mandou — o
-//  PHP roda em Europe/Berlin e o MySQL em America/Sao_Paulo.
+//  O PHP só conta de 1 até o número de dias que o MySQL mandou (um
+//  relógio só; os fusos do PHP e do MySQL já divergiram, ver README).
 // ============================================================
 
 require_once __DIR__ . '/estudo_comum.php';
@@ -118,5 +118,6 @@ try {
         ],
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     estErro('Não foi possível carregar a frequência do mês.', 500);
 }

@@ -9,9 +9,8 @@
    segunda fonte de verdade que cedo ou tarde discorda da primeira.
 
    NENHUMA DATA É CALCULADA AQUI. "faltam 3 dias" e "12 jun" chegam
-   prontos do MySQL (DATEDIFF, DAY, MONTH) porque o PHP e o banco
-   deste projeto rodam em fusos diferentes — ver "Problemas
-   conhecidos" no README. A única data que sai do relógio do
+   prontos do MySQL (DATEDIFF, DAY, MONTH) pela regra de datas do
+   projeto (um relógio só — ver README). A única data que sai do relógio do
    navegador é o `min` do seletor, que é escolha da pessoa.
 
    Tudo dentro de uma IIFE: o dashboard.js e os scripts de página
@@ -620,9 +619,9 @@
             modal.data.removeAttribute("min");
         } else {
             /* O `min` sai do relógio do NAVEGADOR, não do servidor (ver
-               o comentário em partes/modal-prova.php): o PHP deste
-               projeto roda em Europe/Berlin e à noite, no Brasil,
-               bloquearia o dia de hoje. `sv-SE` porque esse locale
+               o comentário em partes/modal-prova.php): o relógio certo
+               para uma escolha da pessoa é o dela (um servidor em
+               outro fuso bloquearia, à noite, o dia de hoje). `sv-SE` porque esse locale
                formata como YYYY-MM-DD, que é o que o <input type="date">
                espera — e faz isso no fuso local, ao contrário de
                toISOString(), que converte para UTC e erra o dia perto

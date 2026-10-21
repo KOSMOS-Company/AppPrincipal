@@ -12,30 +12,15 @@
 //  provas.php e busca.php.
 // ============================================================
 
-header('Content-Type: application/json; charset=utf-8');
-
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 
-/** Resposta de sucesso. */
-function estResponder(array $dados, int $codigo = 200): void {
-    http_response_code($codigo);
-    echo json_encode(['ok' => true] + $dados, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-/** Resposta de erro. */
-function estErro(string $msg, int $codigo = 400): void {
-    http_response_code($codigo);
-    echo json_encode(['ok' => false, 'msg' => $msg], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-function estExigirPost(): void {
-    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-        estErro('Método não permitido.', 405);
-    }
-}
+/* Atalhos com o prefixo da área — só repassam para o api_util.php.
+   estResponder() já põe o "ok": true, como sempre pôs. */
+function estResponder(array $dados, int $codigo = 200): void { apiResponder(['ok' => true] + $dados, $codigo); }
+function estErro(string $msg, int $codigo = 400): void       { apiErro($msg, $codigo); }
+function estExigirPost(): void                                { apiExigirPost(); }
 
 /**
  * Corpo da requisição, venha ele como JSON ou como formulário.

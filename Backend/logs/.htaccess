@@ -1,0 +1,2 @@
+# Logs de erro: só se leem no servidor, nunca pelo navegador.
+Require all denied

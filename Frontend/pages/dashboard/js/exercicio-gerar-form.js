@@ -307,7 +307,7 @@
         const btn = el("btnGerarComIA");
         const htmlOriginal = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle;"></span> Gerando...';
+        btn.innerHTML = '<span class="spinner"></span> Gerando...';
         iniciarEstimativa(plano);
 
         try {
@@ -427,7 +427,7 @@
         const btn = el("btnSalvarExercicio");
         const htmlOriginal = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle;"></span> Salvando...';
+        btn.innerHTML = '<span class="spinner"></span> Salvando...';
 
         try {
             const conteudo = JSON.stringify({

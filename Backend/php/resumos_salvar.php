@@ -127,5 +127,6 @@ try {
         ],
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível salvar o resumo.', 500);
 }

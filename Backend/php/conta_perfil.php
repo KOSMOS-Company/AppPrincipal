@@ -7,15 +7,14 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 
 $usuario = exigirLogin();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'msg' => 'Método não permitido.']);
-    exit;
+    apiErro('Método não permitido.', 405);
 }
 
 // ---------- Lê e valida (mesmas regras do cadastro) ----------
@@ -41,8 +40,7 @@ if ($email === '') {
 }
 
 if (!empty($erros)) {
-    echo json_encode(['ok' => false, 'msg' => implode(' ', $erros)]);
-    exit;
+    apiErro(implode(' ', $erros), 422);
 }
 
 try {
@@ -52,8 +50,7 @@ try {
     $stmt = $pdo->prepare('SELECT id FROM usuarios WHERE email = ? AND id <> ? LIMIT 1');
     $stmt->execute([$email, $usuario['id']]);
     if ($stmt->fetch()) {
-        echo json_encode(['ok' => false, 'msg' => 'Este e-mail já está em uso por outra conta.']);
-        exit;
+        apiErro('Este e-mail já está em uso por outra conta.', 409);
     }
 
     $upd = $pdo->prepare('UPDATE usuarios SET nome = ?, email = ? WHERE id = ?');
@@ -70,6 +67,7 @@ try {
         'email' => $email,
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Não foi possível salvar as alterações.']);
 }

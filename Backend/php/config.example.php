@@ -25,7 +25,17 @@ define('GOOGLE_CLIENT_ID', 'SEU_GOOGLE_CLIENT_ID.apps.googleusercontent.com');
 
 // ---------- Recuperacao de senha ----------
 // URL base do frontend (para montar o link do e-mail de redefinicao).
-define('APP_URL', 'http://localhost/kosmos/AppPrincipal/Frontend/pages');
+// Em DESENVOLVIMENTO (localhost) pode ficar vazio: o link e descoberto
+// pela pasta onde o app esta instalado.
+// Em PRODUCAO e obrigatorio, ex.: 'https://kosmos.exemplo.com/Frontend/pages'
+// (vazio fora do localhost = o e-mail nao e enviado; ver senha_esqueci.php).
+define('APP_URL', '');
 
 // Webhook do n8n que ENVIA o e-mail de redefinicao (usa o mesmo Header Auth do n8n acima).
 define('N8N_RESET_URL', 'https://SEU-N8N/webhook/reset-senha');
+
+// ---------- Notificacoes por e-mail (opcional) ----------
+// Webhook do n8n que envia o lembrete diario e o resumo semanal.
+// Usado so pelo Backend/tarefas/notificacoes.php (agendado). Vazio =
+// o script roda apenas em modo simulacao.
+define('N8N_NOTIF_URL', '');

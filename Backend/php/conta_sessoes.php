@@ -39,6 +39,7 @@ try {
         'msg' => 'Os outros dispositivos foram desconectados.',
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Não foi possível encerrar as outras sessões.']);
 }

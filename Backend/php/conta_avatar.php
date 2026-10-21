@@ -19,6 +19,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/avatar_util.php';
@@ -27,9 +28,7 @@ $usuario = exigirLogin();
 $id      = (int) $usuario['id'];
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'msg' => 'Método não permitido.']);
-    exit;
+    apiErro('Método não permitido.', 405);
 }
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;          // 2 MB
@@ -59,8 +58,7 @@ try {
 
     // ---------- Recebeu arquivo? ----------
     if (!isset($_FILES['foto'])) {
-        echo json_encode(['ok' => false, 'msg' => 'Nenhuma imagem enviada.']);
-        exit;
+        apiErro('Nenhuma imagem enviada.', 400);
     }
 
     $foto = $_FILES['foto'];
@@ -69,36 +67,29 @@ try {
         $recado = in_array($foto['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)
             ? 'A imagem é grande demais.'
             : 'Não foi possível receber a imagem.';
-        echo json_encode(['ok' => false, 'msg' => $recado]);
-        exit;
+        apiErro($recado, 422);
     }
 
     if ($foto['size'] <= 0 || $foto['size'] > AVATAR_MAX_BYTES) {
-        echo json_encode(['ok' => false, 'msg' => 'A imagem precisa ter até 2 MB.']);
-        exit;
+        apiErro('A imagem precisa ter até 2 MB.', 422);
     }
 
     if (!is_uploaded_file($foto['tmp_name'])) {
-        http_response_code(400);
-        echo json_encode(['ok' => false, 'msg' => 'Envio inválido.']);
-        exit;
+        apiErro('Envio inválido.', 400);
     }
 
     // ---------- O conteúdo é realmente uma imagem? ----------
     $info = @getimagesize($foto['tmp_name']);
     if ($info === false || !isset(AVATAR_TIPOS[$info[2]])) {
-        echo json_encode(['ok' => false, 'msg' => 'Envie uma imagem JPG, PNG ou WEBP.']);
-        exit;
+        apiErro('Envie uma imagem JPG, PNG ou WEBP.', 422);
     }
 
     [$largura, $altura] = $info;
     if ($largura < 32 || $altura < 32) {
-        echo json_encode(['ok' => false, 'msg' => 'A imagem é pequena demais (mínimo 32x32).']);
-        exit;
+        apiErro('A imagem é pequena demais (mínimo 32x32).', 422);
     }
     if ($largura > 5000 || $altura > 5000) {
-        echo json_encode(['ok' => false, 'msg' => 'A imagem tem dimensões grandes demais.']);
-        exit;
+        apiErro('A imagem tem dimensões grandes demais.', 422);
     }
 
     // Confere também pelo mime real do arquivo
@@ -107,22 +98,17 @@ try {
         $mime = finfo_file($fi, $foto['tmp_name']);
         finfo_close($fi);
         if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
-            echo json_encode(['ok' => false, 'msg' => 'Formato de imagem não aceito.']);
-            exit;
+            apiErro('Formato de imagem não aceito.', 422);
         }
     }
 
     // ---------- Grava ----------
     $pasta = pastaAvatares();
     if (!is_dir($pasta) && !@mkdir($pasta, 0775, true)) {
-        http_response_code(500);
-        echo json_encode(['ok' => false, 'msg' => 'A pasta de fotos não existe no servidor.']);
-        exit;
+        apiErro('A pasta de fotos não existe no servidor.', 500);
     }
     if (!is_writable($pasta)) {
-        http_response_code(500);
-        echo json_encode(['ok' => false, 'msg' => 'Sem permissão para salvar a foto no servidor.']);
-        exit;
+        apiErro('Sem permissão para salvar a foto no servidor.', 500);
     }
 
     $extensao = AVATAR_TIPOS[$info[2]];
@@ -130,9 +116,7 @@ try {
     $destino  = $pasta . DIRECTORY_SEPARATOR . $nome;
 
     if (!move_uploaded_file($foto['tmp_name'], $destino)) {
-        http_response_code(500);
-        echo json_encode(['ok' => false, 'msg' => 'Não foi possível salvar a imagem.']);
-        exit;
+        apiErro('Não foi possível salvar a imagem.', 500);
     }
 
     // Com GD disponível, o servidor reduz e regera a imagem (sem recortar:
@@ -152,6 +136,7 @@ try {
         'avatar_url' => urlAvatar($nome),
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Erro ao salvar a foto.']);
 }

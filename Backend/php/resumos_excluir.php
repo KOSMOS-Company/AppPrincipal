@@ -35,5 +35,6 @@ try {
 
     apiResponder(['ok' => true, 'msg' => 'Resumo apagado.', 'id' => $id]);
 } catch (PDOException $e) {
+    registrarErro($e);
     apiErro('Não foi possível apagar o resumo.', 500);
 }

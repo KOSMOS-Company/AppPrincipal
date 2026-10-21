@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-//  KOSMOS — Configuracao da conexao com o banco
+//  KOSMOS — Credenciais do banco
 //  Arquivo: backend/php/conexao.example.php  (MODELO)
 //
 //  ▶ Como usar: copie este arquivo para "conexao.php" (na mesma
@@ -8,7 +8,12 @@
 //    esta no .gitignore e NAO deve ser commitado.
 //
 //  Os valores abaixo sao os padroes do XAMPP (usuario "root",
-//  senha vazia). Ajuste se o seu MySQL usar credenciais diferentes.
+//  senha vazia). Em producao, use um usuario so do app, com o
+//  minimo de permissao (ver docs/PRODUCAO.md).
+//
+//  A funcao conectar() (e o fuso, o log de erros e os cabecalhos de
+//  seguranca) ficam no bootstrap.php, que e versionado: assim uma
+//  melhoria na conexao chega a todo mundo sem mexer neste arquivo.
 // ============================================================
 
 define('DB_HOST',   'localhost');
@@ -17,16 +22,4 @@ define('DB_PASS',   '');           // senha padrao do XAMPP (vazia)
 define('DB_NAME',   'kosmos');
 define('DB_CHARSET','utf8mb4');
 
-function conectar(): PDO {
-    $dsn = 'mysql:host=' . DB_HOST
-         . ';dbname='    . DB_NAME
-         . ';charset='   . DB_CHARSET;
-
-    $opcoes = [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
-    ];
-
-    return new PDO($dsn, DB_USER, DB_PASS, $opcoes);
-}
+require_once __DIR__ . '/bootstrap.php';

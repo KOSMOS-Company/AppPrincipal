@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════
-   KOSMOS — cursor.css  (páginas públicas)
+   KOSMOS — cursor.css  (o site inteiro: páginas públicas e dashboard)
    Ponto sólido (segue na hora) + anel que persegue com atraso.
-   Estilo ALINHADO ao cursor do dashboard (dashboard/css/cursor.css)
-   para o site inteiro ter o mesmo cursor. Ativado via classe
+   A dashboard tinha uma cópia própria (dashboard/css/cursor.css +
+   js/cursor.js) com o mesmo desenho; agora as duas usam esta. Ativado via classe
    .kcursor no <html> (o cursor.js só adiciona em ponteiro fino,
    sem prefers-reduced-motion).
    ═══════════════════════════════════════════════════════ */

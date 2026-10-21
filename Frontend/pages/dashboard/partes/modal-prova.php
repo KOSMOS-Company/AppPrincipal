@@ -58,9 +58,9 @@ require_once __DIR__ . '/../../../../Backend/php/materias.php';
                         <label for="provaData">Quando é</label>
                         <!-- O `min` é preenchido pelo js/provas.js com a data
                              do NAVEGADOR, não daqui. `date()` em PHP usaria o
-                             fuso do servidor — que neste projeto é
-                             Europe/Berlin — e à noite, no Brasil, já seria
-                             "amanhã" lá: o seletor bloquearia justamente o dia
+                             fuso do servidor — e, num servidor em outro
+                             país, à noite no Brasil já seria
+                             "amanhã": o seletor bloquearia justamente o dia
                              de hoje. O relógio certo para uma escolha da pessoa
                              é o relógio dela.
                              Quem confere de verdade é o servidor, com CURDATE()

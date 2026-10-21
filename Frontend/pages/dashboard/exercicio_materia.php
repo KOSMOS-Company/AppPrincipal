@@ -42,16 +42,17 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title><?= $MATERIA ? hesc($MATERIA['nome']) . ' — Kosmos' : 'Kosmos — Matéria de Exercícios' ?></title>
+    <link rel="stylesheet" href="<?= asset('../shared/tokens.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/dashboard.css') ?>">
     <link rel="stylesheet" href="<?= asset('../shared/cosmos.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/pomodoro-aviso.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/resumos.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/exercicios.css') ?>">
-    <link rel="stylesheet" href="<?= asset('./css/cursor.css') ?>">
+    <link rel="stylesheet" href="<?= asset('../shared/cursor.css') ?>">
     <link rel="stylesheet" href="<?= asset('../shared/logo.css') ?>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="preload" href="../shared/fontes/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../shared/fontes/syne-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="<?= asset('../shared/fontes.css') ?>">
 </head>
 <body<?= $MATERIA ? ' class="dashboard-fundo-estatico tema-caderno tema-caderno--' . hesc($MATERIA['cor']) . '"' : ' class="dashboard-fundo-estatico"' ?>>
 
@@ -166,7 +167,7 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
     <script src="<?= asset('./js/exercicio-gerar-form.js') ?>"></script>
     <script src="<?= asset('./js/exercicio-praticar.js') ?>"></script>
     <script src="<?= asset('./js/exercicios.js') ?>"></script>
-    <script src="<?= asset('./js/cursor.js') ?>"></script>
+    <script src="<?= asset('../shared/cursor.js') ?>"></script>
     <!-- O céu. Os mesmos dois arquivos da landing page: o WebGL tenta
          primeiro e, se não houver placa ou o shader não compilar, ele
          desiste em silêncio e o cosmos.js (Canvas 2D) assume — por isso
@@ -174,225 +175,6 @@ $OUTRAS = array_values(array_filter($MATERIAS, fn($m) => $m['id'] !== ($MATERIA[
     <script src="<?= asset('../shared/cosmos-gl.js') ?>"></script>
     <script src="<?= asset('../shared/cosmos.js') ?>"></script>
 
-    <script>
-    (() => {
-        const btnNovoExercicio = document.getElementById('btnNovoExercicio');
-        const exerciciosSalvos = document.getElementById('exerciciosSalvos');
-        const gridExerciciosSalvos = document.getElementById('gridExerciciosSalvos');
-        const vazioExerciciosSalvos = document.getElementById('vazioExerciciosSalvos');
-
-        function lerMateria() {
-            const dados = document.getElementById('dadosExercicioMateria');
-            if (!dados) return null;
-            try {
-                return JSON.parse(dados.textContent);
-            } catch (_) {
-                return null;
-            }
-        }
-
-        if (!btnNovoExercicio) return;
-
-        // Abre o modal de gerar exercícios
-        btnNovoExercicio.addEventListener('click', () => {
-            const materia = lerMateria();
-            if (materia) {
-                window.KosmosExercicioGerarForm?.abrir(materia);
-            }
-        });
-
-        // Personalizar esta matéria (mesmo modal da estante)
-        document.getElementById('btnEditarMateria')?.addEventListener('click', () => {
-            const materia = lerMateria();
-            if (materia) {
-                window.KosmosExercicioMateriaForm?.abrir(materia);
-            }
-        });
-
-        // Ao salvar a personalização, atualiza o cabeçalho na hora
-        document.addEventListener('exercicioMateria:salvo', (e) => {
-            const materia = e.detail?.materia;
-            if (!materia) return;
-
-            const dados = document.getElementById('dadosExercicioMateria');
-            if (dados) {
-                dados.textContent = JSON.stringify(materia);
-            }
-
-            document.getElementById('materiaNomeTitulo').textContent = materia.nome;
-            document.getElementById('materiaMateriaTag').textContent = materia.materia;
-
-            const desc = document.getElementById('materiaDesc');
-            if (desc) {
-                desc.textContent = materia.descricao || '';
-                desc.hidden = !materia.descricao;
-            }
-
-            const iconeTitulo = document.getElementById('materiaIconeTitulo');
-            if (iconeTitulo) {
-                iconeTitulo.textContent = materia.icone || '';
-                iconeTitulo.hidden = !materia.icone;
-            }
-
-            document.body.className = 'tema-caderno tema-caderno--' + materia.cor;
-            document.title = materia.nome + ' — Kosmos';
-        });
-
-        // Apagou a própria matéria daqui de dentro: esta página deixou de existir, volta à estante
-        document.addEventListener('exercicioMateria:apagado', () => location.href = 'exercicios.php');
-
-        // Escuta evento de exercício salvo para recarregar a lista
-        document.addEventListener('exercicio:salvo', () => {
-            carregarExerciciosSalvos();
-        });
-        async function carregarExerciciosSalvos() {
-            if (!materiaId) return;
-
-            try {
-                const resp = await fetch('../../../Backend/php/exercicios_listar.php?materia_id=' + materiaId);
-                const json = await resp.json();
-
-                if (json.ok && json.exercicios) {
-                    renderizarExerciciosSalvos(json.exercicios);
-                }
-            } catch (e) {
-                console.warn('Erro ao carregar exercícios salvos:', e);
-            }
-        }
-
-        function renderizarExerciciosSalvos(exercicios) {
-            if (!gridExerciciosSalvos || !vazioExerciciosSalvos) return;
-
-            if (exercicios.length === 0) {
-                gridExerciciosSalvos.style.display = 'none';
-                vazioExerciciosSalvos.style.display = 'block';
-                return;
-            }
-
-            vazioExerciciosSalvos.style.display = 'none';
-            gridExerciciosSalvos.style.display = 'grid';
-
-            gridExerciciosSalvos.innerHTML = exercicios.map(ex => {
-                let qtdQuestoes = 0;
-                try {
-                    const conteudo = JSON.parse(ex.conteudo);
-                    qtdQuestoes = conteudo.questoes?.length || 0;
-                } catch (_) {}
-
-                // "YYYY-MM-DD HH:MM:SS" do MySQL não é ISO: o Safari devolve Invalid Date sem o "T"
-                const data = new Date(String(ex.criado_em).replace(' ', 'T')).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                const dificuldade = ex.dificuldade || "Médio";
-
-                return `
-                    <article class="exercicio-salvo-card anim-in">
-                        <div class="exercicio-salvo-card__topo">
-                            <div class="exercicio-salvo-card__info">
-                                <h4 class="exercicio-salvo-card__titulo">${escapeHtml(ex.titulo)}</h4>
-                                <p class="exercicio-salvo-card__meta">${qtdQuestoes} ${qtdQuestoes === 1 ? 'questão' : 'questões'} · ${data}</p>
-                            </div>
-                            <span class="exercicio-salvo-card__badge dif-capsula" data-dificuldade="${escapeHtml(dificuldade)}">${escapeHtml(dificuldade)}</span>
-                        </div>
-                        <div class="exercicio-salvo-card__trilha" aria-hidden="true">${'<i></i>'.repeat(Math.min(qtdQuestoes, 12))}</div>
-                        <div class="exercicio-salvo-card__acoes">
-                            <button class="dash-btn dash-btn--outline" onclick="abrirExercicio(${ex.id})">
-                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 3.5c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5 3-.5 4-1.5 4.5-4.5Z" fill="currentColor"/><path class="ia-estrela-menor" d="M14.5 11.5c.25 1.5.75 2 2.25 2.25-1.5.25-2 .75-2.25 2.25-.25-1.5-.75-2-2.25-2.25 1.5-.25 2-.75 2.25-2.25Z" fill="currentColor"/></svg>
-                                Praticar
-                            </button>
-                            <button class="dash-btn dash-btn--ghost" data-editar='${JSON.stringify({id: ex.id, titulo: ex.titulo, conteudo: ex.conteudo, dificuldade: ex.dificuldade}).replace(/'/g, '&apos;')}' title="Editar">
-                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                            </button>
-                            <button class="dash-btn dash-btn--danger" onclick="excluirExercicio(${ex.id})" title="Excluir">
-                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </button>
-                        </div>
-                    </article>
-                `;
-            }).join('');
-        }
-
-        // Pega o materiaId do JSON embutido
-        let materiaId = 0;
-        const dadosMateria = document.getElementById("dadosExercicioMateria");
-        if (dadosMateria) {
-            try {
-                const m = JSON.parse(dadosMateria.textContent);
-                materiaId = m.id || 0;
-            } catch (_) {}
-        }
-
-        function escapeHtml(str) {
-            const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
-            return String(str ?? '').replace(/[&<>"']/g, c => map[c]);
-        }
-
-        // Funções globais para os botões dos cards
-        window.abrirExercicio = (id) => {
-            window.KosmosExercicioPraticar?.abrir(id);
-        };
-
-        // Delegação de evento para botões de editar (usam data-editar)
-        gridExerciciosSalvos?.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-editar]');
-            if (!btn) return;
-            try {
-                const data = JSON.parse(btn.dataset.editar);
-                editarExercicio(data.id, data.titulo, data.conteudo, data.dificuldade);
-            } catch (_) {}
-        });
-
-        window.editarExercicio = async (id, titulo, conteudo, dificuldade) => {
-            const novoTitulo = await pedir({
-                titulo: 'Editar exercício',
-                rotulo: 'Título da lista',
-                valor: titulo,
-                botao: 'Salvar'
-            });
-            if (novoTitulo === null) return;
-
-            fetch('../../../Backend/php/exercicios_salvar.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    acao: 'editar',
-                    id: id,
-                    titulo: novoTitulo,
-                    conteudo: conteudo,
-                    dificuldade: dificuldade
-                })
-            }).then(r => r.json()).then(json => {
-                if (json.ok) {
-                    carregarExerciciosSalvos();
-                } else {
-                    alert(json.msg || 'Erro ao editar');
-                }
-            });
-        };
-
-        window.excluirExercicio = async (id) => {
-            const ok = await confirmar({
-                titulo: 'Excluir exercício',
-                texto: 'As questões salvas serão apagadas. Esta ação não pode ser desfeita.',
-                botao: 'Excluir',
-                perigo: true
-            });
-            if (!ok) return;
-
-            fetch('../../../Backend/php/exercicios_salvar.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ acao: 'excluir', id: id })
-            }).then(r => r.json()).then(json => {
-                if (json.ok) {
-                    carregarExerciciosSalvos();
-                } else {
-                    alert(json.msg || 'Erro ao excluir');
-                }
-            });
-        };
-
-        // Carrega exercícios salvos ao entrar na página
-        carregarExerciciosSalvos();
-    })();
-    </script>
+    <script src="<?= asset('./js/exercicio-materia.js') ?>"></script>
 </body>
 </html>

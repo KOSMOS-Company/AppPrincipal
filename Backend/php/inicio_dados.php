@@ -16,9 +16,9 @@
 //
 //  TODA data sai do MySQL pronta — inclusive a lista dos sete
 //  dias, dia a dia. O PHP não faz uma conta de data neste
-//  arquivo, de propósito: ele roda em Europe/Berlin e o MySQL em
-//  America/Sao_Paulo, e misturar os dois já colocou registro no dia
-//  errado neste projeto antes.
+//  arquivo, de propósito: o PHP já rodou em outro fuso (Europe/Berlin) e
+//  misturar os dois relógios colocou registro no dia errado neste
+//  projeto. Hoje o bootstrap.php alinha os fusos; a regra fica.
 // ============================================================
 
 require_once __DIR__ . '/estudo_comum.php';
@@ -143,6 +143,7 @@ try {
             $exMateria = array_key_first($materias);
         }
     } catch (PDOException $e) {
+        registrarErro($e);
         $exercicios = null;
     }
 
@@ -172,5 +173,6 @@ try {
         'missoes' => missoesEstado($pdo, $id),
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     estErro('Não foi possível carregar os dados.', 500);
 }

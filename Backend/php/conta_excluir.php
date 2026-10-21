@@ -13,6 +13,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/avatar_util.php';
@@ -23,9 +24,7 @@ $usuario = exigirLogin();
 $id      = (int) $usuario['id'];
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'msg' => 'Método não permitido.']);
-    exit;
+    apiErro('Método não permitido.', 405);
 }
 
 // lerSenha() corta as pontas, igual ao login/cadastro/troca de senha:
@@ -41,26 +40,20 @@ try {
     $row = $stmt->fetch();
 
     if (!$row) {
-        http_response_code(404);
-        echo json_encode(['ok' => false, 'msg' => 'Usuário não encontrado.']);
-        exit;
+        apiErro('Usuário não encontrado.', 404);
     }
 
     $temSenha = !empty($row['senha_hash']);
 
     if ($temSenha) {
         if ($senha === '') {
-            echo json_encode(['ok' => false, 'msg' => 'Digite sua senha para confirmar.']);
-            exit;
+            apiErro('Digite sua senha para confirmar.', 422);
         }
         if (!senhaConfere($senha, $row['senha_hash'])) {
-            http_response_code(422);
-            echo json_encode(['ok' => false, 'msg' => 'Senha incorreta.']);
-            exit;
+            apiErro('Senha incorreta.', 422);
         }
     } elseif ($confirmacao !== 'EXCLUIR') {
-        echo json_encode(['ok' => false, 'msg' => 'Digite EXCLUIR para confirmar.']);
-        exit;
+        apiErro('Digite EXCLUIR para confirmar.', 422);
     }
 
     // A foto e as imagens dos resumos estão no disco, fora do banco:
@@ -79,6 +72,7 @@ try {
         'msg' => 'Sua conta e seus dados foram apagados.',
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Não foi possível excluir a conta.']);
 }

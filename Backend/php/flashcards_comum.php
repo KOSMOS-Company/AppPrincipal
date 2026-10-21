@@ -10,8 +10,7 @@
 //  (Ver "Problemas conhecidos" no README: fuso PHP × MySQL.)
 // ============================================================
 
-header('Content-Type: application/json; charset=utf-8');
-
+require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 
@@ -20,24 +19,11 @@ const FC_MAX_NOME    = 120;
 const FC_MAX_MATERIA = 40;
 const FC_MAX_TEXTO   = 600;
 
-/** Responde em JSON e encerra. */
-function fcResponder(array $dados, int $codigo = 200): void {
-    http_response_code($codigo);
-    echo json_encode($dados, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-/** Erro simples ("não deu certo, e o motivo"). */
-function fcErro(string $msg, int $codigo = 400): void {
-    fcResponder(['ok' => false, 'msg' => $msg], $codigo);
-}
-
-/** Recusa qualquer coisa que não seja POST. */
-function fcExigirPost(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        fcErro('Método não permitido.', 405);
-    }
-}
+/* Atalhos com o prefixo da área — só repassam para o api_util.php,
+   onde mora o formato único de resposta. */
+function fcResponder(array $dados, int $codigo = 200): void { apiResponder($dados, $codigo); }
+function fcErro(string $msg, int $codigo = 400): void       { apiErro($msg, $codigo); }
+function fcExigirPost(): void                                { apiExigirPost(); }
 
 /**
  * Lê um campo de texto do POST já validado.

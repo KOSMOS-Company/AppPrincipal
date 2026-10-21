@@ -19,9 +19,9 @@
 //  dono, e um arquivo por ação repetiria o mesmo cabeçalho de
 //  guarda sete vezes.
 //
-//  Toda conta de data é do MySQL (DATEDIFF, CURDATE) — o PHP deste
-//  projeto roda em fuso diferente do banco, e "faltam 3 dias"
-//  calculado do lado errado erra na virada da meia-noite.
+//  Toda conta de data é do MySQL (DATEDIFF, CURDATE) — um relógio
+//  só (regra de datas, ver README): "faltam 3 dias" calculado
+//  em dois relógios diferentes erra na virada da meia-noite.
 //
 //  Toda resposta devolve as listas inteiras, já atualizadas: a tela
 //  repinta com o que o servidor diz, em vez de adivinhar onde a
@@ -204,6 +204,7 @@ try {
 
     estErro('Ação desconhecida.', 400);
 } catch (PDOException $e) {
+    registrarErro($e);
     estErro('Não foi possível salvar agora.', 500);
 }
 

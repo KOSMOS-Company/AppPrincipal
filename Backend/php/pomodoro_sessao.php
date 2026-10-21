@@ -88,8 +88,8 @@ try {
 
     /* FROM_UNIXTIME converte no relógio do MYSQL, e o `dia` sai da
        mesma conversão. É a regra do projeto: data se calcula num
-       relógio só, e o relógio é o do banco — PHP e MySQL estão em
-       fusos diferentes aqui (ver "Problemas conhecidos" no README). */
+       relógio só, e o relógio é o do banco (ver "Regra de datas" no
+       README). */
     $stmt = $pdo->prepare(
         'INSERT INTO pomodoro_sessoes (usuario_id, minutos, fim_em, dia)
               VALUES (?, ?, FROM_UNIXTIME(?), DATE(FROM_UNIXTIME(?)))
@@ -137,5 +137,6 @@ try {
         'progresso'    => $progresso,
     ]);
 } catch (PDOException $e) {
+    registrarErro($e);
     estErro('Não foi possível registrar a sessão.', 500);
 }
