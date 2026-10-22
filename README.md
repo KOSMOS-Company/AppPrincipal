@@ -27,6 +27,7 @@ chegam ao navegador com os dados do usuário dentro do HTML.
 
 | Documento | O quê |
 |---|---|
+| [docs/CONFIGURACAO-LOCAL.md](docs/CONFIGURACAO-LOCAL.md) | **comece aqui:** o que configurar no seu PC (o que não vem do GitHub) |
 | [docs/API.md](docs/API.md) | todos os endpoints: método, entrada, códigos de erro e limites |
 | [docs/BANCO.md](docs/BANCO.md) | diagrama do banco, as 21 tabelas e como fazer uma migração |
 | [docs/PRODUCAO.md](docs/PRODUCAO.md) | publicar em servidor: HTTPS, usuário de banco restrito, agendamentos, checklist |
@@ -84,6 +85,10 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
 ---
 
 ## 🚀 Como rodar localmente
+
+> **Já tem o projeto rodando e só precisa se atualizar?** Siga o
+> [docs/CONFIGURACAO-LOCAL.md](docs/CONFIGURACAO-LOCAL.md): ele lista tudo o que fica
+> fora do GitHub (token do n8n, endereços dos fluxos, banco) e como configurar.
 
 > **📣 Para a equipe (2026-10-19):** o `conexao.php` mudou de formato e agora guarda
 > **só as credenciais**. A função `conectar()` passou para o `bootstrap.php`, que é
