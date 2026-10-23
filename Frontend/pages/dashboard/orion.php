@@ -32,115 +32,124 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
         <?php include __DIR__ . '/partes/sidebar.php'; ?>
 
         <main class="contMeio">
-            <div class="orion-chat-app" id="orionChatApp">
+            <div class="orion-app">
 
-                <!-- 1. HEADER FIXO DO CHATBOT -->
-                <header class="orion-chat-header">
-                    <div class="orion-chat-header__info">
-                        <div class="orion-chat-header__avatar">
+                <!-- Topo leve: quem é o Orion + nova conversa -->
+                <header class="orion-topo">
+                    <div class="orion-topo__id">
+                        <div class="orion-topo__mascote">
                             <div class="mascote" id="orionHeaderMascote" data-mascote="" aria-hidden="true"></div>
                         </div>
-                        <div class="orion-chat-header__textos">
-                            <h2 class="orion-chat-header__titulo">
-                                Orion <span class="orion-chat-header__tag">Copiloto de Estudos</span>
-                            </h2>
-                            <span class="orion-chat-header__status">Online</span>
+                        <div>
+                            <h1 class="orion-topo__nome">Orion</h1>
+                            <p class="orion-topo__sub">Copiloto de estudos</p>
                         </div>
                     </div>
 
-                    <button type="button" class="orion-chat-header__btn-limpar" id="orionBtnLimpar" title="Limpar conversa">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Limpar conversa
+                    <button type="button" class="orion-topo__nova" id="orionBtnLimpar" title="Apagar esta conversa">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6"/><path d="m5.5 6 1 13.5A1.5 1.5 0 0 0 8 21h8a1.5 1.5 0 0 0 1.5-1.5L18.5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                        Apagar conversa
                     </button>
                 </header>
 
-                <!-- 2. CORPO ROLÁVEL (MENSAGENS & ESTADO INICIAL) -->
-                <div class="orion-chat-corpo" id="orionChatCorpo">
+                <!-- Corpo rolável: tela inicial e, depois, a conversa -->
+                <div class="orion-corpo" id="orionChatCorpo">
 
-                    <!-- Palco Inicial no Centro (some quando o chat inicia) -->
-                    <div class="orion-hero-inicial" id="orionHeroInicial">
-                        <div class="orion-hero-mascote-box">
+                    <!-- Tela inicial (some quando a conversa começa) -->
+                    <section class="orion-hero" id="orionHeroInicial">
+                        <div class="orion-hero__astro" aria-hidden="true">
+                            <span class="orion-hero__orbita"></span>
                             <div class="mascote" id="orionMascoteCentral" data-mascote="" aria-hidden="true"></div>
                         </div>
 
-                        <!-- Tag escrita de forma limpa (sem pílula/badge envolvente) -->
-                        <span class="section-tag">Copiloto Inteligente</span>
-
-                        <h1 class="orion-hero-titulo">
-                            Como posso te ajudar hoje, <span class="h-nome"><?= hesc($primeiroNome) ?></span>?
-                        </h1>
-                        <p class="orion-hero-desc">
-                            Tire dúvidas conceituais, receba estratégias de memorização, formule resumos ou turbine sua rotina de estudos no Kosmos.
+                        <h2 class="orion-hero__titulo">
+                            Oi, <span class="h-nome"><?= hesc($primeiroNome) ?></span>. Por onde começamos?
+                        </h2>
+                        <p class="orion-hero__desc">
+                            Pergunte sobre qualquer matéria, peça um plano de estudo ou descubra onde fica cada coisa no Kosmos.
                         </p>
 
-                        <!-- Sugestões de perguntas rápidas -->
-                        <div class="orion-sugestoes-grid">
-                            <button type="button" class="orion-card-sugestao" data-pergunta="Como funciona a técnica Pomodoro no Kosmos?">
-                                <span class="orion-card-sugestao__ico">⏱️</span>
-                                <div>
-                                    <strong>Método Pomodoro</strong>
-                                    <span>Ciclos de foco e pausas</span>
-                                </div>
+                        <!-- Sugestões: o orion-aba.js envia o data-pergunta -->
+                        <div class="orion-sugestoes">
+                            <button type="button" class="orion-card-sugestao" data-pergunta="O que eu estudo hoje?">
+                                <span class="orion-card-sugestao__ico" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+                                </span>
+                                <span class="orion-card-sugestao__txt">
+                                    <strong>O que eu estudo hoje?</strong>
+                                    <span>Usa seus cartões, provas e meta</span>
+                                </span>
                             </button>
-                            <button type="button" class="orion-card-sugestao" data-pergunta="Como criar flashcards eficientes para não esquecer a matéria?">
-                                <span class="orion-card-sugestao__ico">🎴</span>
-                                <div>
-                                    <strong>Flashcards e Revisão</strong>
-                                    <span>Repetição espaçada ativa</span>
-                                </div>
+                            <button type="button" class="orion-card-sugestao" data-pergunta="Me explica o que é função do 1º grau, com um exemplo simples.">
+                                <span class="orion-card-sugestao__ico" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2Z"/><path d="M22 5.5A1.5 1.5 0 0 0 20.5 4H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22Z"/></svg>
+                                </span>
+                                <span class="orion-card-sugestao__txt">
+                                    <strong>Me explica um conteúdo</strong>
+                                    <span>Do jeito simples, com exemplo</span>
+                                </span>
                             </button>
-                            <button type="button" class="orion-card-sugestao" data-pergunta="Qual a melhor técnica para fazer resumos de matérias difíceis?">
-                                <span class="orion-card-sugestao__ico">📝</span>
-                                <div>
-                                    <strong>Resumos e Feynman</strong>
-                                    <span>Traduzir assuntos complexos</span>
-                                </div>
+                            <button type="button" class="orion-card-sugestao" data-pergunta="Monta um plano de estudo até a minha próxima prova.">
+                                <span class="orion-card-sugestao__ico" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/><path d="m9 15 2 2 4-4"/></svg>
+                                </span>
+                                <span class="orion-card-sugestao__txt">
+                                    <strong>Plano até a prova</strong>
+                                    <span>Divide os assuntos pelos dias</span>
+                                </span>
                             </button>
-                            <button type="button" class="orion-card-sugestao" data-pergunta="Estou com dificuldade para focar e começando a procrastinar, o que fazer?">
-                                <span class="orion-card-sugestao__ico">⚡</span>
-                                <div>
-                                    <strong>Foco Imediato</strong>
-                                    <span>Regra dos 2 minutos e inércia</span>
-                                </div>
+                            <button type="button" class="orion-card-sugestao" data-pergunta="Onde eu revejo os flashcards que estão vencidos?">
+                                <span class="orion-card-sugestao__ico" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="13" height="13" rx="2"/><path d="M8 4h11a2 2 0 0 1 2 2v11"/></svg>
+                                </span>
+                                <span class="orion-card-sugestao__txt">
+                                    <strong>Revisar flashcards</strong>
+                                    <span>Onde e como revisar hoje</span>
+                                </span>
                             </button>
-                            <button type="button" class="orion-card-sugestao" data-pergunta="Quais as melhores estratégias e dicas para as provas do ENEM?">
-                                <span class="orion-card-sugestao__ico">🎯</span>
-                                <div>
-                                    <strong>Dicas pro ENEM</strong>
-                                    <span>Priorização e simulados</span>
-                                </div>
+                            <button type="button" class="orion-card-sugestao" data-pergunta="Me dá um tour rápido pelas abas do Kosmos: o que cada uma faz?">
+                                <span class="orion-card-sugestao__ico" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg>
+                                </span>
+                                <span class="orion-card-sugestao__txt">
+                                    <strong>Tour pelo Kosmos</strong>
+                                    <span>O que cada aba faz</span>
+                                </span>
                             </button>
-                            <button type="button" class="orion-card-sugestao" data-pergunta="Olá Orion, quem é você e como pode me ajudar?">
-                                <span class="orion-card-sugestao__ico">🪐</span>
-                                <div>
-                                    <strong>Conhecer o Orion</strong>
-                                    <span>Recursos e auxílio no app</span>
-                                </div>
+                            <button type="button" class="orion-card-sugestao" data-pergunta="Tô sem foco e procrastinando. Me ajuda a começar agora?">
+                                <span class="orion-card-sugestao__ico" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7Z"/></svg>
+                                </span>
+                                <span class="orion-card-sugestao__txt">
+                                    <strong>Sem foco hoje</strong>
+                                    <span>Um empurrão para começar</span>
+                                </span>
                             </button>
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- Lista de Mensagens do Chat -->
-                    <div class="orion-lista-mensagens" id="orionListaMensagens"></div>
+                    <!-- A conversa (o orion-aba.js monta as mensagens aqui) -->
+                    <div class="orion-lista-mensagens" id="orionListaMensagens" aria-live="polite"></div>
 
-                    <!-- Indicador de Digitação -->
-                    <div class="orion-digitando-balao" id="orionDigitandoBalao">
+                    <!-- "Pensando..." -->
+                    <div class="orion-digitando-balao" id="orionDigitandoBalao" aria-label="O Orion está pensando">
                         <span></span><span></span><span></span>
                     </div>
-
                 </div>
 
-                <!-- 3. BARRA DE DIGITAÇÃO FIXA NO RODAPÉ -->
-                <footer class="orion-chat-rodape">
+                <!-- Caixa de mensagem: cresce com o texto; Enter envia, Shift+Enter quebra a linha -->
+                <footer class="orion-rodape">
                     <form class="orion-chat-form" id="orionChatForm" onsubmit="return false;">
-                        <input type="text" class="orion-chat-input" id="orionChatInput" placeholder="Pergunte ao Orion... (ex: me explique o método Feynman)" autocomplete="off" maxlength="400">
-                        <button type="submit" class="orion-chat-btn-enviar btn-ia" id="orionChatEnviar" aria-label="Enviar pergunta" title="Enviar pergunta">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                        <label class="sr-only" for="orionChatInput">Mensagem para o Orion</label>
+                        <textarea class="orion-chat-input" id="orionChatInput" rows="1" maxlength="1000"
+                                  placeholder="Pergunte qualquer coisa ao Orion…" autocomplete="off"></textarea>
+                        <button type="submit" class="orion-chat-btn-enviar btn-ia" id="orionChatEnviar" aria-label="Enviar mensagem" title="Enviar (Enter)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                         </button>
                     </form>
-                    <div class="orion-chat-rodape__info">
-                        Pressione <strong>Enter ↵</strong> para enviar • O Orion tira dúvidas e organiza sua rotina de estudos
-                    </div>
+                    <p class="orion-rodape__info">
+                        <kbd>Enter</kbd> envia · <kbd>Shift</kbd>+<kbd>Enter</kbd> quebra a linha · O Orion pode errar: confira o que for importante.
+                    </p>
                 </footer>
 
             </div>

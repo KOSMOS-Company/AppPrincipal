@@ -58,6 +58,17 @@ if (mb_strlen($mensagem) > ORION_MAX_MENSAGEM) {
 
 $historico = orionHistoricoLimpo($corpo['historico'] ?? []);
 $questao   = orionQuestaoLimpa($corpo['questao'] ?? null);
+
+// "Questionar erro": a questão já traz tudo o que a IA precisa, e a
+// conversa anterior só atrapalha. Testado: com um histórico em que o
+// Orion já tinha se confundido ("não vejo a questão"), o modelo
+// devolvia resposta vazia 3 vezes em 3; sem o histórico, acertava 3 em 3.
+if ($questao !== null) {
+    $historico = [];
+}
+if (isset($corpo['questao']) && $questao === null) {
+    error_log('[KOSMOS Orion] questão recebida em formato inválido; seguindo sem ela');
+}
 $pagina    = basename((string) ($corpo['pagina'] ?? ''));
 $usuarioId = (int) $usuario['id'];
 
@@ -82,47 +93,63 @@ try {
 $manual = (string) @file_get_contents(__DIR__ . '/orion_manual.md');
 $manual = preg_replace('/<!--.*?-->/s', '', $manual);   // o comentário é para quem mantém
 
-$payload = json_encode([
-    'sistema' => orionSistema($manual, $contexto, $pagina),
-    'prompt'  => orionPrompt($historico, $mensagem, $questao),
-], JSON_UNESCAPED_UNICODE);
+$sistema = orionSistema($manual, $contexto, $pagina);
+$saida   = orionChamarIA($sistema, orionPrompt($historico, $mensagem, $questao));
 
-// ---------- Chama o fluxo do n8n ----------
-$ch = curl_init(N8N_ORION_URL);
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => $payload,
-    CURLOPT_HTTPHEADER     => ['Content-Type: application/json', N8N_TOKEN_HEADER . ': ' . N8N_TOKEN_VALOR],
-    CURLOPT_CONNECTTIMEOUT => 10,
-    CURLOPT_TIMEOUT        => ORION_TIMEOUT_S,
-]);
-$resposta = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$erroRede = curl_error($ch);
-curl_close($ch);
+// Resposta vazia: o gpt-oss "pensa" antes de responder e, às vezes,
+// gasta o limite de tokens só pensando — ou se confunde com uma
+// conversa anterior ruim. Uma segunda tentativa, sem o histórico,
+// quase sempre resolve.
+if ($saida !== null && $saida['resposta'] === '') {
+    error_log('[KOSMOS Orion] resposta vazia; tentando de novo sem o histórico');
+    $saida = orionChamarIA($sistema, orionPrompt([], $mensagem, $questao));
+}
 
-if ($resposta === false || $httpCode >= 400) {
-    error_log(sprintf('[KOSMOS Orion] n8n respondeu HTTP %d%s: %s',
-        $httpCode, $erroRede !== '' ? " ($erroRede)" : '', mb_substr((string) $resposta, 0, 300)));
+if ($saida === null) {
     apiErro('O Orion está sem sinal agora. Tente de novo em instantes.', 502);
 }
-
-// O Respond to Webhook devolve o item do AI Agent: {"output": "..."}.
-// Aceita também {"text": ...} e a lista [{...}], caso o nó mude.
-$dados = json_decode((string) $resposta, true);
-if (is_array($dados) && isset($dados[0]) && is_array($dados[0])) {
-    $dados = $dados[0];
-}
-$texto = is_array($dados) ? (string) ($dados['output'] ?? $dados['text'] ?? '') : '';
-
-$saida = orionSepararHumor($texto);
 if ($saida['resposta'] === '') {
-    error_log('[KOSMOS Orion] resposta vazia ou em formato inesperado: ' . mb_substr((string) $resposta, 0, 300));
+    error_log('[KOSMOS Orion] resposta vazia de novo na segunda tentativa');
     apiErro('O Orion se embananou na resposta. Pode perguntar de novo?', 502);
 }
 
 apiResponder(['ok' => true, 'resposta' => $saida['resposta'], 'humor' => $saida['humor']]);
+
+/* ============================================================
+   Chamada ao fluxo do n8n
+   Devolve ['humor', 'resposta'] (a resposta pode vir vazia) ou
+   null se o n8n não respondeu.
+   ============================================================ */
+function orionChamarIA(string $sistema, string $prompt): ?array {
+    $ch = curl_init(N8N_ORION_URL);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode(['sistema' => $sistema, 'prompt' => $prompt], JSON_UNESCAPED_UNICODE),
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json', N8N_TOKEN_HEADER . ': ' . N8N_TOKEN_VALOR],
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT        => ORION_TIMEOUT_S,
+    ]);
+    $resposta = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $erroRede = curl_error($ch);
+    curl_close($ch);
+
+    if ($resposta === false || $httpCode >= 400) {
+        error_log(sprintf('[KOSMOS Orion] n8n respondeu HTTP %d%s: %s',
+            $httpCode, $erroRede !== '' ? " ($erroRede)" : '', mb_substr((string) $resposta, 0, 300)));
+        return null;
+    }
+
+    // O Respond to Webhook devolve o item do AI Agent: {"output": "..."}.
+    // Aceita também {"text": ...} e a lista [{...}], caso o nó mude.
+    $dados = json_decode((string) $resposta, true);
+    if (is_array($dados) && isset($dados[0]) && is_array($dados[0])) {
+        $dados = $dados[0];
+    }
+    $texto = is_array($dados) ? (string) ($dados['output'] ?? $dados['text'] ?? '') : '';
+    return orionSepararHumor($texto);
+}
 
 /* ============================================================
    Dados da pessoa para o Orion (só números e o primeiro nome)

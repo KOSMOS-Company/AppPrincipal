@@ -176,7 +176,7 @@ function orionPrompt(array $historico, string $mensagem, ?array $questao = null)
 
     if ($questao !== null) {
         $letra = fn(int $i) => $i >= 0 ? chr(65 + $i) : '(sem resposta)';
-        $linhas[] = 'A pessoa errou esta questão num exercício do Kosmos:';
+        $linhas[] = 'A pessoa errou a questão abaixo num exercício do Kosmos. Ela está COMPLETA aqui (enunciado, alternativas, a marcada e a correta): use-a e nunca diga que não recebeu a questão.';
         $linhas[] = $questao['enunciado'];
         foreach ($questao['alternativas'] as $i => $alt) {
             $linhas[] = $letra($i) . ') ' . $alt;

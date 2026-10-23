@@ -1054,12 +1054,62 @@
     color: var(--text-muted);
 }
 
-/* "Por que eu errei?" (abre o Orion). Em tela estreita o botão desce
-   para uma linha só dele, em vez de espremer a resposta. */
-.ex-praticar-resumo-item { flex-wrap: wrap; }
-.ex-praticar-resumo__porque { flex: none; }
-@media (max-width: 560px) {
-    .ex-praticar-resumo__porque { width: 100%; }
+/* "Fechar" e "Praticar de novo" longe da última questão: o .modal__actions
+   padrão tem só 6px acima, e aqui ele vinha logo depois da lista. Uma
+   linha fina separa o resultado das ações. */
+.ex-praticar-resultado .modal__actions {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+/* "?" que chama o Orion para explicar a questão errada (exercicio-praticar.js).
+   O botão é redondo, com o visual dos botões de IA (.btn-ia); a dica
+   "Questionar erro" mora no envelope, porque o .btn-ia corta o que
+   passa da borda. Aparece no hover e no foco pelo teclado. */
+.ex-questionar {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+}
+.ex-questionar__btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.ex-questionar__btn svg { width: 16px; height: 16px; }
+
+.ex-questionar::after {
+    content: attr(data-dica);
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid rgba(165, 65, 255, .45);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
+    color: var(--text);
+    font-size: .75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .15s ease, transform .15s ease;
+    z-index: 2;
+}
+.ex-questionar:hover::after,
+.ex-questionar:focus-within::after {
+    opacity: 1;
+    transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+    .ex-questionar::after { transition: none; transform: none; }
 }
 
 /* ════════════════════════════════════════════════════════════════

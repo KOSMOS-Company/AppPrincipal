@@ -7,13 +7,11 @@
 
    Outras telas abrem o chat já perguntando algo com:
      window.KosmosOrion.perguntar(texto, { questao })
-   (é o que o "Por que eu errei?" dos exercícios faz).
+   (é o que o "?" — "Questionar erro" — da correção dos exercícios faz).
    ============================================================ */
 
 (function () {
     'use strict';
-
-    var STORAGE_KEY = (window.kosmosChaveConta ? window.kosmosChaveConta('kosmos_orion_chat_historico') : 'kosmos_orion_chat_historico');
 
     document.addEventListener('DOMContentLoaded', function () {
         var launcher = document.getElementById('orionChatLauncher');
@@ -38,11 +36,14 @@
         }
 
         // Histórico de mensagens mantido na sessão de navegação
-        var historico = [];
-        try {
-            var salvo = sessionStorage.getItem(STORAGE_KEY);
-            if (salvo) historico = JSON.parse(salvo);
-        } catch (e) { historico = []; }
+        /* A conversa é a MESMA da aba Orion: mora no orion-ia.js, num
+           formato só ({autor: 'usuario'|'orion', texto, humor}). */
+        var conversa = window.KosmosOrionIA ? window.KosmosOrionIA.historico : null;
+        var historico = conversa ? conversa.ler() : [];
+
+        function salvarHistorico() {
+            if (conversa) conversa.salvar(historico);
+        }
 
         function alternarChat(abrir) {
             var deveAbrir = (typeof abrir === 'boolean') ? abrir : !chatBox.classList.contains('orion-chat--aberto');
@@ -65,6 +66,13 @@
         }
 
         launcher.addEventListener('click', function () { alternarChat(); });
+        // O Orion do canto é um role="button": abre também com Enter e Espaço
+        launcher.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                alternarChat();
+            }
+        });
         if (btnFechar) btnFechar.addEventListener('click', function () { alternarChat(false); });
 
         /* Auto-abertura para teste se solicitado. Em try: com o storage
@@ -83,9 +91,10 @@
         if (btnLimpar) {
             btnLimpar.addEventListener('click', function () {
                 historico = [];
-                try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
+                if (conversa) conversa.limpar();
                 if (msgsContainer) msgsContainer.innerHTML = '';
-                enviarMensagemOrion('Histórico limpo! Pronto para uma nova dúvida ou sessão de foco. ✦', 'normal', false);
+                enviarMensagemOrion('Conversa apagada! Sobre o que vamos falar agora? ✦', 'feliz', false);
+                mostrarSugestoes();
             });
         }
 
@@ -129,8 +138,8 @@
 
         function enviarMensagemOrion(texto, humor, salvar) {
             if (salvar !== false) {
-                historico.push({ autor: 'bot', texto: texto, humor: humor });
-                try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(historico)); } catch (e) {}
+                historico.push({ autor: 'orion', texto: texto, humor: humor });
+                salvarHistorico();
             }
             setHumor(humor || 'normal');
             adicionarBolha(texto, 'bot');
@@ -140,14 +149,6 @@
            embaralharia a ordem das respostas. */
         var aguardando = false;
 
-        /* A conversa no formato do orion-ia.js: aqui é {autor: 'user'|'bot'},
-           lá é {autor: 'usuario'|'orion'}. */
-        function historicoParaIA(lista) {
-            return lista.map(function (m) {
-                return { autor: m.autor === 'user' ? 'usuario' : 'orion', texto: m.texto };
-            });
-        }
-
         /* extras: { questao } do "Por que eu errei?" — vai para a IA, mas
            a bolha mostra só o texto curto, não a questão inteira. */
         function enviarMensagemUsuario(texto, extras) {
@@ -155,13 +156,17 @@
             texto = texto.trim();
             aguardando = true;
 
-            var anteriores = historicoParaIA(historico);
+            var anteriores = window.KosmosOrionIA ? window.KosmosOrionIA.paraIA(historico) : [];
 
-            historico.push({ autor: 'user', texto: texto });
-            try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(historico)); } catch (e) {}
+            historico.push({ autor: 'usuario', texto: texto });
+            salvarHistorico();
             adicionarBolha(texto, 'user');
+            mostrarSugestoes();
 
-            if (input) input.value = '';
+            if (input) {
+                input.value = '';
+                ajustarAltura();
+            }
 
             // Indicador de digitação
             if (typingIndicator) typingIndicator.style.display = 'inline-flex';
@@ -199,6 +204,18 @@
         // Para as outras telas abrirem o chat já com uma pergunta
         window.KosmosOrion = {
             perguntar: function (texto, extras) {
+                /* Modo foco: o chat flutuante está escondido (lite.css,
+                   display: none). Abrir aqui mandaria a pergunta para uma
+                   janela invisível — então ela vai para a aba Orion, que
+                   a envia sozinha ao carregar (orion-ia.js → pendente). */
+                if (window.getComputedStyle(chatBox).display === 'none' && window.KosmosOrionIA) {
+                    window.KosmosOrionIA.pendente.guardar({
+                        texto: texto,
+                        questao: extras && extras.questao ? extras.questao : null,
+                    });
+                    window.location.href = 'orion.php';
+                    return;
+                }
                 alternarChat(true);
                 enviarMensagemUsuario(texto, extras);
             },
@@ -207,8 +224,26 @@
         // Renderiza histórico existente ao carregar
         if (historico.length > 0) {
             historico.forEach(function (m) {
-                adicionarBolha(m.texto, m.autor);
+                // as classes da bolha são orion-msg--user / orion-msg--bot
+                adicionarBolha(m.texto, m.autor === 'usuario' ? 'user' : 'bot');
             });
+        }
+        mostrarSugestoes();
+
+        /* As sugestões só aparecem com a conversa vazia: depois da
+           primeira pergunta elas só ocupariam espaço das mensagens. */
+        function mostrarSugestoes() {
+            if (sugestoes) sugestoes.hidden = historico.length > 0;
+        }
+
+        /* A caixa é um <textarea> que cresce com o texto (até o
+           max-height do CSS). Enter envia; Shift+Enter quebra a linha;
+           isComposing evita enviar no Enter que fecha uma sugestão do
+           teclado do celular. */
+        function ajustarAltura() {
+            if (!input) return;
+            input.style.height = 'auto';
+            input.style.height = input.scrollHeight + 'px';
         }
 
         // Eventos de envio
@@ -216,6 +251,15 @@
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
                 enviarMensagemUsuario(input ? input.value : '');
+            });
+        }
+        if (input) {
+            input.addEventListener('input', ajustarAltura);
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+                    e.preventDefault();
+                    enviarMensagemUsuario(input.value);
+                }
             });
         }
 
@@ -334,7 +378,7 @@
             // 8. Exercícios / IA
             if (tem(q, ['ia', 'inteligencia', 'exercicio*'])) {
                 enviarMensagemOrion(
-                    'Na aba Exercícios, abra uma matéria e clique em "Novo exercício": a IA gera até 15 questões sobre o conteúdo que você escolher, nas dificuldades que quiser. Na correção, o botão "Por que eu errei?" me chama para explicar cada erro! 🎯',
+                    'Na aba Exercícios, abra uma matéria e clique em "Novo exercício": a IA gera até 15 questões sobre o conteúdo que você escolher, nas dificuldades que quiser. Na correção, o botão de interrogação (?) ao lado de cada questão errada me chama para explicar o erro! 🎯',
                     'surpreso'
                 );
                 return;

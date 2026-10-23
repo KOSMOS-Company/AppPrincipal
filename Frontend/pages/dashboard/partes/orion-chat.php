@@ -1,67 +1,70 @@
 <?php
 // ============================================================
-//  KOSMOS — Mini Chat do Orion ("Pergunte ao Orion!")
+//  KOSMOS — Chat flutuante do Orion
 //  Arquivo: Frontend/pages/dashboard/partes/orion-chat.php
-//  Widget flutuante de assistência aos estudantes.
+//  Em todas as abas menos a do Orion (ver sidebar.php). A conversa é
+//  a mesma da aba (js/orion-ia.js); o botão de tela cheia leva para lá.
+//  Quem dá vida: js/orion-chat.js. Visual: css/orion-chat.css.
 // ============================================================
 ?>
-<!-- Botão Flutuante (Launcher) -->
-<div class="orion-launcher" id="orionChatLauncher" role="button" aria-label="Abrir chat com Orion" aria-expanded="false" title="Pergunte ao Orion!">
+<!-- Botão flutuante: só o Orion no canto -->
+<div class="orion-launcher" id="orionChatLauncher" role="button" tabindex="0"
+     aria-label="Abrir conversa com o Orion" aria-expanded="false" title="Pergunte ao Orion">
     <div class="orion-launcher__avatar">
         <div class="mascote" id="orionLauncherMascote" data-mascote aria-hidden="true"></div>
     </div>
 </div>
 
-<!-- Janela do Chat (Flyout) -->
+<!-- Janela do chat -->
 <div class="orion-chat" id="orionChatBox" aria-hidden="true" role="dialog" aria-labelledby="orionChatTitulo">
-    <!-- Topo / Header do Chat -->
+
     <header class="orion-chat__topo">
         <div class="orion-chat__perfil">
-            <div class="orion-chat__avatar-wrap">
+            <div class="orion-chat__avatar">
                 <div class="mascote" id="orionChatMascote" data-mascote aria-hidden="true"></div>
-                <span class="orion-chat__status-dot" title="Online"></span>
             </div>
-            <div class="orion-chat__info">
-                <h3 class="orion-chat__titulo" id="orionChatTitulo">Pergunte ao Orion!</h3>
-                <span class="orion-chat__status-texto">Assistente de Estudos • Kosmos</span>
+            <div>
+                <h3 class="orion-chat__titulo" id="orionChatTitulo">Orion</h3>
+                <p class="orion-chat__sub">Copiloto de estudos</p>
             </div>
         </div>
 
         <div class="orion-chat__acoes">
-            <button type="button" class="orion-chat__btn-acao" id="orionChatLimpar" title="Limpar conversa" aria-label="Limpar conversa">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <button type="button" class="orion-chat__btn-acao" id="orionChatLimpar" title="Apagar conversa" aria-label="Apagar a conversa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6"/><path d="m5.5 6 1 13.5A1.5 1.5 0 0 0 8 21h8a1.5 1.5 0 0 0 1.5-1.5L18.5 6"/><path d="M10 11v6M14 11v6"/></svg>
             </button>
-            <button type="button" class="orion-chat__btn-acao" id="orionChatFechar" title="Fechar chat" aria-label="Fechar chat">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <a class="orion-chat__btn-acao" href="orion.php" title="Abrir em tela cheia" aria-label="Abrir a conversa em tela cheia">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </a>
+            <button type="button" class="orion-chat__btn-acao" id="orionChatFechar" title="Fechar" aria-label="Fechar o chat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
         </div>
     </header>
 
-    <!-- Corpo das Mensagens -->
-    <div class="orion-chat__mensagens" id="orionChatMsgs">
-        <!-- Mensagens dinâmicas inseridas pelo JS -->
-    </div>
+    <!-- Mensagens (o orion-chat.js monta) -->
+    <div class="orion-chat__mensagens" id="orionChatMsgs" aria-live="polite"></div>
 
-    <!-- Indicador de digitação -->
-    <div class="orion-chat__digitando" id="orionTyping" style="display: none;">
+    <!-- "Pensando..." -->
+    <div class="orion-chat__digitando" id="orionTyping" style="display: none;" aria-label="O Orion está pensando">
         <span></span><span></span><span></span>
     </div>
 
-    <!-- Sugestões Rápidas (Quick Prompts) -->
+    <!-- Sugestões: só com a conversa vazia (o orion-chat.js esconde depois) -->
     <div class="orion-chat__sugestoes" id="orionSugestoes">
-        <button type="button" class="orion-chip" data-prompt="Como funciona o Pomodoro?">⏱️ Como funciona o Pomodoro?</button>
-        <button type="button" class="orion-chip" data-prompt="Dicas para usar Flashcards">🎴 Dicas de Flashcards</button>
-        <button type="button" class="orion-chip" data-prompt="Como criar um bom resumo?">📝 Como criar um bom resumo?</button>
-        <button type="button" class="orion-chip" data-prompt="Estou sem foco, o que fazer?">⚡ Tô sem foco, me ajuda!</button>
-        <button type="button" class="orion-chip" data-prompt="Como organizar estudos pro ENEM?">🎯 Dicas pro ENEM / Vestibulares</button>
+        <button type="button" class="orion-chip" data-prompt="O que eu estudo hoje?">O que eu estudo hoje?</button>
+        <button type="button" class="orion-chip" data-prompt="Me explica um conteúdo de um jeito simples, com exemplo.">Me explica um conteúdo</button>
+        <button type="button" class="orion-chip" data-prompt="Me dá um tour rápido pelas abas do Kosmos.">Tour pelo Kosmos</button>
+        <button type="button" class="orion-chip" data-prompt="Tô sem foco. Me ajuda a começar agora?">Tô sem foco</button>
     </div>
 
-    <!-- Rodapé com Input -->
+    <!-- Caixa de mensagem: cresce com o texto; Enter envia -->
     <form class="orion-chat__rodape" id="orionChatForm" onsubmit="return false;">
-        <input type="text" class="orion-chat__input" id="orionChatInput"
-               placeholder="Pergunte ao Orion..." autocomplete="off" maxlength="300">
-        <button type="submit" class="orion-chat__btn-enviar btn-ia" id="orionChatEnviar" aria-label="Enviar mensagem">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <label class="sr-only" for="orionChatInput">Mensagem para o Orion</label>
+        <textarea class="orion-chat__input" id="orionChatInput" rows="1" maxlength="1000"
+                  placeholder="Pergunte ao Orion…" autocomplete="off"></textarea>
+        <button type="submit" class="orion-chat__btn-enviar btn-ia" id="orionChatEnviar" aria-label="Enviar mensagem" title="Enviar (Enter)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
         </button>
     </form>
 </div>

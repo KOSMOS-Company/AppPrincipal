@@ -249,14 +249,24 @@
                 <span class="ex-praticar-resumo__resp">${detalhe}</span>
             `;
 
-            // Errou: o Orion (chat flutuante, orion-chat.js) explica a questão
+            /* Errou: um "?" com o visual dos botões de IA chama o Orion
+               (chat flutuante, orion-chat.js) para explicar a questão. A
+               dica "Questionar erro" fica no envelope, e não no botão: o
+               .btn-ia corta o que passa da borda (overflow: hidden). */
             if (!certa && window.KosmosOrion) {
+                const envelope = document.createElement("span");
+                envelope.className = "ex-questionar";
+                envelope.dataset.dica = "Questionar erro";
+
                 const btn = document.createElement("button");
                 btn.type = "button";
-                btn.className = "dash-btn dash-btn--pequeno btn-ia ex-praticar-resumo__porque";
-                btn.textContent = "Por que eu errei?";
+                btn.className = "btn-ia ex-questionar__btn";
+                btn.setAttribute("aria-label", `Questionar erro da questão ${i + 1}`);
+                btn.innerHTML = ICONE_INTERROGACAO;
                 btn.addEventListener("click", () => perguntarAoOrion(q, r, i));
-                item.appendChild(btn);
+
+                envelope.appendChild(btn);
+                item.appendChild(envelope);
             }
             resumo.appendChild(item);
         });
@@ -296,6 +306,7 @@
     /* Ícones inline do feedback (no lugar de emojis) */
     const ICONE_OK = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const ICONE_ERRO = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    const ICONE_INTERROGACAO = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7.4 7.6a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.2-2.6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="15.6" r="1.15" fill="currentColor"/></svg>';
 
     function msg(texto, tipo) {
         const m = el("praticarFeedback");

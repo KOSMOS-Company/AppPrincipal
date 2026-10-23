@@ -109,19 +109,13 @@
             if (mascoteCentral) window.KosmosMascote.montar(mascoteCentral);
         }
 
-        // Histórico de mensagens na sessão
-        const STORAGE_KEY = (window.kosmosChaveConta ? window.kosmosChaveConta('kosmos_orion_chat_session') : 'kosmos_orion_chat_session');
-        let historico = [];
-
-        try {
-            const salvo = sessionStorage.getItem(STORAGE_KEY);
-            if (salvo) historico = JSON.parse(salvo);
-        } catch (e) {}
+        /* A conversa é a MESMA do chat flutuante das outras abas: mora no
+           orion-ia.js, num formato só ({autor: 'usuario'|'orion', texto, humor}). */
+        const conversa = window.KosmosOrionIA ? window.KosmosOrionIA.historico : null;
+        let historico = conversa ? conversa.ler() : [];
 
         function salvarHistorico() {
-            try {
-                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(historico));
-            } catch (e) {}
+            if (conversa) conversa.salvar(historico);
         }
 
         function definirHumor(humor) {
@@ -153,26 +147,15 @@
             });
         }
 
-        function renderizarMensagem(tipo, conteudo, humor = 'normal') {
+        /* A resposta do Orion é só o texto, como nas IAs de sempre: o
+           mascote fica uma vez só, no topo (e é ele que muda de humor —
+           definirHumor()). Antes cada resposta trazia um mini Orion ao
+           lado, e a tela ficava cheia de Orions. */
+        function renderizarMensagem(tipo, conteudo) {
             if (heroInicial) heroInicial.style.display = 'none';
 
             const row = document.createElement('div');
             row.className = `orion-msg-row orion-msg-row--${tipo}`;
-
-            if (tipo === 'orion') {
-                const avatar = document.createElement('div');
-                avatar.className = 'orion-msg-avatar';
-                const mini = document.createElement('div');
-                mini.className = 'mascote';
-                // montar() lê o humor inicial deste data-attribute
-                mini.dataset.mascoteHumor = humor;
-                avatar.appendChild(mini);
-                row.appendChild(avatar);
-
-                if (window.KosmosMascote) {
-                    window.KosmosMascote.montar(mini);
-                }
-            }
 
             const balao = document.createElement('div');
             balao.className = 'orion-msg-balao';
@@ -186,7 +169,7 @@
         // Restaura histórico anterior se houver
         if (historico.length > 0) {
             if (heroInicial) heroInicial.style.display = 'none';
-            historico.forEach(m => renderizarMensagem(m.tipo, m.conteudo, m.humor || 'normal'));
+            historico.forEach(m => renderizarMensagem(m.autor === 'usuario' ? 'usuario' : 'orion', m.texto));
             scrollParaFim();
         }
 
@@ -218,25 +201,16 @@
            embaralharia a ordem das respostas na conversa. */
         let aguardando = false;
 
-        /* A conversa no formato do orion-ia.js. Esta aba guarda
-           {tipo, conteudo}; lá é {autor, texto}. */
-        function historicoParaIA(lista) {
-            return lista.map(m => ({
-                autor: m.tipo === 'usuario' ? 'usuario' : 'orion',
-                texto: m.conteudo,
-            }));
-        }
-
         /* Pergunta à IA (orion-ia.js). Se ela estiver fora do ar, cai
            nas respostas prontas de RESPOSTAS_ORION, que antes eram as
            únicas: o Orion nunca fica mudo. Limite de uso, mensagem longa
            e sessão expirada aparecem como a mensagem do servidor. */
-        async function obterResposta(texto, anteriores) {
+        async function obterResposta(texto, anteriores, extras) {
             if (!window.KosmosOrionIA) {
                 return buscarResposta(texto);
             }
             try {
-                const r = await window.KosmosOrionIA.perguntar(texto, historicoParaIA(anteriores));
+                const r = await window.KosmosOrionIA.perguntar(texto, window.KosmosOrionIA.paraIA(anteriores), extras);
                 return { resposta: r.resposta, humor: r.humor };
             } catch (erro) {
                 if (erro.doServidor) {
@@ -246,12 +220,16 @@
             }
         }
 
-        async function enviarPergunta() {
-            const texto = input.value.trim();
+        /* Sem argumentos, envia o que está na caixa. Com textoPronto,
+           envia esse texto (e a questão em extras) — é o caminho da
+           pergunta que chegou de outra aba (ver o fim do arquivo). */
+        async function enviarPergunta(textoPronto, extras) {
+            const veioPronto = typeof textoPronto === 'string';
+            const texto = (veioPronto ? textoPronto : input.value).trim();
             if (!texto || aguardando) return;
             aguardando = true;
 
-            input.value = '';
+            if (!veioPronto) input.value = '';
             input.focus();
 
             // A conversa ANTES desta pergunta (é o contexto que vai para a IA)
@@ -259,7 +237,7 @@
 
             // Adiciona a pergunta do estudante
             renderizarMensagem('usuario', texto);
-            historico.push({ tipo: 'usuario', conteudo: texto });
+            historico.push({ autor: 'usuario', texto });
             salvarHistorico();
 
             // Reação do mascote (pensativo enquanto a IA responde)
@@ -272,14 +250,14 @@
                 scrollParaFim();
             }
 
-            const resultado = await obterResposta(texto, anteriores);
+            const resultado = await obterResposta(texto, anteriores, extras);
 
             if (digitando) digitando.style.display = 'none';
             const humor = resultado.humor || 'feliz';
             definirHumor(humor);
-            renderizarMensagem('orion', resultado.resposta, humor);
+            renderizarMensagem('orion', resultado.resposta);
 
-            historico.push({ tipo: 'orion', conteudo: resultado.resposta, humor });
+            historico.push({ autor: 'orion', texto: resultado.resposta, humor });
             salvarHistorico();
             aguardando = false;
 
@@ -289,6 +267,24 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             enviarPergunta();
+            ajustarAltura();
+        });
+
+        /* A caixa é um <textarea> que cresce com o texto (até o
+           max-height do CSS, depois rola por dentro). Enter envia;
+           Shift+Enter quebra a linha. isComposing: no celular, o Enter
+           que fecha uma palavra sugerida pelo teclado não deve enviar. */
+        function ajustarAltura() {
+            input.style.height = 'auto';
+            input.style.height = input.scrollHeight + 'px';
+        }
+        input.addEventListener('input', ajustarAltura);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+                e.preventDefault();
+                enviarPergunta();
+                ajustarAltura();
+            }
         });
 
         // Chips de perguntas rápidas
@@ -312,6 +308,15 @@
                 definirHumor('normal');
                 input.focus();
             });
+        }
+
+        /* Pergunta que chegou de outra aba: no modo foco, o "?"
+           (Questionar erro) dos exercícios não tem o chat flutuante
+           para abrir — ele guarda a pergunta e manda a pessoa para cá
+           (orion-chat.js → orion-ia.js → pendente). */
+        const chegou = window.KosmosOrionIA ? window.KosmosOrionIA.pendente.consumir() : null;
+        if (chegou) {
+            enviarPergunta(chegou.texto, chegou.questao ? { questao: chegou.questao } : undefined);
         }
     });
 })();
