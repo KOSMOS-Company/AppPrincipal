@@ -22,6 +22,9 @@ const LIMITES = [
     'cadastro' => ['minutos' => 60, 'email' => 5,    'ip' => 10],
     // geração por IA: cada chamada gasta a cota do projeto inteiro
     'ia'       => ['minutos' => 60, 'email' => 20,   'ip' => 60],
+    // conversa com o Orion: mensagens são curtas e frequentes, mas
+    // também gastam a cota (2026-10-22_orion.sql)
+    'orion'    => ['minutos' => 60, 'email' => 40,   'ip' => 120],
 ];
 
 /** IP de quem fez a requisição (REMOTE_ADDR: o X-Forwarded-For é forjável). */

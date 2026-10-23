@@ -2,10 +2,25 @@
 
 Algumas coisas que fazem o Kosmos funcionar **não vão para o GitHub**: elas ficam só
 no computador de cada um. Este guia mostra como deixar o seu PC igual ao de quem já
-está com tudo funcionando: login, redefinição de senha, exercícios com IA e
-notificações por e-mail.
+está com tudo funcionando: login, redefinição de senha, exercícios com IA, o Orion
+com IA e notificações por e-mail.
 
 **Tempo:** uns 15 minutos.
+
+> ### 🆕 Já seguiu este guia antes? Para ter o Orion com IA, faça só isto:
+> 1. Puxe o código novo (`git pull`).
+> 2. No seu `Backend/php/config.php`, acrescente no final:
+>    ```php
+>    define('N8N_ORION_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/orion');
+>    ```
+> 3. Com o MySQL ligado, rode `C:\xampp\php\php.exe Backend/sql/migrar.php`
+>    (aplica a `2026-10-22_orion.sql`).
+> 4. Teste: na aba **Orion**, pergunte "onde vejo os cartões para revisar?". A resposta
+>    deve vir da IA, e não de uma das respostas prontas.
+>
+> O token continua o mesmo de antes, e não precisa mexer no n8n. Se a pergunta cair numa
+> resposta pronta do tipo "Estou sem sinal com a minha IA", veja a tabela
+> **Deu problema?** no fim deste guia.
 
 ## O que fica fora do GitHub (e por quê)
 
@@ -17,7 +32,7 @@ notificações por e-mail.
 | Fotos enviadas (`Backend/uploads/`) | são dados de usuários | nada: cada PC tem as suas |
 | Fluxos e credenciais do n8n | ficam no servidor do n8n, não no PC | nada: já estão prontos lá |
 
-> Os fluxos do n8n (exercícios, redefinição de senha e notificações) rodam no
+> Os fluxos do n8n (exercícios, Orion, redefinição de senha e notificações) rodam no
 > servidor `n8n.srv1779459.hstgr.cloud`, que todo mundo compartilha. **Ninguém
 > precisa recriar fluxo nenhum.** Seu PC só precisa saber o endereço deles e o
 > token (passo 3).
@@ -55,8 +70,8 @@ cd Backend/php
 copy config.example.php config.php
 ```
 
-Se **já tem**, abra o seu e confira linha por linha com a tabela abaixo. A linha
-`N8N_NOTIF_URL` é nova, então talvez precise acrescentá-la.
+Se **já tem**, abra o seu e confira linha por linha com a tabela abaixo. As linhas
+`N8N_NOTIF_URL` e `N8N_ORION_URL` são novas, então talvez precise acrescentá-las.
 
 | Configuração | Valor | Onde conseguir |
 |---|---|---|
@@ -67,6 +82,7 @@ Se **já tem**, abra o seu e confira linha por linha com a tabela abaixo. A linh
 | `APP_URL` | `http://localhost/NOME-DA-SUA-PASTA/Frontend/pages` | troque `NOME-DA-SUA-PASTA` pela pasta onde o projeto está no seu `htdocs` (ex.: `AppPrincipal`) |
 | `N8N_RESET_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/reset-senha` | pode copiar daqui |
 | `N8N_NOTIF_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/notificacoes` | pode copiar daqui |
+| `N8N_ORION_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/orion` | pode copiar daqui (sem ele, o Orion usa só as respostas prontas) |
 
 O resultado fica assim (com os seus valores):
 
@@ -78,6 +94,7 @@ define('GOOGLE_CLIENT_ID', '848162979346-58d2pq44nmhbrabsnhl6i1o1j2pnm7mu.apps.g
 define('APP_URL', 'http://localhost/AppPrincipal/Frontend/pages');
 define('N8N_RESET_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/reset-senha');
 define('N8N_NOTIF_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/notificacoes');
+define('N8N_ORION_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/orion');
 ```
 
 > ⚠️ **O token e o endereço dos exercícios são segredos.** Peça por mensagem privada,
@@ -119,6 +136,7 @@ C:\xampp\php\php.exe Backend/sql/migrar.php --marcar-todas
    **seu** e-mail (de uma conta que existe no seu banco). O e-mail deve chegar, e o
    botão dele precisa abrir a página de nova senha no **seu** localhost.
 5. **IA:** gere um exercício em qualquer matéria.
+6. **Orion:** na aba Orion, pergunte algo como "onde vejo os cartões para revisar?". A resposta deve vir da IA, e não uma das respostas prontas.
 
 ## 6. (Opcional) Deixar o site mais leve
 
@@ -166,6 +184,9 @@ O lembrete diário e o resumo semanal saem pelo script `Backend/tarefas/notifica
 | O link do e-mail abre uma página que não existe | `APP_URL` com o nome errado da pasta | confira o `APP_URL` (passo 3) |
 | Botão do Google fica em "ainda está carregando" | `GOOGLE_CLIENT_ID` vazio | passo 3 |
 | "Gerar exercícios" dá erro | `N8N_EXERCICIOS_URL` errado ou vazio | peça o endereço ao Matheus |
+| O Orion só dá respostas prontas ("Estou sem sinal com a minha IA") | `N8N_ORION_URL` faltando ou errado, ou token diferente do n8n | confira o passo 3; o motivo aparece em `Backend/logs/php-erros.log` (linha `[KOSMOS Orion]`) |
+| O Orion responde "Você mandou muitas mensagens em pouco tempo" | limite de 40 mensagens por hora por conta | é normal: espere alguns minutos |
+| O log mostra `[KOSMOS limite]` a cada mensagem ao Orion | faltou a migração `2026-10-22_orion.sql` (o Orion funciona, mas sem limite de uso) | rode o `migrar.php` (passo 4) |
 | Datas ou sequência de dias estranhas | migração não aplicada | passo 4 |
 
 **Dica:** quase todo erro deixa uma pista em `Backend/logs/php-erros.log`. Abra esse

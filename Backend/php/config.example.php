@@ -39,3 +39,8 @@ define('N8N_RESET_URL', 'https://SEU-N8N/webhook/reset-senha');
 // Usado so pelo Backend/tarefas/notificacoes.php (agendado). Vazio =
 // o script roda apenas em modo simulacao.
 define('N8N_NOTIF_URL', '');
+
+// ---------- Orion com IA ----------
+// Webhook do fluxo "Kosmos — Orion" (usado pelo orion_chat.php).
+// Vazio = o Orion responde so com as respostas prontas.
+define('N8N_ORION_URL', '');

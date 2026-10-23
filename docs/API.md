@@ -47,6 +47,7 @@ O formato mora num lugar só, em [`api_util.php`](../Backend/php/api_util.php)
   | esqueci a senha | 60 min | 3 | 10 |
   | cadastro | 60 min | 5 | 10 |
   | geração por IA | 60 min | 20 (por conta) | 60 |
+  | conversa com o Orion | 60 min | 40 (por conta) | 120 |
 
 ## Autenticação e conta
 
@@ -100,12 +101,13 @@ Os endpoints com várias operações recebem o campo `acao`.
 | `exercicios_listar.php` | GET | `?materia_id=ID` ou `?id=ID` |
 | `exercicios_salvar.php` | POST | `criar`, `editar`, `excluir` |
 | `exercicios_responder.php` | POST | `exercicio`, `questao`, `escolhida` — o gabarito é do servidor |
+| `orion_chat.php` | POST (JSON) | `mensagem` (≤ 1000), `historico` (últimas 8), `pagina`, `questao` (do "Por que eu errei?") — devolve `resposta` e `humor` do mascote; chama o n8n (Groq), espera até 45 s; sem `N8N_ORION_URL` responde 503 e as telas usam as respostas prontas |
 | `gerar_exercicios.php` | POST | `materia` (≤ 200), `conteudo` (≤ 1000), `plano` (JSON, até 15 questões) — chama o n8n, espera até 90 s |
 
 ## Arquivos que não são endpoints
 
 Bibliotecas incluídas pelos endpoints (não chame direto): `bootstrap.php`,
 `api_util.php`, `sessao.php`, `pagina_dashboard.php`, `*_comum.php`, `*_util.php`,
-`ProgressoService.php`, `missoes.php`, `materias.php`, `datas.php`,
+`ProgressoService.php`, `missoes.php`, `orion_util.php` (e o `orion_manual.md`, o que o Orion sabe do site), `materias.php`, `datas.php`,
 `conquistas_icones.php`. Scripts de terminal ficam em `Backend/tarefas/` e
 `Backend/sql/migrar.php`, e o `.htaccess` bloqueia os dois no navegador.

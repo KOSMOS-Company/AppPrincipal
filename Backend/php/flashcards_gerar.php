@@ -14,7 +14,7 @@
 //  POR QUE NÃO É IA
 //  O projeto tem uma ponte de IA (gerar_exercicios.php, via n8n), e
 //  seria natural usá-la aqui. Só que ela depende de rede, de token e
-//  de um serviço que hoje devolve 500 — e um botão que às vezes não
+//  de uma cota gratuita que pode acabar — e um botão que às vezes não
 //  faz nada é pior do que um botão que faz menos. A leitura é feita
 //  por regra, aqui mesmo, em cima de três padrões que já existem no
 //  jeito de escrever do app:

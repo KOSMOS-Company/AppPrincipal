@@ -248,7 +248,30 @@
                 <span class="ex-praticar-resumo__q">Questão ${i + 1}</span>
                 <span class="ex-praticar-resumo__resp">${detalhe}</span>
             `;
+
+            // Errou: o Orion (chat flutuante, orion-chat.js) explica a questão
+            if (!certa && window.KosmosOrion) {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "dash-btn dash-btn--pequeno btn-ia ex-praticar-resumo__porque";
+                btn.textContent = "Por que eu errei?";
+                btn.addEventListener("click", () => perguntarAoOrion(q, r, i));
+                item.appendChild(btn);
+            }
             resumo.appendChild(item);
+        });
+    }
+
+    /* Abre o Orion já perguntando sobre a questão. A bolha mostra só a
+       frase curta; a questão inteira vai junto para a IA (orion_chat.php). */
+    function perguntarAoOrion(q, r, i) {
+        window.KosmosOrion.perguntar(`Por que eu errei a questão ${i + 1}?`, {
+            questao: {
+                enunciado: q.enunciado,
+                alternativas: q.alts || [],
+                correta: q.correta,
+                escolhida: r && r.escolhida >= 0 ? r.escolhida : -1,
+            },
         });
     }
 

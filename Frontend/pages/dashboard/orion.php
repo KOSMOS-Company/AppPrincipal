@@ -151,6 +151,7 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
     <script src="<?= asset('./js/util.js') ?>"></script>
     <script src="<?= asset('./js/dashboard.js') ?>"></script>
     <script src="<?= asset('../shared/mascote.js') ?>"></script>
+    <script src="<?= asset('./js/orion-ia.js') ?>"></script>
     <script src="<?= asset('./js/orion-aba.js') ?>"></script>
     <!-- O fundo tenta WebGL (cosmos-gl.js); se a máquina não tem ou o shader
          não compila, ele desiste em silêncio e o cosmos.js (Canvas 2D) assume.

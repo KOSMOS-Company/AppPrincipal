@@ -695,7 +695,7 @@ UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava a moldura Big Bang
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `tentativas_acesso` (
   `id`        int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `tipo`      enum('login','reset','cadastro','ia') NOT NULL,   -- cadastro/ia: 2026-10-19_seguranca.sql
+  `tipo`      enum('login','reset','cadastro','ia','orion') NOT NULL,   -- cadastro/ia: 2026-10-19_seguranca.sql; orion: 2026-10-22_orion.sql
   `email`     varchar(180) NOT NULL,
   `ip`        varchar(45) NOT NULL,
   `criado_em` datetime NOT NULL DEFAULT current_timestamp(),

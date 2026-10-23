@@ -203,24 +203,24 @@ alinhados (ver "Resolvidos" abaixo), e a regra continua como segunda proteção.
 | **Progressão** (XP, 50 níveis, conquistas, molduras e emblemas) | ✅ Funcional |
 | **Busca** em resumos, cadernos, baralhos, cartões e exercícios | ✅ Funcional |
 | Exercícios: matérias, listas salvas, prática com correção no servidor | ✅ Funcional |
-| Geração de exercícios com IA (n8n + Groq) | 🔴 Travado no n8n — ver abaixo |
-| E-mails de notificação (lembrete diário, resumo semanal) | 🟡 Disparador pronto (`Backend/tarefas/notificacoes.php`); falta o fluxo no n8n e agendar |
+| **Orion com IA** (guia do site, tutor de matérias, "o que estudo hoje?", "Por que eu errei?") | ✅ Funcional |
+| Geração de exercícios com IA (n8n + Groq) | ✅ Funcional |
+| E-mails de notificação (lembrete diário, resumo semanal) | 🟡 Envio funcionando (fluxo no n8n); falta agendar em um computador ou servidor |
 | Confirmação de e-mail no cadastro | 🔴 Não existe — ver abaixo |
 
 ---
 
 ## ⚠️ Problemas conhecidos (a resolver)
 
-- **Geração de exercícios com IA: o webhook responde `500 {"message":"Error in workflow"}`.**
-  O lado do PHP está certo (o webhook de produção está registrado e recusa token errado com
-  403), então o erro é **dentro do fluxo do n8n**. As suspeitas são a chave ou o modelo do
-  Groq, ou o nó de Code. A resposta exata do n8n agora fica em `Backend/logs/php-erros.log`
-  (linha `[KOSMOS IA]`), o que deve ajudar a achar o nó com problema.
+- **E-mails de notificação ainda não saem sozinhos.** O fluxo do n8n envia os dois tipos
+  (testado), mas alguém precisa agendar o `Backend/tarefas/notificacoes.php` em **um**
+  computador ou servidor (ver [docs/PRODUCAO.md](docs/PRODUCAO.md) e o aviso em
+  [docs/CONFIGURACAO-LOCAL.md](docs/CONFIGURACAO-LOCAL.md)).
 
-- **E-mails de notificação ainda não saem.** As preferências são salvas e o disparador
-  existe (`php Backend/tarefas/notificacoes.php lembrete|resumo`, que só simula sem
-  `--enviar`). Falta criar no n8n o fluxo que recebe o JSON e envia o e-mail, preencher
-  `N8N_NOTIF_URL` no `config.php` e agendar (ver [docs/PRODUCAO.md](docs/PRODUCAO.md)).
+- **A cota gratuita do Groq é compartilhada.** A geração de exercícios e o Orion usam a
+  mesma conta. Cada pessoa tem um limite por hora (ver [docs/API.md](docs/API.md)), mas
+  com muita gente usando ao mesmo tempo o Groq pode recusar pedidos por alguns minutos. Nesse
+  caso, o Orion cai nas respostas prontas, e a geração de exercícios mostra um aviso.
 
 - **O e-mail do cadastro não é confirmado.** Qualquer pessoa pode criar uma conta com o
   e-mail de outra. Já existem duas proteções: o limite de tentativas, e o login com Google

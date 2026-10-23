@@ -442,5 +442,6 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
             <?php include __DIR__ . '/orion-chat.php'; ?>
             <link rel="stylesheet" href="<?= asset('../shared/mascote.css') ?>">
             <script src="<?= asset('../shared/mascote.js') ?>"></script>
+            <script src="<?= asset('./js/orion-ia.js') ?>" defer></script>
             <script src="<?= asset('./js/orion-chat.js') ?>" defer></script>
         <?php endif; ?>

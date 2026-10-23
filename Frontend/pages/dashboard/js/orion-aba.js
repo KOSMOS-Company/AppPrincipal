@@ -80,7 +80,7 @@
                   `1. **Fundamentação:** elabore um resumo conciso na aba **Biblioteca** com os pontos principais.\n` +
                   `2. **Fixação:** monte flashcards com perguntas e respostas diretas para revisar periodicamente.\n` +
                   `3. **Prática:** teste seus conhecimentos cronometrando blocos de estudo no **Pomodoro**.\n\n` +
-                  `Logo mais, você poderá conversar diretamente com meu modelo de IA integrado para explicações aprofundadas em tempo real!`
+                  `Estou sem sinal com a minha IA neste momento 🛰️ — pergunte de novo daqui a pouco para uma explicação completa.`
     };
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -214,19 +214,55 @@
             return RESPOSTA_PADRAO;
         }
 
-        function enviarPergunta() {
+        /* Uma pergunta por vez: enquanto a IA pensa, um segundo envio
+           embaralharia a ordem das respostas na conversa. */
+        let aguardando = false;
+
+        /* A conversa no formato do orion-ia.js. Esta aba guarda
+           {tipo, conteudo}; lá é {autor, texto}. */
+        function historicoParaIA(lista) {
+            return lista.map(m => ({
+                autor: m.tipo === 'usuario' ? 'usuario' : 'orion',
+                texto: m.conteudo,
+            }));
+        }
+
+        /* Pergunta à IA (orion-ia.js). Se ela estiver fora do ar, cai
+           nas respostas prontas de RESPOSTAS_ORION, que antes eram as
+           únicas: o Orion nunca fica mudo. Limite de uso, mensagem longa
+           e sessão expirada aparecem como a mensagem do servidor. */
+        async function obterResposta(texto, anteriores) {
+            if (!window.KosmosOrionIA) {
+                return buscarResposta(texto);
+            }
+            try {
+                const r = await window.KosmosOrionIA.perguntar(texto, historicoParaIA(anteriores));
+                return { resposta: r.resposta, humor: r.humor };
+            } catch (erro) {
+                if (erro.doServidor) {
+                    return { resposta: erro.message, humor: 'confuso' };
+                }
+                return buscarResposta(texto);
+            }
+        }
+
+        async function enviarPergunta() {
             const texto = input.value.trim();
-            if (!texto) return;
+            if (!texto || aguardando) return;
+            aguardando = true;
 
             input.value = '';
             input.focus();
+
+            // A conversa ANTES desta pergunta (é o contexto que vai para a IA)
+            const anteriores = historico.slice();
 
             // Adiciona a pergunta do estudante
             renderizarMensagem('usuario', texto);
             historico.push({ tipo: 'usuario', conteudo: texto });
             salvarHistorico();
 
-            // Reação do mascote (pensativo durante a digitação)
+            // Reação do mascote (pensativo enquanto a IA responde)
             definirHumor('pensativo');
 
             // Exibe os três pontinhos de digitação dentro do chat
@@ -236,19 +272,18 @@
                 scrollParaFim();
             }
 
-            const delay = Math.min(1600, Math.max(600, texto.length * 18));
-            setTimeout(() => {
-                if (digitando) digitando.style.display = 'none';
+            const resultado = await obterResposta(texto, anteriores);
 
-                const resultado = buscarResposta(texto);
-                definirHumor(resultado.humor || 'feliz');
-                renderizarMensagem('orion', resultado.resposta, resultado.humor || 'feliz');
+            if (digitando) digitando.style.display = 'none';
+            const humor = resultado.humor || 'feliz';
+            definirHumor(humor);
+            renderizarMensagem('orion', resultado.resposta, humor);
 
-                historico.push({ tipo: 'orion', conteudo: resultado.resposta, humor: resultado.humor || 'feliz' });
-                salvarHistorico();
+            historico.push({ tipo: 'orion', conteudo: resultado.resposta, humor });
+            salvarHistorico();
+            aguardando = false;
 
-                setTimeout(() => definirHumor('normal'), 4000);
-            }, delay);
+            setTimeout(() => definirHumor('normal'), 4000);
         }
 
         form.addEventListener('submit', (e) => {

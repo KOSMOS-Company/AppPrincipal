@@ -1,18 +1,17 @@
 /* ============================================================
    KOSMOS — orion-chat.js ("Pergunte ao Orion!")
-   Chat interativo com o assistente acadêmico Orion.
-   Responde com inteligência contextual e reações emocionais 3D,
-   com arquitetura pronta para conexão direta com IA (Groq / LLM).
+   Chat flutuante com o Orion, em todas as abas menos a do Orion.
+   Responde com IA (js/orion-ia.js → Backend/php/orion_chat.php) e
+   reações do mascote. Se a IA estiver fora do ar, cai nas respostas
+   prontas de responder(), mais abaixo.
+
+   Outras telas abrem o chat já perguntando algo com:
+     window.KosmosOrion.perguntar(texto, { questao })
+   (é o que o "Por que eu errei?" dos exercícios faz).
    ============================================================ */
 
 (function () {
     'use strict';
-
-    // Flag de expansão para quando a API da IA estiver ativa
-    var CONFIG_IA_ATIVA = false;
-    // Relativo à PÁGINA (Frontend/pages/dashboard/*.php), não a este .js:
-    // são três níveis até a raiz, como o API do revisar.js.
-    var ENDPOINT_IA = '../../../Backend/php/gerar_exercicios.php';
 
     var STORAGE_KEY = (window.kosmosChaveConta ? window.kosmosChaveConta('kosmos_orion_chat_historico') : 'kosmos_orion_chat_historico');
 
@@ -103,12 +102,15 @@
 
             var balao = document.createElement('div');
             balao.className = 'orion-msg__balao';
-            /* Escapa ANTES de converter as quebras de linha em <br>: a
-               bolha do usuário (e todo o histórico, que volta do
-               sessionStorage e pode ter sido adulterado) ia crua para o
-               innerHTML. As respostas do bot são texto puro com \n, então
-               continuam iguais. */
-            balao.innerHTML = escaparHtml(texto).replace(/\n/g, '<br>');
+            /* Escapa ANTES de formatar: a bolha do usuário (e todo o
+               histórico, que volta do sessionStorage e pode ter sido
+               adulterado) ia crua para o innerHTML. Depois do escape, o
+               **negrito** e o *itálico* que a IA usa viram tags — esses
+               caracteres o escape não altera. */
+            balao.innerHTML = escaparHtml(texto)
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
 
             msgDiv.appendChild(balao);
             msgsContainer.appendChild(msgDiv);
@@ -134,9 +136,26 @@
             adicionarBolha(texto, 'bot');
         }
 
-        function enviarMensagemUsuario(texto) {
-            if (!texto || !texto.trim()) return;
+        /* Uma pergunta por vez: um segundo envio enquanto a IA pensa
+           embaralharia a ordem das respostas. */
+        var aguardando = false;
+
+        /* A conversa no formato do orion-ia.js: aqui é {autor: 'user'|'bot'},
+           lá é {autor: 'usuario'|'orion'}. */
+        function historicoParaIA(lista) {
+            return lista.map(function (m) {
+                return { autor: m.autor === 'user' ? 'usuario' : 'orion', texto: m.texto };
+            });
+        }
+
+        /* extras: { questao } do "Por que eu errei?" — vai para a IA, mas
+           a bolha mostra só o texto curto, não a questão inteira. */
+        function enviarMensagemUsuario(texto, extras) {
+            if (!texto || !texto.trim() || aguardando) return;
             texto = texto.trim();
+            aguardando = true;
+
+            var anteriores = historicoParaIA(historico);
 
             historico.push({ autor: 'user', texto: texto });
             try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(historico)); } catch (e) {}
@@ -149,12 +168,41 @@
             rolarFim();
             setHumor('pensativo');
 
-            // Processa resposta pré-definida inteligente
-            setTimeout(function () {
+            function terminar() {
                 if (typingIndicator) typingIndicator.style.display = 'none';
+                aguardando = false;
+            }
+
+            if (!window.KosmosOrionIA) {
+                terminar();
                 responder(texto);
-            }, 600 + Math.random() * 400);
+                return;
+            }
+
+            window.KosmosOrionIA.perguntar(texto, anteriores, extras)
+                .then(function (r) {
+                    terminar();
+                    enviarMensagemOrion(r.resposta, r.humor);
+                })
+                .catch(function (erro) {
+                    terminar();
+                    if (erro.doServidor) {
+                        // limite de uso, mensagem longa, sessão expirada
+                        enviarMensagemOrion(erro.message, 'confuso');
+                    } else {
+                        // IA fora do ar: o Orion responde do jeito antigo
+                        responder(texto);
+                    }
+                });
         }
+
+        // Para as outras telas abrirem o chat já com uma pergunta
+        window.KosmosOrion = {
+            perguntar: function (texto, extras) {
+                alternarChat(true);
+                enviarMensagemUsuario(texto, extras);
+            },
+        };
 
         // Renderiza histórico existente ao carregar
         if (historico.length > 0) {
@@ -286,7 +334,7 @@
             // 8. Exercícios / IA
             if (tem(q, ['ia', 'inteligencia', 'exercicio*'])) {
                 enviarMensagemOrion(
-                    'Nosso módulo de Exercícios com IA está sendo calibrado! Em breve você poderá gerar simulados adaptativos que atacam exatamente suas matérias com mais erros. Fique de olho!',
+                    'Na aba Exercícios, abra uma matéria e clique em "Novo exercício": a IA gera até 15 questões sobre o conteúdo que você escolher, nas dificuldades que quiser. Na correção, o botão "Por que eu errei?" me chama para explicar cada erro! 🎯',
                     'surpreso'
                 );
                 return;
@@ -294,7 +342,7 @@
 
             // 9. Resposta Padrão / Fora do Escopo Pré-Definido
             enviarMensagemOrion(
-                'Excelente pergunta! Estou em fase de treinamento cósmico e muito em breve serei conectado à nossa IA completa para tirar dúvidas específicas de todas as disciplinas e corrigir redações.\n\n' +
+                'Estou sem sinal com a minha IA neste momento 🛰️ — pergunte de novo daqui a pouco para uma resposta completa.\n\n' +
                 'Enquanto isso, posso te ajudar a dominar as técnicas de Pomodoro, organizar seus Flashcards ou planejar sua meta de estudos. O que acha?',
                 'pensativo'
             );

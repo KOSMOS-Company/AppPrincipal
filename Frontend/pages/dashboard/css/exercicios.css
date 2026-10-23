@@ -1054,6 +1054,14 @@
     color: var(--text-muted);
 }
 
+/* "Por que eu errei?" (abre o Orion). Em tela estreita o botão desce
+   para uma linha só dele, em vez de espremer a resposta. */
+.ex-praticar-resumo-item { flex-wrap: wrap; }
+.ex-praticar-resumo__porque { flex: none; }
+@media (max-width: 560px) {
+    .ex-praticar-resumo__porque { width: 100%; }
+}
+
 /* ════════════════════════════════════════════════════════════════
    REDESENHO — a constelação parece céu de verdade
    A mesma ideia (cada matéria é uma estrela, ligadas por traços),
