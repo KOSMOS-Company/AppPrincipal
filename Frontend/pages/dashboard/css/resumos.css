@@ -1576,8 +1576,100 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 .pagina-biblioteca .caderno-card__link::after  { bottom: 14px; }
 
 .pagina-biblioteca .caderno-card__body { padding: 26px 8px 28px; }
+
+/* ---- O hover da lombada (correção 2026-10-22) ----
+   Estava quebrado de três jeitos:
+   1. A DICA era um ::after dentro da estante, e a estante rola de
+      lado — então a recortava: no alto, e nas pontas (presa à borda
+      do card para não sair, ela crescia por cima dos vizinhos; com
+      poucos cadernos, a do último saía cortada pela esquerda e a do
+      primeiro parecia ser de outro). Agora ela é um elemento solto no
+      <body> (.dica-lombada, posicionada pelo resumos.js), que nada
+      recorta. O ::after/::before antigos ficam desligados aqui.
+   2. O NOME pulava. Para caber o lápis e a lixeira, o corpo encolhia
+      48px de uma vez, e o nome vertical (sem reticências) era cortado
+      no meio da letra. Agora o nome fica parado e os dois botões
+      aparecem POR CIMA da base da lombada, sobre um degradê na cor do
+      próprio caderno, que esconde o fim do nome com suavidade.
+   3. O CLIQUE derrubava o livro (mais abaixo). */
+.pagina-biblioteca .caderno-card::after,
+.pagina-biblioteca .caderno-card::before { display: none; }
+
+.dica-lombada {
+    position: fixed;
+    z-index: 900;
+    max-width: 240px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-nav);
+    color: var(--text-dim);
+    font-size: .78rem;
+    line-height: 1.45;
+    text-align: center;
+    box-shadow: var(--shadow-card-hover, 0 20px 50px rgba(0, 0, 0, .45));
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .16s ease, transform .16s ease;
+}
+.dica-lombada--visivel { opacity: 1; transform: none; }
+/* a seta aponta para o centro do caderno dono (--seta-x, do resumos.js) */
+.dica-lombada::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: var(--seta-x, 50%);
+    width: 14px;
+    height: 7px;
+    margin-left: -7px;
+    background: var(--bg-nav);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .dica-lombada { transition: none; transform: none; }
+}
+
 .pagina-biblioteca .caderno-card:hover .caderno-card__body,
-.pagina-biblioteca .caderno-card:focus-within .caderno-card__body { padding-bottom: 76px; }
+.pagina-biblioteca .caderno-card:focus-within .caderno-card__body { padding-bottom: 28px; }
+
+.pagina-biblioteca .caderno-card__acoes {
+    bottom: 0;
+    padding: 30px 0 8px;
+    border-radius: 0 0 2px 2px;
+    background: linear-gradient(to top, var(--cad-esc) 0%, var(--cad-esc) 55%, transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+.pagina-biblioteca .caderno-card:is(:hover, :focus-within) .caderno-card__acoes {
+    opacity: 1;
+    pointer-events: auto;
+}
+/* No toque não há hover: os botões ficam sempre à vista, como antes */
+@media (hover: none) {
+    .pagina-biblioteca .caderno-card__acoes { opacity: 1; pointer-events: auto; }
+}
+/* Arrastando um resumo, os botões somem (a lombada vira só destino) */
+body.arrastando-resumo .pagina-biblioteca .caderno-card__acoes { opacity: 0; pointer-events: none; }
+
+/* 3. O CLIQUE derrubava o livro. A física de toque do apple.css troca
+   o transform de todo card por scale(.98) no :active — e isso apagava
+   o translateY do hover: o livro levantado caía 14px de uma vez antes
+   de abrir. Aqui o aperto soma à subida em vez de substituí-la. O
+   apple.css também tirava o `filter` das transições, e o clarear do
+   hover acontecia num estalo. */
+.pagina-biblioteca .caderno-card {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform, filter;
+    transition-duration: .2s, .2s, .2s, .2s, .2s, var(--mola-t, .4s), .2s;
+    transition-timing-function: ease, ease, ease, ease, ease, var(--mola, ease-out), ease;
+}
+.pagina-biblioteca .caderno-card:hover:active { transform: translateY(-14px) scale(.98); }
+/* no Lite o livro não sobe (lite.css), então o aperto é só o aperto */
+html.kosmos-lite .pagina-biblioteca .caderno-card:hover:active { transform: scale(.98); }
+@media (prefers-reduced-motion: reduce) {
+    .pagina-biblioteca .caderno-card:hover:active { transform: none; }
+}
 
 /* ════════ DENTRO DO CADERNO (e os resumos soltos) — folha de caderno ════════
    A lista dos resumos vira uma folha de caderno: margem fina
@@ -1641,3 +1733,36 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     }
     :is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumos-grid { padding-left: 40px; }
 }
+
+/* ════════ "Destacar" no editor de resumo (js/resumo-form.js) ════════
+   O botão que põe ==assim== em volta da seleção — o jeito de a pessoa
+   descobrir o Modo revisão sem precisar saber da marcação. Ao lado, uma
+   linha que ensina (sem destaques) ou confirma (com destaques). */
+.destaque-barra {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+.destaque-barra__btn {
+    flex: none;
+    gap: 6px;
+}
+.destaque-barra__btn svg { width: 15px; height: 15px; }
+.destaque-barra__dica {
+    margin: 0;
+    font-size: .78rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+.destaque-barra__dica--aviso { color: #fbbf24; }
+@media (max-width: 560px) {
+    .destaque-barra { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+
+/* Modo revisão: olho fechado ("Modo revisão" = esconder) e olho aberto
+   ("Mostrar tudo"), os mesmos do campo de senha do login. O aria-pressed
+   vem do resumo-revisao.js. */
+#btnRevisar .revisar-olho--aberto { display: none; }
+#btnRevisar[aria-pressed="true"] .revisar-olho--fechado { display: none; }
+#btnRevisar[aria-pressed="true"] .revisar-olho--aberto { display: inline-block; }

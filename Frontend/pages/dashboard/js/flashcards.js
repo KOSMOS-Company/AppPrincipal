@@ -352,7 +352,7 @@
         barEstudo.parentElement.setAttribute("aria-valuenow", pct);
 
         $("#btnAnterior").disabled = s.i === 0;
-        $("#btnProximo").textContent = s.i === total - 1 ? "Concluir →" : "Pular →";
+        $("#btnProximo").textContent = s.i === total - 1 ? "Concluir" : "Pular";
     }
 
     function virarCartao() {

@@ -122,25 +122,40 @@
         const palavras = ['esquecer', 'se perder', 'travar', 'não render'];
         let idx = 0, pos = palavras[0].length, apagando = false;
 
-        // Reserva a largura da maior palavra para o título não mudar de
-        // tamanho (e quebrar linhas diferentes) enquanto digita/apaga.
+        /* A LARGURA DA LINHA. O título é centralizado, então "e ___" é
+           centralizado pela largura da caixa da palavra. Antes ela era a
+           da MAIOR palavra o tempo todo: com uma curta ("travar"), sobrava
+           um vão invisível à direita e a linha inteira ficava torta para
+           a esquerda. Agora a caixa tem a largura da palavra DA VEZ — e só
+           muda na troca de palavra, com a linha vazia, deslizando (CSS
+           transition) para o novo centro antes de a digitação começar.
+           Durante a digitação ela não mexe: nada treme a cada letra. */
         const rotator = alvo.closest('.hero__rotator');
         const titulo = alvo.closest('.hero__title');
-        function reservarLargura() {
+        const celular = window.matchMedia('(max-width: 680px)');   // lá a linha quebra livre (inicio.css)
+        let larguras = [];
+
+        function medirPalavras() {
             const medidor = document.createElement('span');
             medidor.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;';
             titulo.appendChild(medidor);
-            let maior = 0;
-            palavras.forEach(p => {
+            larguras = palavras.map(p => {
                 medidor.textContent = p;
-                maior = Math.max(maior, medidor.offsetWidth);
+                return medidor.getBoundingClientRect().width;
             });
             medidor.remove();
-            rotator.style.minWidth = Math.ceil(maior) + 12 + 'px';   // +12: espaço do cursor
+            aplicarLargura();
         }
-        reservarLargura();
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(reservarLargura);
-        window.addEventListener('resize', reservarLargura);
+        function aplicarLargura() {
+            if (celular.matches || !larguras.length) {
+                rotator.style.width = '';
+                return;
+            }
+            rotator.style.width = Math.ceil(larguras[idx]) + 12 + 'px';   // +12: o cursor piscando
+        }
+        medirPalavras();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(medirPalavras);
+        window.addEventListener('resize', medirPalavras);
 
         function passo() {
             const palavra = palavras[idx];
@@ -150,6 +165,11 @@
                 if (pos === 0) {
                     apagando = false;
                     idx = (idx + 1) % palavras.length;
+                    // linha vazia: a caixa vai para a largura da próxima
+                    // palavra e a digitação espera o deslize terminar
+                    aplicarLargura();
+                    setTimeout(passo, 420);
+                    return;
                 }
                 setTimeout(passo, 45);
             } else {

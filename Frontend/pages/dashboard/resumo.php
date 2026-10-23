@@ -125,7 +125,12 @@ if ($id > 0 && !$ERRO_BANCO) {
                          do que botão nenhum. -->
                     <button class="dash-btn dash-btn--ghost" id="btnRevisar"
                             type="button" aria-pressed="false" hidden>
-                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2 10s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.2" stroke="currentColor" stroke-width="1.6"/></svg>
+                        <!-- Os mesmos olhos do campo de senha (login): fechado
+                             para "Modo revisão" (a ação é esconder), aberto para
+                             "Mostrar tudo". Quem troca é o CSS, pelo aria-pressed
+                             que o resumo-revisao.js já liga e desliga. -->
+                        <svg class="revisar-olho revisar-olho--fechado" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
+                        <svg class="revisar-olho revisar-olho--aberto" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
                         <span id="btnRevisarTexto">Modo revisão</span>
                     </button>
 

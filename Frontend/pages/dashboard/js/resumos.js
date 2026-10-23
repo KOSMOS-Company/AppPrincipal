@@ -701,3 +701,96 @@
         }
     }
 })();
+
+/* ============================================================
+   A DICA DA LOMBADA (nome · matéria · o que tem dentro)
+   Era um ::after DENTRO da estante — e a estante rola de lado, então
+   recortava a dica: cortada no alto, e nas pontas presa à borda do
+   card, crescendo por cima dos vizinhos (com dois cadernos, a do
+   último saía cortada pela esquerda e a do primeiro parecia ser do
+   outro). Agora ela é um elemento só, solto no <body>, com position:
+   fixed: nada a recorta, fica sempre centrada no caderno dono e só
+   encosta na borda da TELA quando precisa.
+   No toque não existe hover: lá ela não aparece (como antes).
+   ============================================================ */
+(() => {
+    if (!window.matchMedia("(hover: hover)").matches) return;
+
+    const MARGEM_TELA = 8;   // distância mínima da borda da janela
+    const VAO = 10;          // entre a dica e o caderno
+
+    const dica = document.createElement("div");
+    dica.className = "dica-lombada";
+    dica.setAttribute("role", "tooltip");
+    dica.hidden = true;
+    document.body.appendChild(dica);
+
+    let atual = null;
+
+    /* O caderno sobe 14px no hover (resumos.css) — menos no Lite e
+       com "menos movimento", em que ele não sobe. A dica já nasce na
+       posição de destino, em vez de ser medida no meio da subida. */
+    function subida() {
+        const lite = document.documentElement.classList.contains("kosmos-lite");
+        const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        return lite || quieto ? 0 : 14;
+    }
+
+    /** Quanto o elemento está deslocado na vertical pelo transform, agora. */
+    function deslocamentoY(el) {
+        const t = window.getComputedStyle(el).transform;
+        return t && t !== "none" ? new DOMMatrixReadOnly(t).m42 : 0;
+    }
+
+    function mostrar(card) {
+        const texto = card.dataset.dica;
+        if (!texto || document.body.classList.contains("arrastando-resumo")) return;
+        atual = card;
+        dica.textContent = texto;
+        dica.hidden = false;
+
+        /* Onde o topo do caderno VAI ficar: o quanto ele já subiu agora
+           (pode estar no meio da animação) sai da conta, e entra a
+           subida final do hover. */
+        const r = card.getBoundingClientRect();
+        const topoCard = r.top - deslocamentoY(card) - subida();
+        const largura = dica.offsetWidth;
+        const centro = r.left + r.width / 2;
+        const esquerda = Math.min(
+            Math.max(centro - largura / 2, MARGEM_TELA),
+            window.innerWidth - largura - MARGEM_TELA
+        );
+        dica.style.left = esquerda + "px";
+        dica.style.top = (topoCard - VAO - dica.offsetHeight) + "px";
+        // a seta aponta para o centro do caderno, mesmo com a caixa empurrada pela borda
+        dica.style.setProperty("--seta-x", (centro - esquerda) + "px");
+        dica.classList.add("dica-lombada--visivel");
+    }
+
+    function esconder() {
+        atual = null;
+        dica.classList.remove("dica-lombada--visivel");
+        dica.hidden = true;
+    }
+
+    document.addEventListener("mouseover", (e) => {
+        const card = e.target.closest(".caderno-card[data-dica]");
+        if (card && card !== atual) mostrar(card);
+    });
+    document.addEventListener("mouseout", (e) => {
+        if (!atual) return;
+        const para = e.relatedTarget;
+        if (!para || !atual.contains(para)) esconder();
+    });
+    document.addEventListener("focusin", (e) => {
+        const card = e.target.closest(".caderno-card[data-dica]");
+        if (card) mostrar(card); else if (atual) esconder();
+    });
+    document.addEventListener("focusout", (e) => {
+        if (atual && !atual.contains(e.relatedTarget)) esconder();
+    });
+    // rolar a estante ou a página, arrastar ou redimensionar: a dica sai
+    document.addEventListener("scroll", esconder, true);
+    window.addEventListener("resize", esconder);
+    document.addEventListener("dragstart", esconder);
+})();

@@ -1453,20 +1453,21 @@ em { font-style: normal; color: var(--accent-lt); }
    percebe. */
 @media (max-width: 680px) {
     .hero__linha { white-space: normal; }
-    .hero__rotator { min-width: 0 !important; }
+    .hero__rotator { width: auto !important; }
 }
 
 .hero__rotator {
     white-space: nowrap;
-    /* largura fixa (definida via JS pela maior palavra) para o texto não "pular" */
     display: inline-block;
+    /* A largura vem do JS (inicio.js): a da palavra DA VEZ, trocada só
+       entre uma palavra e outra, com a linha vazia. Antes era sempre a da
+       MAIOR palavra, e com uma curta o vão invisível à direita entortava
+       a linha centralizada. O deslize leva a linha ao novo centro antes
+       de a próxima palavra começar a ser digitada. */
+    transition: width .38s cubic-bezier(.2, .8, .2, 1);
 
-    /* Alinhado à ESQUERDA, não ao centro. A caixa é reservada pela MAIOR
-       palavra; centralizado, toda palavra curta abria um vão visível entre
-       ela e o "e" que vem antes. À esquerda a palavra continua colada no
-       "e" e a sobra fica à direita, onde não há nada para separar.
-       (O ponto final saiu do título pelo mesmo motivo: ele ficava jogado
-       no fim da caixa reservada, longe da palavra.) */
+    /* Alinhada à esquerda: a palavra nasce colada no "e" e cresce para a
+       direita, dentro da própria caixa — que já tem a largura dela. */
     text-align: left;
 }
 .hero__rotator #rotatorWord { color: var(--accent-lt); }

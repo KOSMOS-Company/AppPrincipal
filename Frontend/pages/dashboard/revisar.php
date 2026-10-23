@@ -51,7 +51,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                     <p id="revProgresso">Montando sua fila…</p>
                 </div>
                 <div class="fc-acoes">
-                    <a class="dash-btn dash-btn--outline" href="index.php">← Voltar ao Início</a>
+                    <a class="dash-btn dash-btn--outline" href="index.php">Voltar ao Início</a>
                 </div>
             </header>
 

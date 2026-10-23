@@ -70,6 +70,19 @@
         texto?.addEventListener("input", () => {
             const contador = el("contador");
             if (contador) contador.textContent = texto.value.length;
+            atualizarDicaDestaque();
+        });
+
+        // "Destacar": o botão e o atalho Ctrl+E (Cmd+E no Mac)
+        const btnDestacar = el("btnDestacar");
+        // mousedown sem padrão: clicar no botão não tira o foco (nem a seleção) do texto
+        btnDestacar?.addEventListener("mousedown", (e) => e.preventDefault());
+        btnDestacar?.addEventListener("click", destacarSelecao);
+        texto?.addEventListener("keydown", (e) => {
+            if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "e") {
+                e.preventDefault();
+                destacarSelecao();
+            }
         });
 
         el("resumoCaderno")?.addEventListener("change", aplicarCaderno);
@@ -80,6 +93,96 @@
     /* ------------------------------------------------------------
        Abrir / fechar
        ------------------------------------------------------------ */
+
+    /* ------------------------------------------------------------
+       "Destacar" — o jeito de descobrir o Modo revisão
+       O Modo revisão (resumo-revisao.js) esconde os trechos ==assim==
+       e o "Gerar flashcards" os vira cartões de completar. Mas ninguém
+       adivinha o "==": o botão só aparecia em resumo já marcado, e
+       quem não sabia da marcação nunca marcava. Agora é o gesto de
+       negrito de qualquer editor: seleciona e clica (ou Ctrl+E).
+       ------------------------------------------------------------ */
+
+    /** A mesma regra do resumo-revisao.js e do flashcards_gerar.php. */
+    const MARCA_DESTAQUE = /==([^=]+)==/g;
+    let timerAvisoDestaque = null;
+
+    function destacarSelecao() {
+        const t = el("conteudo");
+        if (!t) return;
+        const valor = t.value;
+        let ini = t.selectionStart;
+        let fim = t.selectionEnd;
+        let sel = valor.slice(ini, fim);
+
+        // Já destacado? Destacar de novo TIRA o destaque.
+        // (a) a seleção inclui os == ...
+        if (sel.length > 4 && sel.startsWith("==") && sel.endsWith("==")) {
+            trocarTexto(t, ini, fim, sel.slice(2, -2));
+            t.setSelectionRange(ini, fim - 4);
+            return;
+        }
+        // (b) ... ou está logo dentro deles
+        if (valor.slice(ini - 2, ini) === "==" && valor.slice(fim, fim + 2) === "==" && sel !== "") {
+            trocarTexto(t, ini - 2, fim + 2, sel);
+            t.setSelectionRange(ini - 2, fim - 2);
+            return;
+        }
+
+        // O destaque não engole os espaços das pontas da seleção
+        while (ini < fim && /\s/.test(valor[ini])) ini++;
+        while (fim > ini && /\s/.test(valor[fim - 1])) fim--;
+        sel = valor.slice(ini, fim);
+
+        if (sel === "") {
+            avisarDestaque("Selecione primeiro o trecho que você quer lembrar — depois clique em Destacar.");
+            t.focus();
+            return;
+        }
+        if (sel.includes("=")) {
+            avisarDestaque("Trechos com o sinal de igual (=) não funcionam no Modo revisão. Destaque só uma parte — o nome da lei ou o resultado, por exemplo.");
+            t.focus();
+            return;
+        }
+
+        trocarTexto(t, ini, fim, "==" + sel + "==");
+        t.setSelectionRange(ini + 2, fim + 2);
+    }
+
+    /* Troca um pedaço do texto mantendo o Ctrl+Z: o insertText entra
+       no histórico de desfazer do navegador (mexer no .value direto
+       não entra). Sem ele, cai no setRangeText. */
+    function trocarTexto(t, ini, fim, novo) {
+        t.focus();
+        t.setSelectionRange(ini, fim);
+        const foi = typeof document.execCommand === "function" && document.execCommand("insertText", false, novo);
+        if (!foi) {
+            t.setRangeText(novo, ini, fim, "end");
+            t.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+    }
+
+    function avisarDestaque(texto) {
+        const dica = el("destaqueDica");
+        if (!dica) return;
+        dica.textContent = texto;
+        dica.classList.add("destaque-barra__dica--aviso");
+        clearTimeout(timerAvisoDestaque);
+        timerAvisoDestaque = setTimeout(atualizarDicaDestaque, 5000);
+    }
+
+    /** A linha ao lado do botão: ensina enquanto não há destaque, confirma quando há. */
+    function atualizarDicaDestaque() {
+        const dica = el("destaqueDica");
+        const t = el("conteudo");
+        if (!dica || !t) return;
+        clearTimeout(timerAvisoDestaque);
+        dica.classList.remove("destaque-barra__dica--aviso");
+        const n = (t.value.match(MARCA_DESTAQUE) || []).length;
+        dica.textContent = n === 0
+            ? "Selecione o que quer lembrar e destaque. No Modo revisão, esses trechos ficam escondidos para você se testar."
+            : `✓ ${n} ${n === 1 ? "trecho destacado" : "trechos destacados"}: o Modo revisão vai escondê-${n === 1 ? "lo" : "los"} para você se testar.`;
+    }
 
     /* resumo = null -> novo; com resumo -> edita.
        opcoes.caderno = caderno já escolhido (novo resumo dentro dele) */
@@ -125,6 +228,7 @@
 
         const contador = el("contador");
         if (contador) contador.textContent = texto.value.length;
+        atualizarDicaDestaque();
         aplicarCaderno();
         desenharImagens();
 

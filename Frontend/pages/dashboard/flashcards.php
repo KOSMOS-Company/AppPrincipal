@@ -142,7 +142,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                         <p id="estudoProgresso">Cartão 1 de 1</p>
                     </div>
                     <div class="fc-acoes">
-                        <button class="dash-btn dash-btn--outline" data-voltar-decks>← Sair do estudo</button>
+                        <button class="dash-btn dash-btn--outline" data-voltar-decks>Sair do estudo</button>
                         <button class="dash-btn dash-btn--ghost" id="btnEmbaralhar">Embaralhar</button>
                     </div>
                 </header>
@@ -174,12 +174,12 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                     </div>
 
                     <div class="estudo-nav">
-                        <button class="dash-btn dash-btn--ghost" id="btnAnterior">← Anterior</button>
+                        <button class="dash-btn dash-btn--ghost" id="btnAnterior">Anterior</button>
                         <div class="estudo-progresso" role="progressbar"
                              aria-label="Progresso do estudo" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                             <div class="estudo-progresso__bar" id="barEstudo"></div>
                         </div>
-                        <button class="dash-btn dash-btn--ghost" id="btnProximo">Pular →</button>
+                        <button class="dash-btn dash-btn--ghost" id="btnProximo">Pular</button>
                     </div>
 
                     <!-- Fim da sessão -->

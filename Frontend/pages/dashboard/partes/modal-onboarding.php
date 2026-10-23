@@ -160,7 +160,7 @@
             <!-- Rodapé de Ações do Modal -->
             <div class="onb-rodape">
                 <button type="button" class="onb-btn onb-btn--ghost" id="onbBtnVoltar" hidden>
-                    ← Voltar
+                    Voltar
                 </button>
                 <div class="onb-rodape-espaco"></div>
                 <button type="button" class="onb-btn onb-btn--pular" id="onbBtnPular">
