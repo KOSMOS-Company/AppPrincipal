@@ -9,6 +9,7 @@ require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/senha_util.php';
 require_once __DIR__ . '/limite_util.php';
+require_once __DIR__ . '/conta_dev_util.php';
 
 apiExigirPost();
 // Login vindo de outro site é recusado: sem isso, uma página maliciosa
@@ -60,6 +61,10 @@ try {
     session_regenerate_id(true);
     $_SESSION['usuario_id']   = $user['id'];
     $_SESSION['usuario_nome'] = $user['nome'];
+
+    // Conta de desenvolvedor (só no PC de quem desenvolve): repreenche tudo
+    // no primeiro acesso do dia, ANTES da sequência ser conferida abaixo
+    contaDevRenovar($pdo, (int) $user['id'], $email, $user['nome']);
 
     // Atualiza a sequência de dias de acesso
     registrarAcesso($pdo, (int) $user['id']);
