@@ -40,6 +40,7 @@ require_once __DIR__ . '/cadernos_util.php';
 require_once __DIR__ . '/materias.php';
 require_once __DIR__ . '/datas.php';
 require_once __DIR__ . '/ProgressoService.php';
+require_once __DIR__ . '/conta_dev_util.php';
 
 /** Escapa texto para imprimir no HTML. */
 function hesc(?string $texto): string {
@@ -155,6 +156,10 @@ try {
     $USUARIO['ultimo_acesso'] = $dados['ultimo_acesso'];
     $USUARIO['tem_senha']     = true;
     $USUARIO['tem_google']    = !empty($dados['google_id']);
+
+    // Conta de desenvolvedor (só no PC de quem desenvolve): repreenche tudo no
+    // primeiro acesso do dia — quem passou da meia-noite logado também é pego aqui
+    contaDevRenovar($pdo, $USUARIO['id'], $dados['email'], $dados['nome']);
 
     // sequência de dias (também registra o acesso de hoje)
     $USUARIO['sequencia'] = registrarAcesso($pdo, $USUARIO['id']);

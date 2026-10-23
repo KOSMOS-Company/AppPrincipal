@@ -153,6 +153,38 @@ o XAMPP vem com esses dois módulos desligados. Para ligar:
 
 ---
 
+## 🧪 Conta de desenvolvedor (tudo liberado)
+
+Para ver cada tela no estado mais cheio — nível 50 com o XP máximo,
+sequência de 365 dias, todas as conquistas e recompensas, ~13 meses de
+Pomodoro com dias de todo tipo no gráfico semanal e no calendário,
+cadernos, resumos, baralhos, provas e exercícios —, crie a conta de
+desenvolvedor no seu banco local:
+
+```bash
+C:\xampp\php\php.exe Backend/tarefas/conta_dev.php --senha=uma-senha-sua
+```
+
+Depois entre com `dev@kosmos.local` e a senha que você escolheu (sem `--senha`,
+o script sorteia uma e mostra no fim).
+
+- **Para ela nunca perder a sequência nem nada,** ponha no seu `config.php`:
+  ```php
+  define('CONTA_DEV_EMAIL', 'dev@kosmos.local');
+  ```
+  Com isso, no primeiro acesso de cada dia (login ou abrir a dashboard) a conta é
+  repreenchida sozinha, com tudo contado a partir de hoje: sequência, gráfico da
+  semana, provas, cartões. Leva ~1 s, uma vez por dia, e ninguém é deslogado.
+  O que você criar nela durante o dia some na renovação seguinte.
+- **Rodar o script de novo** também repreenche na hora (a senha continua a mesma,
+  a menos que você passe `--senha`).
+- **Só funciona com o banco em `localhost`,** e só mexe numa conta se ela for mesmo a
+  de desenvolvedor. Para apagar a conta: `--apagar`.
+- **Nunca preencha `CONTA_DEV_EMAIL` num servidor de verdade.** No modelo
+  (`config.example.php`) ele vem vazio, ou seja, desligado.
+
+---
+
 ## 📬 Notificações por e-mail: leia antes de mexer
 
 O lembrete diário e o resumo semanal saem pelo script `Backend/tarefas/notificacoes.php`.

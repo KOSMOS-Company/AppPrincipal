@@ -44,3 +44,9 @@ define('N8N_NOTIF_URL', '');
 // Webhook do fluxo "Kosmos — Orion" (usado pelo orion_chat.php).
 // Vazio = o Orion responde so com as respostas prontas.
 define('N8N_ORION_URL', '');
+
+// ---------- Conta de desenvolvedor (SÓ no seu PC) ----------
+// Com este e-mail, a conta criada por Backend/tarefas/conta_dev.php se
+// renova sozinha no primeiro acesso de cada dia (nunca perde a sequência
+// nem nada). Vazio = desligado. NUNCA preencha num servidor de produção.
+define('CONTA_DEV_EMAIL', '');
