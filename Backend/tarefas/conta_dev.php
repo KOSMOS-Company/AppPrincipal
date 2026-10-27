@@ -15,7 +15,8 @@
 //      C:\xampp\php\php.exe Backend/tarefas/conta_dev.php --senha=minhasenha
 //      C:\xampp\php\php.exe Backend/tarefas/conta_dev.php                 (repreenche; senha igual)
 //      C:\xampp\php\php.exe Backend/tarefas/conta_dev.php --apagar
-//  Na primeira vez sem --senha, uma senha é sorteada e mostrada no fim.
+//  Sem --senha, vale a CONTA_DEV_SENHA do config.php (gravada sempre);
+//  sem ela também, a senha é sorteada na criação e mostrada no fim.
 //
 //  Para a conta se renovar SOZINHA todo dia (nunca perder a sequência
 //  nem nada), ponha no seu config.php:
@@ -37,7 +38,7 @@ require_once __DIR__ . '/../php/conta_dev_util.php';
 
 $opcoes = getopt('', ['email:', 'senha:', 'apagar']);
 $email  = $opcoes['email'] ?? (defined('CONTA_DEV_EMAIL') && CONTA_DEV_EMAIL !== '' ? CONTA_DEV_EMAIL : 'dev@kosmos.local');
-$senha  = $opcoes['senha'] ?? null;
+$senha  = $opcoes['senha'] ?? (defined('CONTA_DEV_SENHA') && CONTA_DEV_SENHA !== '' ? CONTA_DEV_SENHA : null);
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     fwrite(STDERR, "E-mail inválido: $email\n");

@@ -398,8 +398,8 @@ INSERT INTO `niveis_config` (`nivel`, `xp_necessario`, `titulo`, `recompensa_des
   ( 6,    2821, 'Satélite Vivo', 'Destrava a cor Aurora.'),
   ( 7,    4291, 'Satélite Vivo', 'Destrava o emblema Astronauta.'),
   ( 8,    6143, 'Estrela Cadente', 'Destrava a moldura Rastro cadente e o título Estrela Cadente.'),
-  ( 9,    8406, 'Estrela Cadente', 'Falta 1 nível para o emblema Saturno.'),
-  (10,   11106, 'Estrela Cadente', 'Destrava o emblema Saturno.'),
+  ( 9,    8406, 'Estrela Cadente', 'Falta 1 nível para o emblema Telescópio.'),
+  (10,   11106, 'Estrela Cadente', 'Destrava o emblema Telescópio.'),
   (11,   14268, 'Estrela Cadente', 'Falta 1 nível para a moldura Halo de anã branca.'),
   (12,   17916, 'Anã Branca', 'Destrava a moldura Halo de anã branca e o título Anã Branca.'),
   (13,   22073, 'Anã Branca', 'Falta 1 nível para a cor Buraco negro.'),
@@ -607,7 +607,7 @@ INSERT INTO `recompensas` (`slug`, `tipo`, `nome`, `descricao`, `nivel_minimo`, 
   ('cor_aurora', 'cor', 'Aurora', 'Verde, ciano e violeta — a aurora vista do espaço.', 6, 'aurora', 50),
   ('emblema_astronauta', 'emblema', 'Astronauta', 'Troca a inicial do avatar por um capacete de astronauta.', 7, 'astronauta', 60),
   ('moldura_cadente', 'moldura', 'Rastro cadente', 'Um rastro de luz que contorna o avatar.', 8, 'cadente', 70),
-  ('emblema_saturno', 'emblema', 'Saturno', 'Troca a inicial do avatar por Saturno e seus anéis.', 10, 'saturno', 80),
+  ('emblema_saturno', 'emblema', 'Telescópio', 'Troca a inicial do avatar por um telescópio apontado para o céu.', 10, 'saturno', 80),
   ('moldura_halo', 'moldura', 'Halo de anã branca', 'Um halo branco e brilhante.', 12, 'halo', 90),
   ('cor_buraco_negro', 'cor', 'Buraco negro', 'Um centro escuro com o horizonte de eventos em roxo.', 14, 'buraco-negro', 100),
   ('moldura_supernova', 'moldura', 'Supernova', 'Um anel de cores que gira devagar, como uma explosão estelar.', 17, 'supernova', 110),
@@ -645,8 +645,8 @@ UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava a moldura Órbita 
 UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava a cor Aurora.' WHERE `nivel` = 6;
 UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava o emblema Astronauta.' WHERE `nivel` = 7;
 UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava a moldura Rastro cadente e o título Estrela Cadente.' WHERE `nivel` = 8;
-UPDATE `niveis_config` SET `recompensa_descricao` = 'Falta 1 nível para o emblema Saturno.' WHERE `nivel` = 9;
-UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava o emblema Saturno.' WHERE `nivel` = 10;
+UPDATE `niveis_config` SET `recompensa_descricao` = 'Falta 1 nível para o emblema Telescópio.' WHERE `nivel` = 9;
+UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava o emblema Telescópio.' WHERE `nivel` = 10;
 UPDATE `niveis_config` SET `recompensa_descricao` = 'Falta 1 nível para a moldura Halo de anã branca.' WHERE `nivel` = 11;
 UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava a moldura Halo de anã branca e o título Anã Branca.' WHERE `nivel` = 12;
 UPDATE `niveis_config` SET `recompensa_descricao` = 'Falta 1 nível para a cor Buraco negro.' WHERE `nivel` = 13;

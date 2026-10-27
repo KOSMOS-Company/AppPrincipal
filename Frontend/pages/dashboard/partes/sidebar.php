@@ -230,15 +230,25 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                 </a>
 
                 <a href="orion.php" data-rotulo="Orion"<?= navAtivo('orion.php', $secaoAtual) ?>>
+                    <!-- planeta do Orion usando o capelo (o mesmo do mascote): a
+                         tábua larga e achatada no topo, a copa encaixada no planeta
+                         e a borla caindo do canto direito. A estrelinha saiu para
+                         dar lugar à borla. -->
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5.5"/>
                         <path d="M3.5 13.5 C5 9.5 12 7 17.5 9 C20.5 10 21 11.5 20.5 12.5 C19 14.5 12 17 6.5 15 C3.5 14 3 12.5 3.5 11.5"/>
-                        <path d="M19 3.5 L19.4 5.2 L21.1 5.6 L19.4 6 L19 7.7 L18.6 6 L16.9 5.6 L18.6 5.2 Z" fill="currentColor" stroke="none"/>
+                        <path d="M9.2 5.2 V7.3 M14.8 5.2 V7.3" stroke-width="1.6"/>
+                        <path d="M6.5 4.2 L12 2 L17.5 4.2 L12 6.2 Z" fill="currentColor" stroke-width="1"/>
+                        <path d="M17.2 4.4 V7.6" stroke-width="1.3"/>
                     </svg>
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled">
+                    <!-- No preenchido o anel vai em traço: preenchido, a curva aberta
+                         virava uma mancha por cima do planeta. -->
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5.5"/>
-                        <path d="M3.5 13.5 C5 9.5 12 7 17.5 9 C20.5 10 21 11.5 20.5 12.5 C19 14.5 12 17 6.5 15 C3.5 14 3 12.5 3.5 11.5"/>
-                        <path d="M19 3.5 L19.4 5.2 L21.1 5.6 L19.4 6 L19 7.7 L18.6 6 L16.9 5.6 L18.6 5.2 Z"/>
+                        <path d="M3.5 13.5 C5 9.5 12 7 17.5 9 C20.5 10 21 11.5 20.5 12.5 C19 14.5 12 17 6.5 15 C3.5 14 3 12.5 3.5 11.5" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M9.2 5 H14.8 V8 H9.2 Z"/>
+                        <path d="M6.5 4.2 L12 2 L17.5 4.2 L12 6.2 Z" stroke="currentColor" stroke-width="1"/>
+                        <path d="M17.2 4.4 V7.6" fill="none" stroke="currentColor" stroke-width="1.3"/>
                     </svg>
                     <span class="nav__rotulo">Orion <span class="nav__tag-ia">IA</span></span>
                 </a>
@@ -253,12 +263,12 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                 <a href="resumos.php" data-rotulo="Biblioteca"<?= navAtivo('resumos.php', $secaoAtual) ?>>
                     <!-- ícone de estante: a aba guarda cadernos, não folhas soltas -->
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m18.4 6.2 2.2 13.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z"/><path d="m18.4 6.2 2.2 13.1"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z"/><path d="m18.4 6.2 2.2 13.1" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Biblioteca</span>
                 </a>
                 <a href="flashcards.php" data-rotulo="Flashcards"<?= navAtivo('flashcards.php', $secaoAtual, 'nav-secundario-mobile') ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke-width="2" stroke-linecap="round" stroke="currentColor"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" fill="none" stroke-width="2" stroke-linecap="round" stroke="currentColor"/></svg>
                     <span class="nav__rotulo">Flashcards</span>
                 </a>
                 <a href="exercicios.php" data-rotulo="Exercícios"<?= navAtivo('exercicios.php', $secaoAtual, 'nav-secundario-mobile') ?>>
@@ -404,7 +414,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     <a href="flashcards.php" class="sheet-card<?= $secaoAtual === 'flashcards.php' ? ' ativo' : '' ?>">
                         <span class="sheet-card__ico">
                             <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16"/></svg>
-                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         </span>
                         <div class="sheet-card__info">
                             <strong>Flashcards</strong>

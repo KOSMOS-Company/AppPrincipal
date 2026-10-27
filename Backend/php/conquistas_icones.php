@@ -22,7 +22,7 @@ function conquistaIconeSvg(string $ref): string
         'chama'       => '<path d="M9.4 20.7C5.9 19.7 3.8 15.5 4.7 10.4 5.8 11.8 7 12.7 8.2 13.1 8.3 9 9.9 6 11.8 3.2 12.3 5.8 16.8 8.4 16.4 13.4 17.2 12.6 18 11.7 18.5 10.5 20.1 15.3 18 19.6 14.3 20.7 15.3 18.4 15.1 15 12 13.1 11 14 10.6 16 10.8 17.4L7.9 16.4C8 18 8.6 19.6 9.4 20.7Z"/>',
         'cartas'      => '<rect x="3" y="7" width="12" height="13" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v11"/>',
         'cometa'      => '<circle cx="15.5" cy="8.5" r="3.5"/><path d="M13 11 4 20M11 8.5 5 14.5M15.5 12.5l-5 5"/>',
-        'galaxia'     => '<circle cx="12" cy="12" r="1.6"/><path d="M12 5.5c4 0 6.5 3 6.5 6.5M12 18.5c-4 0-6.5-3-6.5-6.5M18.5 12c0 3.5-3 6-6.5 6M5.5 12c0-3.5 3-6 6.5-6"/><path d="M12 9c1.7 0 3 1.3 3 3M12 15c-1.7 0-3-1.3-3-3"/>',
+        'galaxia'     => '<circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M13.6 12.6C15.5 10 13.5 6.5 10 6.8 6.5 7.1 4.3 10.5 5 14"/><path d="M10.4 11.4C8.5 14 10.5 17.5 14 17.2 17.5 16.9 19.7 13.5 19 10"/><circle cx="19" cy="5" r=".9" fill="currentColor" stroke="none"/><circle cx="5" cy="19" r=".9" fill="currentColor" stroke="none"/>',
         'pena'        => '<path d="M20 4c-8 0-13 5-14 12l-2 4"/><path d="M6 16c4 0 9-2 11-7M9 13h5"/>',
         'livros'      => '<path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z"/><path d="m18.4 6.2 2.2 13.1"/>',
         'alvo'        => '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',

@@ -571,7 +571,7 @@
 
         el.querySelector("[data-revisar-n]").textContent = n;
         el.querySelector("[data-revisar-txt]").textContent =
-            n === 1 ? "cartão esperando revisão" : "cartões esperando revisão";
+            n === 1 ? "cartão para revisar" : "cartões para revisar";
     }
 
     /** O mesmo lembrete para os exercícios: só aparece quando algum tem
@@ -588,7 +588,7 @@
         el.href = materiaId ? `exercicio_materia.php?id=${+materiaId}` : "exercicios.php";
         el.querySelector("[data-revisar-ex-n]").textContent = n;
         el.querySelector("[data-revisar-ex-txt]").textContent =
-            n === 1 ? "exercício com questões para refazer" : "exercícios com questões para refazer";
+            n === 1 ? "exercício para refazer" : "exercícios para refazer";
     }
 
     /* ------------------------------------------------------------

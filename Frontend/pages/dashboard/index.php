@@ -210,35 +210,6 @@ function passoFeito(array $passos, string $slug): bool {
             </header>
 
             <!-- ==========================================================
-                 REVISAR HOJE
-                 Some (junto com a faixa) quando não há cartões vencidos.
-                 ========================================================== -->
-            <div class="ini-faixa">
-                <!-- REVISAR HOJE: a fila de revisão atravessando todos os
-                     baralhos. Nasce escondida e só aparece quando há o que
-                     revisar (js/inicio.js) — "0 cartões" seria ruído. -->
-                <a class="ini-revisar" id="iniRevisar" href="revisar.php" hidden>
-                    <span class="ini-revisar__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></span>
-                    <span class="ini-revisar__txt">
-                        <strong data-revisar-n>0</strong>
-                        <span data-revisar-txt>cartões esperando revisão</span>
-                    </span>
-                    <span class="ini-revisar__cta" aria-hidden="true">Revisar agora</span>
-                </a>
-                <!-- REFAZER EXERCÍCIOS: o mesmo lembrete, para os exercícios
-                     com questão errada na última tentativa. Também nasce
-                     escondido; leva à matéria quando é uma só (js/inicio.js). -->
-                <a class="ini-revisar ini-revisar--ex" id="iniRevisarEx" href="exercicios.php" hidden>
-                    <span class="ini-revisar__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.2" width="15" height="17.6" rx="2.2"/><path d="M8.5 8.5h7M8.5 12.5h4"/><path d="m13.6 16.4 1.6 1.6 3.2-3.4"/></svg></span>
-                    <span class="ini-revisar__txt">
-                        <strong data-revisar-ex-n>0</strong>
-                        <span data-revisar-ex-txt>exercícios para refazer</span>
-                    </span>
-                    <span class="ini-revisar__cta" aria-hidden="true">Refazer agora</span>
-                </a>
-            </div>
-
-            <!-- ==========================================================
                  ESTA SEMANA — o painel principal
 
                  É o que a prévia da landing page mostra em primeiro plano,
@@ -329,6 +300,34 @@ function passoFeito(array $passos, string $slug): bool {
                     <div class="ini-stat ini-stat--vazio">
                         <strong data-metrica="exercicios">—</strong>
                         <span>exercícios</span>
+                    </div>
+
+                    <!-- REVISAR HOJE / REFAZER: no canto direito do rodapé,
+                         ao lado dos números. A faixa some quando os dois
+                         lembretes estão escondidos. -->
+                    <div class="ini-faixa">
+                        <!-- REVISAR HOJE: a fila de revisão atravessando todos os
+                             baralhos. Nasce escondida e só aparece quando há o que
+                             revisar (js/inicio.js) — "0 cartões" seria ruído. -->
+                        <a class="ini-revisar" id="iniRevisar" href="revisar.php" hidden>
+                            <span class="ini-revisar__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></span>
+                            <span class="ini-revisar__txt">
+                                <strong data-revisar-n>0</strong>
+                                <span data-revisar-txt>cartões para revisar</span>
+                            </span>
+                            <span class="ini-revisar__cta" aria-hidden="true">Revisar agora</span>
+                        </a>
+                        <!-- REFAZER EXERCÍCIOS: o mesmo lembrete, para os exercícios
+                             com questão errada na última tentativa. Também nasce
+                             escondido; leva à matéria quando é uma só (js/inicio.js). -->
+                        <a class="ini-revisar ini-revisar--ex" id="iniRevisarEx" href="exercicios.php" hidden>
+                            <span class="ini-revisar__ico" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.2" width="15" height="17.6" rx="2.2"/><path d="M8.5 8.5h7M8.5 12.5h4"/><path d="m13.6 16.4 1.6 1.6 3.2-3.4"/></svg></span>
+                            <span class="ini-revisar__txt">
+                                <strong data-revisar-ex-n>0</strong>
+                                <span data-revisar-ex-txt>exercícios para refazer</span>
+                            </span>
+                            <span class="ini-revisar__cta" aria-hidden="true">Refazer agora</span>
+                        </a>
                     </div>
                 </div>
             </section>

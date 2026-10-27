@@ -50,3 +50,6 @@ define('N8N_ORION_URL', '');
 // renova sozinha no primeiro acesso de cada dia (nunca perde a sequência
 // nem nada). Vazio = desligado. NUNCA preencha num servidor de produção.
 define('CONTA_DEV_EMAIL', '');
+// Senha fixa da conta de dev: o conta_dev.php sempre grava esta (vazio =
+// sorteia na criação e depois mantém a que estiver).
+define('CONTA_DEV_SENHA', '');

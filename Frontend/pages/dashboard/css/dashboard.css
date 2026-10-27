@@ -1888,8 +1888,36 @@ a.ini-card:focus-visible {
 .pagina-inicio .ini-revisar:hover { transform: none; box-shadow: none; }
 .pagina-inicio .ini-revisar:hover .ini-revisar__cta { color: #fff; }
 .pagina-inicio .ini-revisar:focus-visible { outline-offset: 6px; border-radius: 6px; }
-/* Os dois lembretes (cartões e exercícios) empilhados, um por linha */
-.pagina-inicio .ini-faixa { row-gap: 14px; }
+/* Os dois lembretes (cartões e exercícios) moram no rodapé do painel,
+   no canto direito da linha dos números (resumos, flashcards,
+   exercícios), um embaixo do outro. São links discretos — ícone,
+   número e uma frase curta — e não mais faixas de largura inteira. */
+.pagina-inicio .ini-numeros .ini-faixa {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    align-self: center;
+    gap: 8px;
+    margin: 0 0 0 auto;
+    padding: 0;
+}
+.pagina-inicio .ini-numeros .ini-faixa:not(:has(> :not([hidden]))) { display: none; }
+.pagina-inicio .ini-numeros .ini-revisar[hidden] { display: none; }
+
+.pagina-inicio .ini-numeros .ini-revisar {
+    gap: 8px;
+    font-size: .88rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.pagina-inicio .ini-numeros .ini-revisar__ico { font-size: 1.05rem; }
+.pagina-inicio .ini-numeros .ini-revisar__txt { color: inherit; }
+.pagina-inicio .ini-numeros .ini-revisar__txt strong {
+    font-size: .98rem;
+    margin-right: 4px;
+}
+.pagina-inicio .ini-numeros .ini-revisar__cta { display: none; }
+.pagina-inicio .ini-numeros .ini-revisar:hover { color: var(--accent-lt); }
 
 /* Números do mês: sem caixinhas, um traço roxo marca cada um */
 .pagina-inicio .foco-mes__resumo div {
