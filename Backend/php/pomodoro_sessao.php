@@ -19,16 +19,23 @@
 //  Quem resolve é o UNIQUE (usuario_id, fim_em) da tabela — o fim
 //  de um ciclo é um instante único, então serve de identidade sem
 //  precisar inventar um id no cliente. O INSERT ... ON DUPLICATE
-//  KEY UPDATE deixa a segunda tentativa passar em silêncio.
+//  KEY UPDATE deixa a segunda tentativa passar em silêncio — e sem
+//  mexer nos minutos já gravados (reenviar o mesmo fim com
+//  "minutos: 180" transformava um ciclo de 15 min em 3 horas).
+//
+//  Ciclos não podem se sobrepor no tempo: duas sessões "terminando"
+//  em horários que se cruzam não são duas sessões de estudo, são uma
+//  forjada. Antes isso só tirava o XP, mas a sessão era gravada e
+//  contava para conquistas, missões e a frequência do mês. Agora ela
+//  nem entra.
 // ============================================================
 
 require_once __DIR__ . '/estudo_comum.php';
 require_once __DIR__ . '/ProgressoService.php';
+require_once __DIR__ . '/pomodoro_util.php';
 
 /* XP: um ciclo curto demais não é um Pomodoro (um timer de 1 minuto
-   viraria fábrica de XP), e ciclos não podem se sobrepor no tempo —
-   duas sessões "terminando" em horários que se cruzam não são duas
-   sessões de estudo, são uma forjada. */
+   viraria fábrica de XP). */
 const POMO_MIN_MINUTOS_XP = 15;
 
 $usuario = exigirLogin();
@@ -86,16 +93,12 @@ try {
         estErro('Esta sessão de foco é anterior à criação da conta.', 409);
     }
 
-    /* FROM_UNIXTIME converte no relógio do MYSQL, e o `dia` sai da
-       mesma conversão. É a regra do projeto: data se calcula num
-       relógio só, e o relógio é o do banco (ver "Regra de datas" no
-       README). */
-    $stmt = $pdo->prepare(
-        'INSERT INTO pomodoro_sessoes (usuario_id, minutos, fim_em, dia)
-              VALUES (?, ?, FROM_UNIXTIME(?), DATE(FROM_UNIXTIME(?)))
-         ON DUPLICATE KEY UPDATE minutos = VALUES(minutos)'
-    );
-    $stmt->execute([$usuario['id'], $minutos, $fim, $fim]);
+    // Sobreposição e duplicata: regras e motivos no pomodoro_util.php
+    $gravado = pomodoroGravar($pdo, (int) $usuario['id'], $minutos, $fim);
+    if ($gravado['sobrepoe']) {
+        estErro('Este ciclo se sobrepõe a outro já registrado.', 409);
+    }
+    $novo = $gravado['novo'];
 
     // Quanto já foi estudado hoje — é o que a tela usa para a meta.
     $hoje = $pdo->prepare(
@@ -105,30 +108,17 @@ try {
     );
     $hoje->execute([$usuario['id']]);
 
-    $novo = $stmt->rowCount() === 1;   // 2 = já existia e foi atualizada
     $minutosHoje = (int) $hoje->fetchColumn();
 
     // XP só na PRIMEIRA gravação do ciclo (a segunda aba que descobre o
-    // mesmo fim não ganha de novo) e só se ele não se cruza com outro.
-    // A folga de 1 minuto em cada ponta absorve relógio impreciso.
+    // mesmo fim não ganha de novo). A sobreposição já foi barrada acima.
     $progresso = null;
     if ($novo && $minutos >= POMO_MIN_MINUTOS_XP) {
-        $cruza = $pdo->prepare(
-            'SELECT COUNT(*) FROM pomodoro_sessoes
-              WHERE usuario_id = ?
-                AND fim_em <> FROM_UNIXTIME(?)
-                AND fim_em > FROM_UNIXTIME(?) - INTERVAL ? MINUTE + INTERVAL 1 MINUTE
-                AND fim_em - INTERVAL minutos MINUTE < FROM_UNIXTIME(?) - INTERVAL 1 MINUTE'
-        );
-        $cruza->execute([$usuario['id'], $fim, $fim, $minutos, $fim]);
-
-        if ((int) $cruza->fetchColumn() === 0) {
-            $progresso = progressoRegistrar($pdo, (int) $usuario['id'], [[
-                'acao'     => 'pomodoro_concluido',
-                'xp'       => ProgressoService::XP['pomodoro_concluido'],
-                'detalhes' => ['minutos' => $minutos, 'fim' => $fim],
-            ]]);
-        }
+        $progresso = progressoRegistrar($pdo, (int) $usuario['id'], [[
+            'acao'     => 'pomodoro_concluido',
+            'xp'       => ProgressoService::XP['pomodoro_concluido'],
+            'detalhes' => ['minutos' => $minutos, 'fim' => $fim],
+        ]]);
     }
 
     estResponder([

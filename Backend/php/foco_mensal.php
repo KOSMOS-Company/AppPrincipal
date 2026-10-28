@@ -9,7 +9,8 @@
 //
 //    mes       -> "YYYY-MM" do mês devolvido
 //    titulo    -> "outubro de 2026"
-//    dias      -> [{dia:N, minutos:N}] do dia 1 ao último, sem buracos
+//    dias      -> [{dia:N, minutos:N, sessoes:N}] do dia 1 ao último, sem buracos
+//                 (sessoes = quantos ciclos de foco a pessoa fechou no dia)
 //    inicio    -> coluna do dia 1 no calendário (0 = domingo)
 //    hoje      -> o dia de hoje, se for este mês (senão null)
 //    anterior  -> "YYYY-MM" do mês anterior, ou null se for antes da conta
@@ -71,9 +72,9 @@ try {
         estErro('Usuário não encontrado.', 404);
     }
 
-    /* ---- Os minutos de cada dia do mês ---- */
+    /* ---- Os minutos e os ciclos de foco de cada dia do mês ---- */
     $stmt = $pdo->prepare(
-        'SELECT DAY(dia) AS dia, SUM(minutos) AS minutos
+        'SELECT DAY(dia) AS dia, SUM(minutos) AS minutos, COUNT(*) AS sessoes
            FROM pomodoro_sessoes
           WHERE usuario_id = ?
             AND dia >= ?
@@ -83,7 +84,7 @@ try {
     $stmt->execute([$id, $mes['ini'], $mes['ini']]);
     $porDia = [];
     foreach ($stmt as $linha) {
-        $porDia[(int) $linha['dia']] = (int) $linha['minutos'];
+        $porDia[(int) $linha['dia']] = [(int) $linha['minutos'], (int) $linha['sessoes']];
     }
 
     $dias   = [];
@@ -91,8 +92,8 @@ try {
     $comFoco = 0;
     $melhor = null;
     for ($d = 1; $d <= (int) $mes['total_dias']; $d++) {
-        $min = $porDia[$d] ?? 0;
-        $dias[] = ['dia' => $d, 'minutos' => $min];
+        [$min, $sessoes] = $porDia[$d] ?? [0, 0];
+        $dias[] = ['dia' => $d, 'minutos' => $min, 'sessoes' => $sessoes];
         $total += $min;
         if ($min > 0) {
             $comFoco++;

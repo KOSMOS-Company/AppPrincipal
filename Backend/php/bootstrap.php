@@ -92,7 +92,8 @@ if (PHP_SAPI !== 'cli' && !headers_sent()) {
     header('X-Frame-Options: SAMEORIGIN');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
-    header("Content-Security-Policy: frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'");
+    // script-src 'self': nenhum script inline roda (mantenha igual ao .htaccess)
+    header("Content-Security-Policy: script-src 'self' https://accounts.google.com/gsi/; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'");
     // HSTS só faz sentido (e só é aceito) sob HTTPS
     if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
         header('Strict-Transport-Security: max-age=31536000');
