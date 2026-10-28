@@ -7,6 +7,15 @@
     <title>Kosmos — Política de Privacidade</title>
     <meta name="description" content="Política de Privacidade da Kosmos: quais dados coletamos, como usamos, como protegemos e quais são os seus direitos conforme a LGPD.">
     <meta name="theme-color" content="#0d0118">
+    <!-- Visual leve: a mesma escolha do dashboard (salva neste aparelho),
+         lida antes de pintar. Os scripts de shared/ já respeitam a classe. -->
+    <script>
+        try {
+            if (localStorage.getItem('kosmos_visual') === 'lite') {
+                document.documentElement.classList.add('kosmos-lite');
+            }
+        } catch (e) { /* navegação privada: visual completo */ }
+    </script>
     <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/legal.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">

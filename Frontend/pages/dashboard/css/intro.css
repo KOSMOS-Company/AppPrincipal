@@ -1,14 +1,13 @@
 /* ============================================================
    KOSMOS — intro.css (Mini Desenho Animado Introdutório)
    Logo Oficial: K maiúsculo + planeta no 1º 'o' + smos minúsculo.
-   Atuação do Mascote 3D:
-     1. Voo acrobático com looping e frenagem elástica com inércia
-     2. Pisca, ajusta a postura e flash de estrela nos óculos
-     3. Órbitas de ferramentas (Pomodoro, Flashcards, Resumos)
-     4. Balão pop: "Seu espaço de estudos tá pronto! ✦"
-     5. Revelação da logo oficial Kosmos com rotação do anel
-     6. Tagline & saudação personalizada
-     7. Salto em velocidade de dobra espacial (hyperspace dive)
+   Versão enxuta:
+     1. O Orion entra voando com frenagem elástica — sem nada em
+        volta e sem balão de fala
+     2. A logo Kosmos surge; o planeta do "o" fica girando enquanto
+        carrega
+     3. Embaixo, só o "Pular intro" (texto simples, sem cápsula)
+     4. Salto em velocidade de dobra espacial (hyperspace dive)
    ============================================================ */
 
 .intro {
@@ -45,23 +44,6 @@ html.com-intro .intro { display: flex; }
     animation: introGlowPulsa 4.2s ease-in-out infinite;
 }
 
-/* Portal cósmico / Onda de choque de abertura */
-.intro__portal {
-    position: absolute;
-    top: 36%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.1);
-    width: 380px;
-    height: 380px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(165,65,255,0.45) 0%, rgba(130,0,219,0.18) 40%, transparent 70%);
-    border: 2px solid rgba(201,124,255,0.6);
-    box-shadow: 0 0 50px rgba(165,65,255,0.6), inset 0 0 40px rgba(165,65,255,0.4);
-    pointer-events: none;
-    opacity: 0;
-    animation: introPortalExpande 1.4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards 0.2s;
-}
-
 /* Palco central do desenho animado */
 .intro__cenario {
     position: relative;
@@ -73,14 +55,12 @@ html.com-intro .intro { display: flex; }
     pointer-events: none;
 }
 
-/* ── Ator Mascote 3D com Voo e Acrobacia ── */
+/* ── Ator Mascote com Voo ── */
 .intro__ator-mascote {
     position: relative;
     width: clamp(170px, 24vw, 220px);
     height: clamp(170px, 24vw, 220px);
     margin-bottom: -4px;
-    pointer-events: auto;
-    cursor: pointer;
     filter: drop-shadow(0 16px 32px rgba(107, 33, 168, .6));
     transform-origin: center bottom;
     animation: mascoteEntraVoo 1.5s cubic-bezier(0.18, 0.89, 0.32, 1.15) forwards;
@@ -91,100 +71,7 @@ html.com-intro .intro { display: flex; }
     height: 100%;
 }
 
-/* Órbitas de ferramentas flutuantes (Pomodoro, Flashcards, Resumos) */
-.intro__orbita-item {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 38px;
-    height: 38px;
-    margin: -19px 0 0 -19px;
-    border-radius: 50%;
-    background: rgba(30, 8, 55, 0.88);
-    border: 1px solid rgba(201, 124, 255, 0.55);
-    box-shadow: 0 0 16px rgba(165, 65, 255, 0.5);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.18rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-.intro__orbita-item--1 { transform: rotate(30deg) translateX(125px) rotate(-30deg); }
-.intro__orbita-item--2 { transform: rotate(150deg) translateX(125px) rotate(-150deg); }
-.intro__orbita-item--3 { transform: rotate(270deg) translateX(125px) rotate(-270deg); }
-
-.intro--revelou .intro__orbita-item {
-    opacity: 1;
-    animation: orbitaGira 12s linear infinite;
-}
-.intro--revelou .intro__orbita-item--1 { animation-delay: 0s; }
-.intro--revelou .intro__orbita-item--2 { animation-delay: -4s; }
-.intro--revelou .intro__orbita-item--3 { animation-delay: -8s; }
-
-/* Flash reluzente de estrela nos óculos */
-.intro__flash-oculos {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 32px;
-    height: 32px;
-    transform: translate(-34px, -15px) scale(0);
-    pointer-events: none;
-    z-index: 10;
-}
-.intro__flash-oculos svg {
-    width: 100%;
-    height: 100%;
-    fill: #ffffff;
-    filter: drop-shadow(0 0 10px #d8b4fe);
-}
-.intro--piscou .intro__flash-oculos {
-    animation: flashEstrela 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
-/* Balãozinho de fala pop */
-.intro__balao-fala {
-    position: absolute;
-    top: 26px;
-    right: -80px;
-    background: rgba(36, 8, 66, 0.95);
-    border: 1px solid rgba(201, 124, 255, 0.7);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 22px rgba(165, 65, 255, 0.5);
-    backdrop-filter: blur(12px);
-    padding: 8px 18px;
-    border-radius: 100px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: #ffffff;
-    white-space: nowrap;
-    opacity: 0;
-    transform: scale(0.4) translateY(12px);
-    transform-origin: bottom left;
-    transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-    pointer-events: none;
-    z-index: 20;
-}
-.intro__balao-fala::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 20px;
-    width: 10px;
-    height: 10px;
-    background: rgba(36, 8, 66, 0.95);
-    border-right: 1px solid rgba(201, 124, 255, 0.7);
-    border-bottom: 1px solid rgba(201, 124, 255, 0.7);
-    transform: rotate(45deg);
-}
-.intro--balao-on .intro__balao-fala {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-}
-
-/* ── LOGO OFICIAL KOSMOS (Exata da 2ª Foto: K + planeta no 1º 'o' + smos) ── */
+/* ── LOGO OFICIAL KOSMOS (K + planeta no 1º 'o' + smos) ── */
 .intro__marca-oficial {
     display: flex;
     flex-direction: column;
@@ -211,98 +98,54 @@ html.com-intro .intro { display: flex; }
     height: .66em;
     transform: translateY(.08em);
 }
+/* O planeta gira: o brilho da superfície passa de um lado para o
+   outro (como um globo virando) e o anel dá voltas, igual ao hover
+   da logo, mas sem parar — é o "carregando" da intro. */
 .intro__logo-wrapper .klogo__o::before {
-    background: radial-gradient(circle at 35% 32%, #d896ff, #a541ff 55%, #4d1487);
-    box-shadow: 0 0 .45em rgba(165, 65, 255, .7);
+    background:
+        radial-gradient(circle at 35% 32%, rgba(255, 255, 255, .35), transparent 45%),
+        linear-gradient(90deg, #4d1487 0%, #a541ff 25%, #d896ff 50%, #a541ff 75%, #4d1487 100%);
+    background-size: 100% 100%, 200% 100%;
+    box-shadow: 0 0 .45em rgba(165, 65, 255, .7), inset -.08em -.06em .14em rgba(20, 0, 40, .55);
+    animation: introPlanetaGira 2.4s linear infinite;
 }
 .intro__logo-wrapper .klogo__o::after {
     border-width: .055em;
     border-color: #f3e8ff;
     box-shadow: 0 0 .25em rgba(201, 124, 255, .6);
+    animation: klogoAnel 1.6s cubic-bezier(.45, .05, .55, .95) infinite;
 }
 
-/* Tagline & Saudação */
-.intro__tag {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1.06rem;
-    color: #d1c2e6;
-    margin-top: 8px;
-    min-height: 1.4em;
-}
-.intro__tag--digitando::after {
-    content: "|";
-    color: var(--accent-lt, #c97cff);
-    animation: introCaret .8s steps(1) infinite;
-}
-
-.intro__ola {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1.22rem;
-    font-weight: 600;
-    color: #c97cff;
-    margin-top: 4px;
-    min-height: 1.4em;
-    text-shadow: 0 0 20px rgba(201, 124, 255, .55);
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity .6s ease, transform .6s ease;
-}
-.intro__ola--on {
-    opacity: 1;
-    transform: none;
-}
-
-/* ── Dica & Botão Pular ── */
-.intro__dica {
-    position: absolute;
-    bottom: 84px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'DM Sans', sans-serif;
-    font-size: .74rem;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: #7b6794;
-    opacity: 0;
-    animation: textoFade 0.8s ease forwards 1.8s, introDica 3s ease-in-out infinite 3s;
-    pointer-events: none;
-}
-
+/* ── Botão Pular: só o texto, sem cápsula ── */
 .intro__pular {
     position: absolute;
-    bottom: 26px;
+    bottom: 28px;
     left: 50%;
     transform: translateX(-50%);
-    overflow: hidden;
-    padding: 10px 26px 12px;
-    border: 1px solid rgba(165, 65, 255, .45);
-    border-radius: 100px;
-    background: rgba(22, 4, 38, .7);
-    backdrop-filter: blur(10px);
+    padding: 6px 2px;
+    border: none;
+    background: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: .78rem;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: #e2d3f5;
+    font-size: .85rem;
+    font-weight: 500;
+    color: #9d8bb5;
     cursor: pointer;
     opacity: 0;
     animation: textoFade 0.8s ease forwards 1.4s;
-    transition: background .2s, border-color .2s, transform .2s, color .2s;
+    transition: color .2s;
 }
-.intro__pular:hover {
-    background: rgba(165, 65, 255, .25);
-    border-color: #a541ff;
-    color: #fff;
-    transform: translateX(-50%) scale(1.04);
-}
+.intro__pular:hover,
+.intro__pular:focus-visible { color: #fff; }
+.intro__pular:focus-visible { outline: 1px solid rgba(201, 124, 255, .6); outline-offset: 4px; border-radius: 4px; }
+/* O tempo que falta vira um traço fino embaixo do texto */
 .intro__pular-barra {
     position: absolute;
-    left: 0;
+    left: 2px;
+    right: 2px;
     bottom: 0;
-    height: 2.5px;
-    width: 100%;
-    background: linear-gradient(90deg, #a541ff, #c97cff);
+    height: 1px;
+    background: currentColor;
+    opacity: .6;
     transform: scaleX(0);
     transform-origin: left;
     animation: introBarra linear forwards;
@@ -328,9 +171,6 @@ html.com-intro .intro { display: flex; }
     opacity: 0;
     filter: blur(10px);
     transition: transform 0.8s ease, letter-spacing 0.8s ease, opacity 0.8s ease, filter 0.8s ease;
-}
-.intro--saindo .intro__balao-fala {
-    opacity: 0 !important;
 }
 .intro--saindo .intro__pular {
     opacity: 0 !important;
@@ -368,12 +208,6 @@ html.intro-saida .bg {
     }
 }
 
-@keyframes flashEstrela {
-    0%   { transform: translate(-34px, -15px) scale(0) rotate(0deg); opacity: 0; }
-    45%  { transform: translate(-34px, -15px) scale(1.5) rotate(90deg); opacity: 1; }
-    100% { transform: translate(-34px, -15px) scale(0) rotate(180deg); opacity: 0; }
-}
-
 @keyframes marcaSurge {
     to {
         opacity: 1;
@@ -381,23 +215,10 @@ html.intro-saida .bg {
     }
 }
 
-@keyframes orbitaGira {
-    from { transform: rotate(0deg) translateX(125px) rotate(0deg); }
-    to   { transform: rotate(360deg) translateX(125px) rotate(-360deg); }
-}
-
-@keyframes introPortalExpande {
-    0% {
-        transform: translate(-50%, -50%) scale(0.1);
-        opacity: 0;
-    }
-    30% {
-        opacity: 0.95;
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(1.6);
-        opacity: 0;
-    }
+/* A faixa clara da superfície atravessa o planeta: parece um globo girando */
+@keyframes introPlanetaGira {
+    from { background-position: 0 0, 200% 0; }
+    to   { background-position: 0 0, 0 0; }
 }
 
 @keyframes introGlowPulsa {
@@ -408,16 +229,6 @@ html.intro-saida .bg {
 @keyframes introBarra {
     from { transform: scaleX(0); }
     to   { transform: scaleX(1); }
-}
-
-@keyframes introCaret {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0; }
-}
-
-@keyframes introDica {
-    0%, 100% { opacity: .5; }
-    50%      { opacity: 1; }
 }
 
 @keyframes textoFade {
@@ -431,7 +242,6 @@ html.intro-saida .bg {
 
 /* ══════════════ ACESSIBILIDADE ══════════════ */
 @media (prefers-reduced-motion: reduce) {
-    .intro__portal, .intro__orbita-item, .intro__flash-oculos { display: none !important; }
     .intro__ator-mascote {
         animation: none !important;
         transform: none !important;
@@ -442,10 +252,10 @@ html.intro-saida .bg {
         opacity: 1 !important;
         transform: none !important;
     }
+    .intro__logo-wrapper .klogo__o::before,
+    .intro__logo-wrapper .klogo__o::after { animation: none; }
     .intro__glow { animation: none !important; }
-    .intro__dica { display: none; }
     .intro__pular { animation: none !important; opacity: 1 !important; }
-    .intro__ola { transition: none; }
     .intro--saindo {
         transform: none;
         filter: none;

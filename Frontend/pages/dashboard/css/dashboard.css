@@ -3425,20 +3425,25 @@ a.ini-card:hover .ini-card__ico {
    STEPPER NUMÉRICO — − / + no lugar das setinhas nativas
    ============================================================
    Repartido de exercicios.css para valer em Conta, Provas e
-   onde mais houver campo type=number. Minimalista de propósito:
-   os botões nascem discretos (só a borda da casa) e acendem no
-   hover — o número é o protagonista, as setas são apoio. */
+   onde mais houver campo type=number. Compacto e minimalista: o
+   número numa caixa estreita, com o − e o + soltos dos dois lados,
+   sem borda, que só ganham um fundinho no hover. */
 .qtd-stepper {
-    display: flex;
-    align-items: stretch;
-    gap: 6px;
+    display: inline-flex;
+    align-self: flex-start;      /* dentro de .campo (coluna) não estica */
+    align-items: center;
+    gap: 2px;
 }
-.qtd-stepper input {
+.qtd-stepper input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
     text-align: center;
-    flex: 1;
+    flex: none;
+    width: 72px;
     min-width: 0;
+    margin: 0 4px;
+    padding: 8px 10px;
+    font-size: .92rem;
     font-weight: 600;
     color: var(--text);
 }
@@ -3449,21 +3454,21 @@ a.ini-card:hover .ini-card__ico {
 }
 .qtd-stepper__btn {
     flex: none;
-    width: 34px;
+    width: 28px;
+    height: 28px;
     display: grid;
     place-items: center;
     padding: 0;
     background: transparent;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border: none;
+    border-radius: 50%;
     color: var(--text-muted);
     cursor: pointer;
     transition: var(--transition);
 }
-.qtd-stepper__btn .ico { width: 16px; height: 16px; }
+.qtd-stepper__btn .ico { width: 14px; height: 14px; }
 .qtd-stepper__btn:hover {
     background: rgba(165,65,255,.12);
-    border-color: rgba(165,65,255,.4);
     color: var(--accent-lt);
 }
 .qtd-stepper__btn:active { background: rgba(165,65,255,.2); }

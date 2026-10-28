@@ -439,7 +439,9 @@
     border-radius: var(--radius-chip);
 }
 .pv-nota input { flex: 0 1 140px; }
-.pv-nota .qtd-stepper { min-width: 0; }
+.pv-nota .qtd-stepper { min-width: 0; align-self: center; }
+/* a nota aceita decimais (ex.: 8.75): a caixa é um pouco mais larga */
+.pv-nota .qtd-stepper input[type="number"] { width: 96px; }
 .pv-add input:focus,
 .pv-nota input:focus {
     outline: none;

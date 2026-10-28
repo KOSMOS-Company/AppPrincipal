@@ -107,3 +107,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
     .reveal{opacity:1!important;transform:none!important;transition:none!important}
     .priv-highlight,.priv-highlight__icon{transition:none!important}
 }
+
+
+/* ════════════════════════════════════════════════════════════
+   VISUAL LEVE (html.kosmos-lite) — a mesma escolha do dashboard
+   O céu parado, o cursor do sistema e o mouse-tracker desligado
+   vêm dos scripts de shared/. Aqui sai o vidro (backdrop-filter).
+   ════════════════════════════════════════════════════════════ */
+html.kosmos-lite *,
+html.kosmos-lite *::before,
+html.kosmos-lite *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+html.kosmos-lite .priv-highlight:hover { transform: none; }

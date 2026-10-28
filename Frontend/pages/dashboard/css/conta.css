@@ -47,15 +47,55 @@
 .conta-nav__item.active svg { opacity: 1; filter: drop-shadow(0 0 6px rgba(255,255,255,.3)); }
 .conta-nav__item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---- Seções (só uma visível por vez) ---- */
+/* ---- Seções (só uma visível por vez) ----
+   Cada seção é UM card só. Antes cada parte (Trocar senha, Seu
+   acesso, Sessões, Sair…) era um card próprio e a seção virava uma
+   pilha de caixas. Agora a casca fica na seção e as partes de dentro
+   (.conta-cartao, que ainda carregam .ini-card no HTML) perdem a
+   caixa e se separam por espaço e uma linha fina — como na aba
+   Início. */
 .conta-secao {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    padding: 6px 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
     animation: dashFade .35s ease both;
 }
-.conta-cartao { padding: 26px; }
+.pagina-conta .conta-cartao {
+    padding: 24px 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+}
+.pagina-conta .conta-cartao + .conta-cartao,
+.pagina-conta .conta-cartao + .conta-acoes {
+    border-top: 1px solid rgba(255, 255, 255, .07);
+}
+.conta-secao > .conta-acoes { padding: 20px 0 24px; }
 .conta-cartao > .painel__titulo { margin-bottom: 2px; }
+
+/* Os interruptores do modo foco (Estudo) eram caixinhas dentro do
+   card; agora são linhas, como os de Notificações. O lite.css carrega
+   depois, por isso o prefixo .pagina-conta. */
+.pagina-conta .visual-foco {
+    margin-top: 0;
+    padding: 16px 0;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, .05);
+    border-radius: 0;
+    background: none;
+}
+/* O respiro fica embaixo das opções, e não em cima do 1º interruptor:
+   no visual Completo o "Adicionar o modo foco" some (lite.css) e o
+   do Pomodoro colava nos cartões de Completo/Lite. */
+.pagina-conta .visual-opcoes { margin-bottom: 18px; }
+.pagina-conta .visual-foco:last-child { padding-bottom: 0; }
+.pagina-conta .visual-foco[aria-checked="true"] { background: none; }
+.pagina-conta .visual-foco:hover .visual-foco__texto strong { color: var(--accent-lt); }
 
 /* ---- Cartão de identidade ---- */
 .conta-perfil__topo {
@@ -250,8 +290,7 @@
 }
 .painel--sair .painel__sub { margin-bottom: 0; }
 
-/* ---- Zona de perigo (excluir conta) ---- */
-.conta-perigo { border-color: rgba(239, 68, 68, .28); }
+/* ---- Zona de perigo (excluir conta): só o título em vermelho ---- */
 .conta-perigo .painel__titulo { color: var(--erro); }
 
 
@@ -285,7 +324,8 @@
 }
 
 @media (max-width: 768px) {
-    .conta-cartao { padding: 20px 18px; }
+    .conta-secao { padding: 4px 18px; }
+    .pagina-conta .conta-cartao { padding: 20px 0; }
     .conta-perfil__topo { gap: 14px; }
     .conta-avatar { width: 54px; height: 54px; font-size: 1.4rem; }
     .conta-perfil__info h3 { font-size: 1.15rem; }

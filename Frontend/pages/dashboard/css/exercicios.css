@@ -750,7 +750,7 @@
     box-shadow: 0 0 4px var(--dif-linha);
     flex: none;
 }
-.ex-qtd-dif .qtd-stepper { width: 190px; flex: none; }
+.ex-qtd-dif .qtd-stepper { flex: none; }
 .campo__dica--erro { color: #ef4444; }
 
 /* ---- Badge da dificuldade em cada questão da prévia ---- */

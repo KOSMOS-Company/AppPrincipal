@@ -7,6 +7,15 @@
     <meta name="theme-color" content="#0d0118">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Cadastro</title>
+    <!-- Visual leve: a mesma escolha do dashboard (salva neste aparelho),
+         lida antes de pintar. Os scripts de shared/ já respeitam a classe. -->
+    <script>
+        try {
+            if (localStorage.getItem('kosmos_visual') === 'lite') {
+                document.documentElement.classList.add('kosmos-lite');
+            }
+        } catch (e) { /* navegação privada: visual completo */ }
+    </script>
     <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/cadastro.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">

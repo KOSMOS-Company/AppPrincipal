@@ -421,3 +421,25 @@ em { font-style: normal; color: var(--accent-lt); }
     .mascote { --mascote-tam: 104px; margin: -10px auto -6px; }
     .auth__logo .logo__text { font-size: 1.5rem; }
 }
+
+
+/* ════════════════════════════════════════════════════════════
+   VISUAL LEVE (html.kosmos-lite) — a mesma escolha do dashboard
+   O céu parado, o cursor do sistema e o mouse-tracker desligado
+   vêm dos scripts de shared/. Aqui sai o vidro (backdrop-filter).
+   ════════════════════════════════════════════════════════════ */
+html.kosmos-lite *,
+html.kosmos-lite *::before,
+html.kosmos-lite *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+/* A entrada em cascata do formulário sai: os campos já aparecem
+   prontos, como em prefers-reduced-motion. */
+html.kosmos-lite :is(.auth__logo, .auth__footer,
+                     .form-shell, .form .field, .form .divider, .form .google-btn-wrap, .form .btn-submit,
+                     .cad-progresso) {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}

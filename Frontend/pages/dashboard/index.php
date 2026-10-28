@@ -105,40 +105,21 @@ function passoFeito(array $passos, string $slug): bool {
     <div class="intro" id="intro" aria-hidden="true">
         <canvas class="intro__ceu" id="introCeu"></canvas>
         <div class="intro__glow"></div>
-        <div class="intro__portal"></div>
 
         <div class="intro__cenario">
-            <!-- Ator Mascote 3D em ação animada -->
-            <div class="intro__ator-mascote" id="introMascoteHero" title="Clique no mascote!">
+            <!-- O Orion chega voando, sem nada em volta e sem falar -->
+            <div class="intro__ator-mascote" id="introMascoteHero">
                 <div class="mascote" id="introMascote" data-mascote aria-hidden="true"></div>
-
-                <!-- Ícones das ferramentas orbitando ao redor do mascote -->
-                <div class="intro__orbita-item intro__orbita-item--1" title="Pomodoro"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.2V12l3.1 2"/></svg></div>
-                <div class="intro__orbita-item intro__orbita-item--2" title="Flashcards"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3.2" width="12" height="15.2" rx="2.2"/><path d="M15.6 20.8H6.2a2.6 2.6 0 0 1-2.6-2.6V7.6"/></svg></div>
-                <div class="intro__orbita-item intro__orbita-item--3" title="Resumos"><svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div>
-
-                <!-- Flash reluzente nos óculos -->
-                <div class="intro__flash-oculos" id="introFlashOculos">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 0 Q13 11 24 12 Q13 13 12 24 Q11 13 0 12 Q11 11 12 0 Z"/>
-                    </svg>
-                </div>
-
-                <!-- Balão de fala alegre do mascote -->
-                <div class="intro__balao-fala" id="introBalao">Seu espaço de estudos tá pronto! ✦</div>
             </div>
 
-            <!-- LOGO OFICIAL KOSMOS (Exata da 2ª foto: K maiúsculo + planeta no 1º 'o' + smos minúsculo) -->
+            <!-- Logo: o planeta no lugar do "o" gira enquanto carrega -->
             <div class="intro__marca-oficial">
                 <div class="intro__logo-wrapper">
                     <span class="klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
                 </div>
-                <p class="intro__tag" id="introTag" data-texto="Estudar nunca foi tão envolvente.">&nbsp;</p>
-                <p class="intro__ola" id="introOla"></p>
             </div>
         </div>
 
-        <p class="intro__dica">toque no céu para criar supernovas ✦</p>
         <button class="intro__pular" id="introPular" type="button">
             Pular intro
             <span class="intro__pular-barra" id="introBarra"></span>
