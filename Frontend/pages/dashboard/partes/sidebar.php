@@ -81,6 +81,64 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
             window.KOSMOS_CONTA = <?= (int) $USUARIO['id'] ?>;
             window.kosmosChaveConta = function (base) { return base + ':conta' + window.KOSMOS_CONTA; };
 
+            /* ---- Orion: o tour e as dicas da primeira vez (js/tutorial.js) ----
+               O tutorial.js + tutorial.css (~50 KB) só descem quando há algo
+               para mostrar NESTA aba: o tour em andamento, o tour para
+               começar (conta nova, no Início) ou uma dica ainda não vista.
+               Quem já viu tudo não baixa nem roda nada além destas linhas.
+               DICAS_POR_ABA espelha os `paginas` das DICAS do tutorial.js. */
+            window.KOSMOS_PAGINA = <?= json_encode($PAGINA) ?>;
+            window.KOSMOS_TUTORIAL = <?= !empty($PREF['mostrar_tutorial']) ? 'true' : 'false' ?>;
+            window.KOSMOS_TUTORIAL_PREMIADO = <?= !empty($PREF['tutorial_premiado']) ? 'true' : 'false' ?>;
+            (function () {
+                var CHAVE_TOUR = window.kosmosChaveConta('kosmos_tutorial');
+                var DICAS_POR_ABA = {
+                    'resumos.php': ['editor'], 'caderno.php': ['editor'], 'resumo.php': ['resumo'],
+                    'flashcards.php': ['estudo'], 'revisar.php': ['estudo'], 'exercicio_materia.php': ['praticar'],
+                    'provas.php': ['provas', 'prova-form']
+                };
+                var emTour = false, precisa = window.KOSMOS_TUTORIAL;
+                try { emTour = !!sessionStorage.getItem(CHAVE_TOUR); } catch (e) { /* privado */ }
+                if (emTour) {
+                    /* Tour no meio do caminho (veio de outra aba): a página já
+                       nasce escura, no mesmo véu em que a anterior terminou —
+                       senão piscaria clara até o tutorial.js abrir a luz no
+                       alvo novo. O @view-transition mistura as duas (Chrome/Edge). */
+                    document.documentElement.classList.add('tut-chegando');
+                    var veu = document.createElement('style');
+                    veu.id = 'tutVT';
+                    veu.textContent = '@view-transition{navigation:auto}'
+                        + 'html.tut-chegando body::after{content:"";position:fixed;inset:0;z-index:8999;background:rgba(6,0,14,.78)}';
+                    document.head.appendChild(veu);
+                    precisa = true;
+                }
+                if (!precisa && DICAS_POR_ABA[window.KOSMOS_PAGINA]) {
+                    var vistas = [];
+                    try { vistas = JSON.parse(localStorage.getItem(window.kosmosChaveConta('kosmos_dicas')) || '[]'); } catch (e) { /* nada */ }
+                    precisa = DICAS_POR_ABA[window.KOSMOS_PAGINA].some(function (d) { return vistas.indexOf(d) < 0; });
+                }
+                if (precisa) {
+                    var css = document.createElement('link');
+                    css.rel = 'stylesheet';
+                    css.id = 'tutCss';
+                    css.href = <?= json_encode(asset('./css/tutorial.css')) ?>;
+                    document.head.appendChild(css);
+                    var js = document.createElement('script');
+                    js.src = <?= json_encode(asset('./js/tutorial.js')) ?>;
+                    document.head.appendChild(js);
+                }
+
+                // "Rever o tour" (Conta → Sobre): não precisa do tutorial.js
+                // aqui — marca o passo 0 e vai ao Início, que carrega e começa
+                document.addEventListener('click', function (e) {
+                    var b = e.target.closest && e.target.closest('[data-rever-tutorial]');
+                    if (!b) return;
+                    e.preventDefault();
+                    try { sessionStorage.setItem(CHAVE_TOUR, JSON.stringify({ passo: 0, dados: {} })); } catch (err) { /* privado */ }
+                    window.location.href = 'index.php';
+                });
+            })();
+
             // As chaves antigas eram compartilhadas: não dá para saber de qual
             // conta é o ciclo guardado nelas, então saem (uma vez só).
             try {
@@ -455,3 +513,5 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
             <script src="<?= asset('./js/orion-ia.js') ?>" defer></script>
             <script src="<?= asset('./js/orion-chat.js') ?>" defer></script>
         <?php endif; ?>
+        <?php /* O tutorial.js/css do Orion não entram aqui: o carregador lá em
+                 cima (perto do KOSMOS_CONTA) só os baixa quando a aba precisa. */ ?>

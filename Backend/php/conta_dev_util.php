@@ -95,6 +95,11 @@ function contaDevPreencher(PDO $pdo, int $id): int {
                    VALUES (?, 'ouro', 'bigbang', 'orion', 25, 5, 15, ?, 'vestibular_enem', '3º ano', 1,
                            'Matemática,Biologia,Química,História', 0, 0)")
         ->execute([$id, CONTA_DEV_META]);
+    // O tour do Orion também já foi visto (a coluna vem de uma migração
+    // à parte: sem ela, segue o resto). Rever: botão na Conta.
+    try {
+        $pdo->prepare('UPDATE usuario_preferencias SET tutorial_visto = 1 WHERE usuario_id = ?')->execute([$id]);
+    } catch (PDOException $e) { /* sem a coluna, não há tutorial para esconder */ }
 
     // ---------- Pomodoro: ~13 meses de dias de todo tipo ----------
     $minutosPorDia = contaDevPlanoDeFoco();

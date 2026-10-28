@@ -601,6 +601,11 @@ $ESTILO_ABAS = [
                                     <span class="conta-info__valor">1.0 (beta)</span>
                                 </div>
                                 <div class="conta-info__linha">
+                                    <span class="conta-info__rotulo">Tutorial do Orion</span>
+                                    <!-- js/tutorial.js liga todo [data-rever-tutorial] -->
+                                    <span class="conta-info__valor"><button type="button" class="dash-btn dash-btn--ghost" data-rever-tutorial>Rever o tour pelas abas</button></span>
+                                </div>
+                                <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Termos de uso</span>
                                     <span class="conta-info__valor"><a href="../cadastro/termos.html" target="_blank" rel="noopener">Ler os termos</a></span>
                                 </div>
