@@ -154,12 +154,12 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                             <div class="flashcard__face flashcard__face--frente">
                                 <span class="flashcard__hint">Pergunta</span>
                                 <p id="cardFrente">—</p>
-                                <span class="flashcard__virar">Clique para ver a resposta</span>
+                                <span class="flashcard__virar"><span class="so-mouse">Clique</span><span class="so-toque">Toque</span> para ver a resposta</span>
                             </div>
                             <div class="flashcard__face flashcard__face--verso">
                                 <span class="flashcard__hint">Resposta</span>
                                 <p id="cardVerso">—</p>
-                                <span class="flashcard__virar">Clique para voltar</span>
+                                <span class="flashcard__virar"><span class="so-mouse">Clique</span><span class="so-toque">Toque</span> para voltar</span>
                             </div>
                         </div>
                     </div>

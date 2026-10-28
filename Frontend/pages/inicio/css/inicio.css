@@ -702,6 +702,19 @@ em { font-style: normal; color: var(--accent-lt); }
 .cta-final__desc { color: var(--text-dim); font-size: 1.05rem; margin-bottom: 40px; }
 .cta-final__actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
+/* Celular: com 120px + 48px de respiro a caixa ficava com ~230px de
+   texto e o título (2rem em Syne, letra larga) saía uma palavra por
+   linha, cinco linhas de "Pronto / para / organizar / seus / estudos?". */
+@media (max-width: 560px) {
+    .cta-final { padding: 72px 16px; }
+    .cta-final__inner { padding: 36px 18px; }
+    /* 6.2vw: em 320px "organizar" (a palavra mais larga) ainda cabe */
+    .cta-final__title { font-size: clamp(1.15rem, 6.2vw, 1.8rem); line-height: 1.15; }
+    .cta-final__title br { display: none; }
+    .cta-final__desc { font-size: .98rem; margin-bottom: 28px; }
+    .cta-final__actions .btn { flex: 1 1 100%; justify-content: center; }
+}
+
 /* ════════════════════════════════
    FOOTER
    ════════════════════════════════ */
@@ -806,7 +819,10 @@ em { font-style: normal; color: var(--accent-lt); }
     .footer__brand { grid-column: 1 / -1; }
 }
 @media (max-width: 560px) {
-    .footer { padding: 48px 0 28px; }
+    /* Embaixo, o Orion guia (canto esquerdo) e o "voltar ao topo"
+       (direito) ficam fixos por cima do rodapé: sem esta folga eles
+       cobriam o "© Kosmos" e os links de termos e privacidade. */
+    .footer { padding: 48px 0 calc(96px + env(safe-area-inset-bottom)); }
     .footer__inner { grid-template-columns: 1fr; gap: 32px; }
     .footer__bottom { flex-direction: column; text-align: center; }
 }
@@ -1454,6 +1470,11 @@ em { font-style: normal; color: var(--accent-lt); }
 @media (max-width: 680px) {
     .hero__linha { white-space: normal; }
     .hero__rotator { width: auto !important; }
+    /* Com 2.5rem, "e não render" não cabia: a palavra (inline-block)
+       descia inteira e o "e" ficava sozinho numa linha. Nesta medida a
+       maior das palavras cabe ao lado do "e" de 320px para cima; a
+       quebra livre acima continua só como rede de segurança. */
+    .hero__title { font-size: clamp(1.7rem, 8.4vw, 2.5rem); }
 }
 
 .hero__rotator {

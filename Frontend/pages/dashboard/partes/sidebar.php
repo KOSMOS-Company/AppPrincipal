@@ -169,15 +169,13 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
 
         <aside class="contLateral">
             <div class="contTopo">
-                <!-- Botão de ferramentas no mobile (posição azul no topo-esquerdo) -->
-                <?php $isFerramentasAtiva = in_array($secaoAtual, ['pomodoro.php', 'flashcards.php', 'exercicios.php', 'provas.php'], true); ?>
-                <button type="button" class="topo-btn-ferramentas<?= $isFerramentasAtiva ? ' ativo' : '' ?>" id="btnMaisMobile"
-                        aria-label="Mais ferramentas" aria-haspopup="true" aria-expanded="false" title="Mais ferramentas">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon">
-                        <rect x="3" y="3" width="7" height="7" rx="1.8"/>
-                        <rect x="14" y="3" width="7" height="7" rx="1.8"/>
-                        <rect x="3" y="14" width="7" height="7" rx="1.8"/>
-                        <rect x="14" y="14" width="7" height="7" rx="1.8"/>
+                <!-- Menu do celular: as três barrinhas abrem a gaveta lateral
+                     (.lateral__gaveta, mais abaixo) com a mesma navegação do
+                     computador. No celular não há mais barra embaixo. -->
+                <button type="button" class="topo-btn-ferramentas" id="btnMenuMobile"
+                        aria-label="Abrir menu" aria-controls="gavetaMobile" aria-expanded="false" title="Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                        <path d="M4 7h16M4 12h16M4 17h16"/>
                     </svg>
                 </button>
 
@@ -273,6 +271,18 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                 <?php endif; ?>
             </div>
 
+            <!-- A navegação, o nível e o perfil moram juntos aqui. No computador
+                 o contêiner não existe para o layout (display: contents) e a barra
+                 continua a mesma; no celular ele vira a gaveta que sai da
+                 esquerda pelas três barrinhas do topo. -->
+            <div class="lateral__gaveta" id="gavetaMobile" aria-label="Menu" tabindex="-1">
+            <div class="gaveta__topo">
+                <span class="logo__text klogo" role="img" aria-label="Kosmos">K<i class="klogo__o"></i>smos</span>
+                <button type="button" class="gaveta__fechar" id="btnFecharGaveta" aria-label="Fechar menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                </button>
+            </div>
+
             <nav class="botoesL" id="navPrincipal" aria-label="Navegação principal">
                 <!-- marcador que desliza entre os itens (posicionado pelo dashboard.js) -->
                 <span class="nav__marca" aria-hidden="true"></span>
@@ -324,36 +334,29 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z"/><path d="M11 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V5Z"/><path d="m18.4 6.2 2.2 13.1" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Biblioteca</span>
                 </a>
-                <a href="flashcards.php" data-rotulo="Flashcards"<?= navAtivo('flashcards.php', $secaoAtual, 'nav-secundario-mobile') ?>>
+                <a href="flashcards.php" data-rotulo="Flashcards"<?= navAtivo('flashcards.php', $secaoAtual) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" fill="none" stroke-width="2" stroke-linecap="round" stroke="currentColor"/></svg>
                     <span class="nav__rotulo">Flashcards</span>
                 </a>
-                <a href="exercicios.php" data-rotulo="Exercícios"<?= navAtivo('exercicios.php', $secaoAtual, 'nav-secundario-mobile') ?>>
+                <a href="exercicios.php" data-rotulo="Exercícios"<?= navAtivo('exercicios.php', $secaoAtual) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span class="nav__rotulo">Exercícios</span>
                 </a>
 
                 <span class="nav__grupo">Foco</span>
-                <a href="pomodoro.php" data-rotulo="Pomodoro"<?= navAtivo('pomodoro.php', $secaoAtual, 'nav-secundario-mobile') ?>>
+                <a href="pomodoro.php" data-rotulo="Pomodoro"<?= navAtivo('pomodoro.php', $secaoAtual) ?>>
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="nav__rotulo">Pomodoro</span>
                 </a>
-                <a href="provas.php" data-rotulo="Provas"<?= navAtivo('provas.php', $secaoAtual, 'nav-secundario-mobile') ?>>
+                <a href="provas.php" data-rotulo="Provas"<?= navAtivo('provas.php', $secaoAtual) ?>>
                     <!-- ícone de calendário com um dia marcado: o que a aba
                          faz é apontar um dia no futuro e contar até ele -->
                     <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
                     <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6"/></svg>
                     <span class="nav__rotulo">Provas</span>
-                </a>
-
-                <!-- no desktop a conta vive no rodapé; aqui ela serve à barra do mobile (posição amarela) -->
-                <a href="conta.php" data-rotulo="Conta"<?= navAtivo('conta.php', $secaoAtual, 'nav-somente-mobile') ?>>
-                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <span class="nav__rotulo">Conta</span>
                 </a>
             </nav>
 
@@ -448,60 +451,11 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
                     </div>
                 </div>
             </div>
-        </aside>
+            </div><!-- /.lateral__gaveta -->
 
-        <!-- Bottom Sheet com as outras ferramentas organizadas (Mobile) -->
-        <div class="sheet-overlay" id="sheetMaisMobile" aria-hidden="true">
-            <div class="sheet-painel" role="dialog" aria-labelledby="sheetMaisTitulo">
-                <div class="sheet-puxador"></div>
-                <div class="sheet-topo">
-                    <h3 class="sheet-titulo" id="sheetMaisTitulo">Outras Ferramentas</h3>
-                    <button type="button" class="sheet-fechar" id="btnFecharSheetMais" aria-label="Fechar">✕</button>
-                </div>
-                <div class="sheet-grid">
-                    <a href="pomodoro.php" class="sheet-card<?= $secaoAtual === 'pomodoro.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">
-                            <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15"/></svg>
-                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><circle cx="12" cy="13" r="8"/><path d="M12 9 L12 13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </span>
-                        <div class="sheet-card__info">
-                            <strong>Pomodoro</strong>
-                            <span>Ciclos de foco e pausas</span>
-                        </div>
-                    </a>
-                    <a href="flashcards.php" class="sheet-card<?= $secaoAtual === 'flashcards.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">
-                            <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16"/></svg>
-                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M8 4 H19 a2 2 0 0 1 2 2 V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        </span>
-                        <div class="sheet-card__info">
-                            <strong>Flashcards</strong>
-                            <span>Repetição espaçada</span>
-                        </div>
-                    </a>
-                    <a href="exercicios.php" class="sheet-card<?= $secaoAtual === 'exercicios.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">
-                            <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6 H20 M4 12 H20 M4 18 H14"/></svg>
-                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><path d="M4 6 H20 M4 12 H20 M4 18 H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        </span>
-                        <div class="sheet-card__info">
-                            <strong>Exercícios</strong>
-                            <span>Simulados com IA</span>
-                        </div>
-                    </a>
-                    <a href="provas.php" class="sheet-card<?= $secaoAtual === 'provas.php' ? ' ativo' : '' ?>">
-                        <span class="sheet-card__ico">
-                            <svg viewBox="0 0 24 24" fill="none" class="nav-icon nav-icon--outline" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
-                            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon nav-icon--filled"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10 H20.5 M8 3 V6 M16 3 V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6"/></svg>
-                        </span>
-                        <div class="sheet-card__info">
-                            <strong>Provas</strong>
-                            <span>Contagem de dias</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
+            <!-- o escuro atrás da gaveta: tocar nele fecha -->
+            <div class="gaveta__veu" id="gavetaVeu" aria-hidden="true"></div>
+        </aside>
 
         <script src="<?= asset('./js/apple.js') ?>" defer></script>
         <script src="<?= asset('./js/visual.js') ?>" defer></script>

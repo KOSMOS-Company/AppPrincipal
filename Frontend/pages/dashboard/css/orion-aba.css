@@ -385,7 +385,14 @@
     overflow-y: auto;
     scrollbar-width: thin;
 }
-.orion-chat-input::placeholder { color: var(--text-muted); }
+.orion-chat-input::placeholder {
+    color: var(--text-muted);
+    /* uma linha só: em 320px, com a fonte de 16px do celular, ele
+       quebrava dentro da caixa (ver o mesmo em orion-chat.css) */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .orion-chat-btn-enviar {
     flex: none;
@@ -429,8 +436,17 @@
         min-height: 0;
         height: auto;
     }
-    .orion-topo { padding: 12px 16px 6px; }
-    .orion-topo__nova { padding: 7px 11px; font-size: .78rem; }
+    .orion-topo { padding: 12px 16px 6px; gap: 10px; }
+    /* Num celular de 375px o "Apagar conversa" se partia em duas linhas
+       e o "Copiloto de estudos" também, porque um apertava o outro.
+       O botão não encolhe nem quebra; quem cede é a legenda. */
+    .orion-topo__id,
+    .orion-topo__id > :last-child { min-width: 0; }
+    .orion-topo__id { gap: 10px; }
+    .orion-topo__sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .orion-topo__nova { flex: none; white-space: nowrap; padding: 7px 11px; font-size: .78rem; }
+    .orion-topo__mascote,
+    .orion-topo__mascote .mascote { --mascote-tam: 46px; width: 46px; height: 46px; }
     .orion-corpo { padding: 6px 14px 16px; }
 
     .orion-hero__astro { width: 124px; height: 124px; margin-bottom: 16px; }

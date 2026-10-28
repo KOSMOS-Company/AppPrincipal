@@ -127,7 +127,7 @@
         // ---------------- MENU E CONTA ----------------
         // As abas simples não precisam de visita: o Orion acende o menu
         // e explica cada uma numa linha (4 páginas a menos para carregar)
-        { id: 'menu', cap: 5, pagina: 'pomodoro.php', alvo: ['.contLateral', '.botoesL'], humor: 'curioso', anim: 'aponta',
+        { id: 'menu', cap: 5, pagina: 'pomodoro.php', alvo: ['#btnMenuMobile', '.contLateral', '.botoesL'], humor: 'curioso', anim: 'aponta',
           titulo: 'O resto está no menu',
           texto: '“Buscar” acha qualquer coisa sua. “Provas” conta os dias até cada prova. Em “Orion”, você conversa comigo. E seu nível leva às conquistas.' },
         { id: 'visual', cap: 5, pagina: 'conta.php', url: function () { return 'conta.php#estudo'; },

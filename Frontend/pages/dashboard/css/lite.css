@@ -60,11 +60,7 @@ html.kosmos-lite *::after {
 }
 @media (max-width: 768px) {
     html.kosmos-lite .contLateral::before { background: rgba(13, 1, 24, .96); }
-    html.kosmos-lite .botoesL {
-        background: rgba(22, 4, 40, .97);
-        box-shadow: 0 14px 34px -10px rgba(0, 0, 0, .75), inset 0 1px 0 rgba(255, 255, 255, .06);
-    }
-    html.kosmos-lite .sheet-overlay { background: rgba(4, 0, 10, calc(.8 * var(--sheet-p, 1))); }
+    html.kosmos-lite .gaveta__veu { background: rgba(4, 0, 10, .8); }
 }
 html.kosmos-lite .modal { background: rgba(4, 0, 10, .8); }
 html.kosmos-lite .conf__menu { background: var(--material-fino); }
@@ -84,12 +80,7 @@ html.kosmos-lite .nav__tag-ia { box-shadow: none; }
 html.kosmos-lite .botoesL a.active .nav-icon { filter: var(--halo-ativo); }
 html.kosmos-lite .conta-nav__item.active svg { filter: var(--halo-ativo); }
 @media (max-width: 768px) {
-    /* No celular o peso é do chip; halo borraria o ícone dentro dele */
-    html.kosmos-lite .botoesL a.active .nav-icon { filter: none; }
-    html.kosmos-lite .botoesL a.active {
-        box-shadow: var(--shadow-neutral), inset 0 1px 0 rgba(255, 255, 255, .18);
-    }
-    html.kosmos-lite .topo-btn-ferramentas.ativo { box-shadow: none; }
+    html.kosmos-lite .lateral__gaveta { box-shadow: none; }
 }
 html.kosmos-lite .topo-status__arco { filter: none; }
 html.kosmos-lite .xp__nivel { box-shadow: 0 0 0 1px rgba(201, 124, 255, .45); }
@@ -108,7 +99,6 @@ html.kosmos-lite .materia-tag::before { box-shadow: none; }
 /* ── Superfícies flutuantes ── */
 html.kosmos-lite .combo__lista { box-shadow: 0 18px 50px rgba(0, 0, 0, .55); }
 html.kosmos-lite .modal__box { box-shadow: 0 40px 90px -20px rgba(0, 0, 0, .8), var(--realce-topo); }
-html.kosmos-lite .sheet-painel { box-shadow: 0 -24px 60px -12px rgba(0, 0, 0, .75), var(--realce-topo); }
 html.kosmos-lite .onb-card { box-shadow: 0 24px 60px rgba(0, 0, 0, .85); }
 html.kosmos-lite :is(.onb-progresso-barra,
                      .onb-opcao-card input:checked + .onb-opcao-conteudo,
@@ -379,6 +369,15 @@ html:not(.kosmos-lite) .visual-foco[data-foco-alternar] { display: none; }
 .visual-sugestao__acoes .dash-btn { padding: 8px 14px; font-size: .84rem; }
 @media (max-width: 768px) {
     .visual-sugestao { bottom: calc(var(--barra-mobile, 70px) + 16px); }
+}
+/* Com um modal, a gaveta de ferramentas ou o chat do Orion abertos, o
+   aviso (z 900) ficava por cima deles — no celular cobria justo os
+   campos e os botões do rodapé. Ele espera: some enquanto há algo
+   aberto e volta quando fecha. */
+body:has(.modal.open, .orion-chat--aberto) .visual-sugestao {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) {
     .visual-sugestao { transition: none; }

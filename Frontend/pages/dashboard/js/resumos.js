@@ -147,6 +147,7 @@
             if (resumo) {
                 Mover?.abrirMenu(menu, resumo, {
                     aoEditar: () => window.KosmosResumoForm?.abrir(resumo),
+                    aoApagar: () => window.KosmosResumoForm?.apagarDireto(resumo),
                     /* Só oferece se o módulo estiver na página (ele só
                        existe onde o partes/modal-flashcards.php foi
                        incluído) — item de menu que abre nada é pior do

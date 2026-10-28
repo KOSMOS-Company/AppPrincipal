@@ -443,7 +443,10 @@
     .ex-linha__link { gap: 12px; }
 }
 @media (max-width: 560px) {
-    .ex-mapa { display: none; }
+    /* A constelação fica também no celular (antes sumia aqui): mais
+       baixa, mas é ela que dá a cara da aba. Os pontos são posicionados
+       em %, então se ajeitam sozinhos na faixa estreita. */
+    .ex-mapa { height: 116px; margin-bottom: 20px; }
     .ex-controles {
         flex-direction: column;
         align-items: stretch;

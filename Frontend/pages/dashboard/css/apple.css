@@ -78,7 +78,7 @@ h3 { letter-spacing: -.012em; }
 :is(.contCabeca p, .ini-hero__desc, .ini-card__desc, .painel__sub) {
     line-height: 1.55;
 }
-:is(.sheet-card__info span, .usuario__info span, .ini-card__nota, .campo__dica) {
+:is(.usuario__info span, .ini-card__nota, .campo__dica) {
     letter-spacing: .012em;
 }
 
@@ -88,23 +88,23 @@ h3 { letter-spacing: -.012em; }
    é uma mola. Esperar o "click" para reagir é o que faz uma tela
    parecer morta. `manipulation` corta o atraso de toque duplo.
    ============================================================ */
-:is(a, button, .chip, .sheet-card, .dash-btn) {
+:is(a, button, .chip, .dash-btn) {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
-:is(.dash-btn, .chip, .conf__botao, .topo-btn-ferramentas, .sheet-card,
-                          .modal__close, .sheet-fechar, a.ini-card, .resumo-card, .deck-card,
+:is(.dash-btn, .chip, .conf__botao, .topo-btn-ferramentas,
+                          .modal__close, .gaveta__fechar, a.ini-card, .resumo-card, .deck-card,
                           .caderno-card, .ex-linha) {
     transition-property: color, background-color, border-color, box-shadow, opacity, transform;
     transition-duration: .2s, .2s, .2s, .2s, .2s, var(--mola-t);
     transition-timing-function: ease, ease, ease, ease, ease, var(--mola);
 }
-:is(.dash-btn, .conf__botao, .topo-btn-ferramentas, .modal__close, .sheet-fechar):active:not(:disabled) {
+:is(.dash-btn, .conf__botao, .topo-btn-ferramentas, .modal__close, .gaveta__fechar):active:not(:disabled) {
     transform: scale(.96);
     transition-duration: .1s;
     transition-timing-function: ease-out;
 }
-:is(.sheet-card, .chip, a.ini-card, .resumo-card, .deck-card,
+:is(.chip, a.ini-card, .resumo-card, .deck-card,
                           .caderno-card, .ex-linha):active {
     transform: scale(.98);
     transition-duration: .1s;
@@ -259,13 +259,13 @@ h3 { letter-spacing: -.012em; }
 }
 
 /* ============================================================
-   CELULAR — topo, barra de baixo, gaveta
+   CELULAR — topo
    ============================================================ */
 @media (max-width: 768px) {
     /* Topo fixo de vidro; o conteúdo rola por baixo. O desfoque mora
        num pseudo-elemento: no próprio topo ele viraria o "bloco de
-       contenção" da barra de baixo (que é filha dele) e a tiraria do
-       rodapé da tela. */
+       contenção" da gaveta lateral (que é filha dele) e a prenderia
+       ao topo em vez da tela. */
     .contLateral {
         position: sticky;
         top: 0;
@@ -310,65 +310,6 @@ h3 { letter-spacing: -.012em; }
         border-color: rgba(201, 124, 255, .22);
     }
 
-    /* Barra de baixo: material mais leve e borda de luz no topo */
-    .botoesL {
-        background: rgba(20, 3, 36, .6);
-        -webkit-backdrop-filter: blur(24px) saturate(180%);
-        backdrop-filter: blur(24px) saturate(180%);
-        border-color: var(--fio-claro);
-        box-shadow:
-            0 16px 36px -10px rgba(0, 0, 0, .8),
-            inset 0 1px 0 rgba(255, 255, 255, .1);
-    }
-    /* O chip ativo viaja entre as abas pelo ativarTrocaDeAba() do
-       dashboard.js. Aqui só sai de cena a entrada própria dele (o
-       "pulinho" a cada página), que a viagem já torna redundante. */
-    .botoesL a.active {
-        animation: none;
-    }
-    .botoesL a.active .nav__rotulo { animation: none; }
-    .botoesL a:active { transition-duration: .1s; }
-
-    /* Gaveta "Outras ferramentas": escurece para focar; o painel é
-       quase sólido — dentro de um fundo já desfocado, um segundo vidro
-       só enxergaria o primeiro. O arrasto é do apple.js; --sheet-p
-       (0 a 1) é o quanto ela está aberta, e o escuro acompanha o dedo. */
-    .sheet-overlay {
-        background: rgba(4, 0, 10, calc(.55 * var(--sheet-p, 1)));
-        -webkit-backdrop-filter: blur(8px);
-        backdrop-filter: blur(8px);
-        transition: opacity .3s ease;
-    }
-    .sheet-painel {
-        background: linear-gradient(180deg, rgba(38, 9, 66, .96) 0%, rgba(22, 4, 40, .98) 100%);
-        border-top: 1px solid rgba(255, 255, 255, .12);
-        border-radius: 28px 28px 0 0;
-        box-shadow: 0 -24px 60px -12px rgba(0, 0, 0, .75), var(--realce-topo);
-        transition: transform var(--mola-rapida-t) var(--mola);
-        touch-action: none;           /* o arrasto é nosso, não da rolagem */
-        user-select: none;
-        -webkit-user-select: none;
-    }
-    .sheet-puxador {
-        width: 36px;
-        height: 5px;
-        background: rgba(255, 255, 255, .28);
-        cursor: grab;
-    }
-    .sheet-card {
-        background: rgba(255, 255, 255, .05);
-        border-color: var(--fio-claro);
-        box-shadow: var(--realce-topo);
-    }
-    .sheet-card.ativo {
-        background: rgba(165, 65, 255, .2);
-        border-color: rgba(201, 124, 255, .45);
-    }
-    .sheet-fechar {
-        width: 30px;
-        height: 30px;
-        color: var(--text-dim);
-    }
 }
 
 /* ============================================================
@@ -377,19 +318,19 @@ h3 { letter-spacing: -.012em; }
 /* Menos movimento: nada de deslizar nem de mola — só cruzar opacidade */
 @media (prefers-reduced-motion: reduce) {
     .modal__box,
-    .sheet-painel {
+    .lateral__gaveta {
         transform: none !important;
         transition: opacity .2s ease !important;
     }
     .modal:not(.open) .modal__box { opacity: 0; }
-    .sheet-overlay:not(.aberto) .sheet-painel { opacity: 0; }
+    html:not(.gaveta-aberta) .lateral__gaveta { opacity: 0; }
     .conf__menu { animation: appleSoOpacidade .2s ease both; }
-    :is(a, button, .chip, .sheet-card, .dash-btn):active { transform: none !important; }
+    :is(a, button, .chip, .dash-btn):active { transform: none !important; }
     @keyframes appleSoOpacidade { from { opacity: 0; } }
 }
 /* Menos transparência: os vidros viram superfície sólida */
 @media (prefers-reduced-transparency: reduce) {
-    :is(.contLateral, .botoesL, .conf__menu, .modal, .sheet-overlay),
+    :is(.contLateral, .botoesL, .conf__menu, .modal),
     .contLateral::before {
         -webkit-backdrop-filter: none !important;
         backdrop-filter: none !important;
@@ -404,8 +345,9 @@ h3 { letter-spacing: -.012em; }
         .contLateral { background: #12011f; }
     }
     @media (max-width: 768px) {
-        /* Já a pílula de baixo é uma superfície descolada: sólida sim. */
-        .botoesL { background: #1d0536; }
+        /* A gaveta do celular segue a mesma ideia: uma superfície só,
+           sólida, sem faixa própria atrás dos links. */
+        .lateral__gaveta { background: #12011f; }
     }
 }
 /* Mais contraste: fundos quase sólidos e bordas definidas */
@@ -415,11 +357,8 @@ h3 { letter-spacing: -.012em; }
         --text-dim: #e4dbef;
         --text-muted: #b9a9cf;
     }
-    :is(.conf__menu, .modal__box, .sheet-painel) {
+    :is(.conf__menu, .modal__box, .lateral__gaveta) {
         background: #1d0536;
         border-color: rgba(255, 255, 255, .4);
-    }
-    @media (max-width: 768px) {
-        .botoesL { background: #1d0536; border-color: rgba(255, 255, 255, .4); }
     }
 }

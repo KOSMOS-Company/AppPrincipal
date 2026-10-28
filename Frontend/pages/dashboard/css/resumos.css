@@ -153,11 +153,16 @@
 .resumo-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px 8px;
     flex-wrap: wrap;
     font-size: .85rem;
     color: var(--text-muted);
 }
+/* O `.contCabeca p` (1.1rem) tem mais peso que a classe sozinha e
+   inflava a linha: no celular cada pedaço ia para uma linha própria,
+   começando pelo "·". Cada pedaço também não se parte no meio. */
+.contCabeca .resumo-meta { font-size: .85rem; }
+.resumo-meta > span { white-space: nowrap; }
 
 /* o texto do resumo, do jeito que foi escrito */
 .resumo-leitura {
@@ -445,11 +450,12 @@
     border-color: var(--erro);
     background: rgba(239, 68, 68, .12);
 }
-/* no toque não existe hover: os dois ficam sempre visíveis, e a
-   reserva de espaço embaixo também fica */
+/* No toque não existe hover, e deixar o lápis e a lixeira sempre à
+   vista poluía a estante (dois botões em cada lombada). Lá eles saem de
+   vez: tocar abre o caderno, e o "Personalizar" dele edita e exclui
+   (partes/modal-caderno.php). O nome volta a ter a lombada inteira. */
 @media (hover: none) {
-    .caderno-card__editar { opacity: 1; }
-    .caderno-card__body { padding-bottom: 74px; }
+    .caderno-card__acoes { display: none; }
 }
 
 /* A zona dos dois botões empilhados mede 66px (6 de base + 28 + 4
@@ -693,8 +699,9 @@ body.sem-rolagem { overflow: hidden; }
 @media (max-width: 768px) {
     .cadernos-grid { padding-top: 40px; }
     .caderno-card { width: 48px; height: 200px; }
+    /* Os botões do cabeçalho ficam do tamanho do texto, lado a lado
+       (antes dividiam a linha inteira e pareciam faixas). */
     .rs-acoes { width: 100%; }
-    .rs-acoes .dash-btn { flex: 1 1 0; justify-content: center; }
     .resumo-galeria { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
     .lupa { padding: 64px 12px 56px; }
     .lupa__nav { width: 40px; height: 40px; font-size: 1.6rem; }
@@ -909,6 +916,9 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
    justamente no toque que o menu é o único caminho para mover */
 @media (hover: none) {
     .resumo-card__acoes { opacity: 1; }
+    /* Só o "⋮" fica: lápis e lixeira em toda linha poluíam a lista, e o
+       menu já tem Editar e Excluir (js/resumo-mover.js). */
+    .resumo-card__botao:is([data-editar], .resumo-card__botao--apagar) { display: none; }
 }
 
 .resumo-card__botao {
@@ -987,6 +997,8 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     transition: background .15s ease, color .15s ease;
 }
 .rs-menu__item:hover:not([disabled]) { background: rgba(255,255,255,.08); color: #fff; }
+.rs-menu__item--perigo { color: #ff8a8a; }
+.rs-menu__item--perigo:hover:not([disabled]) { background: rgba(239, 68, 68, .12); color: #ffb4b4; }
 .rs-menu__item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .rs-menu__item--aqui { color: var(--text-muted); cursor: default; }
 .rs-menu__icone { font-size: 1rem; line-height: 1; flex: none; }
@@ -1352,8 +1364,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 }
 
 @media (max-width: 560px) {
-    .resumo-acoes { width: 100%; }
-    .resumo-acoes .dash-btn { flex: 1 1 auto; justify-content: center; }
+    .resumo-acoes { width: 100%; gap: 8px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1646,10 +1657,6 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     opacity: 1;
     pointer-events: auto;
 }
-/* No toque não há hover: os botões ficam sempre à vista, como antes */
-@media (hover: none) {
-    .pagina-biblioteca .caderno-card__acoes { opacity: 1; pointer-events: auto; }
-}
 /* Arrastando um resumo, os botões somem (a lombada vira só destino) */
 body.arrastando-resumo .pagina-biblioteca .caderno-card__acoes { opacity: 0; pointer-events: none; }
 
@@ -1721,16 +1728,10 @@ html.kosmos-lite .pagina-biblioteca .caderno-card:hover:active { transform: scal
         rgba(255, 255, 255, .02);
 }
 @media (max-width: 768px) {
-    .pagina-resumo .resumo-leitura {
-        padding: 45px 18px 45px 46px;
-        background:
-            linear-gradient(90deg, transparent 30px, rgba(244, 114, 182, .4) 30px, rgba(244, 114, 182, .4) 31px, transparent 31px),
-            repeating-linear-gradient(180deg,
-                transparent 0, transparent 29px,
-                rgba(147, 197, 253, .10) 29px, rgba(147, 197, 253, .10) 30px)
-                0 41px / 100% 100% no-repeat,
-            rgba(255, 255, 255, .02);
-    }
+    /* A folha é a mesma do computador (margem rosa a 50px, pauta azul
+       fina, mesmo fundo — regra acima). Só o respiro da direita encolhe,
+       para o texto não ficar espremido na tela estreita. */
+    .pagina-resumo .resumo-leitura { padding-right: 18px; }
     :is(.pagina-caderno, .pagina-biblioteca .rs-soltos) .resumos-grid { padding-left: 40px; }
 }
 

@@ -304,22 +304,52 @@
        celular (cartões cortados na direita). */
     .conta-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
     .conta-layout > * { min-width: 0; }
+    /* Sem cápsulas: o mesmo desenho dos filtros de matéria (.chip, no
+       dashboard.css) — texto solto e um traço em gradiente embaixo da
+       seção aberta. A faixa rola de lado, encostada nas bordas da tela. */
     .conta-nav {
         position: static;
         flex-direction: row;
-        gap: 8px;
+        gap: 6px;
         overflow-x: auto;
-        padding-bottom: 4px;
+        overscroll-behavior-x: contain;
         scrollbar-width: none;
+        margin: 0 -20px;
+        padding: 0 20px;
+        -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent);
+                mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent);
     }
     .conta-nav::-webkit-scrollbar { display: none; }
     .conta-nav__item {
+        position: relative;
         flex: 0 0 auto;
-        padding: 9px 14px;
-        border-radius: 100px;
-        border-color: rgba(255,255,255,.1);
-        font-size: .88rem;
+        padding: 4px 6px 9px;
+        border: 0;
+        border-radius: 0;
+        font-size: .86rem;
+        letter-spacing: .02em;
+        color: var(--text-muted);
+        white-space: nowrap;
     }
+    .conta-nav__item:hover { background: none; color: var(--text-dim); }
+    .conta-nav__item.active {
+        background: none;
+        color: var(--text);
+        font-weight: 500;
+    }
+    .conta-nav__item::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        width: 0;
+        height: 2px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-lt));
+        transform: translateX(-50%);
+        transition: width .3s cubic-bezier(.4,0,.2,1);
+    }
+    .conta-nav__item.active::after { width: 100%; }
     .conta-nav__item svg { display: none; }
 }
 
@@ -330,11 +360,11 @@
     .conta-avatar { width: 54px; height: 54px; font-size: 1.4rem; }
     .conta-perfil__info h3 { font-size: 1.15rem; }
     .conta-form__acoes { margin-top: 8px; }
-    .conta-form__acoes .dash-btn,
-    .conta-acoes .dash-btn { width: 100%; justify-content: center; }
-    .conta-acoes { flex-direction: column; align-items: stretch; }
-    .painel--sair { flex-direction: column; align-items: stretch; }
-    .painel--sair .dash-btn { width: 100%; justify-content: center; margin-top: 6px; }
+    /* Botões do tamanho do texto, alinhados à esquerda: esticados na
+       largura do cartão pareciam faixas e pesavam mais que o conteúdo. */
+    .conta-acoes { flex-direction: column; align-items: flex-start; }
+    .painel--sair { flex-direction: column; align-items: flex-start; }
+    .painel--sair .dash-btn { margin-top: 6px; }
     .conta-info__linha { flex-direction: column; align-items: flex-start; gap: 4px; }
     .conta-info__valor { text-align: left; }
 }
@@ -365,9 +395,6 @@
 /* .avatar--foto vive no dashboard.css: a barra lateral de todas as
    abas precisa dessa regra, não só esta página. */
 
-@media (max-width: 768px) {
-    .conta-foto__acoes .dash-btn { width: 100%; justify-content: center; }
-}
 
 
 /* ---- Editor da foto (mini tela com máscara circular) ----
@@ -576,9 +603,18 @@
     .conta-estilo__grade { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .conta-estilo__opcao { padding: 14px 4px 10px; }
     .cp-avatar { width: 46px; height: 46px; font-size: 1.15rem; }
-    /* as três abas cabem sem rolar: o contador sai (a grade já mostra os cadeados) */
+}
+/* As três abas cabem sem rolar: o contador sai (a grade já mostra os
+   cadeados). Valia só até 480px — em celulares de 412px o contador
+   voltava e "Cores especiais" saía cortado na borda do cartão. */
+@media (max-width: 768px) {
     .conta-estilo__aba { flex: 1 1 auto; padding: 8px 6px; font-size: .82rem; }
     .conta-estilo__n { display: none; }
+
+    /* Nome e e-mail um embaixo do outro. Lado a lado (acontecia de
+       ~400px para cima), "Nome completo (obrigatório)" quebrava em duas
+       linhas e os dois campos ficavam desalinhados. */
+    .conta-dupla { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
     .conta-estilo__opcao { transition: none; }
@@ -601,3 +637,10 @@
 .conta-pendente svg { width: 17px; height: 17px; flex: 0 0 auto; }
 
 
+
+/* Celular estreito (320–360px): as seis bolinhas de cor não cabiam
+   numa fileira e a última descia sozinha para uma segunda linha. */
+@media (max-width: 380px) {
+    .conta-cores__lista { gap: 8px; }
+    .conta-cor { width: 32px; height: 32px; }
+}
