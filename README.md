@@ -48,6 +48,7 @@ AppPrincipal/
 │   ├── kosmos.sql              # estrutura completa do banco (importação inicial)
 │   ├── sql/                    # migrações datadas + migrar.php (só pelo terminal)
 │   ├── testes/rodar.php        # testes da lógica pura (sem banco)
+│   ├── testes/banco.php        # testes com banco (cria e apaga um kosmos_teste)
 │   ├── tarefas/                # scripts agendados (notificações por e-mail)
 │   ├── logs/                   # php-erros.log (fora do git, bloqueado na web)
 │   ├── uploads/                # fotos (avatares, resumos, capas) — nada aqui executa
@@ -138,10 +139,21 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
    http://localhost/AppPrincipal/Frontend/pages/inicio/index.html
    ```
 
-6. **Rode os testes** (não precisam do banco):
+6. **Rode os testes**:
    ```bash
    C:\xampp\php\php.exe Backend/testes/rodar.php
+   C:\xampp\php\php.exe Backend/testes/banco.php
    ```
+   O primeiro não precisa do banco. O segundo precisa do MySQL ligado: ele cria
+   um banco descartável (`kosmos_teste`) a partir do `kosmos.sql`, testa o que
+   mora no banco (ciclos de foco, XP, limite de tentativas) e apaga o banco no
+   fim — o `kosmos` nunca é tocado.
+
+   **Scripts:** a Content-Security-Policy (`.htaccess` e `bootstrap.php`) só aceita scripts de
+   arquivos `.js` do próprio site. `<script>` com código dentro do HTML e atributos como
+   `onclick="..."` **não rodam** — use um arquivo `.js` e `addEventListener`. Dados do PHP
+   para o JS vão num `<script type="application/json">` (ele não é executado).
+
    Os mesmos testes, mais a checagem de sintaxe de todo PHP e JS, rodam no GitHub a cada push.
 
 **Dependências**: PHP 8.1+ com `pdo_mysql`, `mbstring`, `curl` e `fileinfo` (o XAMPP já traz

@@ -56,7 +56,11 @@ Options -Indexes
     # recebem só a origem, nunca o caminho completo
     Header set Referrer-Policy "strict-origin-when-cross-origin"
     Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
-    Header set Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
+    # script-src: só scripts dos nossos arquivos (e o login do Google).
+    # Nenhum <script> inline nem onclick="..." roda — se um dia algum
+    # texto do usuário escapar sem tratamento, ele não vira código.
+    # Mantenha igual ao Backend/php/bootstrap.php.
+    Header set Content-Security-Policy "script-src 'self' https://accounts.google.com/gsi/; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
 </IfModule>
 
 # ---------- Compressão ----------

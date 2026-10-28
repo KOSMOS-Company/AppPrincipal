@@ -1,10 +1,12 @@
 # ============================================================
 #  KOSMOS — Integração contínua
-#  Roda a cada push e pull request. Não precisa de banco nem de n8n:
+#  Roda a cada push e pull request. Não precisa de n8n:
 #   1. sintaxe de todo arquivo PHP (php -l);
 #   2. os testes de lógica pura (Backend/testes/rodar.php);
-#   3. sintaxe de todo arquivo JavaScript (node --check);
-#   4. nenhum segredo commitado por engano (config.php / conexao.php).
+#   3. os testes com banco (Backend/testes/banco.php), num MariaDB
+#      descartável — a mesma família do MySQL do XAMPP;
+#   4. sintaxe de todo arquivo JavaScript (node --check);
+#   5. nenhum segredo commitado por engano (config.php / conexao.php).
 # ============================================================
 name: CI
 
@@ -15,6 +17,18 @@ on:
 jobs:
   verificar:
     runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.6
+        env:
+          MARIADB_ROOT_PASSWORD: teste
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
     steps:
       - uses: actions/checkout@v4
 
@@ -35,6 +49,13 @@ jobs:
 
       - name: Testes (Backend/testes/rodar.php)
         run: php Backend/testes/rodar.php
+
+      - name: Testes com banco (Backend/testes/banco.php)
+        env:
+          TESTE_DB_HOST: 127.0.0.1
+          TESTE_DB_USER: root
+          TESTE_DB_PASS: teste
+        run: php Backend/testes/banco.php
 
       - name: Node (para conferir o JavaScript)
         uses: actions/setup-node@v4

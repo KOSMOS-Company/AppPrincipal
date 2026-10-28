@@ -129,7 +129,9 @@ C:\xampp\php\php.exe Backend/sql/migrar.php --marcar-todas
    ```bash
    C:\xampp\php\php.exe Backend/testes/rodar.php
    ```
-   Deve terminar com `54 de 54 testes passaram` (ou mais).
+   Deve terminar com `75 de 75 testes passaram` (ou mais).
+   Com o MySQL ligado, rode também `C:\xampp\php\php.exe Backend/testes/banco.php`
+   (cria e apaga um banco `kosmos_teste`).
 2. **Site:** abra `http://localhost/NOME-DA-SUA-PASTA/` e você deve cair na página inicial.
 3. **Login:** crie uma conta ou entre na sua.
 4. **Redefinição de senha:** no login, clique em **Esqueceu a senha?** e use o
