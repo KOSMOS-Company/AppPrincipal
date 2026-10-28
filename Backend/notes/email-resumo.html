@@ -1,0 +1,69 @@
+<!-- ============================================================
+     KOSMOS — HTML do e-mail de resumo semanal
+     Cole TODO este conteúdo no campo "HTML" do nó de e-mail do
+     resumo, no fluxo de notificações (n8n).
+     Dados enviados por Backend/tarefas/notificacoes.php (tipo "resumo").
+     A logo vem do GitHub (Frontend/pages/shared/logo-email.png no main).
+     ============================================================ -->
+<div style="display:none;max-height:0;overflow:hidden">{{ $json.body.minutos_semana }} minutos de foco e {{ $json.body.xp_semana }} XP esta semana. Veja seu resumo!</div>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0d0118" style="background:#0d0118;padding:32px 12px">
+<tr><td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">
+
+  <tr><td align="center" style="padding:0 0 20px">
+    <img src="https://raw.githubusercontent.com/KOSMOS-Company/AppPrincipal/main/Frontend/pages/shared/logo-email.png" width="180" height="41" alt="Kosmos" style="display:block;margin:0 auto;width:180px;height:41px;border:0;outline:none;text-decoration:none">
+  </td></tr>
+
+  <tr><td bgcolor="#1a0230" style="background:#1a0230;border:1px solid #2f0a4b;border-radius:20px;padding:36px 32px;font-family:'Segoe UI',Arial,sans-serif">
+
+    <p style="margin:0 0 6px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#9180a8">Resumo da semana</p>
+    <h1 style="margin:0 0 24px;font-size:26px;line-height:1.3;color:#ffffff">Olha o que você fez, {{ $json.body.nome.split(' ')[0] }} 🚀</h1>
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td width="50%" style="padding:0 6px 12px 0">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#12011f" style="background:#12011f;border-radius:14px;padding:18px">
+            <p style="margin:0;font-size:28px;font-weight:bold;color:#ffffff">{{ $json.body.minutos_semana >= 60 ? Math.floor($json.body.minutos_semana / 60) + 'h ' : '' }}{{ $json.body.minutos_semana % 60 }}min</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#b8a8cc">⏱️ de foco</p>
+          </td></tr></table>
+        </td>
+        <td width="50%" style="padding:0 0 12px 6px">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#12011f" style="background:#12011f;border-radius:14px;padding:18px">
+            <p style="margin:0;font-size:28px;font-weight:bold;color:#f5b942">{{ $json.body.xp_semana }}</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#b8a8cc">⭐ XP ganho</p>
+          </td></tr></table>
+        </td>
+      </tr>
+      <tr>
+        <td width="50%" style="padding:0 6px 0 0">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#12011f" style="background:#12011f;border-radius:14px;padding:18px">
+            <p style="margin:0;font-size:28px;font-weight:bold;color:#ffffff">{{ $json.body.sequencia }}</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#b8a8cc">🔥 dia(s) seguidos</p>
+          </td></tr></table>
+        </td>
+        <td width="50%" style="padding:0 0 0 6px">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#12011f" style="background:#12011f;border-radius:14px;padding:18px">
+            <p style="margin:0;font-size:28px;font-weight:bold;color:#c97cff">{{ $json.body.revisar_proxima_semana }}</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#b8a8cc">🃏 cartões para revisar</p>
+          </td></tr></table>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:24px 0 28px;font-size:15px;line-height:1.6;color:#b8a8cc">Cada minuto conta. Mantenha o ritmo e comece a próxima semana revisando seus cartões.</p>
+
+    <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto"><tr>
+      <td align="center" bgcolor="#8200db" style="background:#8200db;border-radius:12px">
+        <a href="{{ $json.body.link }}" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none">Continuar estudando</a>
+      </td>
+    </tr></table>
+
+  </td></tr>
+
+  <tr><td align="center" style="padding:20px 24px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;line-height:1.6;color:#9180a8">
+    Você recebe este e-mail porque ligou o resumo semanal.<br>Para desligar, vá em <strong style="color:#b8a8cc">Conta › Notificações</strong> no Kosmos.
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
