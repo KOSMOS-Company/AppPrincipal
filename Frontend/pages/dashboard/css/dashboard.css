@@ -2274,6 +2274,71 @@ a.ini-card:hover .ini-card__ico {
     color: var(--text-dim);
 }
 .foco-dia--fora { visibility: hidden; }
+
+/* Dica do dia: aparece em cima do quadradinho ao passar o mouse
+   (mesmo visual da .ini-col__tempo do gráfico da semana) */
+.foco-dia { position: relative; transition: filter .15s ease; }
+.foco-dia:hover { z-index: 4; }
+.foco-dia:not(.foco-dia--futuro):hover { filter: brightness(1.18); }
+.foco-dia__dica {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 9px 12px 10px;
+    border-radius: 10px;
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .4);
+    text-align: left;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    /* --desloca: o inicio.js empurra a dica para dentro do painel perto das bordas */
+    transform: translate(calc(-50% + var(--desloca, 0px)), 4px);
+    transition: opacity .15s ease, transform .15s ease;
+}
+.foco-dia:hover .foco-dia__dica { opacity: 1; transform: translate(calc(-50% + var(--desloca, 0px)), 0); }
+
+.foco-dia__dica-data {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .66rem;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.foco-dia__dica-hoje {
+    padding: 1px 6px;
+    border-radius: 99px;
+    background: rgba(165, 65, 255, .22);
+    color: var(--accent-lt);
+    font-weight: 600;
+    letter-spacing: .04em;
+}
+.foco-dia__dica-tempo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: "Syne", sans-serif;
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.foco-dia__dica-tempo i {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+.foco-dia__dica-tempo--zero { font-family: inherit; font-size: .8rem; font-weight: 500; color: var(--text-dim); }
+.foco-dia__dica-ciclos { font-size: .74rem; font-weight: 500; color: var(--text-dim); }
 .foco-dia--hoje { outline: 2px solid var(--accent-lt); outline-offset: 1px; }
 .foco-dia--futuro {
     background: transparent !important;

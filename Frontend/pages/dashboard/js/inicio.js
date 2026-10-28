@@ -233,6 +233,24 @@
             outra.btn.focus();
         }));
 
+        // A dica do dia nasce centrada em cima do quadradinho; perto das
+        // bordas (sobretudo no celular) ela empurra para dentro do painel
+        // em vez de vazar. Mede ao entrar no dia: vale para qualquer largura.
+        const grade = document.getElementById("focoMesGrade");
+        const painel = grade.closest(".ini-painel") || grade;
+        grade.addEventListener("mouseover", (e) => {
+            const dica = e.target.closest(".foco-dia")?.querySelector(".foco-dia__dica");
+            if (!dica) return;
+            dica.style.setProperty("--desloca", "0px");
+            const r = dica.getBoundingClientRect();
+            const p = painel.getBoundingClientRect();
+            const folga = 8;
+            let desloca = 0;
+            if (r.left < p.left + folga) desloca = p.left + folga - r.left;
+            else if (r.right > p.right - folga) desloca = p.right - folga - r.right;
+            dica.style.setProperty("--desloca", `${Math.round(desloca)}px`);
+        });
+
         document.getElementById("focoMesAnterior").addEventListener("click", (e) => {
             if (e.currentTarget.dataset.mes) carregarFocoMes(e.currentTarget.dataset.mes);
         });
@@ -373,18 +391,63 @@
             vazio.className = "foco-dia foco-dia--fora";
             grade.appendChild(vazio);
         }
-        d.dias.forEach(({ dia, minutos }) => {
+        const nomeMes = d.titulo.split(" ")[0];
+        d.dias.forEach(({ dia, minutos, sessoes }) => {
             const futuro = d.hoje !== null && dia > d.hoje;
+            const coluna = (d.inicio + dia - 1) % 7;          // 0 = domingo
+            const nivel = nivelFoco(minutos);
             const cel = document.createElement("span");
-            cel.className = `foco-dia foco-n${nivelFoco(minutos)}`
+            cel.className = `foco-dia foco-n${nivel}`
                 + (dia === d.hoje ? " foco-dia--hoje" : "")
                 + (futuro ? " foco-dia--futuro" : "");
             cel.textContent = dia;
-            cel.title = futuro
-                ? `${dia} de ${d.titulo.split(" ")[0]}`
-                : `${dia} de ${d.titulo.split(" ")[0]} — Tempo de foco: ${duracaoExtenso(minutos)}`;
+
+            // `sessoes` só vem quando o foco_mensal.php conta os ciclos;
+            // sem ele, a dica mostra só o tempo
+            const ciclos = Number.isInteger(sessoes)
+                ? `${sessoes} ${sessoes === 1 ? "ciclo" : "ciclos"} de foco`
+                : "";
+            cel.setAttribute("aria-label", futuro
+                ? `${dia} de ${nomeMes}`
+                : `${dia} de ${nomeMes}: ${minutos ? duracaoExtenso(minutos) + (ciclos && `, ${ciclos}`) : "sem foco"}`);
+            // Dia que ainda não chegou não tem o que contar: sem dica
+            if (!futuro) cel.appendChild(dicaFocoDia(dia, nomeMes, coluna, nivel, minutos, ciclos, dia === d.hoje));
             grade.appendChild(cel);
         });
+    }
+
+    /** A dica que aparece em cima do dia ao passar o mouse
+        (mesmo visual da dica das colunas da semana). */
+    function dicaFocoDia(dia, nomeMes, coluna, nivel, minutos, ciclos, ehHoje) {
+        const dica = document.createElement("span");
+        dica.className = "foco-dia__dica";
+        dica.setAttribute("aria-hidden", "true");   // quem lê tela ouve o aria-label do dia
+
+        const data = document.createElement("span");
+        data.className = "foco-dia__dica-data";
+        data.textContent = `${DIAS_SEMANA[coluna]}, ${dia} de ${nomeMes}`;
+        if (ehHoje) {
+            const tag = document.createElement("b");
+            tag.className = "foco-dia__dica-hoje";
+            tag.textContent = "hoje";
+            data.appendChild(tag);
+        }
+        dica.appendChild(data);
+
+        const tempo = document.createElement("span");
+        tempo.className = "foco-dia__dica-tempo" + (minutos ? "" : " foco-dia__dica-tempo--zero");
+        const cor = document.createElement("i");
+        cor.className = `foco-n${nivel}`;
+        tempo.append(cor, minutos ? formatarDuracao(minutos) : "Sem foco");
+        dica.appendChild(tempo);
+
+        if (minutos && ciclos) {
+            const qtd = document.createElement("span");
+            qtd.className = "foco-dia__dica-ciclos";
+            qtd.textContent = ciclos;
+            dica.appendChild(qtd);
+        }
+        return dica;
     }
 
     /** Intensidade da cor no calendário (mesma da legenda do modal) */

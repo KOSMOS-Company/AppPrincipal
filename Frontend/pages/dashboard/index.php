@@ -87,17 +87,7 @@ function passoFeito(array $passos, string $slug): bool {
     <link rel="preload" href="../shared/fontes/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../shared/fontes/syne-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<?= asset('../shared/fontes.css') ?>">
-    <script>
-        // Mostra o splash imediatamente (sem flash) se o usuário acabou de logar
-        // No visual Lite a abertura animada não roda: é a tela mais cara do app.
-        if (sessionStorage.getItem("kosmos_intro")) {
-            if (localStorage.getItem("kosmos_visual") === "lite") {
-                sessionStorage.removeItem("kosmos_intro");
-            } else {
-                document.documentElement.classList.add("com-intro");
-            }
-        }
-    </script>
+    <script src="<?= asset('./js/intro-inicial.js') ?>"></script>
 </head>
 <body>
 

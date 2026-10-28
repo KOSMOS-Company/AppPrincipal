@@ -9,7 +9,7 @@
 
    A página precisa ter:
      - uma função global mostrarMsg(texto, tipo) — tipo "sucesso"|"erro";
-     - o botão com onclick="googlePrompt()";
+     - o botão com a classe .btn--google (o clique é ligado aqui);
      - o script https://accounts.google.com/gsi/client.
 
    Abre o popup "Escolha uma conta" do Google. O One Tap
@@ -60,6 +60,12 @@
         }
         googleClient.requestAccessToken();
     };
+
+    // Ligado aqui, não por onclick no HTML: a Content-Security-Policy
+    // (script-src 'self') bloqueia atributos de evento inline.
+    document.querySelectorAll(".btn--google").forEach((btn) => {
+        btn.addEventListener("click", () => window.googlePrompt());
+    });
 
     async function entrar(campos) {
         document.querySelector(".msg-feedback")?.remove();

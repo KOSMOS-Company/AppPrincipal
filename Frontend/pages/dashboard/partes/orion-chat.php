@@ -59,7 +59,7 @@
     </div>
 
     <!-- Caixa de mensagem: cresce com o texto; Enter envia -->
-    <form class="orion-chat__rodape" id="orionChatForm" onsubmit="return false;">
+    <form class="orion-chat__rodape" id="orionChatForm">
         <label class="sr-only" for="orionChatInput">Mensagem para o Orion</label>
         <textarea class="orion-chat__input" id="orionChatInput" rows="1" maxlength="1000"
                   placeholder="Pergunte ao Orion…" autocomplete="off"></textarea>

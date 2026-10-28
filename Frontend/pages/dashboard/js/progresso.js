@@ -392,10 +392,16 @@
 
     /* ---------- 8. Payload que a página já trouxe ----------
        A página de conquistas confere tudo ao abrir e pode ter
-       desbloqueado badges de quem já tinha histórico. */
+       desbloqueado badges de quem já tinha histórico. O payload vem
+       no bloco JSON #dadosProgressoInicial (não é executado, então
+       passa pela Content-Security-Policy). */
     document.addEventListener("DOMContentLoaded", () => {
         ativarPainelStatus();
-        if (window.KOSMOS_PROGRESSO_INICIAL) receber(window.KOSMOS_PROGRESSO_INICIAL);
+        const bloco = document.getElementById("dadosProgressoInicial");
+        if (!bloco) return;
+        let inicial = null;
+        try { inicial = JSON.parse(bloco.textContent); } catch { /* sem payload */ }
+        if (inicial) receber(inicial);
     });
 
     window.KosmosProgresso = { receber, aviso };

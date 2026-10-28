@@ -39,13 +39,7 @@
          engrenagem) e fica salva neste aparelho. A página inicial lê a
          mesma escolha ANTES de pintar: céu parado, sem parallax, sem a
          seção que prende a rolagem, sem vidro e com o cursor do sistema. -->
-    <script>
-        try {
-            if (localStorage.getItem('kosmos_visual') === 'lite') {
-                document.documentElement.classList.add('kosmos-lite');
-            }
-        } catch (e) { /* navegação privada: visual completo */ }
-    </script>
+    <script src="../shared/visual-lite.js"></script>
     <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/inicio.css">
     <link rel="stylesheet" href="../shared/cosmos.css">

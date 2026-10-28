@@ -139,7 +139,7 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
 
                 <!-- Caixa de mensagem: cresce com o texto; Enter envia, Shift+Enter quebra a linha -->
                 <footer class="orion-rodape">
-                    <form class="orion-chat-form" id="orionChatForm" onsubmit="return false;">
+                    <form class="orion-chat-form" id="orionChatForm">
                         <label class="sr-only" for="orionChatInput">Mensagem para o Orion</label>
                         <textarea class="orion-chat-input" id="orionChatInput" rows="1" maxlength="1000"
                                   placeholder="Pergunte qualquer coisa ao Orion…" autocomplete="off"></textarea>

@@ -127,14 +127,14 @@
                     </div>
                     <div class="exercicio-salvo-card__trilha" aria-hidden="true">${'<i></i>'.repeat(Math.min(qtdQuestoes, 12))}</div>
                     <div class="exercicio-salvo-card__acoes">
-                        <button class="dash-btn dash-btn--outline" onclick="abrirExercicio(${ex.id})">
+                        <button class="dash-btn dash-btn--outline" data-praticar="${ex.id}">
                             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 3.5c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5 3-.5 4-1.5 4.5-4.5Z" fill="currentColor"/><path class="ia-estrela-menor" d="M14.5 11.5c.25 1.5.75 2 2.25 2.25-1.5.25-2 .75-2.25 2.25-.25-1.5-.75-2-2.25-2.25 1.5-.25 2-.75 2.25-2.25Z" fill="currentColor"/></svg>
                             Praticar
                         </button>
                         <button class="dash-btn dash-btn--ghost" data-editar='${JSON.stringify({id: ex.id, titulo: ex.titulo, conteudo: ex.conteudo, dificuldade: ex.dificuldade}).replace(/'/g, '&apos;')}' title="Editar">
                             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                         </button>
-                        <button class="dash-btn dash-btn--danger" onclick="excluirExercicio(${ex.id})" title="Excluir">
+                        <button class="dash-btn dash-btn--danger" data-excluir="${ex.id}" title="Excluir">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                     </div>
@@ -163,8 +163,15 @@
         window.KosmosExercicioPraticar?.abrir(id);
     };
 
-    // Delegação de evento para botões de editar (usam data-editar)
+    // Delegação de evento para os botões dos cards (data-praticar,
+    // data-excluir, data-editar). Sem onclick no HTML: a
+    // Content-Security-Policy (script-src 'self') bloqueia atributos inline.
     gridExerciciosSalvos?.addEventListener('click', (e) => {
+        const praticar = e.target.closest('[data-praticar]');
+        if (praticar) { abrirExercicio(Number(praticar.dataset.praticar)); return; }
+        const excluir = e.target.closest('[data-excluir]');
+        if (excluir) { excluirExercicio(Number(excluir.dataset.excluir)); return; }
+
         const btn = e.target.closest('[data-editar]');
         if (!btn) return;
         try {

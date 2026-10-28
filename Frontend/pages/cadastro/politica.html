@@ -9,13 +9,7 @@
     <meta name="theme-color" content="#0d0118">
     <!-- Visual leve: a mesma escolha do dashboard (salva neste aparelho),
          lida antes de pintar. Os scripts de shared/ já respeitam a classe. -->
-    <script>
-        try {
-            if (localStorage.getItem('kosmos_visual') === 'lite') {
-                document.documentElement.classList.add('kosmos-lite');
-            }
-        } catch (e) { /* navegação privada: visual completo */ }
-    </script>
+    <script src="../shared/visual-lite.js"></script>
     <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/legal.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
@@ -173,34 +167,7 @@
         </footer>
     </div>
 
-    <script>
-        /* Barra de progresso de scroll */
-        (function () {
-            const barra = document.getElementById('scrollProgress');
-            if (barra) {
-                window.addEventListener('scroll', () => {
-                    const total = document.documentElement.scrollHeight - window.innerHeight;
-                    barra.style.width = (total > 0 ? (window.scrollY / total) * 100 : 0) + '%';
-                }, { passive: true });
-            }
-
-            /* Reveal ao rolar */
-            const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (semMovimento) {
-                document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
-                return;
-            }
-            const obs = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        obs.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.12 });
-            document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-        })();
-    </script>
+    <script src="./js/legal.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
     <script src="../shared/cursor.js"></script>
     <!-- O WebGL tenta primeiro; sem placa ou com shader que não compila,
