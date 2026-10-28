@@ -7,6 +7,9 @@
     <meta name="theme-color" content="#0d0118">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Cadastro</title>
+    <!-- Visual leve: a mesma escolha do dashboard (salva neste aparelho),
+         lida antes de pintar. Os scripts de shared/ já respeitam a classe. -->
+    <script src="../shared/visual-lite.js"></script>
     <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/cadastro.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
@@ -81,7 +84,7 @@
                         <div class="field__wrap">
                             <svg class="field__ico" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                             <input id="senha" type="password" class="field__input" placeholder="Mín. 8 caracteres" autocomplete="new-password">
-                            <button type="button" class="field__toggle" aria-label="Mostrar senha" onclick="togglePwd(this)">
+                            <button type="button" class="field__toggle" aria-label="Mostrar senha">
                                 <svg viewBox="0 0 20 20" fill="none" class="ico-eye-off" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
                                 <svg viewBox="0 0 20 20" fill="none" class="ico-eye"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
                             </button>
@@ -103,7 +106,7 @@
 
                     <!-- Google Identity Services (popup de escolher conta) -->
                     <div class="google-btn-wrap">
-                        <button type="button" class="btn--google" onclick="googlePrompt()">
+                        <button type="button" class="btn--google">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
                                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -135,158 +138,8 @@
 
     </div>
 
-    <script>
-        /* --- Mostrar/ocultar senha --- */
-        function togglePwd(btn) {
-            const input = btn.closest('.field__wrap').querySelector('input');
-            input.type = input.type === 'password' ? 'text' : 'password';
-            btn.classList.toggle('ativo', input.type === 'text');
-            btn.setAttribute('aria-label', input.type === 'text' ? 'Esconder senha' : 'Mostrar senha');
-            input.focus();
-        }
-
-        /* --- Envio do formulário para o backend PHP --- */
-        document.querySelector('.form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const btn    = this.querySelector('.btn-submit');
-            const btnHtml = btn.innerHTML;
-            const nome   = document.getElementById('nome').value.trim();
-            const email  = document.getElementById('email').value.trim();
-            const senha  = document.getElementById('senha').value.trim();
-
-            // Remove mensagem anterior
-            document.querySelector('.msg-feedback')?.remove();
-
-            // Monta os dados do formulário
-            const dados = new FormData();
-            dados.append('nome',  nome);
-            dados.append('email', email);
-            dados.append('senha', senha);
-
-            btn.disabled    = true;
-            btn.textContent = 'Aguarde…';
-
-            try {
-                const resposta = await fetch('../../../Backend/php/cadastro.php', {
-                    method : 'POST',
-                    body   : dados,
-                });
-
-                const json = await resposta.json();
-                mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
-
-                if (json.ok) {
-                    this.reset();
-                    setTimeout(() => {
-                        window.location.href = '../login/index.html';
-                    }, 1800);
-                }
-            } catch (err) {
-                mostrarMsg('Não foi possível conectar ao servidor. Verifique se o XAMPP está rodando.', 'erro');
-            } finally {
-                btn.disabled  = false;
-                btn.innerHTML = btnHtml;
-            }
-        });
-
-        /* --- Exibe mensagem de feedback --- */
-        function mostrarMsg(texto, tipo) {
-            const div = document.createElement('div');
-            div.className = 'msg-feedback msg-feedback--' + tipo;
-            div.textContent = texto;
-            div.style.cssText = `
-                margin-top: 12px;
-                padding: 10px 14px;
-                border-radius: 8px;
-                font-size: 0.875rem;
-                font-weight: 500;
-                background: ${tipo === 'sucesso' ? 'rgba(52,211,153,0.15)' : 'rgba(239,68,68,0.15)'};
-                color: ${tipo === 'sucesso' ? '#34d399' : '#f87171'};
-                border: 1px solid ${tipo === 'sucesso' ? '#34d39940' : '#f8717140'};
-            `;
-            document.querySelector('.form').after(div);
-        }
-
-        /* --- Entrar com o Google: shared/google-login.js (usa o mostrarMsg acima) --- */
-
-        /* ═══ Interações visuais (não alteram a lógica do formulário) ═══ */
-
-        /* --- Mascote: vive em shared/mascote.js (segue o cursor, pisca,
-               tapa os olhos na senha e sorri com o e-mail válido) --- */
-
-        /* --- Validação visual + progresso do cadastro --- */
-        (function () {
-            const nome  = document.getElementById('nome');
-            const email = document.getElementById('email');
-            const senha = document.getElementById('senha');
-            const fNome  = document.getElementById('fieldNome');
-            const fEmail = document.getElementById('fieldEmail');
-            const fSenha = document.getElementById('fieldSenha');
-            const fill   = document.getElementById('cadFill');
-            const rocket = document.getElementById('cadRocket');
-            const label  = document.getElementById('cadLabel');
-
-            const extra    = document.getElementById('senhaExtra');
-            const barra    = document.getElementById('senhaBarraFill');
-            const reqLen   = document.getElementById('reqLen');
-            const reqLetra = document.getElementById('reqLetra');
-            const reqNum   = document.getElementById('reqNum');
-
-            function nomeOk()  { return nome.value.trim().length >= 3; }
-            function emailOk() { return email.value.trim() !== '' && email.checkValidity(); }
-            function senhaOk() { return senha.value.length >= 8; }
-
-            function atualizaProgresso() {
-                fNome.classList.toggle('field--ok', nomeOk());
-                fEmail.classList.toggle('field--ok', emailOk());
-                fSenha.classList.toggle('field--ok', senhaOk());
-
-                const validos = [nomeOk(), emailOk(), senhaOk()].filter(Boolean).length;
-                const pct = (validos / 3) * 100;
-                fill.style.width = pct + '%';
-                rocket.style.left = pct + '%';
-                label.textContent = validos === 3
-                    ? 'Tudo pronto para decolar!'
-                    : validos + ' de 3 campos preenchidos';
-            }
-
-            function atualizaSenha() {
-                const v = senha.value;
-                extra.hidden = v.length === 0;
-
-                const temLen   = v.length >= 8;
-                const temLetra = /[a-zA-ZÀ-ÿ]/.test(v);
-                const temNum   = /[0-9]/.test(v);
-                reqLen.classList.toggle('ok', temLen);
-                reqLetra.classList.toggle('ok', temLetra);
-                reqNum.classList.toggle('ok', temNum);
-
-                const pontos = [temLen, temLetra, temNum].filter(Boolean).length;
-                const cores  = ['#f87171', '#f87171', '#fbbf24', '#34d399'];
-                barra.style.width = (pontos / 3) * 100 + '%';
-                barra.style.background = cores[pontos];
-            }
-
-            nome.addEventListener('input', atualizaProgresso);
-            email.addEventListener('input', atualizaProgresso);
-            senha.addEventListener('input', () => { atualizaSenha(); atualizaProgresso(); });
-        })();
-
-        /* --- Aviso de Caps Lock na senha --- */
-        (function () {
-            const senha = document.getElementById('senha');
-            const aviso = document.getElementById('capsAviso');
-            function checa(e) {
-                if (typeof e.getModifierState === 'function') {
-                    aviso.hidden = !e.getModifierState('CapsLock');
-                }
-            }
-            senha.addEventListener('keydown', checa);
-            senha.addEventListener('keyup', checa);
-            senha.addEventListener('blur', () => { aviso.hidden = true; });
-        })();
-    </script>
+    <script src="../shared/mostrar-senha.js"></script>
+    <script src="./js/cadastro.js"></script>
     <script src="../shared/google-login.js"></script>
     <script src="https://accounts.google.com/gsi/client" async></script>
     <script src="../shared/mouse-tracker.js"></script>

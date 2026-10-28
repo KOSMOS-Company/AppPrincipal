@@ -257,3 +257,13 @@
     }
     .mascote__estrela { opacity: .8; }
 }
+
+/* Visual Lite (html.kosmos-lite): a flutuação, a borla e as estrelas
+   param no primeiro quadro. Os humores (confuso, dúvida, dormindo,
+   comemorando) continuam — esses dizem que algo está acontecendo.
+   Fica aqui, e não só no lite.css do dashboard, para valer também
+   no login e no cadastro. */
+html.kosmos-lite :is(.mascote__svg, .mascote__borla, .mascote__estrela) {
+    animation-play-state: paused;
+}
+html.kosmos-lite .mascote--confuso .mascote__svg { animation-play-state: running; }

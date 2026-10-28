@@ -49,6 +49,9 @@ final class ProgressoService
         'exercicio_erro'     => 5,    // o esforço também conta
         'conteudo_criado'    => 40,
         'orion_ia'           => 10,
+        // O tour do Orion, uma vez por conta. Com os 25 da conquista
+        // "Decolagem" fecha 100 XP: a pessoa termina o tour no nível 2.
+        'tutorial_concluido' => 75,
     ];
 
     /**
@@ -65,6 +68,8 @@ final class ProgressoService
         'exercicio_erro'     => ['rotulo' => 'Questão respondida',   'grupo' => 'exercicios', 'limite_dia' => 300, 'intervalo_seg' => 2],
         'conteudo_criado'    => ['rotulo' => 'Novo resumo',          'grupo' => 'conteudo',   'limite_dia' => 120, 'intervalo_seg' => 0],
         'orion_ia'           => ['rotulo' => 'Estudo com o Orion',   'grupo' => 'orion',      'limite_dia' => 30,  'intervalo_seg' => 0],
+        // "uma vez por conta" quem garante é o tutorial_concluido.php; o teto é só a rede de segurança
+        'tutorial_concluido' => ['rotulo' => 'Tour com o Orion',     'grupo' => 'tutorial',   'limite_dia' => 75,  'intervalo_seg' => 0],
     ];
 
     /** Sequência de estudo: 25 XP no dia + 10 por semana completa, até +50. */
@@ -117,6 +122,23 @@ final class ProgressoService
      */
     public function adicionarVarios(int $usuarioId, array $itens): array
     {
+        $this->validar($itens);
+        return $this->processar($usuarioId, $itens, true);
+    }
+
+    /**
+     * Um prêmio que NÃO é estudo (o tour do Orion): soma XP e confere
+     * conquistas, mas não conta para a sequência do dia. Quem chama
+     * garante que o prêmio não se repete.
+     */
+    public function premiar(int $usuarioId, array $itens): array
+    {
+        $this->validar($itens);
+        return $this->processar($usuarioId, $itens, false);
+    }
+
+    private function validar(array $itens): void
+    {
         foreach ($itens as $item) {
             $acao = $item['acao'] ?? '';
             if (!isset(self::REGRAS[$acao])) {
@@ -126,7 +148,6 @@ final class ProgressoService
                 throw new InvalidArgumentException('XP negativo não entra por aqui.');
             }
         }
-        return $this->processar($usuarioId, $itens, true);
     }
 
     /**
@@ -428,6 +449,7 @@ final class ProgressoService
             'resumos'       => fn() => $um('SELECT COUNT(*) FROM resumos WHERE usuario_id = ?'),
             'ex_acertos'    => fn() => $um('SELECT COUNT(*) FROM exercicio_respostas WHERE usuario_id = ? AND acertou = 1'),
             'orion'         => fn() => $um("SELECT COUNT(*) FROM historico_xp WHERE usuario_id = ? AND origem_acao = 'orion_ia'"),
+            'tutorial'      => fn() => $um("SELECT COUNT(*) FROM historico_xp WHERE usuario_id = ? AND origem_acao = 'tutorial_concluido'"),
             'listas_perfeitas' => fn() => $this->listasPerfeitas($usuarioId),
         ];
 

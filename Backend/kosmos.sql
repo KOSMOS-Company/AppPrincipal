@@ -153,7 +153,9 @@ CREATE TABLE IF NOT EXISTS `resumos` (
 ALTER TABLE `usuario_preferencias`
   ADD COLUMN IF NOT EXISTS `objetivo` VARCHAR(50) DEFAULT NULL AFTER `meta_diaria`,
   ADD COLUMN IF NOT EXISTS `ano_escolar` VARCHAR(50) DEFAULT NULL AFTER `objetivo`,
-  ADD COLUMN IF NOT EXISTS `onboarding_completo` TINYINT(1) NOT NULL DEFAULT 0 AFTER `ano_escolar`;
+  ADD COLUMN IF NOT EXISTS `onboarding_completo` TINYINT(1) NOT NULL DEFAULT 0 AFTER `ano_escolar`,
+  -- tour do Orion pelas abas (ver Backend/sql/2026-10-26_tutorial_orion.sql)
+  ADD COLUMN IF NOT EXISTS `tutorial_visto` TINYINT(1) NOT NULL DEFAULT 0 AFTER `onboarding_completo`;
 
 -- --------------------------------------------------------
 
@@ -493,7 +495,8 @@ INSERT INTO `conquistas` (`slug`, `nome`, `descricao`, `icone_svg`, `xp_bonus`, 
   ('streak_30_days', 'Constelação fiel', 'Estude 30 dias seguidos.', 'constelacao', 400, 'constancia', 'streak', 30, 30),
   ('nivel_5', 'Ascensão', 'Alcance o nível 5.', 'subida', 50, 'constancia', 'nivel', 5, 40),
   ('nivel_10', 'Brilho próprio', 'Alcance o nível 10.', 'sol', 150, 'constancia', 'nivel', 10, 50),
-  ('nivel_24', 'Mestre do Cosmos', 'Alcance o nível 24 e o título máximo.', 'coroa', 500, 'constancia', 'nivel', 24, 60)
+  ('nivel_24', 'Mestre do Cosmos', 'Alcance o nível 24 e o título máximo.', 'coroa', 500, 'constancia', 'nivel', 24, 60),
+  ('tour_orion', 'Decolagem', 'Faça o tour pelo Kosmos com o Orion até o fim.', 'foguete', 25, 'constancia', 'tutorial', 1, 5)
 ON DUPLICATE KEY UPDATE
   `nome` = VALUES(`nome`), `descricao` = VALUES(`descricao`), `icone_svg` = VALUES(`icone_svg`),
   `xp_bonus` = VALUES(`xp_bonus`), `categoria` = VALUES(`categoria`),

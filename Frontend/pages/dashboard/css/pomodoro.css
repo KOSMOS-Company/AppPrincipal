@@ -84,8 +84,23 @@
 .pomo__ciclos { font-size: .92rem; color: var(--text-dim); }
 .pomo__ciclos strong { color: var(--accent-lt); font-family: "Syne", sans-serif; }
 
+/* Celular: um seletor segmentado de três partes iguais. Antes cada
+   botão tinha a largura do próprio texto ("Foco" bem menor que "Pausa
+   longa") e a cápsula ficava torta, com o Foco espremido num canto. */
 @media (max-width: 560px) {
-    .pomo__modos { flex-wrap: wrap; justify-content: center; }
+    .pomo__modos {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+        width: 100%;
+        max-width: 360px;
+        align-self: center;
+    }
+    .pomo-modo {
+        padding: 9px 6px;
+        text-align: center;
+        font-size: .84rem;
+    }
 }
 
 @media (max-width: 480px) {

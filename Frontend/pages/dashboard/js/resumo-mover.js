@@ -133,7 +133,10 @@
             /* "Gerar flashcards" só entra se a página souber fazer isso
                (ou seja, se ela incluiu o modal e o js/flashcards-gerar.js).
                Um item de menu que abre nada é pior do que item nenhum. */
-            (acoes.aoFlashcards ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="flashcards"><span class="rs-menu__icone" aria-hidden="true">🎴</span><span class="rs-menu__nome">Gerar flashcards</span></button>' : "");
+            (acoes.aoFlashcards ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="flashcards"><span class="rs-menu__icone" aria-hidden="true">🎴</span><span class="rs-menu__nome">Gerar flashcards</span></button>' : "") +
+            /* No celular o lápis e a lixeira do cartão saem (resumos.css):
+               o menu passa a ser o único caminho, então apagar mora aqui. */
+            (acoes.aoApagar ? '<button type="button" class="rs-menu__item rs-menu__item--perigo" role="menuitem" data-acao="apagar"><span class="rs-menu__icone" aria-hidden="true">🗑️</span><span class="rs-menu__nome">Excluir resumo</span></button>' : "");
 
         document.body.appendChild(menu);
         posicionar(menu, botao);
@@ -150,6 +153,12 @@
             if (item.dataset.acao === "editar") {
                 fecharMenu();
                 acoes.aoEditar?.();
+                return;
+            }
+
+            if (item.dataset.acao === "apagar") {
+                fecharMenu();
+                acoes.aoApagar?.();
                 return;
             }
 

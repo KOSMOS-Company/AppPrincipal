@@ -270,6 +270,14 @@
     .orion-launcher__avatar { width: 60px; height: 60px; }
     .orion-launcher__avatar .mascote { --mascote-tam: 60px; width: 60px; height: 60px; }
 
+    /* O Orion flutua 74px acima da barra de baixo. No fim da rolagem a
+       última linha da página (o "Ciclos concluídos" do Pomodoro, os
+       botões do último cartão) ficava atrás dele: o fundo da página
+       ganha a altura do botão a mais. */
+    body:has(.orion-launcher) .contMeio {
+        padding-bottom: calc(var(--barra-mobile, 70px) + 96px);
+    }
+
     .orion-chat {
         left: 10px;
         right: 10px;
@@ -285,4 +293,14 @@
 @media (prefers-reduced-motion: reduce) {
     .orion-chat { transition: opacity .15s ease; transform: none; }
     .orion-msg { animation: none; }
+}
+
+/* Com a fonte de 16px do celular (shared/tokens.css), o "Pergunte
+   qualquer coisa ao Orion…" quebrava em duas linhas dentro da caixa
+   de uma linha só. O texto de exemplo fica numa linha e corta com
+   reticências; o que a pessoa digita continua quebrando normalmente. */
+.orion-chat__input::placeholder {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

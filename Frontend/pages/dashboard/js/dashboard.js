@@ -13,18 +13,12 @@
 // Caminho do backend a partir de /Frontend/pages/dashboard/
 const API = "../../../Backend/php";
 
-/* A troca de aba roda JÁ, e não no DOMContentLoaded: o deslize da pílula
-   tem de estar montado antes da primeira pintura — senão a barra aparece
-   no lugar final e depois pula para trás para animar. Este script vem no
-   fim do <body>, então a barra de baixo já existe aqui. */
-ativarTrocaDeAba();
-
 document.addEventListener("DOMContentLoaded", () => {
     ativarTransicoes();
     ativarMarcador();
     ativarRecolher();
     ativarMenuConfig();
-    ativarMenuMaisMobile();
+    ativarGavetaMobile();
     ativarSair();
     ativarBrilhoNosCards();
     ativarTopoRecolhivel();
@@ -68,126 +62,6 @@ document.addEventListener("click", (e) => {
 });
 
 /* ------------------------------------------------------------
-   Troca de aba na barra de baixo (só no celular)
-
-   Cada aba é uma página nova, então não há "a mesma barra" para
-   animar de um estado a outro. O truque é o FLIP entre páginas:
-     1. ao tocar numa aba, guarda onde estava cada item da barra;
-     2. na página nova, antes de pintar, põe cada item onde ESTAVA
-        (transform) e o solta para o lugar novo.
-   A pílula ativa parte da aba anterior e viaja até a nova; os outros
-   ícones escorregam para abrir espaço. Só transform, via WAAPI — roda
-   no compositor, sem biblioteca.
-
-   Trocar de aba acontece dezenas de vezes por dia: curto (280 ms),
-   ease-out forte, sem quique. Quem pediu menos movimento não vê nada
-   disso — a barra simplesmente já está no lugar.
-   ------------------------------------------------------------ */
-/** Onde está cada item visível da barra, relativo à própria barra. */
-function medirBarra(nav) {
-    const base = nav.getBoundingClientRect();
-    const itens = {};
-    nav.querySelectorAll("a[href]").forEach((a) => {
-        if (!a.offsetWidth) return;                       // os secundários ficam escondidos no celular
-        const caixa = a.getBoundingClientRect();
-        const icone = (a.querySelector(".nav-icon") || a).getBoundingClientRect();
-        itens[a.getAttribute("href")] = {
-            x: caixa.left - base.left,                    // a pílula anda pela caixa inteira
-            ico: icone.left + icone.width / 2 - base.left // os ícones soltos, pelo centro
-        };
-    });
-    return itens;
-}
-
-function ativarTrocaDeAba() {
-    // A chave mora aqui dentro (e não num const lá fora) porque esta função
-    // é chamada no topo do arquivo, antes de um const de fora existir.
-    const CHAVE_ABA = "kosmos_aba_anterior";
-    const nav = document.querySelector(".botoesL");
-    if (!nav) return;
-    const celular = window.matchMedia("(max-width: 768px)");
-    const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    // 1) Tocou numa aba: guarda como a barra estava
-    nav.addEventListener("click", (e) => {
-        const a = e.target.closest("a[href]");
-        if (!a || !celular.matches || a.classList.contains("active")) return;
-        const ativo = nav.querySelector("a.active");
-        try {
-            sessionStorage.setItem(CHAVE_ABA, JSON.stringify({
-                t: Date.now(),
-                largura: window.innerWidth,
-                de: ativo ? ativo.getAttribute("href") : null,
-                itens: medirBarra(nav),
-            }));
-        } catch (err) { /* navegação privada: troca sem animação */ }
-    });
-
-    // 2) Página nova: parte de como a barra estava e desliza para o lugar
-    let antes = null;
-    try {
-        antes = JSON.parse(sessionStorage.getItem(CHAVE_ABA));
-        sessionStorage.removeItem(CHAVE_ABA);
-    } catch (err) { return; }
-
-    // Só vale para a navegação que acabou de acontecer, na mesma largura
-    // (voltar pelo histórico horas depois, ou girar a tela, não animam)
-    if (!antes || Date.now() - antes.t > 3000 || antes.largura !== window.innerWidth) return;
-    if (!celular.matches || semMovimento.matches) return;
-
-    const ativo = nav.querySelector("a.active");
-    const origemPilula = antes.de && antes.itens[antes.de];
-    const opcoes = { duration: 280, easing: "cubic-bezier(0.23, 1, 0.32, 1)" };
-
-    // Fica na barra até a próxima página: desliga a entrada própria do chip
-    // (se a classe saísse no fim, a animação de entrada rodaria DEPOIS do
-    // deslize, e o chip daria um pulo) e o põe por cima dos vizinhos.
-    nav.classList.add("nav--deslizando");
-
-    /* Cada item parte de onde estava. Devolve as animações criadas. */
-    function montar() {
-        const agora = medirBarra(nav);
-        const criadas = [];
-        nav.querySelectorAll("a[href]").forEach((a) => {
-            const href = a.getAttribute("href");
-            const novo = agora[href];
-            if (!novo) return;
-
-            const dx = a === ativo && origemPilula
-                ? origemPilula.x - novo.x                                  // a pílula vem da aba anterior
-                : (antes.itens[href] ? antes.itens[href].ico - novo.ico : 0); // cada ícone, do lugar dele
-            if (Math.abs(dx) < 1) return;
-
-            criadas.push(a.animate([{ transform: `translateX(${dx}px)` }, { transform: "none" }], opcoes));
-        });
-        return criadas;
-    }
-
-    /* As posições dependem da largura do rótulo ("Biblioteca"), e ela
-       muda quando a fonte da página termina de carregar. Medir antes
-       disso faria a pílula partir fora do lugar. Então: com a fonte
-       pronta, desliza já; sem ela, segura a barra no ponto de partida
-       (animação pausada no começo — já é o que a primeira pintura mostra),
-       e quando a fonte chegar, mede de novo e solta. Rede lenta não
-       prende a barra: 150 ms depois solta de qualquer jeito. */
-    if (!document.fonts || document.fonts.status === "loaded") {
-        montar();
-        return;
-    }
-    const segurando = montar();
-    segurando.forEach((an) => an.pause());
-    let soltou = false;
-    const soltar = () => {
-        if (soltou) return;
-        soltou = true;
-        segurando.forEach((an) => an.cancel());
-        montar();
-    };
-    document.fonts.ready.then(soltar);
-    setTimeout(soltar, 150);
-}
-
-/* ------------------------------------------------------------
    Topo que some ao rolar (só no celular), como no Instagram
 
    Rolou para baixo: o topo sai junto com o conteúdo, 1:1 com o dedo.
@@ -200,7 +74,7 @@ function ativarTrocaDeAba() {
    negativo. Sticky com top = -X fica na maior entre a posição normal
    e -X, então no alto da página ele rola naturalmente e depois fica
    exatamente X pixels escondido. Nada de transform — ver o comentário
-   do .contLateral no dashboard.css (a barra de baixo mora dentro dele).
+   do .contLateral no dashboard.css (a gaveta do celular mora dentro dele).
    ------------------------------------------------------------ */
 function ativarTopoRecolhivel() {
     const topo = document.querySelector(".contLateral");
@@ -335,10 +209,8 @@ function ativarMarcador() {
     const marca = nav && nav.querySelector(".nav__marca");
     if (!nav || !marca) return;
 
-    const noMobile = () => window.matchMedia("(max-width: 768px)").matches;
-
     const mover = (alvo) => {
-        if (!alvo || noMobile() || !alvo.offsetHeight) {
+        if (!alvo || !alvo.offsetHeight) {
             marca.classList.remove("pronta");
             return;
         }
@@ -601,30 +473,89 @@ function ativarMenuConfig() {
 }
 
 /* ------------------------------------------------------------
-   Menu "Mais Ferramentas" no Mobile (Bottom Sheet).
-   Abre a gaveta com Exercícios, Provas, Buscar e Conta
-   mantendo a barra inferior com apenas 5 botões limpos.
+   Gaveta lateral do celular (as três barrinhas do topo)
+   No celular não há barra embaixo: a navegação inteira — a mesma do
+   computador, na mesma ordem — sai da esquerda. Fecha pelo X, tocando
+   no escuro ao lado, pelo Esc ou arrastando a gaveta para a esquerda
+   (ela segue o dedo e, ao soltar, decide pela distância e pelo
+   impulso). Quem mexe no visual é html.gaveta-aberta (dashboard.css).
    ------------------------------------------------------------ */
-function ativarMenuMaisMobile() {
-    const btn = document.getElementById("btnMaisMobile");
-    const sheet = document.getElementById("sheetMaisMobile");
-    const fechar = document.getElementById("btnFecharSheetMais");
-    if (!btn || !sheet) return;
+function ativarGavetaMobile() {
+    const botao = document.getElementById("btnMenuMobile");
+    const gaveta = document.getElementById("gavetaMobile");
+    const veu = document.getElementById("gavetaVeu");
+    const fechar = document.getElementById("btnFecharGaveta");
+    if (!botao || !gaveta) return;
 
-    const abrir = (sim) => {
-        sheet.classList.toggle("aberto", sim);
-        btn.setAttribute("aria-expanded", sim ? "true" : "false");
-        sheet.setAttribute("aria-hidden", sim ? "false" : "true");
+    const raiz = document.documentElement;
+    const celular = window.matchMedia("(max-width: 768px)");
+    const aberta = () => raiz.classList.contains("gaveta-aberta");
+
+    function abrir(sim) {
+        raiz.classList.toggle("gaveta-aberta", sim);
+        raiz.style.removeProperty("--gaveta-dx");
+        botao.setAttribute("aria-expanded", sim ? "true" : "false");
+        if (sim) {
+            // o foco entra na gaveta (leitor de tela e Tab começam por ela)
+            // sem acender o contorno de foco num item ao abrir pelo toque
+            gaveta.focus({ preventScroll: true });
+        } else if (gaveta.contains(document.activeElement)) {
+            botao.focus({ preventScroll: true });
+        }
+    }
+
+    botao.addEventListener("click", () => abrir(!aberta()));
+    fechar?.addEventListener("click", () => abrir(false));
+    veu?.addEventListener("click", () => abrir(false));
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && aberta()) abrir(false);
+    });
+    // girou o aparelho para o tamanho do computador: a gaveta não existe lá
+    celular.addEventListener("change", () => { if (!celular.matches && aberta()) abrir(false); });
+    // voltou pelo histórico (página guardada em memória): chega fechada
+    window.addEventListener("pageshow", () => { if (aberta()) abrir(false); });
+
+    /* Arrastar para a esquerda fecha. 10px de folga antes de decidir que
+       é arrasto (e não um toque num link) e que é de lado (e não a
+       rolagem da própria gaveta, quando ela é mais alta que a tela). */
+    let arrasto = null;
+    let ignorarClique = false;
+    gaveta.addEventListener("pointerdown", (e) => {
+        if (!aberta() || e.pointerType === "mouse") return;
+        ignorarClique = false;
+        arrasto = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, dx: 0, preso: false };
+    });
+    gaveta.addEventListener("pointermove", (e) => {
+        if (!arrasto || e.pointerId !== arrasto.id) return;
+        const dx = e.clientX - arrasto.x;
+        const dy = e.clientY - arrasto.y;
+        if (!arrasto.preso) {
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+            if (Math.abs(dy) > Math.abs(dx) || dx > 0) { arrasto = null; return; }
+            arrasto.preso = true;
+            raiz.classList.add("gaveta-arrastando");
+        }
+        arrasto.dx = Math.min(0, dx);
+        arrasto.v = arrasto.dx / Math.max(1, e.timeStamp - arrasto.t);   // px/ms
+        raiz.style.setProperty("--gaveta-dx", arrasto.dx + "px");
+    });
+    const soltar = () => {
+        if (!arrasto) return;
+        const { preso, dx, v = 0 } = arrasto;
+        arrasto = null;
+        if (!preso) return;
+        raiz.classList.remove("gaveta-arrastando");
+        ignorarClique = true;
+        // passou de um terço da largura, ou foi um peteleco rápido: fecha
+        if (dx < -gaveta.offsetWidth / 3 || v < -0.5) abrir(false);
+        else raiz.style.removeProperty("--gaveta-dx");
     };
-
-    btn.addEventListener("click", () => abrir(true));
-    if (fechar) fechar.addEventListener("click", () => abrir(false));
-    sheet.addEventListener("click", (e) => {
-        if (e.target === sheet) abrir(false);
-    });
-    window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && sheet.classList.contains("aberto")) abrir(false);
-    });
+    gaveta.addEventListener("pointerup", soltar);
+    gaveta.addEventListener("pointercancel", soltar);
+    // o clique que vem depois de um arrasto não pode abrir um link
+    gaveta.addEventListener("click", (e) => {
+        if (ignorarClique) { e.preventDefault(); ignorarClique = false; }
+    }, true);
 }
 
 /* ------------------------------------------------------------

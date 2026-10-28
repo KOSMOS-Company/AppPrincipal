@@ -23,7 +23,7 @@
             <div class="mascote" id="onbMascote" data-mascote aria-hidden="true"></div>
         </div>
 
-        <form class="onb-form" id="onbForm" onsubmit="return false;">
+        <form class="onb-form" id="onbForm">
             <!-- ETAPA 1: OBJETIVO PRINCIPAL -->
             <div class="onb-passo onb-passo--ativo" data-etapa="1">
                 <h2 class="onb-titulo" id="onbTitulo">Qual é o seu objetivo principal?</h2>

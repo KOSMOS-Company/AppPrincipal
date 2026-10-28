@@ -1,0 +1,377 @@
+/* ============================================================
+   KOSMOS — tutorial.css (o tour do Orion pelas abas)
+   Quem monta: js/tutorial.js. Jeito de tutorial de jogo de celular:
+   a tela escurece, só o ponto da vez fica aceso, e o Orion fica
+   GRANDE num canto, falando por um balão que sai dele.
+   Acima do chat flutuante (850) e do Lite (900), abaixo da intro (9999).
+   ============================================================ */
+
+.tut {
+    --tut-veu: rgba(6, 0, 14, .78);       /* o mesmo do véu do sidebar.php */
+    --tut-mola: cubic-bezier(.34, 1.56, .64, 1);
+    --tut-suave: cubic-bezier(.4, 0, .2, 1);
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    pointer-events: none;
+}
+
+/* Faixas que seguram os cliques (em volta do recorte, e sobre ele nos
+   passos de fala). Invisíveis: o escuro é a sombra da luz. */
+.tut__bloco {
+    position: fixed;
+    pointer-events: auto;
+}
+
+/* ---- A luz: um recorte com sombra gigante em volta ---- */
+.tut__luz {
+    position: fixed;
+    border-radius: 14px;
+    box-shadow: 0 0 0 200vmax var(--tut-veu);
+    pointer-events: none;
+    transition: top .5s var(--tut-suave), left .5s var(--tut-suave),
+                width .5s var(--tut-suave), height .5s var(--tut-suave);
+}
+/* O contorno aceso, só quando há alvo. Fica POR FORA do recorte
+   (inset negativo): por dentro ele passava por cima da borda do botão
+   destacado e parecia cortá-lo. O brilho pulsa; o traço não. */
+.tut__luz::before,
+.tut__luz::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 17px;
+    transition: opacity .3s ease;
+}
+.tut__luz::before { border: 2px solid var(--accent-lt); }
+.tut__luz::after {
+    box-shadow: 0 0 22px 4px rgba(165, 65, 255, .5);
+    animation: tutPulso 1.8s ease-in-out infinite;
+}
+.tut--sem-alvo .tut__luz::before,
+.tut--sem-alvo .tut__luz::after { opacity: 0; }
+/* passo de ação: o contorno fica dourado, "é aqui que você mexe" */
+.tut--acao .tut__luz::before { border-color: #f5c542; }
+.tut--acao .tut__luz::after  { box-shadow: 0 0 24px 5px rgba(245, 197, 66, .45); }
+@keyframes tutPulso { 50% { opacity: .35; } }
+
+/* ---- O botão "pulsando" (passos de ação) ----
+   No lugar da mãozinha: a própria borda dourada solta ondas para fora,
+   como um coração batendo em volta do que é para clicar. São duas
+   ondas defasadas meio ciclo, saindo do mesmo traço da borda. */
+.tut__onda {
+    position: absolute;
+    inset: -3px;
+    border-radius: 17px;
+    border: 2px solid #f5c542;
+    opacity: 0;
+    pointer-events: none;
+}
+.tut--pulsa .tut__onda { animation: tutOndaBorda 1.6s cubic-bezier(.2, .6, .35, 1) infinite; }
+.tut--pulsa .tut__onda + .tut__onda { animation-delay: .8s; }
+@keyframes tutOndaBorda {
+    0%   { inset: -3px; opacity: .9; border-width: 3px; }
+    100% { inset: -22px; opacity: 0; border-width: 1px; border-radius: 30px; }
+}
+
+/* ============================================================
+   O PERSONAGEM: Orion grande no canto + balão saindo dele
+   ============================================================ */
+.tut__personagem {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    pointer-events: auto;
+    transition: opacity .3s ease, transform .45s var(--tut-mola);
+    opacity: 0;
+    transform: translateY(40px);
+}
+.tut--visivel .tut__personagem { opacity: 1; transform: none; }
+.tut--saindo  .tut__personagem { opacity: 0; transform: translateY(24px) scale(.96); }
+/* 1ª fala da página: invisível até o canto ser escolhido; aí sobe já no lugar */
+.tut--visivel.tut--aguardando .tut__personagem { opacity: 0; transform: translateY(40px); transition: none; }
+
+/* lados e alturas (o js/tutorial.js escolhe o canto que não cobre o alvo) */
+.tut--esq .tut__personagem  { right: auto; left: 18px; flex-direction: row-reverse; }
+.tut--cima .tut__personagem { bottom: auto; top: 18px; align-items: flex-start; }
+
+/* ---- O Orion ---- */
+.tut__orion {
+    flex: none;
+    width: 160px;
+    height: 160px;
+    position: relative;
+    cursor: pointer;
+    transform-origin: 50% 85%;
+    /* sem transição de largura: quem anima a troca de tamanho e de canto é
+       o js/tutorial.js (FLIP), que precisa medir o tamanho final na hora */
+    transition: transform .75s cubic-bezier(.5, 0, .2, 1);
+}
+/* A sombra no "chão" e o brilho roxo atrás dele. Antes eram dois
+   filter: drop-shadow em cima de um mascote que flutua sem parar — o
+   navegador refazia o filtro a cada quadro. Um degradê parado custa nada. */
+.tut__orion::before {
+    content: "";
+    position: absolute;
+    inset: 8% 4% 4%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(165, 65, 255, .32), transparent);
+    pointer-events: none;
+}
+.tut__orion::after {
+    content: "";
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    bottom: -2%;
+    height: 9%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(0, 0, 0, .55), transparent);
+    pointer-events: none;
+}
+/* o corpo de dentro faz os gestos; o de fora só o voo final */
+/* posicionado e acima do brilho e da sombra (que também são posicionados) */
+.tut__orion-corpo { position: relative; z-index: 1; width: 100%; height: 100%; transform-origin: 50% 85%; }
+.tut__orion .mascote { --mascote-tam: 100%; width: 100%; height: 100%; }
+/* Do lado esquerdo ele NÃO é espelhado (o capelo e o brilho do planeta
+   ficavam do avesso): continua de frente e só inclina para o balão. */
+.tut--esq .tut__orion-corpo { rotate: 4deg; transition: rotate .3s ease; }
+.tut--compacto .tut__orion { width: 104px; height: 104px; }
+
+/* gestos (um por fala, o js/tutorial.js troca) */
+.tut-anim--acena  { animation: tutAcena .9s ease-in-out; }
+.tut-anim--pula   { animation: tutPula .7s var(--tut-mola); }
+.tut-anim--aponta { animation: tutAponta 1s ease-in-out; }
+.tut-anim--gira   { animation: tutGira .8s var(--tut-suave); }
+.tut-anim--treme  { animation: tutTreme .6s ease-in-out; }
+.tut-anim--pop    { animation: tutPop .5s var(--tut-mola); }
+@keyframes tutAcena  { 20%, 60% { rotate: -10deg; } 40%, 80% { rotate: 10deg; } }
+@keyframes tutPula   { 30% { translate: 0 -34px; scale: .95 1.06; } 60% { translate: 0 0; scale: 1.08 .92; } }
+@keyframes tutAponta { 30%, 70% { rotate: -14deg; translate: -10px 0; } }
+@keyframes tutGira   { to { rotate: 360deg; } }
+@keyframes tutTreme  { 15%, 45%, 75% { translate: -5px 0; } 30%, 60%, 90% { translate: 5px 0; } }
+@keyframes tutPop    { 40% { scale: 1.14; } }
+/* do lado esquerdo o balão está à direita: o "apontar" inclina para lá */
+.tut--esq .tut-anim--aponta { animation-name: tutApontaEsq; }
+@keyframes tutApontaEsq { 30%, 70% { rotate: 14deg; translate: 10px 0; } }
+
+/* boca mexendo enquanto o texto aparece: a boca aberta e a do humor
+   da vez se revezam, como personagem de jogo "falando" */
+.tut--falando .mascote__boca--aberta {
+    display: block;
+    animation: tutBoca .2s steps(1) infinite;
+}
+.tut--falando .mascote__boca:not(.mascote__boca--aberta) { animation: tutBocaOutra .2s steps(1) infinite; }
+@keyframes tutBoca      { 50% { opacity: 0; } }
+@keyframes tutBocaOutra { from { opacity: 0; } 50% { opacity: 1; } }
+
+/* ---- O balão ---- */
+.tut__balao {
+    position: relative;
+    width: min(370px, calc(100vw - 210px));
+    margin-bottom: 92px;
+    padding: 16px 18px 14px;
+    border-radius: 22px;
+    background: #fff;
+    color: #2a0a45;
+    border: 3px solid #c97cff;
+    box-shadow: 0 6px 0 #7c2fd0, 0 20px 50px rgba(0, 0, 0, .5);
+    transform-origin: 100% 100%;
+}
+.tut--cima .tut__balao { margin-bottom: 0; margin-top: 70px; transform-origin: 100% 0; }
+.tut--esq .tut__balao  { transform-origin: 0 100%; }
+.tut--esq.tut--cima .tut__balao { transform-origin: 0 0; }
+.tut--compacto .tut__balao { width: min(320px, calc(100vw - 150px)); margin-bottom: 58px; }
+.tut--compacto.tut--cima .tut__balao { margin-top: 46px; }
+
+/* o rabinho, apontando para a boca do Orion. Enquanto ele desliza
+   para outro canto o rabinho some (ele troca de lado do balão) e volta
+   quando o Orion chega. */
+.tut__balao::after {
+    transition: opacity .2s ease .35s;
+}
+.tut--movendo .tut__balao::after { opacity: 0; transition-delay: 0s; transition-duration: .1s; }
+.tut__balao::after {
+    content: "";
+    position: absolute;
+    right: -17px;
+    bottom: 22px;
+    width: 26px;
+    height: 22px;
+    background: #fff;
+    border-right: 3px solid #c97cff;
+    border-bottom: 3px solid #c97cff;
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+    transform: skewY(-24deg);
+    border-bottom-right-radius: 4px;
+}
+.tut--cima .tut__balao::after { bottom: auto; top: 22px; transform: skewY(24deg) scaleY(-1); }
+.tut--esq .tut__balao::after  { right: auto; left: -17px; transform: skewY(24deg) scaleX(-1); }
+.tut--esq.tut--cima .tut__balao::after { transform: skewY(-24deg) scale(-1, -1); }
+
+.tut__balao--entra { animation: tutBalao .45s var(--tut-mola); }
+@keyframes tutBalao { from { opacity: 0; scale: .6; } }
+
+.tut__nome {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 2px;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #8a2be2;
+}
+.tut__contador {
+    font-weight: 600;
+    letter-spacing: 0;
+    color: #9a86b0;
+}
+.tut__titulo {
+    margin: 0 0 6px;
+    padding-right: 48px;      /* espaço do "Pular" */
+    font-family: "Syne", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #1f0638;
+}
+/* O texto inteiro (invisível) e o digitado ocupam a mesma célula: o
+   balão nasce no tamanho final e não cresce enquanto ele "fala" — era
+   isso que fazia o Orion pular de canto no meio da frase. */
+.tut__texto {
+    display: grid;
+    margin: 0;
+    font-size: .92rem;
+    line-height: 1.5;
+    color: #43305a;
+}
+.tut__texto > span { grid-area: 1 / 1; }
+.tut__fantasma { visibility: hidden; }
+
+/* "Pular": texto simples no canto, com a setinha dupla de avançar —
+   sem cápsula, para não disputar atenção com o "Próximo" */
+.tut__pular {
+    position: absolute;
+    top: 13px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 0;
+    border: none;
+    border-bottom: 1px solid transparent;
+    background: none;
+    font: inherit;
+    font-size: .76rem;
+    font-weight: 600;
+    color: #8f7aa8;
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
+}
+.tut__pular::after { content: "»"; font-size: .95rem; line-height: 1; }
+.tut__pular:hover { color: #3d1a5e; border-bottom-color: currentColor; }
+
+.tut__acoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+/* ---- O botão Próximo ----
+   É o botão padrão do site (dash-btn dash-btn--primary, no HTML do
+   tutorial.js): aqui só a setinha. O script não foca o botão a cada
+   fala — Enter e → avançam do mesmo jeito (teclas()). */
+.tut__proximo { white-space: nowrap; }
+.tut__proximo svg { width: 14px; height: 14px; margin-right: -4px; }
+.tut__pular:focus { outline: none; }
+.tut__pular:focus-visible, .tut__saltar:focus-visible { outline: 2px solid #b45cff; outline-offset: 2px; border-radius: 4px; }
+
+/* passo de ação: no lugar do botão, um aviso do que fazer. Sem
+   cápsula e sem recuo: começa na mesma linha do texto da fala. */
+.tut__dica {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: auto;
+    color: #9a6400;
+    font-size: .8rem;
+    font-weight: 700;
+}
+.tut__dica::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f5c542;
+    box-shadow: 0 0 0 3px rgba(245, 197, 66, .3);
+    animation: tutPulso 1.6s ease-in-out infinite;
+}
+.tut__saltar {
+    padding: 4px;
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: .78rem;
+    color: #9a86b0;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.tut__progresso {
+    height: 4px;
+    margin-top: 12px;
+    border-radius: 99px;
+    background: #efe6f8;
+    overflow: hidden;
+}
+.tut__progresso span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #b45cff, #8a2be2);
+    transition: width .5s var(--tut-suave);
+}
+
+/* ---- Fim: o Orion voa até o botão do canto ---- */
+.tut--voando .tut__balao { opacity: 0; scale: .6; transition: opacity .2s ease, scale .2s ease; }
+.tut--voando .tut__orion { animation: none; }
+.orion-launcher.tut-pousou { animation: tutPousou .6s var(--tut-mola, ease); }
+@keyframes tutPousou { 40% { scale: 1.25; } }
+
+/* Durante o tour o Orion do canto sai (ele está grande na tela);
+   no último passo ele volta, para a pessoa ver onde vai ficar */
+html.tutorial-ativo .orion-launcher { visibility: hidden; }
+html.tut-mostra-launcher .orion-launcher { visibility: visible; }
+
+/* ---- Celular: Orion menor, balão ocupando a largura ---- */
+@media (max-width: 639px) {
+    .tut__personagem,
+    .tut--esq .tut__personagem { left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); }
+    .tut--cima .tut__personagem { top: calc(10px + env(safe-area-inset-top)); bottom: auto; }
+    .tut__orion { width: 92px; height: 92px; }
+    .tut--compacto .tut__orion { width: 72px; height: 72px; }
+    .tut__balao,
+    .tut--compacto .tut__balao { flex: 1 1 auto; width: auto; margin-bottom: 40px; padding: 14px 14px 12px; }
+    .tut--cima .tut__balao { margin-top: 34px; }
+    .tut__titulo { font-size: 1rem; }
+    .tut__texto { font-size: .86rem; min-height: 0; }
+}
+
+/* Visual Lite (aparelho mais fraco): sem brilhos pulsando e sem o
+   brilho atrás do Orion. O tour continua igual, só mais leve. */
+html.kosmos-lite .tut__orion::before,
+html.kosmos-lite .tut__luz::after { display: none; }
+html.kosmos-lite .tut__dica::before { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    .tut__luz, .tut__personagem, .tut__orion { transition: none; }
+    .tut__luz::after, .tut--pulsa .tut__onda,
+    .tut__dica::before, .tut__balao--entra { animation: none; }
+}

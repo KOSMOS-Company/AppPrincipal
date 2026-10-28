@@ -235,7 +235,7 @@ h1, h2, h3, h4, h5, h6 { font-family: "Syne", sans-serif; }
 html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
 .lateral__aperta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* No celular ele SOME. A navegação ali é a barra de baixo, e todas as
+/* No celular ele SOME. A navegação ali é a gaveta lateral, e todas as
    regras do estado recolhido vivem dentro de `min-width: 769px` — o
    botão continuaria clicável e não faria nada visível, que é pior do
    que não existir. */
@@ -270,9 +270,11 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
     padding: 20px 14px 8px;
 }
 
-/* Botão mais e sheet mobile desligados no desktop */
-.nav-btn-mais,
-.sheet-overlay { display: none; }
+/* A gaveta do celular: no computador o contêiner some do layout e a
+   barra continua sendo a mesma de sempre (ver o bloco CELULAR). */
+.lateral__gaveta { display: contents; }
+.gaveta__topo,
+.gaveta__veu { display: none; }
 
 /* marcador que desliza (posicionado pelo dashboard.js) */
 .nav__marca {
@@ -375,8 +377,7 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
 @media (min-width: 769px) {
     /* Elementos exclusivos do mobile (escondidos no desktop) */
     .topo-btn-ferramentas,
-    .topo-sequencia,
-    .botoesL a.nav-somente-mobile {
+    .topo-sequencia {
         display: none !important;
     }
 
@@ -546,12 +547,6 @@ html.lateral-recolhida .lateral__aperta-seta { transform: rotate(180deg); }
    largura de uma vez. O estado continua o mesmo. */
 @media (prefers-reduced-motion: reduce) {
     .contLateral { transition: none; }
-}
-
-/* No desktop a conta fica no rodapé; na barra inferior do mobile
-   ela volta a ser um ícone. */
-@media (min-width: 769px) {
-    .botoesL a[href="conta.php"] { display: none; }
 }
 
 /* ---- Rodapé: conta do usuário ---- */
@@ -873,6 +868,29 @@ progress::-webkit-progress-value {
     width: 100%;
     background: linear-gradient(90deg, var(--accent), var(--accent-lt));
 }
+/* Celular: os filtros de matéria (Biblioteca, Flashcards, Exercícios)
+   quebravam em duas linhas e a segunda ficava solta, sem o sublinhado
+   alinhar com nada. Viram uma faixa só que rola de lado, encostada nas
+   bordas da tela (desfaz o respiro de 20px do .contMeio) e com um
+   esmaecido no fim avisando que tem mais. */
+@media (max-width: 768px) {
+    .chips#filtros {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        flex-shrink: 0;
+        width: calc(100% + 40px);
+        margin-left: -20px;
+        margin-right: -20px;
+        padding: 0 20px;
+        scroll-padding: 0 20px;
+        -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent);
+                mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent);
+    }
+    .chips#filtros::-webkit-scrollbar { display: none; }
+    .chips#filtros .chip { flex: none; }
+}
 
 /* Tag de matéria */
 .materia-tag {
@@ -1150,13 +1168,14 @@ progress::-webkit-progress-value {
        ativarTopoRecolhivel() do dashboard.js.
 
        Ele esconde mexendo no `top` do sticky, e NUNCA com transform: a
-       barra de navegação de baixo (position: fixed) mora dentro deste
+       gaveta de navegação (position: fixed) mora dentro deste
        mesmo <aside>, e um transform aqui viraria o "bloco de contenção"
-       dela — a barra sairia do rodapé da tela e iria junto com o topo.
+       dela — a gaveta deixaria de ocupar a altura da tela e iria
+       junto com o topo.
        Pelo mesmo motivo o backdrop-filter continua desligado abaixo.
 
        z-index 50: acima do conteúdo que rola por baixo, abaixo dos
-       modais (200). A barra de baixo, filha daqui, sobe junto. */
+       modais (200). A gaveta, filha daqui, sobe junto. */
     .contLateral {
         position: sticky;
         top: 0;
@@ -1181,11 +1200,17 @@ progress::-webkit-progress-value {
     }
     /* Grade de três colunas iguais nas pontas: o logo fica no centro
        exato mesmo com o selo da direita mais largo que o botão da
-       esquerda (com space-between, "12" dias já o empurrava). */
+       esquerda (com space-between, "12" dias já o empurrava).
+       Só que com "1fr auto 1fr" puro o chip de sequência + nível
+       ("365 | 50") passava da sua metade e cobria o fim do logo. A
+       coluna da direita agora nunca fica menor que o chip; quando ele
+       não cabe na metade, quem cede é a esquerda (até o botão de 42px)
+       e o logo anda só o necessário para o lado. */
     .contTopo {
         margin: 0 !important;
         display: grid !important;
-        grid-template-columns: 1fr auto 1fr;
+        grid-template-columns: minmax(42px, 1fr) auto minmax(max-content, 1fr);
+        column-gap: 8px;
         align-items: center;
         width: 100%;
         position: relative;
@@ -1263,6 +1288,7 @@ progress::-webkit-progress-value {
         font-weight: 800;
         letter-spacing: -.01em;
         line-height: 1.1;
+        white-space: nowrap;
     }
     .contLogo .klogo__o {
         width: .64em;
@@ -1271,309 +1297,107 @@ progress::-webkit-progress-value {
         transform: translateY(.075em);
     }
 
-    /* Onde a pílula de navegação termina (altura 60px + a folga de
-       baixo). Tudo que precisa ficar acima dela — conteúdo, botão do
-       Orion, avisos — soma a partir daqui, em vez de repetir números. */
-    :root { --barra-mobile: calc(60px + max(10px, env(safe-area-inset-bottom))); }
+    /* Onde termina o espaço reservado embaixo da tela. Antes era a
+       altura da pílula de navegação; ela saiu (a navegação agora é a
+       gaveta lateral), então sobra só a área de gestos do aparelho.
+       O conteúdo, o Orion e os avisos continuam somando a partir daqui. */
+    :root { --barra-mobile: max(10px, env(safe-area-inset-bottom)); }
 
-    /* No mobile o menu vira uma pílula flutuante de 5 itens. O item
-       ativo é um "chip" preenchido com o gradiente da marca, ícone num
-       disco claro e o nome ao lado; os outros ficam só no ícone (ou
-       ícone + nome, quando a tela tem largura para isso — ver 560px).
-       O selo "IA" do Orion não cabe aqui: some. */
-    .nav__grupo,
-    .nav__marca,
-    .nav__tag-ia,
-    .contUsuario { display: none !important; }
+    /* ── A GAVETA LATERAL ──
+       As três barrinhas do topo (#btnMenuMobile) abrem; o X, o escuro
+       ao lado, o Esc e arrastar para a esquerda fecham (dashboard.js,
+       ativarGavetaMobile). Dentro dela fica a MESMA barra do computador
+       — Início, Orion, Buscar, Estudar, Foco, o nível e o perfil —, com
+       os estilos de sempre: aqui só se diz onde ela mora.
 
-    /* Esconde os itens secundários da barra inferior (vão para a gaveta de Ferramentas) */
-    .botoesL .nav-secundario-mobile { display: none !important; }
-    .botoesL .nav-somente-mobile    { display: flex !important; }
-
-    /* A pílula: descolada das bordas, para ler como um controle e não
-       como o rodapé da página. Em aparelhos com barra de gestos ela
-       sobe o que o sistema pedir (safe-area); nos outros, 10px. */
-    .botoesL {
+       Ela é filha do .contLateral (sticky, z-index 50) e por isso nunca
+       usa transform no pai; o deslize é no próprio contêiner. */
+    .lateral__gaveta {
         position: fixed;
-        left: 12px;
-        right: 12px;
-        bottom: max(10px, env(safe-area-inset-bottom));
-        z-index: 100;
-        max-width: 460px;
-        margin: 0 auto;
-        flex-direction: row;
-        align-items: center;
-        gap: 4px;
-        flex-grow: 0;
-        padding: 6px;
-        border-radius: 999px;
-        background: rgba(18, 1, 31, .86);
-        backdrop-filter: blur(20px) saturate(140%);
-        -webkit-backdrop-filter: blur(20px) saturate(140%);
-        border: 1px solid rgba(165, 65, 255, .22);
-        box-shadow:
-            0 14px 34px -10px rgba(0, 0, 0, .75),
-            0 0 0 1px rgba(0, 0, 0, .35),
-            inset 0 1px 0 rgba(255, 255, 255, .05);
-    }
-    .botoesL a {
-        flex: 1 1 0;                  /* os inativos dividem o que sobra */
-        min-width: 0;
-        height: 48px;
-        padding: 0;                   /* em 320px cada fatia tem ~33px: padding estouraria o ícone */
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        border-radius: 999px;
-        border: none;
-        background: transparent;
-        color: #9a86b8;
-        font-size: .86rem;
-        font-weight: 600;
-        white-space: nowrap;
-        cursor: pointer;
-        position: relative;
-        transition: color .2s ease, background-color .2s ease, transform .16s ease;
-        -webkit-tap-highlight-color: transparent;
-        -webkit-touch-callout: none;
-        user-select: none;
-    }
-    .botoesL a:active { transform: scale(.94); }
-    .botoesL a:focus-visible { outline: 2px solid var(--accent-lt); outline-offset: 2px; }
-
-    /* Ordem mobile da barra inferior:
-       1: Início
-       2: Biblioteca (Resumos)
-       3: Orion IA (Centro)
-       4: Buscar (Posição Vermelha)
-       5: Conta (Posição Amarela) */
-    .botoesL a[href="index.php"]     { order: 1; }
-    .botoesL a[href="resumos.php"]   { order: 2; }
-    .botoesL a[href="orion.php"]     { order: 3; }
-    .botoesL a[href="busca.php"]     { order: 4; }
-    .botoesL a[href="conta.php"]     { order: 5; }
-
-    .botoesL a .nav-icon {
-        flex: none;
-        width: 22px;
-        height: 22px;
-        opacity: .9;
-        filter: none;
-        transition: opacity .2s ease;
-    }
-    /* Nome do item: no celular estreito só o ativo mostra */
-    .botoesL a .nav__rotulo {
-        display: none;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Hover só onde existe ponteiro de verdade — no toque ele "gruda"
-       depois do tap e deixa o item aceso por engano. */
-    @media (hover: hover) {
-        .botoesL a:not(.active):hover {
-            color: #fff;
-            background: rgba(165, 65, 255, .1);
-        }
-    }
-
-    /* Item ativo: o chip preenchido da referência, nas cores da Kosmos */
-    .botoesL a.active {
-        flex: 0 0 auto;               /* cresce o quanto o nome pedir */
-        padding: 0 16px 0 6px;
-        color: #fff;
-        background: linear-gradient(135deg, var(--purple) 0%, var(--accent) 100%);
-        box-shadow:
-            0 6px 18px -6px rgba(130, 0, 219, .85),
-            inset 0 1px 0 rgba(255, 255, 255, .22);
-        animation: navChipEntra .38s cubic-bezier(.2, .8, .2, 1) both;
-    }
-    /* o ícone ganha um disco claro — o "1" dentro do círculo da referência */
-    .botoesL a.active .nav-icon {
-        width: 36px;
-        height: 36px;
-        padding: 8px;
-        border-radius: 50%;
-        background: #fff;
-        color: var(--purple);
-        opacity: 1;
-        filter: none;                 /* o brilho neon do desktop borraria o disco */
-        box-shadow: 0 2px 8px rgba(47, 10, 75, .35);
-    }
-    .botoesL a.active .nav__rotulo {
-        display: inline;
-        font-family: "DM Sans", sans-serif;
-        font-weight: 700;
-        letter-spacing: .01em;
-        animation: navRotuloEntra .38s .06s cubic-bezier(.2, .8, .2, 1) both;
-    }
-
-    @keyframes navChipEntra {
-        from { opacity: .4; transform: scale(.92); }
-        to   { opacity: 1;  transform: scale(1); }
-    }
-    @keyframes navRotuloEntra {
-        from { opacity: 0; transform: translateX(-4px); }
-        to   { opacity: 1; transform: translateX(0); }
-    }
-
-    /* Troca de aba: a pílula desliza da aba anterior até a nova
-       (ativarTrocaDeAba, no dashboard.js). Enquanto ela desliza, a
-       entrada própria do chip sai de cena — senão ele cresceria E
-       viajaria ao mesmo tempo — e ele passa por cima dos ícones que
-       escorregam para abrir espaço. */
-    .botoesL.nav--deslizando a.active {
-        animation: none;
+        top: 0;
+        bottom: 0;
+        left: 0;
         z-index: 2;
-    }
-
-    /* Tablet em pé / celular deitado: há largura para todos os nomes,
-       então os inativos também mostram o seu — como na referência. */
-    @media (min-width: 560px) {
-        .botoesL { max-width: 600px; }
-        .botoesL a { flex: 1 1 auto; padding: 0 12px; }
-        .botoesL a .nav__rotulo { display: inline; }
-        .botoesL a .nav-icon { width: 20px; height: 20px; }
-        .botoesL a.active .nav-icon { width: 36px; height: 36px; }
-    }
-
-    /* ── Bottom Sheet de Mais Ferramentas (Mobile) ── */
-    .sheet-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 200;
-        background: rgba(5, 0, 11, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        opacity: 0;
-        pointer-events: none;
+        width: min(296px, 86vw);
         display: flex;
-        align-items: flex-end;
-        transition: opacity .25s ease;
+        flex-direction: column;
+        padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        touch-action: pan-y;          /* o arrasto de lado (fechar) é do JS */
+        background: linear-gradient(180deg, #1a0430 0%, #0f0119 100%);
+        border-right: 1px solid rgba(165, 65, 255, .18);
+        box-shadow: 24px 0 60px -20px rgba(0, 0, 0, .8);
+        transform: translateX(-102%);
+        visibility: hidden;
+        transition: transform .3s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .3s;
     }
-    .sheet-overlay.aberto {
-        opacity: 1;
-        pointer-events: auto;
+    html.gaveta-aberta .lateral__gaveta {
+        transform: translateX(var(--gaveta-dx, 0px));
+        visibility: visible;
+        transition: transform .3s cubic-bezier(.2, .8, .2, 1), visibility 0s;
     }
-    /* Oculta temporariamente o launcher do Orion quando o bottom sheet estiver aberto para não sobrepor os cards */
-    .sheet-overlay.aberto ~ #orionChatLauncher,
-    body:has(.sheet-overlay.aberto) #orionChatLauncher {
-        opacity: 0 !important;
-        pointer-events: none !important;
-        transform: scale(0.8) !important;
-    }
-    .sheet-painel {
-        width: 100%;
-        background: #130324;
-        border-top: 1px solid rgba(165, 65, 255, 0.42);
-        border-radius: 24px 24px 0 0;
-        padding: 14px 20px calc(24px + env(safe-area-inset-bottom));
-        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85), 0 0 35px rgba(130, 0, 219, 0.35);
-        transform: translateY(100%);
-        transition: transform .3s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    .sheet-overlay.aberto .sheet-painel {
-        transform: translateY(0);
-    }
-    .sheet-puxador {
-        width: 38px;
-        height: 4px;
-        border-radius: 100px;
-        background: rgba(255, 255, 255, 0.22);
-        margin: 0 auto 16px;
-    }
-    .sheet-topo {
+    .lateral__gaveta:focus { outline: none; }   /* recebe o foco ao abrir (dashboard.js) */
+    /* enquanto o dedo arrasta, a gaveta gruda nele */
+    html.gaveta-arrastando .lateral__gaveta { transition: none; }
+
+    .gaveta__topo {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 16px;
+        gap: 12px;
+        margin: 4px 0 22px 8px;
     }
-    .sheet-titulo {
-        font-family: 'Syne', sans-serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: #fff;
-        margin: 0;
-    }
-    .sheet-fechar {
-        background: rgba(255, 255, 255, 0.08);
-        border: none;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        color: #c97cff;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .gaveta__topo .klogo { font-size: 1.45rem; white-space: nowrap; }
+    .gaveta__fechar {
+        flex: none;
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        padding: 0;
+        border-radius: 12px;
+        border: 1px solid rgba(165, 65, 255, .2);
+        background: rgba(255, 255, 255, .04);
+        color: var(--text-dim);
         cursor: pointer;
     }
-    .sheet-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+    .gaveta__fechar svg { width: 20px; height: 20px; }
+    .gaveta__fechar:active { transform: scale(.94); }
+
+    /* o escuro atrás: acompanha a gaveta e recebe o toque que fecha */
+    .gaveta__veu {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        background: rgba(4, 0, 10, .62);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .3s ease;
     }
-    .sheet-card {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 13px 14px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(165, 65, 255, 0.22);
-        border-radius: 16px;
-        text-decoration: none;
-        color: #fff;
-        transition: all .18s ease;
-    }
-    .sheet-card:hover, .sheet-card:active, .sheet-card.ativo {
-        background: rgba(165, 65, 255, 0.16);
-        border-color: #a541ff;
-    }
-    .sheet-card__ico {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        background: rgba(165, 65, 255, 0.12);
-        color: var(--accent-lt);
-        flex-shrink: 0;
-        transition: background .18s ease, color .18s ease;
-    }
-    .sheet-card__ico svg {
-        width: 22px;
-        height: 22px;
-        color: currentColor;
-    }
-    .sheet-card:hover .sheet-card__ico,
-    .sheet-card.ativo .sheet-card__ico {
-        background: rgba(165, 65, 255, 0.25);
-        color: #fff;
-    }
-    /* O par contorno/preenchido do sidebar.php: a ferramenta em uso
-       aparece com o ícone cheio, como na barra. */
-    .sheet-card__ico .nav-icon--outline { display: block; }
-    .sheet-card__ico .nav-icon--filled { display: none; }
-    .sheet-card.ativo .sheet-card__ico .nav-icon--outline { display: none; }
-    .sheet-card.ativo .sheet-card__ico .nav-icon--filled { display: block; }
-    .sheet-card__info {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-    .sheet-card__info strong {
-        font-size: .9rem;
-        font-weight: 600;
-        color: #fff;
-    }
-    .sheet-card__info span {
-        font-size: .72rem;
-        color: #8f7da8;
+    html.gaveta-aberta .gaveta__veu { opacity: 1; pointer-events: auto; }
+
+    /* Com a gaveta aberta a página atrás não rola, e o que flutua por
+       cima de tudo (Orion, selo do Pomodoro, aviso do Lite) espera. */
+    html.gaveta-aberta,
+    html.gaveta-aberta body { overflow: hidden; }
+    html.gaveta-aberta :is(#orionChatLauncher, .pomo-selo, .visual-sugestao) {
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
 
-    /* Espaço para o conteúdo não ficar atrás da barra inferior */
+    /* A barra dentro da gaveta: a mesma do computador. Só o necessário
+       para ela caber em pé — o marcador volta a deslizar entre os itens
+       e os rótulos de grupo aparecem como lá. */
+    .botoesL { flex: 0 0 auto; }
+    .botoesL a { padding: 13px 14px; font-size: 1rem; }
+    .nav__grupo { padding-top: 18px; }
+    .lateral__gaveta .xp { display: flex; margin-top: auto; }
+    .lateral__gaveta .contUsuario { margin-top: 12px; }
+    .lateral__gaveta:not(:has(.xp)) .contUsuario { margin-top: auto; }
+
+    /* Espaço no fim da página (a área de gestos do aparelho, quando há) */
     .contMeio {
         padding: 24px 20px calc(var(--barra-mobile) + 28px);
     }
@@ -1581,6 +1405,15 @@ progress::-webkit-progress-value {
     .contCabeca h1 {
         font-size: 2rem;
     }
+
+    /* Botões um tamanho abaixo do computador: com 11px × 20px e a
+       fonte cheia, ao lado de títulos e cartões de celular eles
+       pareciam grandes demais. Continuam com ~40px de altura. */
+    .dash-btn {
+        padding: 10px 16px;
+        font-size: .88rem;
+    }
+    .dash-btn svg { width: 16px; height: 16px; }
 }
 
 @media (max-width: 480px) {
@@ -1610,13 +1443,11 @@ progress::-webkit-progress-value {
     animation-timing-function: ease;
 }
 
-/* A barra de baixo fica FORA do cruzamento das páginas. Sem isto a
-   barra velha esmaeceria por cima da nova e a pílula apareceria em
-   dois lugares. Com um nome próprio, ela sai do "root": a antiga some
-   na hora e a nova (que é ao vivo, não uma foto) mostra o deslize da
-   pílula que o dashboard.js já começou. */
+/* A gaveta do celular fica FORA do cruzamento das páginas: tocar numa
+   aba com ela aberta faz a antiga sumir na hora, em vez de esmaecer
+   por cima da página nova. */
 @media (max-width: 768px) {
-    .botoesL { view-transition-name: kosmos-nav; }
+    .lateral__gaveta { view-transition-name: kosmos-nav; }
 }
 ::view-transition-group(kosmos-nav),
 ::view-transition-new(kosmos-nav) { animation: none; }
@@ -1918,6 +1749,61 @@ a.ini-card:focus-visible {
 }
 .pagina-inicio .ini-numeros .ini-revisar__cta { display: none; }
 .pagina-inicio .ini-numeros .ini-revisar:hover { color: var(--accent-lt); }
+
+/* Celular: a faixa não cabe ao lado dos números, desce para uma linha
+   própria — e ali, encostada à direita e com o número grudado na
+   frase, ficava solta e torta. Vira uma lista de duas ações da
+   largura do painel: ícone, "23 cartões para revisar" e a chamada
+   na ponta, separadas por um fio, como as linhas de ajuste de um app. */
+@media (max-width: 768px) {
+    .pagina-inicio .ini-numeros .ini-faixa {
+        flex: 1 1 100%;
+        align-items: stretch;
+        align-self: stretch;
+        gap: 0;
+        margin: 0;
+        border-top: 1px solid rgba(165, 65, 255, .12);
+    }
+    .pagina-inicio .ini-numeros .ini-revisar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 48px;
+        padding: 10px 0;
+        font-size: .9rem;
+        color: var(--text-dim);
+        border-bottom: 1px solid rgba(165, 65, 255, .12);
+    }
+    .pagina-inicio .ini-numeros .ini-revisar:last-child { border-bottom: 0; padding-bottom: 0; }
+    .pagina-inicio .ini-numeros .ini-revisar__ico {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: rgba(165, 65, 255, .12);
+        font-size: 1rem;
+    }
+    .pagina-inicio .ini-numeros .ini-faixa,
+    .pagina-inicio .ini-numeros .ini-revisar { min-width: 0; }
+    /* em 320px a frase inteira não cabe ao lado da chamada: corta com "…" */
+    .pagina-inicio .ini-numeros .ini-revisar__txt {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .pagina-inicio .ini-numeros .ini-revisar__cta {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+    .pagina-inicio .ini-numeros .ini-revisar__cta::after { content: "›"; font-size: 1.1rem; line-height: 1; }
+}
 
 /* Números do mês: sem caixinhas, um traço roxo marca cada um */
 .pagina-inicio .foco-mes__resumo div {
@@ -2388,6 +2274,71 @@ a.ini-card:hover .ini-card__ico {
     color: var(--text-dim);
 }
 .foco-dia--fora { visibility: hidden; }
+
+/* Dica do dia: aparece em cima do quadradinho ao passar o mouse
+   (mesmo visual da .ini-col__tempo do gráfico da semana) */
+.foco-dia { position: relative; transition: filter .15s ease; }
+.foco-dia:hover { z-index: 4; }
+.foco-dia:not(.foco-dia--futuro):hover { filter: brightness(1.18); }
+.foco-dia__dica {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 9px 12px 10px;
+    border-radius: 10px;
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .4);
+    text-align: left;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    /* --desloca: o inicio.js empurra a dica para dentro do painel perto das bordas */
+    transform: translate(calc(-50% + var(--desloca, 0px)), 4px);
+    transition: opacity .15s ease, transform .15s ease;
+}
+.foco-dia:hover .foco-dia__dica { opacity: 1; transform: translate(calc(-50% + var(--desloca, 0px)), 0); }
+
+.foco-dia__dica-data {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .66rem;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.foco-dia__dica-hoje {
+    padding: 1px 6px;
+    border-radius: 99px;
+    background: rgba(165, 65, 255, .22);
+    color: var(--accent-lt);
+    font-weight: 600;
+    letter-spacing: .04em;
+}
+.foco-dia__dica-tempo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: "Syne", sans-serif;
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.foco-dia__dica-tempo i {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+.foco-dia__dica-tempo--zero { font-family: inherit; font-size: .8rem; font-weight: 500; color: var(--text-dim); }
+.foco-dia__dica-ciclos { font-size: .74rem; font-weight: 500; color: var(--text-dim); }
 .foco-dia--hoje { outline: 2px solid var(--accent-lt); outline-offset: 1px; }
 .foco-dia--futuro {
     background: transparent !important;
@@ -2602,7 +2553,6 @@ a.ini-card:hover .ini-card__ico {
     .ini-faixa { gap: 0; }
     .ini-secao { margin-bottom: 56px; }
     .ini-hero__cta { margin-bottom: 36px; }
-    .ini-hero__cta .dash-btn { flex: 1 1 auto; justify-content: center; }
     /* divisor solto quando quebra a linha: no mobile vira grade 2x2 */
     .ini-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
     .ini-stat__div { display: none; }
@@ -3425,20 +3375,25 @@ a.ini-card:hover .ini-card__ico {
    STEPPER NUMÉRICO — − / + no lugar das setinhas nativas
    ============================================================
    Repartido de exercicios.css para valer em Conta, Provas e
-   onde mais houver campo type=number. Minimalista de propósito:
-   os botões nascem discretos (só a borda da casa) e acendem no
-   hover — o número é o protagonista, as setas são apoio. */
+   onde mais houver campo type=number. Compacto e minimalista: o
+   número numa caixa estreita, com o − e o + soltos dos dois lados,
+   sem borda, que só ganham um fundinho no hover. */
 .qtd-stepper {
-    display: flex;
-    align-items: stretch;
-    gap: 6px;
+    display: inline-flex;
+    align-self: flex-start;      /* dentro de .campo (coluna) não estica */
+    align-items: center;
+    gap: 2px;
 }
-.qtd-stepper input {
+.qtd-stepper input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
     text-align: center;
-    flex: 1;
+    flex: none;
+    width: 72px;
     min-width: 0;
+    margin: 0 4px;
+    padding: 8px 10px;
+    font-size: .92rem;
     font-weight: 600;
     color: var(--text);
 }
@@ -3449,21 +3404,21 @@ a.ini-card:hover .ini-card__ico {
 }
 .qtd-stepper__btn {
     flex: none;
-    width: 34px;
+    width: 28px;
+    height: 28px;
     display: grid;
     place-items: center;
     padding: 0;
     background: transparent;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border: none;
+    border-radius: 50%;
     color: var(--text-muted);
     cursor: pointer;
     transition: var(--transition);
 }
-.qtd-stepper__btn .ico { width: 16px; height: 16px; }
+.qtd-stepper__btn .ico { width: 14px; height: 14px; }
 .qtd-stepper__btn:hover {
     background: rgba(165,65,255,.12);
-    border-color: rgba(165,65,255,.4);
     color: var(--accent-lt);
 }
 .qtd-stepper__btn:active { background: rgba(165,65,255,.2); }

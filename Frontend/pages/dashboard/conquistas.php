@@ -119,9 +119,7 @@ $COMO = [
     <link rel="preload" href="../shared/fontes/syne-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<?= asset('../shared/fontes.css') ?>">
     <?php if ($NOVIDADES): ?>
-    <script>
-        window.KOSMOS_PROGRESSO_INICIAL = <?= json_encode($NOVIDADES, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-    </script>
+    <script type="application/json" id="dadosProgressoInicial"><?= json_encode($NOVIDADES, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
     <?php endif; ?>
 </head>
 <body class="dashboard-fundo-estatico">

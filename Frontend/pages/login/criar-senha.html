@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kosmos — Criar senha</title>
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
+    <!-- Visual leve: a mesma escolha do dashboard (salva neste aparelho),
+         lida antes de pintar. Os scripts de shared/ já respeitam a classe. -->
+    <script src="../shared/visual-lite.js"></script>
     <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/login.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
@@ -49,7 +52,7 @@
                     <div class="field__wrap">
                         <svg class="field__ico" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                         <input id="senhaNova" type="password" class="field__input" placeholder="Mín. 8 caracteres" autocomplete="new-password">
-                        <button type="button" class="field__toggle" aria-label="Mostrar senha" onclick="togglePwd(this)">
+                        <button type="button" class="field__toggle" aria-label="Mostrar senha">
                             <svg viewBox="0 0 20 20" fill="none" class="ico-eye-off" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
                             <svg viewBox="0 0 20 20" fill="none" class="ico-eye"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
                         </button>
@@ -71,7 +74,7 @@
                     <div class="field__wrap">
                         <svg class="field__ico" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                         <input id="senhaConfirma" type="password" class="field__input" placeholder="Repita a senha" autocomplete="new-password">
-                        <button type="button" class="field__toggle" aria-label="Mostrar senha" onclick="togglePwd(this)">
+                        <button type="button" class="field__toggle" aria-label="Mostrar senha">
                             <svg viewBox="0 0 20 20" fill="none" class="ico-eye-off" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
                             <svg viewBox="0 0 20 20" fill="none" class="ico-eye"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
                         </button>
@@ -89,134 +92,8 @@
         </div>
     </div>
 
-    <script>
-        const BACKEND = '../../../Backend/php';
-        const form = document.getElementById('formCriar');
-
-        function togglePwd(btn) {
-            const input = btn.closest('.field__wrap').querySelector('input');
-            input.type = input.type === 'password' ? 'text' : 'password';
-            btn.classList.toggle('ativo', input.type === 'text');
-            btn.setAttribute('aria-label', input.type === 'text' ? 'Esconder senha' : 'Mostrar senha');
-            input.focus();
-        }
-
-        /* Esta tela só faz sentido para quem está logado E ainda não tem
-           senha. Sem sessão volta para o login; com senha já criada segue
-           direto para o dashboard. */
-        (async function conferirConta() {
-            try {
-                const resp = await fetch(`${BACKEND}/conta_dados.php`);
-
-                if (resp.status === 401) {
-                    window.location.replace('index.html');
-                    return;
-                }
-
-                const json = await resp.json();
-
-                if (json.ok && json.tem_senha) {
-                    window.location.replace('../dashboard/index.php');
-                    return;
-                }
-
-                if (json.ok && json.nome) {
-                    const primeiro = json.nome.trim().split(' ')[0];
-                    document.getElementById('saudacao').textContent =
-                        `Falta só um passo, ${primeiro}.`;
-                }
-            } catch (err) {
-                mostrarMsg('Não foi possível falar com o servidor. Tente recarregar a página.', 'erro');
-            }
-        })();
-
-        /* Medidor de força (mesma regra do cadastro) */
-        (function medidor() {
-            const senha  = document.getElementById('senhaNova');
-            const extra  = document.getElementById('senhaExtra');
-            const barra  = document.getElementById('senhaBarraFill');
-            const reqLen = document.getElementById('reqLen');
-            const reqLet = document.getElementById('reqLetra');
-            const reqNum = document.getElementById('reqNum');
-
-            senha.addEventListener('input', () => {
-                const v = senha.value;
-                extra.hidden = v.length === 0;
-
-                const temLen   = v.length >= 8;
-                const temLetra = /[a-zA-ZÀ-ÿ]/.test(v);
-                const temNum   = /[0-9]/.test(v);
-                reqLen.classList.toggle('ok', temLen);
-                reqLet.classList.toggle('ok', temLetra);
-                reqNum.classList.toggle('ok', temNum);
-
-                const pontos = [temLen, temLetra, temNum].filter(Boolean).length;
-                const cores  = ['#f87171', '#f87171', '#fbbf24', '#34d399'];
-                barra.style.width = (pontos / 3) * 100 + '%';
-                barra.style.background = cores[pontos];
-            });
-        })();
-
-        /* Salva a senha (o backend grava o hash em usuarios.senha_hash) */
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const btn      = document.getElementById('btnSalvar');
-            const nova     = document.getElementById('senhaNova').value.trim();
-            const confirma = document.getElementById('senhaConfirma').value.trim();
-            document.querySelector('.msg-feedback')?.remove();
-
-            if (nova.length < 8)   { mostrarMsg('A senha deve ter no mínimo 8 caracteres.', 'erro'); return; }
-            if (nova !== confirma) { mostrarMsg('As senhas não coincidem.', 'erro'); return; }
-
-            btn.disabled = true;
-            const textoBtn = btn.innerHTML;
-            btn.textContent = 'Salvando...';
-
-            try {
-                const dados = new FormData();
-                dados.append('senha_nova', nova);
-                // conta_senha.php cria a senha sem pedir a atual quando a
-                // conta ainda não tem uma (decisão feita no backend).
-                const resp = await fetch(`${BACKEND}/conta_senha.php`, { method: 'POST', body: dados });
-                const json = await resp.json();
-
-                mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
-
-                if (json.ok) {
-                    form.style.display = 'none';
-                    setTimeout(() => { window.location.replace('../dashboard/index.php'); }, 1400);
-                    return;
-                }
-            } catch (err) {
-                mostrarMsg('Não foi possível conectar ao servidor.', 'erro');
-            }
-
-            btn.disabled = false;
-            btn.innerHTML = textoBtn;
-        });
-
-        /* Sair sem criar senha (evita ficar preso nesta tela) */
-        document.getElementById('btnSair').addEventListener('click', async () => {
-            try {
-                await fetch(`${BACKEND}/logout.php`, { method: 'POST' });
-            } catch (err) {
-                /* mesmo se falhar, volta para o login */
-            }
-            sessionStorage.removeItem('kosmos_usuario');
-            sessionStorage.removeItem('kosmos_intro');
-            window.location.replace('index.html');
-        });
-
-        function mostrarMsg(texto, tipo) {
-            document.querySelector('.msg-feedback')?.remove();
-            const div = document.createElement('div');
-            div.className = 'msg-feedback';
-            div.textContent = texto;
-            div.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:8px;font-size:0.875rem;font-weight:500;background:' + (tipo==='sucesso'?'rgba(52,211,153,0.15)':'rgba(239,68,68,0.15)') + ';color:' + (tipo==='sucesso'?'#34d399':'#f87171') + ';border:1px solid ' + (tipo==='sucesso'?'#34d39940':'#f8717140');
-            form.after(div);
-        }
-    </script>
+    <script src="../shared/mostrar-senha.js"></script>
+    <script src="./js/criar-senha.js"></script>
     <script src="../shared/mouse-tracker.js"></script>
     <script src="../shared/cursor.js"></script>
     <!-- O WebGL tenta primeiro; sem placa ou com shader que não compila,

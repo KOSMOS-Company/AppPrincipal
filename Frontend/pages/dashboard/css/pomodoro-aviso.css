@@ -40,7 +40,11 @@
 /* Arrastável (js/pomodoro-aviso.js): sem rolar a página nem selecionar
    texto ao arrastar com o dedo/mouse. Enquanto arrasta, nada de
    transição — o selo tem que grudar no ponteiro, não vir atrás dele. */
-.pomo-selo {
+/* a.pomo-selo e não só a classe: o `:is(a, button, .chip, …)` do
+   apple.css tem o mesmo peso, vem depois e trocava o `none` por
+   `manipulation` — no celular o dedo rolava a página em vez de levar
+   o selo, que andava um passo e parava. */
+a.pomo-selo {
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;

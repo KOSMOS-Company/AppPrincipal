@@ -154,6 +154,12 @@
     opacity: .4;
     pointer-events: none;
 }
+/* No celular a régua já rola com o dedo: as setas sobram. O resumo da
+   seção ("6 marcadas", a média) assume o canto direito que era delas. */
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+    .pv-nav { display: none; }
+    .ini-secao--regua .ini-secao__cabeca .ini-card__nota { margin-left: auto; }
+}
 
 /* A régua: 2px na cor da marca, apagando para o fim. */
 .pv-lista::before {
@@ -439,7 +445,9 @@
     border-radius: var(--radius-chip);
 }
 .pv-nota input { flex: 0 1 140px; }
-.pv-nota .qtd-stepper { min-width: 0; }
+.pv-nota .qtd-stepper { min-width: 0; align-self: center; }
+/* a nota aceita decimais (ex.: 8.75): a caixa é um pouco mais larga */
+.pv-nota .qtd-stepper input[type="number"] { width: 96px; }
 .pv-add input:focus,
 .pv-nota input:focus {
     outline: none;
@@ -486,9 +494,17 @@
 }
 
 @media (max-width: 560px) {
-    .pv-card { width: 236px; }
-    .pv-card__topo { gap: 12px; padding: 12px 14px; }
-    .pv-card__conta { min-width: 58px; }
+    /* Com 236px sobravam ~98px para o nome e a data: "27 de outubro
+       de 2026" ia para três linhas e o cartão mais alto da régua
+       deixava um vão embaixo dos outros. Agora ele ocupa quase a tela
+       (o próximo ainda aparece na beirada, avisando que rola). */
+    .pv-card { width: min(280px, 82vw); }
+    .pv-card__topo { gap: 10px; padding: 12px; }
+    .pv-card__conta { min-width: 52px; }
+    /* Rótulo, setas e o resumo ("média 7,25 em 2 provas") não cabiam
+       numa linha só e o "Já passaram" se partia em dois. */
+    .ini-secao--regua .ini-secao__cabeca { flex-wrap: wrap; row-gap: 8px; }
+    .ini-secao--regua .ini-titulo { white-space: nowrap; }
     .pv-card__corpo { padding: 4px 14px 16px; }
     .pv-mats { grid-template-columns: 1fr; }
     .pv-card__acoes { justify-content: stretch; }

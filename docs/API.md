@@ -70,6 +70,8 @@ O formato mora num lugar só, em [`api_util.php`](../Backend/php/api_util.php)
 | `conta_exportar.php` | GET | — | protegido: download de tudo em JSON (LGPD) |
 | `conta_excluir.php` | POST | `senha` ou `confirmacao=EXCLUIR` | protegido: apaga a conta e tudo o que é dela |
 | `onboarding_salvar.php` | POST (JSON) | `objetivo`, `meta_diaria`, `materias[]`, `pular` | protegido |
+| `tutorial_visto.php` | POST | — | protegido (marca o tour do Orion como visto) |
+| `tutorial_concluido.php` | POST | — | protegido: recompensa do tour (75 XP + conquista "Decolagem"), uma vez por conta |
 | `recompensas_equipar.php` | POST | `tipo` (moldura/cor/emblema), `slug` | protegido; o nível é conferido no servidor |
 
 ## Estudo

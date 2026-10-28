@@ -22,6 +22,12 @@
         var etapaAtual = 1;
         var totalEtapas = 3;
 
+        // Enter num campo não envia o formulário (recarregaria a página):
+        // quem envia é o botão Avançar. Antes era onsubmit="return false;"
+        // no HTML, que a Content-Security-Policy bloqueia.
+        var onbForm = document.getElementById('onbForm');
+        if (onbForm) onbForm.addEventListener('submit', function (e) { e.preventDefault(); });
+
         // Se a intro está tocando, espera ela terminar para abrir o modal suavemente
         function abrirModal() {
             var temIntro = document.documentElement.classList.contains('com-intro');

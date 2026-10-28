@@ -7,6 +7,9 @@
     <meta name="theme-color" content="#0d0118">
     <link rel="icon" type="image/svg+xml" href="../shared/favicon.svg">
     <title>Kosmos — Entrar</title>
+    <!-- Visual leve: a mesma escolha do dashboard (salva neste aparelho),
+         lida antes de pintar. Os scripts de shared/ já respeitam a classe. -->
+    <script src="../shared/visual-lite.js"></script>
     <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/login.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
@@ -66,7 +69,7 @@
                         <div class="field__wrap">
                             <svg class="field__ico" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                             <input id="senha" type="password" class="field__input" placeholder="••••••••" autocomplete="current-password">
-                            <button type="button" class="field__toggle" aria-label="Mostrar senha" onclick="togglePwd(this)">
+                            <button type="button" class="field__toggle" aria-label="Mostrar senha">
                                 <svg viewBox="0 0 20 20" fill="none" class="ico-eye-off" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
                                 <svg viewBox="0 0 20 20" fill="none" class="ico-eye"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
                             </button>
@@ -77,7 +80,7 @@
                     <div class="divider"><span>ou</span></div>
                                     <!-- Google Identity Services (popup de escolher conta) -->
                                     <div class="google-btn-wrap">
-                                        <button type="button" class="btn--google" onclick="googlePrompt()">
+                                        <button type="button" class="btn--google">
                                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
                                                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -100,7 +103,6 @@
                         <a href="../cadastro/index.html" class="form-card__signup-link">Criar conta</a>
                     </p>
                     <a href="../inicio/index.html" class="form-card__back">
-                        <svg viewBox="0 0 20 20" fill="none" width="15" height="15"><path d="M16 10H4M9 14l-5-4 5-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Voltar para o início
                     </a>
                 </div>
@@ -125,117 +127,8 @@
         </div>
     </div>
 
-    <script>
-        function togglePwd(btn) {
-            const input = btn.closest('.field__wrap').querySelector('input');
-            input.type = input.type === 'password' ? 'text' : 'password';
-            btn.classList.toggle('ativo', input.type === 'text');
-            btn.setAttribute('aria-label', input.type === 'text' ? 'Esconder senha' : 'Mostrar senha');
-            input.focus();
-        }
-
-        document.querySelector('.form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const btn   = this.querySelector('button[type="submit"]');
-            const btnHtml = btn.innerHTML;
-            const email = document.getElementById('email').value.trim();
-            const senha = document.getElementById('senha').value.trim();
-            document.querySelector('.msg-feedback')?.remove();
-            const dados = new FormData();
-            dados.append('email', email);
-            dados.append('senha', senha);
-            btn.disabled    = true;
-            btn.textContent = 'Aguarde...';
-            try {
-                const resposta = await fetch('../../../Backend/php/login.php', {
-                    method : 'POST',
-                    body   : dados,
-                });
-                const json = await resposta.json();
-                mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
-                if (json.ok) {
-                    sessionStorage.setItem('kosmos_usuario', json.nome);
-                    sessionStorage.setItem('kosmos_intro', '1'); // dispara o splash no dashboard
-                    setTimeout(() => { window.location.href = '../dashboard/index.php'; }, 1200);
-                }
-            } catch (err) {
-                mostrarMsg('Nao foi possivel conectar ao servidor. Verifique se o XAMPP esta rodando.', 'erro');
-            } finally {
-                btn.disabled  = false;
-                btn.innerHTML = btnHtml;
-            }
-        });
-
-        function mostrarMsg(texto, tipo) {
-            const div = document.createElement('div');
-            div.className = 'msg-feedback msg-feedback--' + tipo;
-            div.textContent = texto;
-            div.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:8px;font-size:0.875rem;font-weight:500;background:' + (tipo==='sucesso'?'rgba(52,211,153,0.15)':'rgba(239,68,68,0.15)') + ';color:' + (tipo==='sucesso'?'#34d399':'#f87171') + ';border:1px solid ' + (tipo==='sucesso'?'#34d39940':'#f8717140');
-            document.querySelector('.form').after(div);
-        }
-
-        /* --- Entrar com o Google: shared/google-login.js (usa o mostrarMsg acima) --- */
-
-        /* --- Modal "Esqueceu a senha?" --- */
-        const modalEsqueci = document.getElementById('modalEsqueci');
-        document.getElementById('linkEsqueci').addEventListener('click', (e) => {
-            e.preventDefault();
-            modalEsqueci.classList.add('open');
-        });
-        document.getElementById('fecharEsqueci').addEventListener('click', () => modalEsqueci.classList.remove('open'));
-        modalEsqueci.addEventListener('click', (e) => { if (e.target === modalEsqueci) modalEsqueci.classList.remove('open'); });
-
-        document.getElementById('formEsqueci').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const btn   = document.getElementById('btnEsqueci');
-            const email = document.getElementById('emailEsqueci').value.trim();
-            const msgEl = document.getElementById('msgEsqueci');
-            btn.disabled = true; btn.textContent = 'Enviando...';
-            try {
-                const dados = new FormData();
-                dados.append('email', email);
-                const resp = await fetch('../../../Backend/php/senha_esqueci.php', { method: 'POST', body: dados });
-                const json = await resp.json();
-                msgEl.hidden = false;
-                msgEl.textContent = json.msg;
-                msgEl.style.cssText = 'padding:9px 12px;border-radius:8px;font-size:.85rem;margin-bottom:12px;background:' + (json.ok ? 'rgba(52,211,153,.15)' : 'rgba(239,68,68,.15)') + ';color:' + (json.ok ? '#34d399' : '#f87171') + ';';
-            } catch (err) {
-                msgEl.hidden = false;
-                msgEl.textContent = 'Não foi possível conectar ao servidor.';
-                msgEl.style.cssText = 'padding:9px 12px;border-radius:8px;font-size:.85rem;margin-bottom:12px;background:rgba(239,68,68,.15);color:#f87171;';
-            } finally {
-                btn.disabled = false; btn.textContent = 'Enviar link';
-            }
-        });
-
-        /* ═══ Interações visuais (não alteram a lógica do formulário) ═══ */
-
-        /* --- Mascote: vive em shared/mascote.js (segue o cursor, pisca,
-               tapa os olhos na senha e sorri com o e-mail válido) --- */
-
-        /* --- Check visual de e-mail válido --- */
-        (function () {
-            const email = document.getElementById('email');
-            const field = document.getElementById('fieldEmail');
-            email.addEventListener('input', () => {
-                field.classList.toggle('field--ok', email.value.trim() !== '' && email.checkValidity());
-            });
-        })();
-
-        /* --- Aviso de Caps Lock na senha --- */
-        (function () {
-            const senha = document.getElementById('senha');
-            const aviso = document.getElementById('capsAviso');
-            function checa(e) {
-                if (typeof e.getModifierState === 'function') {
-                    aviso.hidden = !e.getModifierState('CapsLock');
-                }
-            }
-            senha.addEventListener('keydown', checa);
-            senha.addEventListener('keyup', checa);
-            senha.addEventListener('blur', () => { aviso.hidden = true; });
-        })();
-    </script>
+    <script src="../shared/mostrar-senha.js"></script>
+    <script src="./js/login.js"></script>
     <script src="../shared/google-login.js"></script>
     <script src="https://accounts.google.com/gsi/client" async></script>
     <script src="../shared/mouse-tracker.js"></script>

@@ -1,15 +1,12 @@
 /* ============================================================
    KOSMOS — intro.js (Mini Desenho Animado Introdutório)
    Logo Oficial: K maiúsculo + planeta no 1º 'o' + smos minúsculo.
-   Roteiro animado:
-     • 0.0s: Starfield cósmico suave + portal de luz se expande
-     • 0.3s: Mascote 3D entra em voo acrobático com curva e frenagem elástica
-     • 1.5s: Flash de estrela na lente dos óculos
-     • 1.8s: Logo oficial K<o>smos se materializa com glow púrpura
-     • 2.2s: Mascote dá piscadinha, ergue o capelo e balão de fala pop surge
-     • 2.4s: Ferramentas de estudo (Pomodoro, Flashcards, Resumos) entram em órbita ao redor dele
-     • 2.7s: Mascote abre sorrisão e tagline + saudação personalizada acendem
-     • 3.0s: Modo interativo completo (pupilas seguem o cursor, supernovas no céu)
+   Roteiro animado (versão enxuta):
+     • 0.0s: Starfield cósmico suave
+     • 0.3s: Mascote entra em voo com frenagem elástica
+     • 1.2s: Logo K<o>smos surge; o planeta do "o" fica girando
+             enquanto carrega
+     • 2.2s: Mascote dá uma piscadinha e sorri (sem balão, sem fala)
      • Saída: Mascote e universo saltam em dobra espacial (hyperspace dive)
    ============================================================ */
 
@@ -167,53 +164,16 @@
     if (!reduzMov) window.addEventListener("pointermove", seguirCursor);
 
     /* ---------- Roteiro do Mini Desenho Animado ---------- */
-    const hero = document.getElementById("introMascoteHero");
-    const balao = document.getElementById("introBalao");
     const mascoteEl = document.getElementById("introMascote");
 
     if (!reduzMov) {
-        // Cena 2: Flash de estrela na lente dos óculos (1.5s)
+        // Piscadinha e sorriso (2.2s)
         setTimeout(function () {
-            if (hero) hero.classList.add("intro--piscou");
-        }, 1500);
-
-        // Cena 3: Ativa órbitas de ferramentas e balão de fala pop (2.2s)
-        setTimeout(function () {
-            if (overlay) overlay.classList.add("intro--revelou");
-            if (hero) hero.classList.add("intro--balao-on");
-            if (mascoteEl && mascoteEl.mascote) mascoteEl.mascote.piscar(280);
-        }, 2200);
-
-        // Cena 4: Mascote abre sorrisão feliz (2.7s)
-        setTimeout(function () {
-            if (mascoteEl && mascoteEl.mascote) mascoteEl.mascote.humor("feliz");
-        }, 2700);
-
-        // Cena 5: Recolhe o balão suavemente antes da dobra espacial (4.4s)
-        setTimeout(function () {
-            if (hero) hero.classList.remove("intro--balao-on");
-        }, 4400);
-    } else {
-        if (overlay) overlay.classList.add("intro--revelou");
-        if (hero) hero.classList.add("intro--balao-on");
-    }
-
-    /* ---------- Interação: clicar no mascote durante a animação ---------- */
-    if (hero) {
-        hero.addEventListener("pointerdown", function (ev) {
-            ev.stopPropagation(); // não dispara supernova
             if (mascoteEl && mascoteEl.mascote) {
-                mascoteEl.mascote.humor("feliz");
                 mascoteEl.mascote.piscar(280);
-                if (balao) {
-                    balao.textContent = "Vamos nessa! ✦";
-                    hero.classList.add("intro--balao-on");
-                }
-                setTimeout(function () {
-                    if (mascoteEl && mascoteEl.mascote) mascoteEl.mascote.humor("normal");
-                }, 1600);
+                mascoteEl.mascote.humor("feliz");
             }
-        });
+        }, 2200);
     }
 
     /* ---------- Supernova: clique no céu estrelado ---------- */
@@ -221,44 +181,6 @@
         if (ev.target.closest("#introPular")) return;
         if (warp) warp.explodir(ev.clientX, ev.clientY);
     });
-
-    /* ---------- Tagline em Typewriter ---------- */
-    const tag = document.getElementById("introTag");
-    if (tag) {
-        const texto = tag.dataset.texto || "Estudar nunca foi tão envolvente.";
-        if (reduzMov) {
-            tag.textContent = texto;
-        } else {
-            setTimeout(function () {
-                tag.textContent = "";
-                tag.classList.add("intro__tag--digitando");
-                let i = 0;
-                (function digitar() {
-                    if (i <= texto.length) {
-                        tag.textContent = texto.slice(0, i++);
-                        setTimeout(digitar, 28);
-                    } else {
-                        setTimeout(function () {
-                            tag.classList.remove("intro__tag--digitando");
-                        }, 700);
-                    }
-                })();
-            }, 2300);
-        }
-    }
-
-    /* ---------- Saudação Personalizada ---------- */
-    const ola = document.getElementById("introOla");
-    let tentativas = 0;
-    (function esperarNome() {
-        const nome = sessionStorage.getItem("kosmos_usuario");
-        if (nome && ola) {
-            ola.textContent = "Boas-vindas ao seu universo, " + nome.trim().split(" ")[0] + "!";
-            ola.classList.add("intro__ola--on");
-            return;
-        }
-        if (++tentativas < 16) setTimeout(esperarNome, 150);
-    })();
 
     /* ---------- Barra de Progresso do Tempo Restante ---------- */
     const barra = document.getElementById("introBarra");

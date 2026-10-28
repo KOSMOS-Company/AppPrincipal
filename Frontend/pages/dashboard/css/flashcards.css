@@ -408,9 +408,9 @@
 @media (max-width: 768px) {
     .fc-stats { margin-bottom: 26px; }
 
-    /* cabeçalho: as ações ocupam a linha inteira e dividem o espaço */
+    /* cabeçalho: as ações quebram para a linha de baixo, cada uma do
+       tamanho do próprio texto (esticadas, viravam faixas enormes) */
     .fc-acoes { width: 100%; }
-    .fc-acoes .dash-btn { flex: 1 1 auto; justify-content: center; }
 
     /* o cartão vira duas linhas: bolinha + texto + ações em cima,
        números embaixo. Com áreas nomeadas, senão o auto-placement
@@ -678,10 +678,47 @@
     box-shadow: inset 0 0 0 11px #10021c, inset 0 0 0 12px color-mix(in srgb, var(--tom) 50%, transparent);
 }
 
+/* Celular: um baralho (ou um cartão) por linha, da largura da tela,
+   ficava esticado — um retângulo deitado com muito vazio. Voltam a
+   ser cartas em pé, duas por linha, com o conteúdo mais junto. */
 @media (max-width: 600px) {
-    .pagina-flashcards .cartoes-lista { grid-template-columns: 1fr; }
-    .pagina-flashcards .cartao-item { min-height: 0; }
-    .pagina-flashcards .deck-card { min-height: 290px; }
+    .pagina-flashcards .decks-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px 16px;
+    }
+    .pagina-flashcards .deck-card {
+        min-height: 250px;
+        padding: 40px 14px 16px;
+        gap: 8px;
+        --desvio: .45;
+    }
+    .pagina-flashcards .deck-card__acoes { top: 14px; right: 14px; }
+    .pagina-flashcards .deck-card__nome { font-size: .98rem; overflow-wrap: anywhere; }
+    .pagina-flashcards .deck-card__nome::after { margin-top: 10px; }
+    .pagina-flashcards .deck-card__qtd { font-size: .74rem; line-height: 1.4; }
+    .pagina-flashcards .deck-card__barra { width: 70%; }
+    .pagina-flashcards .deck-card__quando { font-size: .58rem; letter-spacing: .12em; }
+    /* os dois botões não cabem lado a lado em meia tela: um sobre o outro */
+    .pagina-flashcards .deck-card__botoes { flex-direction: column; gap: 6px; }
+    .pagina-flashcards .deck-card__botoes .dash-btn { flex: none; padding: 8px 10px; font-size: .84rem; }
+
+    .pagina-flashcards .cartoes-lista {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+    .pagina-flashcards .cartao-item {
+        min-height: 180px;
+        padding: 40px 14px 14px;
+        gap: 8px;
+    }
+    .pagina-flashcards .cartao-item__acoes { top: 12px; right: 12px; }
+    .pagina-flashcards .cartao-item__texto strong { font-size: .88rem; overflow-wrap: anywhere; }
+    .pagina-flashcards .cartao-item__texto strong::after { margin: 8px auto; }
+    .pagina-flashcards .cartao-item__texto span { font-size: .78rem; overflow-wrap: anywhere; }
+}
+/* 320px: meia tela não comporta uma carta; volta a uma por linha */
+@media (max-width: 340px) {
+    .pagina-flashcards :is(.decks-grid, .cartoes-lista) { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
     .pagina-flashcards .cartao-item:hover { transform: none; }

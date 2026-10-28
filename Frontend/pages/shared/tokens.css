@@ -56,3 +56,45 @@
 
     --transition: .25s cubic-bezier(.4,0,.2,1);
 }
+
+/* "Clique" no computador, "Toque" no celular: o texto da dica vem
+   com as duas palavras e aqui some a que não vale para o aparelho. */
+.so-toque { display: none; }
+@media (hover: none) and (pointer: coarse) {
+    .so-toque { display: inline; }
+    .so-mouse { display: none; }
+}
+
+/* Toque: alguns botões de ícone medem 22–28px, menos que a ponta de
+   um dedo (o mínimo recomendado fica perto de 44px). O desenho não
+   muda; uma moldura invisível em volta deles aumenta só a área que
+   recebe o toque. Os que não eram posicionados ganham o relative para
+   a moldura se prender neles (são itens flex: nada sai do lugar). */
+@media (pointer: coarse) {
+    .pv-top__check,
+    .pv-top__x,
+    .icone-btn { position: relative; }
+    :is(.pv-top__check, .pv-top__x, .busca-limpar, .field__toggle)::after,
+    .icone-btn::after {
+        content: "";
+        position: absolute;
+        inset: -8px;
+    }
+    /* os de editar/apagar ficam lado a lado: margem menor para a área
+       de um não engolir a do vizinho */
+    .icone-btn::after { inset: -5px; }
+}
+
+/* Celular: campo de texto com fonte abaixo de 16px faz o Safari do
+   iPhone dar zoom na página ao tocar nele — e ela fica ampliada,
+   cortada dos lados, até a pessoa beliscar de volta. Os campos do
+   site vão de .82rem a 1rem (nenhum é maior), então aqui todos sobem
+   para 16px só nas telas de toque/estreitas. O !important é porque as
+   regras de cada página têm classe e venceriam este seletor. */
+@media (pointer: coarse), (max-width: 768px) {
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"]),
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+}

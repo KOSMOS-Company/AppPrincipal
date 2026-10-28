@@ -103,6 +103,8 @@ $PREF = [
     'ano_escolar'         => '',
     'onboarding_completo' => false,
     'mostrar_onboarding'  => false,
+    'mostrar_tutorial'    => false,
+    'tutorial_premiado'   => false,
     'materias'            => [],
     'notif_lembrete'      => false,
     'notif_resumo'        => false,
@@ -233,6 +235,25 @@ try {
     // vistas pela migração 2026-09-15_onboarding_visto.sql — elas não
     // são novas e não devem receber as perguntas.
     $PREF['mostrar_onboarding'] = !$PREF['onboarding_completo'];
+
+    // ---------- 4c) O tutorial do Orion aparece? ----------
+    // Mesma regra do onboarding: ainda não foi apresentado a esta conta.
+    // Só no Início: é a única aba onde o tour COMEÇA e onde ele termina
+    // (e o texto final muda se a recompensa já foi entregue) — nas outras
+    // a consulta não serviria para nada. À parte porque a coluna vem da
+    // migração 2026-10-26_tutorial_orion.sql — sem ela, não aparece.
+    //   tutorial_visto: 0 = não viu · 1 = viu · 2 = terminou e foi premiado
+    if ($PAGINA === 'index.php') {
+        try {
+            $stmt = $pdo->prepare('SELECT tutorial_visto FROM usuario_preferencias WHERE usuario_id = ?');
+            $stmt->execute([$USUARIO['id']]);
+            $r = $stmt->fetch();
+            $PREF['mostrar_tutorial']   = $r !== false && (int) $r['tutorial_visto'] === 0;
+            $PREF['tutorial_premiado']  = $r !== false && (int) $r['tutorial_visto'] >= 2;
+        } catch (PDOException $e) {
+            registrarErro($e);
+        }
+    }
 
     // ---------- 5) Números do que o usuário já produziu ----------
     $stmt = $pdo->prepare('SELECT COUNT(*) AS n FROM flashcard_decks WHERE usuario_id = ?');
