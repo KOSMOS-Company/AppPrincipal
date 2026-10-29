@@ -451,12 +451,10 @@
     background: rgba(239, 68, 68, .12);
 }
 /* No toque não existe hover, e deixar o lápis e a lixeira sempre à
-   vista poluía a estante (dois botões em cada lombada). Lá eles saem de
-   vez: tocar abre o caderno, e o "Personalizar" dele edita e exclui
-   (partes/modal-caderno.php). O nome volta a ter a lombada inteira. */
-@media (hover: none) {
-    .caderno-card__acoes { display: none; }
-}
+   vista poluía a estante (dois botões em cada lombada). Lá os dois
+   viram um "⋮" só, sempre à vista, que abre um menu com as mesmas
+   duas ações (fim deste arquivo). Com mouse o "⋮" não existe. */
+.caderno-card__mais { display: none; }
 
 /* A zona dos dois botões empilhados mede 66px (6 de base + 28 + 4
    + 28). Enquanto eles aparecem, o corpo reserva esse espaço com
@@ -1001,7 +999,18 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 .rs-menu__item--perigo:hover:not([disabled]) { background: rgba(239, 68, 68, .12); color: #ffb4b4; }
 .rs-menu__item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .rs-menu__item--aqui { color: var(--text-muted); cursor: default; }
-.rs-menu__icone { font-size: 1rem; line-height: 1; flex: none; }
+/* Caixa fixa: o emoji escolhido pelo usuário e os SVGs do site
+   ficam com o texto alinhado na mesma coluna */
+.rs-menu__icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    font-size: 1rem;
+    line-height: 1;
+    flex: none;
+}
+.rs-menu__icone svg { display: block; width: 17px; height: 17px; }
 .rs-menu__nome  { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rs-menu__aqui {
     font-size: .68rem;
@@ -2024,4 +2033,46 @@ html.kosmos-lite .pagina-biblioteca .caderno-card:hover:active { transform: scal
 :is(.resumo-card__botao, .caderno-card__editar):not(:hover):not(:focus-visible) {
     border-color: transparent;
     background: none;
+}
+
+/* O "⋯" do caderno no toque. Fica no fim do arquivo para vencer a
+   regra acima, que tira fundo e borda dos botões fora do hover.
+   Ele mora no topo da lombada, e o corpo reserva esse espaço
+   (6 + 28 + folga): o ícone e o nome começam logo abaixo dele. */
+@media (hover: none) {
+    .caderno-card__acoes > :not(.caderno-card__mais) { display: none; }
+    .caderno-card .caderno-card__acoes,
+    .pagina-biblioteca .caderno-card .caderno-card__acoes {
+        top: 6px;
+        bottom: auto;
+        padding: 0;
+        background: none;
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .caderno-card .caderno-card__editar.caderno-card__mais {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        opacity: 1;
+        color: #fff;
+        border-color: rgba(255,255,255,.18);
+        background: rgba(0,0,0,.28);
+    }
+    /* os três pontos deitados: o mesmo desenho do "⋮", girado */
+    .caderno-card__mais svg { transform: rotate(90deg); }
+    .caderno-card .caderno-card__mais[aria-expanded="true"] {
+        border-color: var(--accent);
+        background: rgba(0,0,0,.45);
+    }
+    .caderno-card .caderno-card__body,
+    .caderno-card:is(:hover, :focus-within) .caderno-card__body {
+        padding-top: 42px;
+        padding-bottom: 14px;
+    }
+    .pagina-biblioteca .caderno-card .caderno-card__body,
+    .pagina-biblioteca .caderno-card:is(:hover, :focus-within) .caderno-card__body {
+        padding-top: 42px;
+        padding-bottom: 28px;
+    }
 }
