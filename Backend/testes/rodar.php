@@ -216,5 +216,15 @@ confere('detecta limite em inglês', indicioDeLimiteDiario('Error: daily quota e
 confere('erro comum não é limite', indicioDeLimiteDiario('Error in workflow'), false);
 
 // ---------------------------------------------------------------
+echo "Resumo para a IA (exercicios_ia_util.php)\n";
+
+confere('tira as marcas ==destaque==', textoDoResumoParaIA('A ==mitocôndria== gera energia.'), 'A mitocôndria gera energia.');
+confere('resumo só de imagem fica vazio', textoDoResumoParaIA("  \n\n "), '');
+confere('junta linhas em branco demais', textoDoResumoParaIA("a\n\n\n\nb"), "a\n\nb");
+$longo = textoDoResumoParaIA(str_repeat('Frase de teste do resumo. ', 400));
+confere('corta resumo longo no limite', mb_strlen($longo) <= IA_MAX_RESUMO, true);
+confere('corta no fim de uma frase', str_ends_with($longo, '.'), true);
+
+// ---------------------------------------------------------------
 echo "\n" . ($total - $falhas) . " de $total testes passaram.\n";
 exit($falhas > 0 ? 1 : 0);

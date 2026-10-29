@@ -45,6 +45,12 @@ define('N8N_NOTIF_URL', '');
 // Vazio = o Orion responde so com as respostas prontas.
 define('N8N_ORION_URL', '');
 
+// ---------- IA com reserva ----------
+// Webhook do fluxo "Kosmos — IA" (Groq -> Gemini -> OpenRouter): recebe
+// { prompt } e devolve { output, modelo }. Usado pelas gerações a partir
+// do resumo. Vazio = esses botões ficam indisponíveis.
+define('N8N_IA_URL', '');
+
 // ---------- Conta de desenvolvedor (SÓ no seu PC) ----------
 // Com este e-mail, a conta criada por Backend/tarefas/conta_dev.php se
 // renova sozinha no primeiro acesso de cada dia (nunca perde a sequência

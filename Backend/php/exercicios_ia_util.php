@@ -53,31 +53,38 @@ function indicioDeLimiteDiario(string $texto): bool {
  * JSON puro, ```json ... ``` ou prosa em volta do objeto.
  */
 function extrairQuestoes(string $texto): array {
+    return extrairListaJson($texto, 'questoes');
+}
+
+/**
+ * A lista que mora em {"<chave>": [...]} dentro da resposta da IA,
+ * venha ela como JSON puro, ```json ... ```, prosa em volta do
+ * objeto ou só o array solto. Sem nada aproveitável, [].
+ */
+function extrairListaJson(string $texto, string $chave): array {
     $texto = trim($texto);
     if ($texto === '') {
         return [];
     }
+    $daChave = static function ($j) use ($chave): ?array {
+        return is_array($j) && !empty($j[$chave]) && is_array($j[$chave]) ? $j[$chave] : null;
+    };
 
     // 1) JSON puro
-    $j = json_decode($texto, true);
-    if (is_array($j) && !empty($j['questoes']) && is_array($j['questoes'])) {
-        return $j['questoes'];
+    if (($lista = $daChave(json_decode($texto, true))) !== null) {
+        return $lista;
     }
 
     // 2) Bloco ```json ... ```
-    if (preg_match('/```(?:json)?\s*(\{.*?\})\s*```/s', $texto, $m)) {
-        $j = json_decode($m[1], true);
-        if (is_array($j) && !empty($j['questoes']) && is_array($j['questoes'])) {
-            return $j['questoes'];
-        }
+    if (preg_match('/```(?:json)?\s*(\{.*?\})\s*```/s', $texto, $m)
+        && ($lista = $daChave(json_decode($m[1], true))) !== null) {
+        return $lista;
     }
 
-    // 3) Primeiro objeto {...} que tenha "questoes"
-    if (preg_match('/\{.*"questoes".*\}/s', $texto, $m)) {
-        $j = json_decode($m[0], true);
-        if (is_array($j) && !empty($j['questoes']) && is_array($j['questoes'])) {
-            return $j['questoes'];
-        }
+    // 3) Primeiro objeto {...} que tenha a chave
+    if (preg_match('/\{.*"' . preg_quote($chave, '/') . '".*\}/s', $texto, $m)
+        && ($lista = $daChave(json_decode($m[0], true))) !== null) {
+        return $lista;
     }
 
     // 4) Array solto [ {...}, ... ]
@@ -195,4 +202,29 @@ function aplicarDificuldades(array $questoes, array $plano): array {
     }
 
     return $questoes;
+}
+
+/** Quanto do resumo vai para o prompt. Cabe com folga na janela das
+ *  três IAs do fluxo e ainda deixa a cota de tokens do Groq respirar. */
+const IA_MAX_RESUMO = 6000;
+
+/**
+ * O texto do resumo como a IA deve lê-lo: sem as marcas ==destaque==
+ * do Modo revisão (o trecho fica, só os sinais saem), sem espaços
+ * sobrando e cortado em IA_MAX_RESUMO, de preferência no fim de uma
+ * frase. Vazio = o resumo não tem texto (só imagens).
+ */
+function textoDoResumoParaIA(string $corpo): string {
+    $texto = str_replace('==', '', $corpo);
+    $texto = preg_replace('/[ \t]+/u', ' ', $texto);
+    $texto = trim(preg_replace('/\n{3,}/u', "\n\n", $texto));
+
+    if (mb_strlen($texto) <= IA_MAX_RESUMO) {
+        return $texto;
+    }
+    $corte = mb_substr($texto, 0, IA_MAX_RESUMO);
+    $fim   = max(mb_strrpos($corte, '. '), mb_strrpos($corte, "\n"));
+    return $fim !== false && $fim > IA_MAX_RESUMO * 0.6
+        ? mb_substr($corte, 0, $fim + 1)
+        : $corte;
 }

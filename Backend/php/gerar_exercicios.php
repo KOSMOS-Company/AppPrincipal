@@ -19,6 +19,7 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/limite_util.php';
 require_once __DIR__ . '/exercicios_ia_util.php';
+require_once __DIR__ . '/ia_util.php';
 
 /** Tamanho máximo do que vai para o prompt. A matéria pode vir como
  *  "Matemática — Nome livre da matéria" (40 + 120 caracteres). */
@@ -37,20 +38,30 @@ liberarSessao();
 apiExigirPost();
 
 // ---------- Lê e valida a entrada ----------
+// Com "resumo", as questões saem do texto de um resumo da pessoa (a
+// matéria e o conteúdo vêm dele, lidos no banco mais abaixo) e o
+// pedido vai pelo fluxo com reserva de IAs (ia_util.php).
+$resumoId = filter_var($_POST['resumo'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0;
 $materia  = trim($_POST['materia']  ?? '');
 $conteudo = trim($_POST['conteudo'] ?? '');
 
-if ($materia === '') {
-    apiErro('Escolha uma matéria.', 422);
-}
-if ($conteudo === '') {
-    apiErro('Descreva o conteúdo específico.', 422);
-}
-if (mb_strlen($materia) > IA_MAX_MATERIA) {
-    apiErro('O nome da matéria está longo demais.', 422);
-}
-if (mb_strlen($conteudo) > IA_MAX_CONTEUDO) {
-    apiErro('Descreva o conteúdo em até ' . IA_MAX_CONTEUDO . ' caracteres.', 422);
+if ($resumoId > 0) {
+    if (!iaDisponivel()) {
+        apiErro('Gerar a partir do resumo não está disponível agora.', 503);
+    }
+} else {
+    if ($materia === '') {
+        apiErro('Escolha uma matéria.', 422);
+    }
+    if ($conteudo === '') {
+        apiErro('Descreva o conteúdo específico.', 422);
+    }
+    if (mb_strlen($materia) > IA_MAX_MATERIA) {
+        apiErro('O nome da matéria está longo demais.', 422);
+    }
+    if (mb_strlen($conteudo) > IA_MAX_CONTEUDO) {
+        apiErro('Descreva o conteúdo em até ' . IA_MAX_CONTEUDO . ' caracteres.', 422);
+    }
 }
 
 // ---------- Limite de uso ----------
@@ -67,6 +78,27 @@ try {
 } catch (PDOException $e) {
     registrarErro($e, 'limite da IA');
     $pdo = null;   // sem banco não há limite nem XP, mas a geração segue
+}
+
+$resumoTitulo = '';
+if ($resumoId > 0) {
+    if ($pdo === null) {
+        apiErro('Não foi possível ler o resumo agora. Tente novamente.', 500);
+    }
+    // O WHERE usuario_id é o que impede gerar a partir do resumo de outra pessoa
+    $stmt = $pdo->prepare('SELECT titulo, materia, corpo FROM resumos WHERE id = ? AND usuario_id = ? LIMIT 1');
+    $stmt->execute([$resumoId, $usuario['id']]);
+    $resumo = $stmt->fetch();
+    if (!$resumo) {
+        apiErro('Resumo não encontrado.', 404);
+    }
+
+    $conteudo = textoDoResumoParaIA((string) $resumo['corpo']);
+    if (mb_strlen($conteudo) < 80) {
+        apiErro('Este resumo tem pouco texto para virar exercícios. Escreva um pouco mais nele.', 422);
+    }
+    $materia      = (string) $resumo['materia'];
+    $resumoTitulo = (string) $resumo['titulo'];
 }
 
 // Plano novo: [{dificuldade, qtd}...] — 1+ níveis, soma até 15.
@@ -119,14 +151,26 @@ if ($planoJson !== '') {
 }
 
 // ---------- Monta o prompt (JSON puro, sem markdown) ----------
+// Do resumo: o texto vai no fim, entre aspas triplas, e a IA é
+// presa a ele — questão sobre o que a pessoa não estudou não ajuda.
+if ($resumoId > 0) {
+    $sobre = ' baseados SOMENTE no resumo do aluno que esta no fim desta mensagem'
+        . ' (nao cobre nada que nao esteja nele; escreva tudo em portugues)';
+    $anexo = "\n\nResumo do aluno, titulo \"" . $resumoTitulo . "\":\n\"\"\"\n" . $conteudo . "\n\"\"\"";
+} else {
+    $sobre = ' sobre: ' . $conteudo;
+    $anexo = '';
+}
+
 if (count($plano) === 1) {
     // Nível único: prompt original — a dificuldade é aplicada em PHP.
     $chatInput = 'Gere ' . $qtd . ' exercicios de ' . $materia
-        . ' nivel ' . $plano[0]['dificuldade'] . ' sobre: ' . $conteudo
+        . ' nivel ' . $plano[0]['dificuldade'] . $sobre
         . '. Responda apenas com JSON no formato: '
         . '{"questoes":[{"enunciado":"...","alts":["...","...","...","...","..."],"correta":0,"dica":"..."}]}'
         . '. alts com 5 alternativas; correta e o indice 0-4 da alternativa correta;'
-        . ' dica e uma frase curta que ajuda a pensar SEM entregar a resposta (opcional, pode vir vazia).';
+        . ' dica e uma frase curta que ajuda a pensar SEM entregar a resposta (opcional, pode vir vazia).'
+        . $anexo;
 } else {
     // Vários níveis: UMA chamada, com a distribuição no prompt e o
     // rótulo por questão — o PHP confere/aplica os totais depois.
@@ -134,63 +178,77 @@ if (count($plano) === 1) {
     foreach ($plano as $p) {
         $partes[] = $p['qtd'] . ' de nivel ' . $p['dificuldade'];
     }
-    $chatInput = 'Gere ' . $qtd . ' exercicios de ' . $materia . ' sobre: ' . $conteudo
+    $chatInput = 'Gere ' . $qtd . ' exercicios de ' . $materia . $sobre
         . '. Distribuicao: ' . implode(', ', $partes) . ' (nesta ordem).'
         . '. Responda apenas com JSON no formato: '
         . '{"questoes":[{"enunciado":"...","alts":["...","...","...","...","..."],"correta":0,"dica":"...","dificuldade":"..."}]}'
         . '. alts com 5 alternativas; correta e o indice 0-4 da alternativa correta;'
         . ' dica e uma frase curta que ajuda a pensar SEM entregar a resposta (opcional, pode vir vazia);'
-        . ' dificuldade e exatamente uma de: Facil, Medio, Dificil, seguindo a distribuicao acima na mesma ordem.';
+        . ' dificuldade e exatamente uma de: Facil, Medio, Dificil, seguindo a distribuicao acima na mesma ordem.'
+        . $anexo;
 }
 
-$payload = json_encode([
-    'action'    => 'sendMessage',
-    'sessionId' => 'kosmos-' . bin2hex(random_bytes(8)),
-    'chatInput' => $chatInput,
-], JSON_UNESCAPED_UNICODE);
-
-// ---------- Chama o Chat Trigger do n8n ----------
-$ch = curl_init(N8N_EXERCICIOS_URL);
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => $payload,
-    CURLOPT_HTTPHEADER     => [
-        'Content-Type: application/json',
-        // Chat Trigger pode estar com auth none — header extra não atrapalha
-        N8N_TOKEN_HEADER . ': ' . N8N_TOKEN_VALOR,
-    ],
-    CURLOPT_CONNECTTIMEOUT => 10,
-    CURLOPT_TIMEOUT        => IA_TIMEOUT_S,
-]);
-
-$resposta = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$erroRede = curl_error($ch);
-curl_close($ch);
-
-if ($resposta === false || $httpCode >= 400) {
-    $corpo = is_string($resposta) ? $resposta : '';
-    // Sem isto a única pista do "500 Error in workflow" era o n8n
-    error_log(sprintf('[KOSMOS IA] n8n respondeu HTTP %d%s: %s',
-        $httpCode, $erroRede !== '' ? " ($erroRede)" : '', mb_substr($corpo, 0, 300)));
-    if (indicioDeLimiteDiario($corpo)) {
-        apiErro('limite diario atingido', 429);
+if ($resumoId > 0) {
+    // ---------- Fluxo com reserva (Groq -> Gemini -> OpenRouter) ----------
+    try {
+        $texto = iaPerguntar($chatInput, IA_TIMEOUT_S);
+    } catch (RuntimeException $e) {
+        if ($e->getCode() === 429) {
+            apiErro('limite diario atingido', 429);
+        }
+        apiErro('Não foi possível gerar os exercícios agora. Tente novamente.', 502);
     }
-    apiErro('Não foi possível gerar os exercícios agora. Tente novamente.', 502);
-}
+    $questoes = null;
+} else {
+    $payload = json_encode([
+        'action'    => 'sendMessage',
+        'sessionId' => 'kosmos-' . bin2hex(random_bytes(8)),
+        'chatInput' => $chatInput,
+    ], JSON_UNESCAPED_UNICODE);
 
-// ---------- Extrai as questões ----------
-$dados = json_decode($resposta, true);
+    // ---------- Chama o Chat Trigger do n8n ----------
+    $ch = curl_init(N8N_EXERCICIOS_URL);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            // Chat Trigger pode estar com auth none — header extra não atrapalha
+            N8N_TOKEN_HEADER . ': ' . N8N_TOKEN_VALOR,
+        ],
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT        => IA_TIMEOUT_S,
+    ]);
 
-// Formato Chat Trigger: { "output": "..." } — o JSON pode estar lá dentro
-$questoes = null;
-$texto = '';
-if (is_array($dados)) {
-    if (!empty($dados['questoes']) && is_array($dados['questoes'])) {
-        $questoes = $dados['questoes'];
-    } elseif (isset($dados['output']) && is_string($dados['output'])) {
-        $texto = $dados['output'];
+    $resposta = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $erroRede = curl_error($ch);
+    curl_close($ch);
+
+    if ($resposta === false || $httpCode >= 400) {
+        $corpo = is_string($resposta) ? $resposta : '';
+        // Sem isto a única pista do "500 Error in workflow" era o n8n
+        error_log(sprintf('[KOSMOS IA] n8n respondeu HTTP %d%s: %s',
+            $httpCode, $erroRede !== '' ? " ($erroRede)" : '', mb_substr($corpo, 0, 300)));
+        if (indicioDeLimiteDiario($corpo)) {
+            apiErro('limite diario atingido', 429);
+        }
+        apiErro('Não foi possível gerar os exercícios agora. Tente novamente.', 502);
+    }
+
+    // ---------- Extrai as questões ----------
+    $dados = json_decode($resposta, true);
+
+    // Formato Chat Trigger: { "output": "..." } — o JSON pode estar lá dentro
+    $questoes = null;
+    $texto = '';
+    if (is_array($dados)) {
+        if (!empty($dados['questoes']) && is_array($dados['questoes'])) {
+            $questoes = $dados['questoes'];
+        } elseif (isset($dados['output']) && is_string($dados['output'])) {
+            $texto = $dados['output'];
+        }
     }
 }
 
