@@ -103,7 +103,6 @@ $ESTILO_ABAS = [
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <h1>Minha <span class="h-nome">Conta</span></h1>
-                    <p>Perfil, segurança, preferências de estudo e privacidade.</p>
                 </div>
             </header>
 
@@ -213,7 +212,7 @@ $ESTILO_ABAS = [
                              ========================================================== -->
                         <div class="ini-card conta-cartao conta-estilo" id="contaEstilo">
                             <h2 class="painel__titulo">Estilo do avatar</h2>
-                            <p class="painel__sub">Escolha uma moldura, um emblema ou uma cor especial. As com cadeado liberam com o nível — <a class="conta-estilo__trilha" href="conquistas.php#trilha">ver a trilha</a>.</p>
+                            <p class="painel__sub">Personalize seu avatar — <a class="conta-estilo__trilha" href="conquistas.php#trilha">ver a trilha</a>.</p>
 
                             <div class="conta-estilo__abas" role="tablist" aria-label="Tipo de estilo">
                                 <?php $primeira = true; foreach ($ESTILO_ABAS as $tipo => [$rotulo]):
@@ -278,7 +277,7 @@ $ESTILO_ABAS = [
 
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Dados do perfil</h2>
-                            <p class="painel__sub">Altere seu nome, o e-mail de acesso ou a cor do avatar (acima) e salve aqui.</p>
+                            <p class="painel__sub">Altere seus dados.</p>
                             <form class="conta-form" id="formPerfil" novalidate>
                                 <div class="conta-dupla">
                                     <div class="campo">
@@ -348,7 +347,6 @@ $ESTILO_ABAS = [
 
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Seu acesso</h2>
-                            <p class="painel__sub">Um resumo de como e quando você entra no Kosmos.</p>
                             <div class="conta-info">
                                 <div class="conta-info__linha">
                                     <span class="conta-info__rotulo">Método de acesso</span>
@@ -376,8 +374,7 @@ $ESTILO_ABAS = [
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Sessões abertas</h2>
                             <p class="painel__sub">
-                                Usou o Kosmos em um computador que não é seu? Encerre o acesso nos
-                                outros aparelhos — este continua conectado.
+                                Encerre a sessão em outros aparelhos.
                             </p>
                             <div class="conta-acoes">
                                 <button type="button" class="dash-btn dash-btn--outline" id="btnSessoes">
@@ -405,7 +402,6 @@ $ESTILO_ABAS = [
                                  quem troca é o js/visual.js, carregado pela sidebar. */ ?>
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Visual neste aparelho</h2>
-                            <p class="painel__sub">O Lite tira os brilhos, o vidro e o céu em movimento: a tela fica mais calma e o aparelho trabalha menos. Muda na hora.</p>
                             <div class="visual-opcoes" role="radiogroup" aria-label="Visual do Kosmos">
                                 <button type="button" class="visual-opcao" role="radio" aria-checked="true" data-visual-opcao="completo">
                                     <span class="visual-opcao__previa" aria-hidden="true"></span>
@@ -441,7 +437,6 @@ $ESTILO_ABAS = [
 
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Seu Pomodoro</h2>
-                            <p class="painel__sub">Estes tempos são usados na aba Pomodoro.</p>
                             <div class="conta-dupla">
                                 <div class="campo">
                                     <label for="pomoFoco">Foco (min)</label>
@@ -487,7 +482,6 @@ $ESTILO_ABAS = [
 
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Meta diária</h2>
-                            <p class="painel__sub">Quantos minutos por dia você quer estudar.</p>
                             <div class="campo campo--estreito">
                                 <label for="metaDiaria">Minutos por dia</label>
                                 <div class="qtd-stepper">
@@ -505,7 +499,7 @@ $ESTILO_ABAS = [
 
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Matérias que você estuda</h2>
-                            <p class="painel__sub">Escolha as suas — elas aparecem primeiro ao criar resumos, baralhos e exercícios.</p>
+                            <p class="painel__sub">Matérias com prioridade.</p>
                             <!-- os chips são criados pelo conta.js com a lista do backend -->
                             <div class="chips" id="chipsMaterias">
 <?php foreach (MATERIAS_KOSMOS as $materia):
@@ -527,7 +521,6 @@ $ESTILO_ABAS = [
                     <section class="conta-secao" data-painel="notificacoes" hidden>
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">E-mails do Kosmos</h2>
-                            <p class="painel__sub">Escolha o que você quer receber. Salva na hora.</p>
 
                             <div class="conta-toggle">
                                 <div class="conta-toggle__texto">
@@ -548,11 +541,6 @@ $ESTILO_ABAS = [
                             </div>
 
                             <div class="msg" id="msgNotif" hidden></div>
-                            <p class="conta-nota">
-                                Sua escolha já fica salva. O envio usa o mesmo serviço de e-mail da
-                                recuperação de senha e ainda está sendo ligado — quando estiver pronto,
-                                nada muda aqui.
-                            </p>
                         </div>
                     </section>
 

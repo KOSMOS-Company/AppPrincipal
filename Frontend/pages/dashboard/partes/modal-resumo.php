@@ -94,13 +94,26 @@ if (!isset($CADERNOS)) {
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
                                 Destacar
                             </button>
+                            <!-- Rascunho com IA: parte do Tema (e do que já
+                                 estiver escrito aqui, como anotações) e põe o
+                                 texto NESTE campo, sem salvar — a pessoa revisa
+                                 antes. "Desfazer" devolve o que ela tinha.
+                                 Lógica: js/resumo-form.js e Backend/php/resumos_ia.php. -->
+                            <button type="button" class="dash-btn dash-btn--pequeno btn-ia destaque-barra__btn" id="btnRascunhoIA"
+                                    title="A IA escreve um rascunho a partir do Tema e das suas anotações">
+                                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 3.5c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5 3-.5 4-1.5 4.5-4.5Z" fill="currentColor"/><path class="ia-estrela-menor" d="M14.5 11.5c.25 1.5.75 2 2.25 2.25-1.5.25-2 .75-2.25 2.25-.25-1.5-.75-2-2.25-2.25 1.5-.25 2-.75 2.25-2.25Z" fill="currentColor"/></svg>
+                                <span>Rascunho com IA</span>
+                            </button>
+                            <button type="button" class="dash-btn dash-btn--ghost dash-btn--pequeno destaque-barra__btn" id="btnDesfazerIA" hidden>
+                                Desfazer
+                            </button>
                             <p class="destaque-barra__dica" id="destaqueDica" aria-live="polite"></p>
                         </div>
                     </div>
 
                     <!-- ---------- Imagens ---------- -->
                     <div class="campo">
-                        <label for="imagens">Imagens <span class="campo__opcional">(até <?= RS_MAX_IMAGENS ?>; fotos grandes são reduzidas sozinhas)</span></label>
+                        <label for="imagens">Imagens <span class="campo__opcional">(até <?= RS_MAX_IMAGENS ?> fotos)</span></label>
 
                         <label class="img-solta" for="imagens" id="imgSolta">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>

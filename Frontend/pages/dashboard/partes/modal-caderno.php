@@ -63,7 +63,6 @@ if (!isset($USUARIO, $PREF)) {
                             <option value="<?= hesc($m) ?>"<?= in_array($m, $PREF['materias'], true) ? ' data-favorita="1"' : '' ?>></option>
 <?php endforeach; ?>
                         </datalist>
-                        <span class="campo__dica">Os resumos deste caderno vão herdar esta matéria.</span>
                     </div>
 
                     <div class="campo">
@@ -100,7 +99,7 @@ if (!isset($USUARIO, $PREF)) {
 
                     <!-- ---------- Capa ---------- -->
                     <div class="campo">
-                        <label for="cadernoCapa">Capa <span class="campo__opcional">(opcional; a imagem é reduzida sozinha)</span></label>
+                        <label for="cadernoCapa">Capa <span class="campo__opcional">(opcional)</span></label>
 
                         <div class="cad-capa" id="cadCapa">
                             <label class="img-solta img-solta--capa" for="cadernoCapa" id="capaSolta">

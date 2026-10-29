@@ -1,7 +1,10 @@
 /* ============================================================
    KOSMOS — exercicio-gerar-form.js
    Modal de gerar/salvar exercícios com IA.
-   Usado em exercicio_materia.php.
+   Usado em exercicio_materia.php e em resumo.php. No resumo
+   (abrirDoResumo) as questões saem do texto dele: some o campo
+   "Conteúdo específico" e aparece "Salvar na matéria", porque ali
+   ainda não se sabe em qual matéria de exercícios a lista vai ficar.
 
    O usuário marca 1+ dificuldades (chips) e escolhe a distribuição:
    - "Por dificuldade": um stepper por nível (quantas de cada);
@@ -28,6 +31,8 @@
     let modo = "fixo"; // "fixo" = quantas de cada | "aleatorio" = total sorteado
     let qtds = { "Fácil": 0, "Médio": 5, "Difícil": 0 };
     let timerEstimativa = null;
+    let resumoBase = null;  // { id, titulo, materia } quando aberto pelo resumo
+    let exMaterias = [];    // [{ id, nome, materia }] para o "Salvar na matéria"
 
     document.addEventListener("DOMContentLoaded", () => {
         el("exercicioGerarFechar")?.addEventListener("click", fechar);
@@ -81,16 +86,94 @@
         materiaId = materia.id;
         materiaNome = materia.nome;
         materiaBase = materia.materia || materia.nome;
+        resumoBase = null;
 
         el("exercicioGerarMateriaId").value = materiaId;
         el("modalExercicioGerarTitulo").textContent = "Gerar exercícios para " + materia.nome;
         resetarFormulario();
+        mostrarModoResumo(false);
         esconderMsg("msgExercicioGerar");
         esconderMsg("msgExercicioGerarPreview");
 
         mostrarEtapa(1);
         modal.classList.add("open");
         el("exGerarTitulo").focus();
+    }
+
+    /** Abre a partir de um resumo: as questões saem do texto dele.
+        `resumo.exMaterias` traz as matérias de exercícios da conta. */
+    function abrirDoResumo(resumo) {
+        if (!resumo) return;
+        resumoBase = { id: resumo.id, titulo: resumo.titulo, materia: resumo.materia };
+        if (Array.isArray(resumo.exMaterias)) exMaterias = resumo.exMaterias.slice();
+        materiaId = 0;
+        materiaNome = resumo.materia;
+        materiaBase = resumo.materia;
+
+        el("exercicioGerarMateriaId").value = "";
+        el("modalExercicioGerarTitulo").textContent = "Exercícios do resumo";
+        resetarFormulario();
+        el("exGerarTitulo").value = ("Exercícios — " + resumo.titulo).slice(0, 140);
+        preencherDestinos();
+        mostrarModoResumo(true);
+        esconderMsg("msgExercicioGerar");
+        esconderMsg("msgExercicioGerarPreview");
+
+        mostrarEtapa(1);
+        modal.classList.add("open");
+        el("exGerarTitulo").focus();
+    }
+
+    function mostrarModoResumo(ligado) {
+        el("exGerarDestinoCampo").hidden = !ligado;
+        el("exGerarConteudoCampo").hidden = ligado;
+    }
+
+    /** As matérias de exercícios + "criar uma nova". A primeira da
+        mesma matéria do resumo já vem marcada; sem nenhuma, a nova. */
+    function preencherDestinos() {
+        const select = el("exGerarDestino");
+        select.innerHTML = "";
+        exMaterias.forEach((m) => {
+            const opt = document.createElement("option");
+            opt.value = String(m.id);
+            opt.textContent = m.nome === m.materia ? m.nome : `${m.nome} (${m.materia})`;
+            select.appendChild(opt);
+        });
+        const nova = document.createElement("option");
+        nova.value = "nova";
+        nova.textContent = "+ Criar a matéria “" + resumoBase.materia + "”";
+        select.appendChild(nova);
+
+        const mesma = exMaterias.find((m) => m.materia === resumoBase.materia);
+        select.value = mesma ? String(mesma.id) : "nova";
+    }
+
+    /** O id da matéria onde salvar. "nova" cria a matéria antes (com
+        o nome e a cor da matéria do resumo) e passa a oferecê-la, para
+        um segundo salvamento não criar outra igual. */
+    async function destinoParaSalvar() {
+        const select = el("exGerarDestino");
+        if (select.value !== "nova") return Number(select.value);
+
+        const resp = await fetch(`${BACKEND}/exercicios_materia.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                acao: "criar",
+                nome: resumoBase.materia,
+                materia: resumoBase.materia,
+                cor: "auto",
+            }),
+        });
+        const json = await resp.json();
+        if (!json.ok || !json.materia) throw new Error(json.msg || "Não foi possível criar a matéria.");
+
+        const m = { id: json.materia.id, nome: json.materia.nome, materia: json.materia.materia };
+        exMaterias.unshift(m);
+        preencherDestinos();
+        select.value = String(m.id);
+        return m.id;
     }
 
     /** Volta o form ao padrão: só "Médio", modo "por dificuldade", 5 questões. */
@@ -265,7 +348,7 @@
         const titulo = el("exGerarTitulo").value.trim();
         const conteudo = el("exGerarConteudo").value.trim();
 
-        if (!conteudo) {
+        if (!conteudo && !resumoBase) {
             msg("Descreva o conteúdo específico.", "erro", "msgExercicioGerar");
             return;
         }
@@ -312,13 +395,18 @@
 
         try {
             const dados = new FormData();
-            // A IA recebe a matéria base; o nome livre só entra como contexto
-            // quando diz algo a mais (um apelido sozinho não diz a disciplina).
-            const materiaIA = materiaNome && materiaNome !== materiaBase
-                ? materiaBase + " — " + materiaNome
-                : materiaBase;
-            dados.append("materia", materiaIA);
-            dados.append("conteudo", conteudo);
+            if (resumoBase) {
+                // A matéria e o texto o servidor lê do próprio resumo
+                dados.append("resumo", resumoBase.id);
+            } else {
+                // A IA recebe a matéria base; o nome livre só entra como contexto
+                // quando diz algo a mais (um apelido sozinho não diz a disciplina).
+                const materiaIA = materiaNome && materiaNome !== materiaBase
+                    ? materiaBase + " — " + materiaNome
+                    : materiaBase;
+                dados.append("materia", materiaIA);
+                dados.append("conteudo", conteudo);
+            }
             dados.append("plano", JSON.stringify(plano));
 
             const resp = await fetch(`${BACKEND}/gerar_exercicios.php`, { method: "POST", body: dados });
@@ -434,13 +522,14 @@
                 questoes: questoesGeradas,
                 materiaBase: materiaBase
             });
+            const destino = resumoBase ? await destinoParaSalvar() : materiaId;
 
             const resp = await fetch(`${BACKEND}/exercicios_salvar.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({
                     acao: "criar",
-                    materia_id: materiaId,
+                    materia_id: destino,
                     titulo: titulo,
                     conteudo: conteudo,
                     dificuldade: dificuldade
@@ -453,7 +542,13 @@
             // Dispara evento para recarregar lista
             document.dispatchEvent(new CustomEvent("exercicio:salvo", { detail: json.exercicio }));
 
-            msg("Exercício salvo com sucesso!", "sucesso", "msgExercicioGerarPreview");
+            if (resumoBase) {
+                // Do resumo, a lista some desta tela: diz onde ela foi parar
+                const nome = el("exGerarDestino").selectedOptions[0]?.textContent || "Exercícios";
+                msg(`Salvo em ${nome}. Você encontra a lista em Exercícios.`, "sucesso", "msgExercicioGerarPreview");
+            } else {
+                msg("Exercício salvo com sucesso!", "sucesso", "msgExercicioGerarPreview");
+            }
             // O botão só volta quando o modal já fechou: reabilitar antes
             // abria 1,2s para um segundo clique salvar a lista em dobro.
             setTimeout(() => {
@@ -481,5 +576,5 @@
         if (m) m.hidden = true;
     }
 
-    window.KosmosExercicioGerarForm = { abrir, fechar };
+    window.KosmosExercicioGerarForm = { abrir, abrirDoResumo, fechar };
 })();

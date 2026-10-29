@@ -1,38 +1,7 @@
 /* ==== EXERCÍCIOS ==== */
 
-/* ============================================================
-   DIFICULDADE — tokens por nível
-   Um par (cor + fundo + linha) por dificuldade, exposto em
-   [data-dificuldade] (chips e cápsulas) e [data-dif] (linhas de
-   distribuição). Base única: qualquer elemento que carregue um
-   desses atributos já herda as variáveis --dif*.
-   ============================================================ */
-[data-dificuldade],
-[data-dif] {
-    --dif: #c97cff;
-    --dif-fundo: rgba(165,65,255,.13);
-    --dif-linha: rgba(165,65,255,.30);
-}
-[data-dificuldade="Fácil"], [data-dif="Fácil"] {
-    --dif: #4ade80;
-    --dif-fundo: rgba(74,222,128,.12);
-    --dif-linha: rgba(74,222,128,.30);
-}
-[data-dificuldade="Médio"], [data-dif="Médio"] {
-    --dif: #fbbf24;
-    --dif-fundo: rgba(251,191,36,.12);
-    --dif-linha: rgba(251,191,36,.30);
-}
-[data-dificuldade="Difícil"], [data-dif="Difícil"] {
-    --dif: #f87171;
-    --dif-fundo: rgba(248,113,113,.12);
-    --dif-linha: rgba(248,113,113,.30);
-}
-[data-dificuldade="Misto"], [data-dif="Misto"] {
-    --dif: #60a5fa;
-    --dif-fundo: rgba(96,165,250,.12);
-    --dif-linha: rgba(96,165,250,.30);
-}
+/* Tokens de dificuldade e chips .ex-dif: moram no dashboard.css
+   (usados também no modal de flashcards, fora desta página). */
 
 /* ============================================================
    DIFICULDADE NA INTERFACE
@@ -668,62 +637,6 @@
     color: var(--text-muted);
 }
 
-/* ---- Chips de dificuldade e de distribuição (toggle) ---- */
-.ex-dif { display: flex; flex-wrap: wrap; gap: 8px; }
-.ex-dif__opcao {
-    font-family: "DM Sans", sans-serif;
-    font-size: .85rem;
-    font-weight: 600;
-    padding: 9px 16px;
-    border-radius: var(--radius-chip);
-    background: var(--bg-nav);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: var(--transition);
-}
-.ex-dif__opcao:hover {
-    background: rgba(255,255,255,.08);
-    border-color: rgba(255,255,255,.3);
-    color: var(--text-dim);
-}
-.ex-dif__opcao[aria-pressed="true"] {
-    background: rgba(165,65,255,.15);
-    border-color: var(--accent);
-    color: var(--text);
-}
-.ex-dif__opcao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-/* Os chips de dificuldade já nascem com a cor do seu nível
-   ([data-dificuldade]): no hover adiantam a cor, ao marcar
-   assumem por completo. Os chips de modo (data-modo) continuam
-   roxos, como o resto do projeto. */
-.ex-dif__opcao[data-dificuldade] {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--dif);
-    border-color: var(--dif-linha);
-}
-.ex-dif__opcao[data-dificuldade]:hover {
-    background: var(--dif-fundo);
-    border-color: var(--dif);
-}
-.ex-dif__opcao[data-dificuldade][aria-pressed="true"] {
-    background: var(--dif-fundo);
-    border-color: var(--dif);
-    color: var(--dif);
-}
-.ex-dif__opcao[data-dificuldade]::before {
-    content: "";
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--dif);
-    opacity: .5;
-    transition: opacity var(--transition);
-}
-.ex-dif__opcao[data-dificuldade][aria-pressed="true"]::before { opacity: 1; }
 
 /* ---- "Quantas de cada": uma linha por dificuldade marcada ---- */
 .ex-qtd-dif { display: flex; flex-direction: column; gap: 10px; }
@@ -1275,3 +1188,18 @@
     gap: 8px;
 }
 .pagina-materia .exercicio-salvo-card__acoes .dash-btn--outline svg { width: 16px; height: 16px; flex: none; }
+
+/* ════════════════════════════════════════════════════════════════
+   BOTÕES DE ÍCONE: A CAIXINHA SÓ NO HOVER (lápis, lixeira)
+   Parado, só o ícone; a borda e o fundo aparecem quando o mouse
+   passa por cima do botão (ou no foco do teclado). Vale para a
+   lista de matérias e, dentro de uma matéria, para o lápis e a
+   lixeira de cada lista salva (o "Praticar" segue botão normal).
+   Mesmo bloco em resumos.css e flashcards.css.
+   ════════════════════════════════════════════════════════════════ */
+.ex-linha__editar:not(:hover):not(:focus-visible),
+.exercicio-salvo-card__acoes :is([data-editar], [data-excluir]):not(:hover):not(:focus-visible) {
+    border-color: transparent;
+    background: none;
+    box-shadow: none;
+}

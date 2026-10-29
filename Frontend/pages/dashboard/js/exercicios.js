@@ -529,3 +529,11 @@ function atualizarContadorFiltro(materia, delta) {
         span.hidden = novo === 0;
     }
 }
+
+/* Os números do topo (matérias, questões, respostas, acerto): criar
+   ou apagar uma matéria muda a contagem — e apagar leva junto as
+   listas e as respostas dela, então o acerto também pode mudar. */
+document.addEventListener("exercicioMateria:salvo", (e) => {
+    if (e.detail?.novo) recarregarEstatisticas("exStats", "exercicios");
+});
+document.addEventListener("exercicioMateria:apagado", () => recarregarEstatisticas("exStats", "exercicios"));

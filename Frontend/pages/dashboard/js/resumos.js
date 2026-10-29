@@ -409,7 +409,6 @@
         desenharCadernos();
         desenharSoltos();
         atualizarFiltros();
-        atualizarContagem();
         atualizarAbas();
         ligarAlvosDosCadernos();   // os cartões são novos: religa os alvos
     }
@@ -553,24 +552,13 @@
             ).join("");
     }
 
-    /* "2 cadernos · 7 resumos na sua conta" no cabeçalho */
-    function atualizarContagem() {
-        const p = document.getElementById("estanteResumo");
-        if (!p) return;
-
-        const nc = cadernos.length;
-        const nr = soltos.length + cadernos.reduce((s, c) => s + (c.resumos || 0), 0);
-
-        if (nc === 0 && nr === 0) {
-            p.textContent = "Monte um caderno por matéria e guarde seus resumos nele.";
-            return;
-        }
-
-        const partes = [];
-        if (nc > 0) partes.push(`${nc} ${nc === 1 ? "caderno" : "cadernos"}`);
-        if (nr > 0) partes.push(`${nr} ${nr === 1 ? "resumo" : "resumos"}`);
-        p.textContent = partes.join(" · ") + " na sua conta.";
-    }
+    /* Os números do topo (resumos, cadernos, na semana, prontos para
+       revisão). "Na semana" e "prontos" dependem do texto e da data de
+       cada resumo, que a tela não tem inteiros em memória: em vez de
+       adivinhar, pede ao servidor depois de cada mudança. */
+    ["caderno:salvo", "caderno:apagado", "resumo:salvo", "resumo:apagado"].forEach((evento) => {
+        document.addEventListener(evento, () => recarregarEstatisticas("bibStats", "biblioteca"));
+    });
 
     /** Os números nas abas do celular. */
     function atualizarAbas() {

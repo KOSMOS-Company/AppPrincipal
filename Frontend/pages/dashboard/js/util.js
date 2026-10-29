@@ -48,3 +48,46 @@ function corDoItem(escolha, materia) {
     if (escolha === "auto" || !escolha) return corDaMateria(materia);
     return "roxo";
 }
+
+/* ------------------------------------------------------------
+   OS NÚMEROS DO TOPO (Biblioteca, Exercícios)
+   Gêmeo do partes/estatisticas.php: a página chega com os números
+   prontos e, depois de criar, apagar ou mover algo sem recarregar,
+   pede ao servidor os números novos e repinta só os <strong>.
+   ------------------------------------------------------------ */
+
+/** A cor do acerto: verde a partir de 70%, amarelo de 50 a 69, vermelho abaixo. */
+function faixaDeAcerto(pct) {
+    if (pct === null || pct === undefined) return "";
+    return pct >= 70 ? "boa" : pct >= 50 ? "media" : "baixa";
+}
+
+/** Busca ?de=biblioteca|exercicios e repinta a faixa #caixaId. */
+async function recarregarEstatisticas(caixaId, de) {
+    const caixa = document.getElementById(caixaId);
+    if (!caixa) return;
+    try {
+        const r = await fetch(`../../../Backend/php/estatisticas.php?de=${encodeURIComponent(de)}`,
+                              { credentials: "same-origin" });
+        const j = await r.json();
+        if (!j.ok) return;
+
+        Object.entries(j.stats).forEach(([chave, valor]) => {
+            const alvo = caixa.querySelector(`[data-stat="${chave}"]`);
+            if (!alvo) return;
+            // 0% de acerto é um resultado de verdade; só "sem respostas" (null) vira traço
+            const zerado = valor === null || (chave !== "acerto" && valor === 0);
+            alvo.textContent = zerado ? "—" : (chave === "acerto" ? `${valor}%` : valor);
+
+            const stat = alvo.closest(".ini-stat");
+            stat.classList.toggle("ini-stat--vazio", zerado);
+            if (chave === "acerto") {
+                const faixa = faixaDeAcerto(valor);
+                if (faixa) stat.dataset.faixa = faixa;
+                else delete stat.dataset.faixa;
+            }
+        });
+    } catch {
+        // sem conexão: os números de antes ficam na tela
+    }
+}

@@ -40,6 +40,21 @@
             }
         }
 
+        /* Exercícios com IA a partir do texto. Mesma regra: sem o
+           módulo, ou sem texto no resumo, o botão não aparece. */
+        const btnEx = document.getElementById("btnExercicios");
+        if (btnEx) {
+            if (window.KosmosExercicioGerarForm) {
+                btnEx.addEventListener("click", () => {
+                    window.KosmosExercicioGerarForm.abrirDoResumo(resumo);
+                });
+            } else {
+                btnEx.hidden = true;
+            }
+        }
+
+        ligarMenuEstudar();
+
         // delegação: a galeria é redesenhada quando as imagens mudam
         galeria?.addEventListener("click", (e) => {
             const item = e.target.closest("[data-lupa]");
@@ -48,6 +63,40 @@
 
         ligarLupa();
     });
+
+    /* ------------------------------------------------------------
+       Menu "Estudar" (revisão, flashcards, exercícios)
+       Cada item já tem o seu ouvinte (resumo-revisao.js e acima);
+       aqui é só abrir, fechar e escolher com o teclado.
+       ------------------------------------------------------------ */
+    function ligarMenuEstudar() {
+        const botao = document.getElementById("btnEstudar");
+        const menu  = document.getElementById("menuEstudar");
+        if (!botao || !menu) return;
+
+        const itens = () => [...menu.querySelectorAll(".rs-menu__item:not([hidden])")];
+        const abrir = (aberto) => {
+            menu.hidden = !aberto;
+            botao.setAttribute("aria-expanded", String(aberto));
+            if (aberto) itens()[0]?.focus();
+        };
+
+        botao.addEventListener("click", () => abrir(menu.hidden));
+        // Escolheu um item: o menu sai da frente (o item faz o resto)
+        menu.addEventListener("click", (e) => { if (e.target.closest(".rs-menu__item")) abrir(false); });
+        document.addEventListener("click", (e) => {
+            if (!menu.hidden && !e.target.closest(".resumo-estudar")) abrir(false);
+        });
+        menu.addEventListener("keydown", (e) => {
+            const lista = itens();
+            const i = lista.indexOf(document.activeElement);
+            if (e.key === "ArrowDown") { e.preventDefault(); lista[(i + 1) % lista.length]?.focus(); }
+            if (e.key === "ArrowUp")   { e.preventDefault(); lista[(i - 1 + lista.length) % lista.length]?.focus(); }
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !menu.hidden) { abrir(false); botao.focus(); }
+        });
+    }
 
     /* ------------------------------------------------------------
        Resultado do editor
@@ -75,6 +124,8 @@
         if (leitura) {
             leitura.textContent = corpo;
             leitura.hidden = corpo === "";
+            const btnEx = document.getElementById("btnExercicios");
+            if (btnEx && window.KosmosExercicioGerarForm) btnEx.hidden = corpo.trim() === "";
             // o texto novo chega cru: os ==trechos== do modo revisão
             // precisam ser montados de novo (resumo-revisao.js)
             window.KosmosRevisao?.montar();

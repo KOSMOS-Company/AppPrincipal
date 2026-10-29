@@ -293,6 +293,10 @@
         const datEl = document.getElementById("pvDestaqueData");
         if (numEl) numEl.textContent = num;
         if (uniEl) uniEl.textContent = unidade;
+        // "faltam 5 dias", "faltam 1 dia"... mas "é hoje" / "é amanhã"
+        const faltamEl = document.getElementById("pvDestaqueFaltam");
+        if (faltamEl) faltamEl.textContent = p.faltam <= 1 ? "é" : "faltam";
+        el.destaque?.classList.toggle("pv-destaque--palavra", p.faltam <= 1);
         if (titEl) titEl.textContent = p.titulo;
         if (datEl) datEl.textContent = p.por_extenso;
 
@@ -487,7 +491,7 @@
                         <svg class="ico" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </button>
                 </div>
-                <button type="submit" class="dash-btn dash-btn--ghost dash-btn--pequeno">Salvar nota</button>
+                <button type="submit" class="dash-btn dash-btn--ghost dash-btn--pequeno" aria-label="Salvar nota">Salvar</button>
             </form>
             <span class="campo__dica">Deixe em branco e salve para apagar a nota.</span>
         </div>`;

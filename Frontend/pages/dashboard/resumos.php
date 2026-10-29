@@ -2,6 +2,7 @@
 // Porteiro + dados desta página (sem sessão, redireciona antes de
 // mandar qualquer HTML). Deixa $USUARIO, $PREF e $PAGINA prontos.
 require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
+require_once __DIR__ . '/../../../Backend/php/estatisticas_util.php';
 
 /* Esta é a estante: mostra os CADERNOS, não os resumos. Dentro de
    cada caderno ficam os temas (caderno.php).
@@ -60,22 +61,23 @@ $TOTAL_RESUMOS  = $TOTAL_SOLTOS + array_sum(array_column($CADERNOS, 'resumos'));
 $MATERIAS_USADAS = array_values(array_unique(array_column($CADERNOS, 'materia')));
 sort($MATERIAS_USADAS);
 
-/** Frase do cabeçalho: o que a pessoa tem hoje. */
-function resumoDaEstante(int $cadernos, int $resumos): string {
-    if ($cadernos === 0 && $resumos === 0) {
-        return 'Monte um caderno por matéria e guarde seus resumos nele.';
+/* Os números do topo (partes/estatisticas.php): o mesmo desenho
+   da faixa dos Flashcards, com o que dá para medir num resumo. */
+$NUM = ['resumos' => 0, 'cadernos' => 0, 'semana' => 0, 'prontos' => 0];
+if (!$ERRO_BANCO) {
+    try {
+        $NUM = estatisticasBiblioteca($pdo, (int) $USUARIO['id']);
+    } catch (PDOException $e) {
+        // sem os números a página segue: a faixa mostra traços
     }
-
-    $partes = [];
-    if ($cadernos > 0) {
-        $partes[] = $cadernos . ($cadernos === 1 ? ' caderno' : ' cadernos');
-    }
-    if ($resumos > 0) {
-        $partes[] = $resumos . ($resumos === 1 ? ' resumo' : ' resumos');
-    }
-
-    return implode(' · ', $partes) . ' na sua conta.';
 }
+$ESTATS_ID = 'bibStats';
+$ESTATS = [
+    ['resumos',  $NUM['resumos'],  'Resumos'],
+    ['cadernos', $NUM['cadernos'], 'Cadernos'],
+    ['semana',   $NUM['semana'],   'Escritos na semana'],
+    ['prontos',  $NUM['prontos'],  'Prontos para revisão'],
+];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -110,7 +112,6 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
                 <div class="contCabeca__texto">
                     <?php $CAMINHO = [['Biblioteca', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                     <h1>Seus <span class="h-nome">Cadernos</span></h1>
-                    <p id="estanteResumo"><?= hesc(resumoDaEstante($TOTAL_CADERNOS, $TOTAL_RESUMOS)) ?></p>
                 </div>
                 <div class="rs-acoes">
                     <button class="dash-btn dash-btn--ghost" id="btnNovo">
@@ -123,6 +124,8 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
                     </button>
                 </div>
             </header>
+
+            <?php require __DIR__ . '/partes/estatisticas.php'; ?>
 
             <!-- ============================================================
                  Abas — só no celular.
@@ -199,8 +202,7 @@ function resumoDaEstante(int $cadernos, int $resumos): string {
             <section class="rs-soltos" id="secaoSoltos"<?= $TOTAL_SOLTOS > 0 ? '' : ' data-vazia="1"' ?>>
                 <div class="rs-soltos__cabeca">
                     <h2>Sem caderno</h2>
-                    <p>Resumos que ainda não estão em nenhum caderno.
-                       <span class="rs-soltos__dica">Arraste um deles para cima de um caderno para guardá-lo —
+                    <p><span class="rs-soltos__dica">Arraste um deles para cima de um caderno para guardá-lo —
                        ou use o menu <strong>⋮</strong> do cartão.</span></p>
                 </div>
 
