@@ -27,14 +27,31 @@
 //  Nada é gravado direto: o servidor SUGERE, a pessoa confere, edita
 //  e só então salva. Um cartão errado memorizado é pior do que
 //  cartão nenhum, então a última palavra nunca é do algoritmo.
+//
+//  E A IA, AFINAL
+//  Com "ia": true no sugerir, os cartões vêm do fluxo com reserva de
+//  IAs (ia_util.php: Groq -> Gemini -> OpenRouter), que resolveu boa
+//  parte do problema de cima. Mesmo assim ela é um BOTÃO a mais na
+//  tela, e não o padrão: a leitura por regra continua abrindo o modal
+//  na hora e de graça, e se a IA falhar os cartões dela continuam lá.
 // ============================================================
 
 require_once __DIR__ . '/flashcards_comum.php';
+require_once __DIR__ . '/ia_util.php';
+require_once __DIR__ . '/limite_util.php';
 
 /** Teto do que sai de um resumo só. Baralho gigante ninguém revisa. */
 const FCG_MAX_SUGESTOES = 20;
 /** Teto do que entra numa gravação (a tela deixa adicionar cartões à mão). */
 const FCG_MAX_SALVAR    = 40;
+/** Menos texto do que isto não rende cartão bom pela IA. */
+const FCG_MIN_TEXTO_IA  = 80;
+/** O que cada nível quer dizer num flashcard, para a IA. */
+const FCG_NIVEIS_IA = [
+    'Fácil'   => 'Facil = lembrar um fato direto do resumo (definicao, nome, data, onde acontece)',
+    'Médio'   => 'Medio = entender: explicar um processo, relacionar duas ideias, dar um exemplo',
+    'Difícil' => 'Dificil = aplicar e comparar: diferencas, causa e consequencia, detalhes que se confundem',
+];
 
 $usuario = exigirLogin();
 fcExigirPost();
@@ -66,6 +83,11 @@ try {
             }
         }
 
+        $cartoes = empty($corpo['ia'])
+            ? fcgSugerir((string) $resumo['corpo'])
+            : fcgSugerirComIA($pdo, $resumo, (int) $usuario['id'],
+                fcgQuantidadeIA($corpo['qtd'] ?? null), fcgDificuldadesIA($corpo['dificuldades'] ?? null));
+
         fcResponder([
             'ok'      => true,
             'resumo'  => [
@@ -73,7 +95,10 @@ try {
                 'titulo'  => $resumo['titulo'],
                 'materia' => $resumo['materia'],
             ],
-            'cartoes'       => fcgSugerir((string) $resumo['corpo']),
+            'cartoes'       => $cartoes,
+            // A tela só oferece o botão da IA quando ele pode funcionar
+            'ia_disponivel' => iaDisponivel()
+                && mb_strlen(textoDoResumoParaIA((string) $resumo['corpo'])) >= FCG_MIN_TEXTO_IA,
             'decks'         => $decks,
             'deck_sugerido' => $sugerido,
             // Nome do baralho novo, caso ela prefira separar: o tema do
@@ -383,6 +408,87 @@ function fcgDePergunta(string $linha, array $linhas, int $i): ?array {
     }
 
     return null;
+}
+
+/** Quantos cartões pedir à IA: 1 a FCG_MAX_SUGESTOES, 10 se vier lixo. */
+function fcgQuantidadeIA($bruto): int {
+    $n = filter_var($bruto, FILTER_VALIDATE_INT);
+    return $n === false ? 10 : max(1, min(FCG_MAX_SUGESTOES, $n));
+}
+
+/** Os níveis marcados, na ordem Fácil → Médio → Difícil; nenhum vira Médio. */
+function fcgDificuldadesIA($bruto): array {
+    $marcadas = array_map('rotuloDificuldade', is_array($bruto) ? array_map('strval', $bruto) : []);
+    $niveis = array_values(array_intersect(['Fácil', 'Médio', 'Difícil'], $marcadas));
+    return $niveis ?: ['Médio'];
+}
+
+/**
+ * Os cartões pela IA, no mesmo formato da leitura por regra (origem
+ * "ia", mais a dificuldade de cada um). Gasta a mesma cota por pessoa
+ * dos exercícios com IA.
+ */
+function fcgSugerirComIA(PDO $pdo, array $resumo, int $usuarioId, int $qtd, array $niveis): array {
+    $texto = textoDoResumoParaIA((string) $resumo['corpo']);
+    if (mb_strlen($texto) < FCG_MIN_TEXTO_IA) {
+        fcErro('Este resumo tem pouco texto para a IA. Escreva um pouco mais nele.', 422);
+    }
+
+    $chaveLimite = 'usuario:' . $usuarioId;
+    if (limiteExcedido($pdo, 'ia', $chaveLimite)) {
+        fcErro('Você usou a IA muitas vezes em pouco tempo. Espere um pouco e tente de novo.', 429);
+    }
+    registrarTentativa($pdo, 'ia', $chaveLimite);
+
+    $niveisIA = array_map(static fn ($n) => FCG_NIVEIS_IA[$n], $niveis);
+    $nivel = count($niveis) === 1
+        ? ' Todos no nivel ' . $niveisIA[0] . '.'
+        : ' Distribua os cartoes de forma equilibrada entre estes niveis: ' . implode('; ', $niveisIA) . '.';
+
+    $prompt = 'Crie ' . $qtd . ' flashcards de ' . $resumo['materia']
+        . ' para revisao espacada, baseados SOMENTE no resumo do aluno que esta no fim desta mensagem'
+        . ' (nao invente nada que nao esteja nele; escreva tudo em portugues;'
+        . ' se o resumo nao render ' . $qtd . ' cartoes sem repetir, faca menos).'
+        . $nivel
+        . ' Cada cartao cobre UMA ideia, sem repetir: "frente" e uma pergunta curta e direta'
+        . ' (ate 150 caracteres), "verso" e a resposta curta (ate 250 caracteres) e "dificuldade"'
+        . ' e exatamente uma de: Facil, Medio, Dificil.'
+        . ' Responda apenas com JSON no formato: {"cartoes":[{"frente":"...","verso":"...","dificuldade":"..."}]}'
+        . "\n\nResumo do aluno, titulo \"" . $resumo['titulo'] . "\":\n\"\"\"\n" . $texto . "\n\"\"\"";
+
+    try {
+        $resposta = iaPerguntar($prompt, 60);
+    } catch (RuntimeException $e) {
+        if ($e->getCode() === 429) {
+            fcErro('A IA está sem cota agora. Tente mais tarde — os cartões abaixo continuam valendo.', 429);
+        }
+        fcErro('A IA não respondeu agora. Tente de novo em instantes.', 502);
+    }
+
+    $cartoes = [];
+    $vistos  = [];
+    foreach (extrairListaJson($resposta, 'cartoes') as $c) {
+        if (!is_array($c) || count($cartoes) >= $qtd) {
+            continue;
+        }
+        $cartao = fcgMontar((string) ($c['frente'] ?? ''), (string) ($c['verso'] ?? ''), 'ia');
+        $chave  = $cartao ? mb_strtolower($cartao['frente']) : '';
+        if ($cartao === null || isset($vistos[$chave])) {
+            continue;
+        }
+        $vistos[$chave] = true;
+        // Nível fora do pedido (ou sem nível) vira o primeiro marcado:
+        // a etiqueta na tela tem de bater com o que a pessoa escolheu
+        $dif = rotuloDificuldade((string) ($c['dificuldade'] ?? ''));
+        $cartao['dificuldade'] = in_array($dif, $niveis, true) ? $dif : $niveis[0];
+        $cartoes[] = $cartao;
+    }
+
+    if (!$cartoes) {
+        error_log('[KOSMOS IA] flashcards sem cartões aproveitáveis: ' . mb_substr($resposta, 0, 300));
+        fcErro('A IA respondeu num formato inesperado. Tente de novo.', 502);
+    }
+    return $cartoes;
 }
 
 /** Corta no limite da coluna e recusa o que ficou curto demais. */

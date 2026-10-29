@@ -84,8 +84,10 @@ Os endpoints com várias operações recebem o campo `acao`.
 | `foco_mensal.php` | GET | `?mes=AAAA-MM` — calendário de foco do mês |
 | `pomodoro_sessao.php` | POST (JSON) | `fim` (epoch em segundos), `minutos` — idempotente |
 | `busca.php` | GET | `?q=termo` — resumos, cadernos, baralhos, cartões e exercícios |
+| `estatisticas.php` | GET | `?de=biblioteca` (resumos, cadernos, semana, prontos) ou `?de=exercicios` (matérias, questões, respostas, acerto %) — os números do topo das abas |
 | `resumos_listar.php` | GET | `?caderno=ID` (opcional; `0` = soltos) |
 | `resumos_salvar.php` | POST | `titulo`, `corpo`, `caderno`, `materia`, `id` (editar) |
+| `resumos_ia.php` | POST | `titulo`, `materia`, `anotacoes` (opcional) — devolve `texto`, um rascunho da IA para o editor (não grava nada); fluxo com reserva (`N8N_IA_URL`), cota `ia` por pessoa |
 | `resumos_excluir.php` | POST | `id` |
 | `resumos_mover.php` | POST | `resumo`, `caderno` (vazio = sem caderno) |
 | `resumos_imagem.php` | POST | `enviar` (`resumo` + `imagens[]`), `excluir` (`id`) |
@@ -96,7 +98,7 @@ Os endpoints com várias operações recebem o campo `acao`.
 | `flashcards_deck.php` | POST | `criar`, `editar`, `excluir` |
 | `flashcards_cartao.php` | POST | `criar`, `editar`, `excluir` |
 | `flashcards_revisao.php` | POST | `deck`, `respostas` (JSON) — uma transação |
-| `flashcards_gerar.php` | POST (JSON) | `sugerir` (`resumo`), `salvar` — por regra, sem IA |
+| `flashcards_gerar.php` | POST (JSON) | `sugerir` (`resumo` [, `ia: true`, `qtd` 1–20, `dificuldades` [Fácil/Médio/Difícil]]), `salvar` — por regra; com `ia`, pela IA (fluxo com reserva, cota `ia`). `sugerir` devolve `ia_disponivel` |
 | `revisar_fila.php` | GET | cartões vencidos de todos os baralhos |
 | `provas.php` | GET / POST | `criar`, `editar`, `excluir`, `resultado`, `topico_criar`, `topico_alternar`, `topico_excluir` |
 | `exercicios_materia.php` | POST | `criar`, `editar`, `excluir`, `ordenar` |
@@ -104,7 +106,7 @@ Os endpoints com várias operações recebem o campo `acao`.
 | `exercicios_salvar.php` | POST | `criar`, `editar`, `excluir` |
 | `exercicios_responder.php` | POST | `exercicio`, `questao`, `escolhida` — o gabarito é do servidor |
 | `orion_chat.php` | POST (JSON) | `mensagem` (≤ 1000), `historico` (últimas 8), `pagina`, `questao` (do "Por que eu errei?") — devolve `resposta` e `humor` do mascote; chama o n8n (Groq), espera até 45 s; sem `N8N_ORION_URL` responde 503 e as telas usam as respostas prontas |
-| `gerar_exercicios.php` | POST | `materia` (≤ 200), `conteudo` (≤ 1000), `plano` (JSON, até 15 questões) — chama o n8n, espera até 90 s |
+| `gerar_exercicios.php` | POST | `materia` (≤ 200), `conteudo` (≤ 1000), `plano` (JSON, até 15 questões) — chama o n8n, espera até 90 s. Com `resumo` (id) no lugar de `materia`/`conteudo`, as questões saem do texto do resumo (até 6000 caracteres) pelo fluxo com reserva de IAs (`N8N_IA_URL`: Groq → Gemini → OpenRouter); sem a URL, 503 |
 
 ## Arquivos que não são endpoints
 
