@@ -55,11 +55,11 @@
        ------------------------------------------------------------ */
     var FALAS = {
         sobre: {
-            texto: 'Aqui conta como a Kosmos começou. Foi estudante igual a você que fez, pra dar conta da própria rotina.',
+            texto: 'Aqui tem o resumo do que dá pra fazer na Kosmos.',
             humor: 'curioso'
         },
         recursos: {
-            texto: 'Essas são as ferramentas. Olha com calma, cada uma ajuda numa parte do estudo.',
+            texto: 'Passa pelos cartões pra conhecer cada ferramenta.',
             humor: 'foco'
         },
         demo: {
@@ -67,7 +67,7 @@
             humor: 'surpreso'
         },
         historia: {
-            texto: 'Foram quatro estudantes fazendo TCC e virando noite. A Kosmos saiu daí.',
+            texto: 'Essa é a turma que me criou. Teve muita noite virada nisso aqui.',
             humor: 'timido'
         },
         faq: {
@@ -75,7 +75,7 @@
             humor: 'pensativo'
         },
         fim: {
-            texto: 'Acabou o passeio! Se curtiu, cria sua conta e começa hoje mesmo, é de graça.',
+            texto: 'Fim do passeio. Se quiser continuar, é só criar sua conta.',
             humor: 'comemorando'
         }
     };
