@@ -70,6 +70,7 @@ terminal).
 | `GOOGLE_CLIENT_ID` | o do projeto de produção no Google Cloud, com a origem `https://kosmos.exemplo.com` autorizada |
 | `N8N_*` | URLs de produção dos webhooks e um `N8N_TOKEN_VALOR` aleatório com 32+ caracteres |
 | `N8N_NOTIF_URL` | webhook do fluxo de notificações (opcional) |
+| `N8N_IA_URL` | webhook do fluxo "Kosmos — IA" (Groq → Gemini → OpenRouter), usado pelos exercícios do resumo, flashcards com IA e rascunho de resumo. Vazia, esses três ficam desligados |
 
 ## 5. HTTPS
 
