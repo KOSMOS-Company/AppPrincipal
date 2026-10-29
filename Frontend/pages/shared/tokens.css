@@ -65,6 +65,40 @@
     .so-mouse { display: none; }
 }
 
+/* Botões de fechar com o "×": o caractere vinha da fonte e cada uma o
+   desenha num lugar (ficava torto dentro do círculo), e no cabeçalho
+   flex de um modal de título longo o botão encolhia e virava oval.
+   Agora ele não encolhe e o X é desenhado aqui, sempre no centro; o
+   "&times;" continua no HTML só para quem usa leitor de tela. O button
+   na frente dá o peso para vencer o font-size de cada página. */
+button:is(.modal__close, .kmodal__close, .lupa__fechar, .gf-cartao__x) {
+    flex: none;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    font-size: 0;
+    line-height: 0;
+}
+/* Absoluto no centro, e não item da grade: o "&times;" (mesmo com
+   tamanho zero) também virava item e empurrava o X para cima. */
+button:is(.modal__close, .kmodal__close, .lupa__fechar, .gf-cartao__x)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 14px;
+    height: 14px;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2 2l10 10M12 2 2 12' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2 2l10 10M12 2 2 12' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* os dois de baixo não eram posicionados; kmodal e lupa já são absolutos */
+button:is(.modal__close, .gf-cartao__x) { position: relative; }
+button.modal__close { width: 32px; height: 32px; }
+button.kmodal__close { width: 32px; height: 32px; }
+button.gf-cartao__x::before { width: 11px; height: 11px; }
+button.lupa__fechar::before { width: 16px; height: 16px; }
+
 /* Toque: alguns botões de ícone medem 22–28px, menos que a ponta de
    um dedo (o mínimo recomendado fica perto de 44px). O desenho não
    muda; uma moldura invisível em volta deles aumenta só a área que

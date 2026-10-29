@@ -633,6 +633,35 @@
         if (demoAnt) demoAnt.addEventListener('click', () => { pulsar(demoAnt); ativar(atual - 1, -1); });
         if (demoProx) demoProx.addEventListener('click', () => { pulsar(demoProx); ativar(atual + 1, 1); });
 
+        /* Deslizar o dedo no palco troca a demonstração — no celular é o
+           único jeito (as setas somem lá, ver inicio.css). Só vale um
+           gesto claramente de lado: o toque no cartão, no play ou numa
+           alternativa continua sendo toque, e a rolagem da página segue
+           livre (touch-action: pan-y no palco). */
+        const palco = document.getElementById('demoStage');
+        if (palco) {
+            let toque = null;
+            let deslizou = false;     // o clique que vem depois do gesto não vale
+            palco.addEventListener('pointerdown', (e) => {
+                if (e.pointerType === 'mouse') return;
+                toque = { x: e.clientX, y: e.clientY };
+                deslizou = false;
+            });
+            const soltar = (e) => {
+                if (!toque) return;
+                const dx = e.clientX - toque.x, dy = e.clientY - toque.y;
+                toque = null;
+                if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+                deslizou = true;
+                ativar(atual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+            };
+            palco.addEventListener('click', (e) => {
+                if (deslizou) { e.preventDefault(); e.stopPropagation(); deslizou = false; }
+            }, true);
+            palco.addEventListener('pointerup', soltar);
+            palco.addEventListener('pointercancel', () => { toque = null; });
+        }
+
         ativar(atual);
     }
 })();

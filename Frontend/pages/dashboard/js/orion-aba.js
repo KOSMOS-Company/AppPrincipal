@@ -277,8 +277,20 @@
         function ajustarAltura() {
             input.style.height = 'auto';
             input.style.height = input.scrollHeight + 'px';
+            // rola por dentro só quando bateu no max-height do CSS
+            input.classList.toggle('orion-chat-input--rola', input.scrollHeight > input.clientHeight + 1);
         }
         input.addEventListener('input', ajustarAltura);
+
+        /* No celular a caixa é fixa no rodapé (orion-aba.css) e a conversa
+           precisa saber quanto reservar embaixo para a última mensagem não
+           ficar atrás dela — inclusive quando a caixa cresce com o texto. */
+        const rodape = document.querySelector('.orion-rodape');
+        if (rodape && 'ResizeObserver' in window) {
+            new ResizeObserver(() => {
+                document.documentElement.style.setProperty('--orion-rodape-h', rodape.offsetHeight + 'px');
+            }).observe(rodape);
+        }
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
                 e.preventDefault();

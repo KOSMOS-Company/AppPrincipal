@@ -385,7 +385,6 @@
         });
         // O topo começou a sumir com a rolagem (dashboard.js): o painel,
         // que mora nele, fecha em vez de ficar boiando sem o chip
-        document.addEventListener("kosmos:topo-escondido", () => { if (aberto()) abrir(false); });
         // Virou computador (girou o tablet, redimensionou): o painel some
         window.matchMedia("(min-width: 769px)").addEventListener("change", (m) => { if (m.matches) abrir(false); });
     }

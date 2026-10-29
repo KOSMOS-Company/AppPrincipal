@@ -223,9 +223,17 @@
             .map((b) => b.dataset.dificuldade);
     }
 
+    /** O chip balança: "este não pode sair" (o último marcado). */
+    function recusarChip(chip) {
+        chip.classList.remove("ex-dif__opcao--recusa");
+        void chip.offsetWidth;                      // reinicia a animação
+        chip.classList.add("ex-dif__opcao--recusa");
+    }
+
     function alternarDificuldade(btn) {
         const ativo = btn.getAttribute("aria-pressed") === "true";
-        if (ativo && dificuldadesMarcadas().length === 1) return; // sempre pelo menos uma
+        // sempre pelo menos uma: a última marcada treme em vez de desmarcar
+        if (ativo && dificuldadesMarcadas().length === 1) { recusarChip(btn); return; }
         btn.setAttribute("aria-pressed", String(!ativo));
         atualizarLinhas();
     }

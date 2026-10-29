@@ -2346,10 +2346,36 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
     .demo__palco .carrossel__seta:active:not(:disabled) { transform: scale(.92); }
     .demo__palco .carrossel__seta--ant  { left: calc(50% - 56px); }
     .demo__palco .carrossel__seta--prox { right: calc(50% - 56px); }
-    .demo .demo__stage { margin-bottom: 64px; }
     .recursos .recursos__grid .card,
     .recursos .recursos__grid .card--featured { width: min(300px, 78vw); }
     .carrossel__seta { width: 40px; height: 40px; }
+}
+
+/* Celular: sem setas — os recursos rolam com o dedo (a esteira já é
+   rolável) e o "Experimente" troca deslizando o palco (js/inicio.js).
+   Os passos 1-2-3 viram bolinhas embaixo da demonstração, como as de
+   um post com várias fotos: a da vez acende na cor da marca. */
+@media (max-width: 768px) {
+    .carrossel__seta { display: none !important; }
+    .demo .demo__stage { touch-action: pan-y; }
+
+    /* o cabeçalho em cima, o palco no meio e as bolinhas embaixo */
+    .demo__passos { display: contents; }
+    .demo__scrolly .demo__header { order: 1; margin-bottom: 0; }
+    .demo__palco { order: 2; }
+    .demo__lista { order: 3; gap: 8px; margin-top: -8px; }
+
+    .demo__passo { opacity: 1; padding: 6px 0; }   /* a área de toque é maior que o ponto */
+    .demo__passo-num {
+        width: 7px;
+        height: 7px;
+        border: 0;
+        font-size: 0;                 /* o número continua no HTML para leitor de tela */
+        color: transparent;
+        background: rgba(201, 124, 255, .28);
+        transition: background-color .25s ease, transform .25s ease;
+    }
+    .demo__passo--ativo .demo__passo-num { background: var(--accent); }
 }
 @media (prefers-reduced-motion: reduce) {
     .recursos__esteira { scroll-behavior: auto; }
