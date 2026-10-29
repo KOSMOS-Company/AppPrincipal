@@ -3,6 +3,7 @@
 // mandar qualquer HTML). Deixa $USUARIO, $PREF e $PAGINA prontos.
 require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
 require_once __DIR__ . '/../../../Backend/php/exercicios_util.php';
+require_once __DIR__ . '/../../../Backend/php/estatisticas_util.php';
 
 /* Esta é a estante: mostra as MATÉRIAS DE EXERCÍCIOS.
    Dentro de cada matéria ficam os exercícios (exercicio_materia.php).
@@ -32,14 +33,25 @@ $POSICOES = posicoesConstelacoes($MATERIAS_DOS_PONTOS);
 $MATERIAS_USADAS = array_values(array_unique(array_column($MATERIAS, 'materia')));
 sort($MATERIAS_USADAS);
 
-/** Frase do cabeçalho: o que a pessoa tem hoje. */
-function resumoDaEstanteExercicios(int $materias): string {
-    if ($materias === 0) {
-        return 'Crie uma matéria para começar a gerar exercícios.';
+/* Os números do topo (partes/estatisticas.php): a faixa dos
+   Flashcards adaptada — o acerto é o número que diz se o estudo
+   está funcionando, e ganha a cor da faixa (verde/amarelo/vermelho). */
+$NUM = ['materias' => 0, 'questoes' => 0, 'respostas' => 0, 'acerto' => null];
+if (!$ERRO_BANCO) {
+    try {
+        $NUM = estatisticasExercicios($pdo, (int) $USUARIO['id']);
+    } catch (PDOException $e) {
+        // sem os números a página segue: a faixa mostra traços
     }
-
-    return $materias . ($materias === 1 ? ' matéria' : ' matérias') . ' na sua conta.';
 }
+$ESTATS_ID = 'exStats';
+$ESTATS = [
+    ['materias',  $NUM['materias'],  'Matérias'],
+    ['questoes',  $NUM['questoes'],  'Questões criadas'],
+    ['respostas', $NUM['respostas'], 'Respostas'],
+    // 0% é resultado de verdade (vira "0%", texto); sem respostas, null vira traço
+    ['acerto', $NUM['acerto'] === null ? null : $NUM['acerto'] . '%', 'Acerto', $NUM['acerto'] === null ? '' : ($NUM['acerto'] >= 70 ? 'boa' : ($NUM['acerto'] >= 50 ? 'media' : 'baixa'))],
+];
 
 /* ============================================================
    A PÁGINA: um panorama em cima, uma lista embaixo
@@ -217,7 +229,6 @@ function alturaMapa(int $materias): string {
                 <div class="contCabeca__texto">
                     <?php $CAMINHO = [['Exercícios', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                     <h1>Suas <span class="h-nome">Matérias</span></h1>
-                    <p id="estanteResumo"><?= hesc(resumoDaEstanteExercicios($TOTAL_MATERIAS)) ?></p>
                 </div>
                 <div class="rs-acoes">
                     <button class="dash-btn dash-btn--primary" id="btnNovaMateria">
@@ -226,6 +237,8 @@ function alturaMapa(int $materias): string {
                     </button>
                 </div>
             </header>
+
+            <?php require __DIR__ . '/partes/estatisticas.php'; ?>
 
             <!-- O PANORAMA: uma faixa de constelação com as matérias
                  como pontos, para dar contexto de quanto existe aqui.

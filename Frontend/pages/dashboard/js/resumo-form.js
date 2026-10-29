@@ -78,6 +78,9 @@
         // mousedown sem padrão: clicar no botão não tira o foco (nem a seleção) do texto
         btnDestacar?.addEventListener("mousedown", (e) => e.preventDefault());
         btnDestacar?.addEventListener("click", destacarSelecao);
+
+        el("btnRascunhoIA")?.addEventListener("click", rascunhoIA);
+        el("btnDesfazerIA")?.addEventListener("click", desfazerRascunhoIA);
         texto?.addEventListener("keydown", (e) => {
             if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "e") {
                 e.preventDefault();
@@ -181,7 +184,7 @@
         const n = (t.value.match(MARCA_DESTAQUE) || []).length;
         dica.textContent = n === 0
             ? "Selecione o que quer lembrar e destaque. No Modo revisão, esses trechos ficam escondidos para você se testar."
-            : `✓ ${n} ${n === 1 ? "trecho destacado" : "trechos destacados"}: o Modo revisão vai escondê-${n === 1 ? "lo" : "los"} para você se testar.`;
+            : `✓ ${n} ${n === 1 ? "trecho destacado" : "trechos destacados"}`;
     }
 
     /* resumo = null -> novo; com resumo -> edita.
@@ -191,6 +194,8 @@
     function abrir(resumo, opcoes = {}) {
         esconderMsg();
         limparPendentes();
+        textoAntesIA = null;
+        if (el("btnDesfazerIA")) el("btnDesfazerIA").hidden = true;
         cadernoOriginal = resumo?.caderno_id ? Number(resumo.caderno_id) : null;
 
         const titulo  = el("titulo");
@@ -239,6 +244,65 @@
     function fechar() {
         modal.classList.remove("open");
         limparPendentes();
+        esconderMsg();
+    }
+
+    /* ------------------------------------------------------------
+       Rascunho com IA
+       O texto entra no campo, sem salvar: a pessoa confere e ajusta.
+       O que estava escrito vai junto como anotações (a IA organiza e
+       completa) e fica guardado para o "Desfazer".
+       ------------------------------------------------------------ */
+    let textoAntesIA = null;
+
+    async function rascunhoIA() {
+        const btn    = el("btnRascunhoIA");
+        const texto  = el("conteudo");
+        const titulo = el("titulo").value.trim();
+
+        if (!titulo) {
+            msg("Escreva o tema primeiro: é dele que a IA parte.", "erro");
+            el("titulo").focus();
+            return;
+        }
+
+        const dados = new FormData();
+        dados.append("titulo", titulo);
+        // num caderno, o aplicarCaderno() já pôs a matéria dele aqui
+        dados.append("materia", el("materia")?.value || "");
+        dados.append("anotacoes", texto.value.trim());
+
+        const rotulo = btn.querySelector("span");
+        btn.disabled = true;
+        rotulo.textContent = "Escrevendo…";
+        esconderMsg();
+
+        try {
+            const resp = await fetch(`${BACKEND}/resumos_ia.php`, { method: "POST", body: dados });
+            const json = await resp.json();
+            if (!json.ok) throw new Error(json.msg || "Não foi possível escrever o rascunho.");
+
+            textoAntesIA = texto.value;
+            texto.value = json.texto;
+            texto.dispatchEvent(new Event("input"));   // contador e dica do destaque
+            texto.scrollTop = 0;
+            el("btnDesfazerIA").hidden = false;
+            msg("Rascunho da IA no campo. Confira os fatos e ajuste com suas palavras antes de salvar.", "sucesso");
+        } catch (err) {
+            msg(err.message || "Não foi possível escrever o rascunho.", "erro");
+        } finally {
+            btn.disabled = false;
+            rotulo.textContent = "Rascunho com IA";
+        }
+    }
+
+    function desfazerRascunhoIA() {
+        if (textoAntesIA === null) return;
+        const texto = el("conteudo");
+        texto.value = textoAntesIA;
+        textoAntesIA = null;
+        texto.dispatchEvent(new Event("input"));
+        el("btnDesfazerIA").hidden = true;
         esconderMsg();
     }
 

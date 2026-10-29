@@ -175,12 +175,12 @@
         { id: 'resumo', paginas: ['resumo.php'],
           quando: function () { return visivelSel('.resumo-acoes'); },
           falas: [
-            { alvo: ['#btnRevisar', '.resumo-acoes'], humor: 'curioso', anim: 'aponta',
-              titulo: 'Modo revisão',
-              texto: 'Com trechos destacados, “Modo revisão” esconde cada um. Tente lembrar e toque para conferir.' },
-            { alvo: '#btnFlashcards', humor: 'feliz', anim: 'pula',
-              titulo: 'Vire flashcards',
-              texto: 'Leu tudo? Clique em “Flashcards” e eu transformo este resumo em cartões de pergunta e resposta.' }
+            { alvo: ['#btnEstudar', '.resumo-acoes'], humor: 'curioso', anim: 'aponta',
+              titulo: 'Hora de estudar',
+              texto: 'Leu tudo? Em “Estudar” você liga o modo revisão, que esconde os trechos destacados, ou transforma este resumo em flashcards e exercícios.' },
+            { alvo: '#btnEditar', humor: 'feliz', anim: 'pula',
+              titulo: 'Sempre dá para melhorar',
+              texto: 'Aprendeu algo novo? Clique em “Editar” e complete o resumo quando quiser.' }
           ] },
         { id: 'estudo', paginas: ['flashcards.php', 'revisar.php'],
           quando: function () { return visivelSel('#flashcard'); },

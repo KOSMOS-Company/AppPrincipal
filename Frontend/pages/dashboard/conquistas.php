@@ -319,7 +319,7 @@ $COMO = [
             <section class="cq-secao" aria-labelledby="cqComo">
                 <div class="cq-secao__cabeca">
                     <h2 id="cqComo">Como ganhar XP</h2>
-                    <p>Os limites diários existem para o XP medir estudo de verdade — não cliques.</p>
+                    <p>Os limites diários existem para o XP medir estudo.</p>
                 </div>
                 <ul class="painel cq-regras">
                     <?php foreach ($COMO as [$acao, $valor, $limite]): ?>

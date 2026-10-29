@@ -1378,7 +1378,7 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 
 /* Mais largo que o modal padrão: são dois campos por cartão, e
    pergunta e resposta espremidas viram duas colunas de uma palavra. */
-.modal__box--gerar { max-width: 620px; }
+.modal__box--gerar { max-width: 680px; }
 
 .gf-fonte {
     font-size: .85rem;
@@ -1394,13 +1394,82 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 }
 .gf-carregando[hidden] { display: none; }
 
+/* O miolo do modal (Guardar em, Criar com IA, a lista) é um bloco só
+   dentro do form: sem isto o gap do .modal__form não chegava aos
+   filhos dele e tudo ficava colado. */
+#gerarConteudo:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
 .gf-cabeca {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-top: 4px;
+    margin-top: 2px;
 }
+/* ---- Painel "Criar com IA": tudo numa linha ----
+   Título pequeno em cima; chips, quantidade e o botão lado a lado.
+   Antes eram três blocos empilhados com rótulo e dica, e o painel
+   sozinho ocupava meia tela antes do primeiro cartão. */
+.gf-ia {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid rgba(165, 65, 255, .28);
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(165, 65, 255, .10), rgba(165, 65, 255, .03));
+}
+.gf-ia__titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+}
+.gf-ia__titulo svg { width: 14px; height: 14px; }
+.gf-ia__linha {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+}
+.gf-ia .ex-dif { gap: 6px; }
+.gf-ia .ex-dif__opcao { padding: 7px 12px; font-size: .8rem; }
+.gf-ia__qtd {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .82rem;
+    color: var(--text-muted);
+}
+/* Fora de um .campo o input não herda o visual do tema (e o navegador
+   o pintava de branco, com o número branco por cima: sumia). */
+.gf-ia .qtd-stepper input[type="number"] {
+    width: 52px;
+    margin: 0 2px;
+    padding: 6px 4px;
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-chip);
+    color: var(--text);
+    font-family: inherit;
+    color-scheme: dark;
+}
+.gf-ia .qtd-stepper input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--bg-card);
+}
+.gf-ia__gerar { margin-left: auto; }
+
 .gf-cabeca h4 {
     font-size: .72rem;
     font-weight: 600;
@@ -1415,47 +1484,206 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 .gf-lista {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-height: min(46vh, 420px);
+    gap: 14px;
+    max-height: min(48vh, 460px);
     overflow-y: auto;
-    padding: 2px;
-    margin: 12px 0 4px;
+    padding: 2px 4px 2px 2px;
+    margin: -6px 0 0;            /* o título "Cartões" fica junto da lista */
 }
 
-.gf-cartao {
-    padding: 14px 16px;
-    border-radius: var(--radius-sm);
-    background: rgba(255,255,255,.03);
-    border: 1px solid rgba(165,65,255,.14);
+/* ---- Os dois grupos: "Feitos por você" e "Criados pela IA" ----
+   Cada um tem a sua cor, repetida no selo do título e na faixa à
+   esquerda de cada cartão: dá para saber a origem de um cartão sem
+   ler nada, só pela cor. Você = ciano; IA = o roxo dos botões de IA. */
+.gf-grupo {
+    --grupo: #22d3ee;
+    --grupo-fundo: rgba(34, 211, 238, .10);
+    --grupo-borda: rgba(34, 211, 238, .22);
+    flex: none;
+    padding: 10px 10px 12px;
+    border: 1px solid var(--grupo-borda);
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--grupo-fundo), transparent 120px);
 }
-.gf-cartao:focus-within { border-color: rgba(165,65,255,.4); }
+.gf-grupo--ia {
+    --grupo: #b46bff;
+    --grupo-fundo: rgba(165, 65, 255, .12);
+    --grupo-borda: rgba(165, 65, 255, .30);
+}
+.gf-grupo[hidden] { display: none; }
+.gf-grupo.is-fechado { padding-bottom: 10px; }
 
-.gf-cartao__topo {
+/* Cada grupo é uma caixa com o próprio título: antes o título era
+   "sticky" e, rolando a lista, passava por cima dos cartões. */
+.gf-grupo__cabeca {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 8px;
+    padding: 0 2px 0 4px;
 }
-
-/* De onde a sugestão saiu. Quem entende a origem confia (ou
-   desconfia) do cartão na hora certa. */
-/* A origem é METADADO: quem lê o cartão quer o cartão, e só
-   depois de onde ele veio. Como pílula, tinha o mesmo peso visual
-   de um botão e puxava o olho primeiro. Agora é texto com
-   sublinhado tracejado — a convenção de "isto explica algo" — sem
-   fundo e sem cápsula. */
-.gf-cartao__tag {
-    font-size: .7rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--accent-lt);
+.gf-grupo__abrir {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
     background: none;
-    border-radius: 0;
-    border-bottom: 1px dashed rgba(165,65,255,.45);
-    padding: 0 0 2px;
+    border: 0;
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
 }
+.gf-grupo__abrir:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.gf-grupo__seta {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    transition: transform var(--transition);
+}
+.gf-grupo__abrir[aria-expanded="false"] .gf-grupo__seta { transform: rotate(-90deg); }
+/* Ícone e contagem soltos, só na cor do grupo (sem caixinha em volta) */
+.gf-grupo__selo {
+    display: grid;
+    place-items: center;
+    color: var(--grupo);
+}
+.gf-grupo__selo svg { width: 15px; height: 15px; }
+.gf-grupo__conta {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--grupo);
+}
+.gf-grupo__limpar {
+    padding: 4px 8px;
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    font: inherit;
+    font-size: .78rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.gf-grupo__limpar:hover { color: #ff6b8a; background: rgba(255, 107, 138, .1); }
+.gf-grupo__limpar:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.gf-grupo__cartoes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+}
+/* Recolhido: somem os cartões, fica só o título com a contagem */
+.gf-grupo.is-fechado .gf-grupo__cartoes { display: none; }
 
+/* "+ Cartão em branco": só o texto, como um link */
+.gf-adicionar {
+    padding: 2px 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--accent-lt);
+    cursor: pointer;
+    transition: color var(--transition);
+}
+.gf-adicionar:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.gf-adicionar:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+/* ---- Um cartão: número, pergunta em cima, resposta embaixo ----
+   Sem os rótulos "Pergunta" e "Resposta" em cada um (o placeholder
+   e o peso da letra já dizem qual é qual) e com campos que crescem
+   com o texto: um cartão de uma linha ocupa uma linha. */
+.gf-cartao {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    align-items: start;
+    gap: 4px 10px;
+    padding: 8px 8px 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-left: 3px solid var(--grupo);
+    background: rgba(13, 1, 24, .55);
+    transition: border-color var(--transition), background var(--transition);
+}
+.gf-cartao:focus-within {
+    border-color: rgba(165, 65, 255, .35);
+    border-left-color: var(--grupo);
+    background: rgba(165, 65, 255, .06);
+}
+.gf-cartao__num {
+    padding-top: 7px;
+    font-size: .74rem;
+    font-weight: 600;
+    text-align: right;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+.gf-cartao__campos {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.gf-cartao__campo {
+    display: block;
+    width: 100%;
+    min-height: 32px;
+    padding: 5px 8px;
+    font-family: inherit;
+    font-size: .88rem;
+    line-height: 1.45;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    resize: none;
+    overflow: hidden;
+}
+.gf-cartao__campo--frente { font-weight: 600; }
+.gf-cartao__campo--verso {
+    color: var(--text-dim);
+    border-top: 1px dashed rgba(255, 255, 255, .08);
+    border-radius: 0 0 7px 7px;
+}
+.gf-cartao__campo:hover { background: rgba(255, 255, 255, .03); }
+.gf-cartao__campo:focus {
+    outline: none;
+    border-color: rgba(165, 65, 255, .45);
+    border-radius: 7px;
+    background: rgba(0, 0, 0, .18);
+}
+.gf-cartao__campo::placeholder { color: var(--text-muted); font-weight: 400; opacity: .8; }
+
+.gf-cartao__lado {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    padding-top: 4px;
+}
+/* De onde o cartão saiu, em miúdo: o grupo já diz quem fez; aqui
+   fica o detalhe (destaque, definição, à mão / o nível da IA). */
+.gf-cartao__tag {
+    font-size: .68rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    color: var(--text-muted);
+}
+.gf-cartao__tag[data-dificuldade] {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--dif);
+}
+.gf-cartao__tag[data-dificuldade]::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--dif);
+}
 .gf-cartao__x {
     flex: none;
     width: 24px;
@@ -1470,36 +1698,13 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
     font-size: 1.05rem;
     line-height: 1;
     cursor: pointer;
+    opacity: .6;
     transition: var(--transition);
 }
-.gf-cartao__x:hover { color: #ff6b8a; background: rgba(255,107,138,.12); }
-.gf-cartao__x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-.gf-cartao__rot {
-    display: block;
-    margin: 8px 0 5px;
-    font-size: .72rem;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-.gf-cartao__campo {
-    width: 100%;
-    padding: 9px 12px;
-    font-family: inherit;
-    font-size: .9rem;
-    line-height: 1.5;
-    color: var(--text);
-    background: rgba(255,255,255,.04);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    resize: vertical;
-}
-.gf-cartao__campo:focus {
-    outline: none;
-    border-color: var(--accent);
-    background: rgba(165,65,255,.08);
-}
-
+.gf-cartao:hover .gf-cartao__x,
+.gf-cartao:focus-within .gf-cartao__x { opacity: 1; }
+.gf-cartao__x:hover { color: #ff6b8a; background: rgba(255, 107, 138, .12); }
+.gf-cartao__x:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 2px; }
 .gf-vazio {
     font-size: .88rem;
     line-height: 1.6;
@@ -1530,6 +1735,14 @@ body.arrastando-resumo .caderno-card__editar { opacity: 0 !important; }
 @media (max-width: 560px) {
     .gf-lista { max-height: 50vh; }
     .gf-cabeca { flex-wrap: wrap; }
+
+    /* No celular cada pixel de largura vai para o texto do cartão:
+       a etiqueta desce para baixo da resposta e só o × fica à direita. */
+    .gf-grupo { padding: 8px 6px 10px; }
+    .gf-cartao { grid-template-columns: 16px 1fr 24px; gap: 2px 6px; padding: 6px 4px 8px 6px; }
+    .gf-cartao__lado { display: contents; }
+    .gf-cartao__x { grid-column: 3; grid-row: 1; }
+    .gf-cartao__tag { grid-column: 2; grid-row: 2; justify-self: start; padding-left: 8px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1741,8 +1954,9 @@ html.kosmos-lite .pagina-biblioteca .caderno-card:hover:active { transform: scal
    linha que ensina (sem destaques) ou confirma (com destaques). */
 .destaque-barra {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
+    gap: 8px 12px;
     margin-top: 8px;
 }
 .destaque-barra__btn {
@@ -1764,6 +1978,50 @@ html.kosmos-lite .pagina-biblioteca .caderno-card:hover:active { transform: scal
 /* Modo revisão: olho fechado ("Modo revisão" = esconder) e olho aberto
    ("Mostrar tudo"), os mesmos do campo de senha do login. O aria-pressed
    vem do resumo-revisao.js. */
+/* "Estudar ▾": o menu com revisão, flashcards e exercícios. Usa o
+   visual do .rs-menu (o ⋮ da biblioteca), mas preso ao botão. */
+.resumo-estudar { position: relative; }
+.resumo-estudar__seta {
+    width: 14px;
+    height: 14px;
+    margin-left: -2px;
+    transition: transform var(--transition);
+}
+#btnEstudar[aria-expanded="true"] .resumo-estudar__seta { transform: rotate(180deg); }
+.resumo-estudar__menu {
+    top: calc(100% + 6px);
+    left: 0;
+}
+.resumo-estudar__menu[hidden] { display: none; }
+.resumo-estudar__menu .rs-menu__icone svg { display: block; width: 17px; height: 17px; }
+/* Modo revisão ligado: o menu fecha, então um pontinho no "Estudar"
+   lembra que há trechos escondidos (e onde desligar) */
+.resumo-acoes:has(#btnRevisar[aria-pressed="true"]) #btnEstudar::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    margin-left: 2px;
+    border-radius: 50%;
+    background: var(--accent-lt);
+    box-shadow: 0 0 6px var(--accent);
+}
+#btnRevisar[aria-pressed="true"] { color: var(--accent-lt); }
+
+/* Imprimir: só o ícone, quadrado, na altura dos outros botões */
+.resumo-acoes__icone { padding-left: 12px; padding-right: 12px; justify-content: center; }
+
 #btnRevisar .revisar-olho--aberto { display: none; }
 #btnRevisar[aria-pressed="true"] .revisar-olho--fechado { display: none; }
 #btnRevisar[aria-pressed="true"] .revisar-olho--aberto { display: inline-block; }
+
+/* ════════════════════════════════════════════════════════════════
+   BOTÕES DE ÍCONE: A CAIXINHA SÓ NO HOVER (⋮, lápis, lixeira)
+   Parado, o botão é só o ícone; a borda e o fundo (os das regras
+   acima) aparecem quando o mouse passa POR CIMA DELE ou quando ele
+   recebe o foco do teclado. Mesmo bloco em exercicios.css e
+   flashcards.css.
+   ════════════════════════════════════════════════════════════════ */
+:is(.resumo-card__botao, .caderno-card__editar):not(:hover):not(:focus-visible) {
+    border-color: transparent;
+    background: none;
+}

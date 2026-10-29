@@ -48,7 +48,6 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
             <header class="contCabeca">
                 <div class="contCabeca__texto">
                     <h1>Suas <span class="h-nome">provas</span></h1>
-                    <p>O que vem aí, o que cai e o que você já estudou para cada uma.</p>
                 </div>
                 <button class="dash-btn dash-btn--primary" type="button" id="btnNovaProva">
                     <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -73,11 +72,15 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                  PRÓXIMAS
                  --------------------------------------------------------- -->
             <section class="pv-destaque painel" id="pvDestaque" hidden aria-labelledby="pvDestaqueTitulo">
+                <!-- A contagem solta no painel (sem caixa própria): um
+                     cartão só, e o número é a maior coisa da tela. -->
                 <div class="pv-destaque__conta">
+                    <span class="pv-destaque__faltam" id="pvDestaqueFaltam">faltam</span>
                     <strong id="pvDestaqueNum">—</strong>
-                    <span id="pvDestaqueUnidade">dias</span>
+                    <span class="pv-destaque__unidade" id="pvDestaqueUnidade">dias</span>
                 </div>
                 <div class="pv-destaque__texto">
+                    <span class="pv-destaque__rotulo">Próxima prova</span>
                     <h2 id="pvDestaqueTitulo">—</h2>
                     <p class="resumo-meta">
                         <span class="materia-tag" id="pvDestaqueMateria" hidden></span>

@@ -752,3 +752,15 @@
 @media (hover: none) {
     .pagina-flashcards :is(.deck-card__acoes, .cartao-item__acoes) .icone-btn { opacity: 1; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   BOTÕES DE ÍCONE: A CAIXINHA SÓ NO HOVER (personalizar, excluir)
+   Parado, só o ícone; a borda e o fundo aparecem quando o mouse
+   passa por cima do botão (ou no foco do teclado). Mesmo bloco em
+   resumos.css e exercicios.css.
+   ════════════════════════════════════════════════════════════════ */
+.icone-btn:not(:hover):not(:focus-visible),
+.pagina-flashcards :is(.deck-card__acoes, .cartao-item__acoes) .icone-btn:not(:hover):not(:focus-visible) {
+    border-color: transparent;
+    background: none;
+}

@@ -2,6 +2,7 @@
 // Porteiro + dados desta página (sem sessão, redireciona antes de
 // mandar qualquer HTML). Deixa $USUARIO, $PREF e $PAGINA prontos.
 require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
+require_once __DIR__ . '/../../../Backend/php/exercicios_util.php';   // listarExercicioMaterias()
 
 /* Prévia de um resumo: abre para LER. Editar é uma escolha, num
    botão — antes o clique no cartão já caía no editor.
@@ -51,6 +52,20 @@ if ($id > 0 && !$ERRO_BANCO) {
         $RESUMO = null;
     }
 }
+
+/* As matérias de exercícios da conta: o "Salvar na matéria" do modal
+   de gerar exercícios a partir deste resumo. Falhar aqui só deixa a
+   lista vazia — o modal oferece criar uma matéria nova. */
+$EX_MATERIAS = [];
+if ($RESUMO) {
+    try {
+        foreach (listarExercicioMaterias($pdo, (int) $USUARIO['id']) as $m) {
+            $EX_MATERIAS[] = ['id' => $m['id'], 'nome' => $m['nome'], 'materia' => $m['materia']];
+        }
+    } catch (PDOException $e) {
+        $EX_MATERIAS = [];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -64,6 +79,7 @@ if ($id > 0 && !$ERRO_BANCO) {
     <link rel="stylesheet" href="<?= asset('../shared/cosmos.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/pomodoro-aviso.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/resumos.css') ?>">
+    <link rel="stylesheet" href="<?= asset('./css/exercicios.css') ?>">
     <link rel="stylesheet" href="<?= asset('../shared/cursor.css') ?>">
     <link rel="stylesheet" href="<?= asset('./css/impressao.css') ?>" media="print">
     <link rel="stylesheet" href="<?= asset('../shared/logo.css') ?>">
@@ -118,40 +134,63 @@ if ($id > 0 && !$ERRO_BANCO) {
                     </p>
                 </div>
                 <div class="resumo-acoes">
-                    <!-- Modo revisão: esconde os trechos marcados com ==assim==
-                         para a pessoa tentar lembrar antes de ver. Nasce
-                         escondido e o js/resumo-revisao.js só o mostra se o
-                         texto TIVER marcação — botão que não faz nada é pior
-                         do que botão nenhum. -->
-                    <button class="dash-btn dash-btn--ghost" id="btnRevisar"
-                            type="button" aria-pressed="false" hidden>
-                        <!-- Os mesmos olhos do campo de senha (login): fechado
-                             para "Modo revisão" (a ação é esconder), aberto para
-                             "Mostrar tudo". Quem troca é o CSS, pelo aria-pressed
-                             que o resumo-revisao.js já liga e desliga. -->
-                        <svg class="revisar-olho revisar-olho--fechado" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
-                        <svg class="revisar-olho revisar-olho--aberto" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
-                        <span id="btnRevisarTexto">Modo revisão</span>
-                    </button>
+                    <!-- Três controles e não cinco: o que é para ESTUDAR o
+                         resumo (revisão, flashcards, exercícios) mora num menu
+                         só; imprimir vira um ícone; Editar segue como a ação
+                         principal. Os ids dos itens são os de antes, então o
+                         resumo-revisao.js e o resumo.js continuam ligando cada
+                         um sem saber que agora estão num menu. -->
+                    <div class="resumo-estudar">
+                        <button class="dash-btn dash-btn--outline" id="btnEstudar" type="button"
+                                aria-haspopup="menu" aria-expanded="false" aria-controls="menuEstudar">
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 3.5c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5 3-.5 4-1.5 4.5-4.5Z" fill="currentColor"/><path d="M14.5 11.5c.25 1.5.75 2 2.25 2.25-1.5.25-2 .75-2.25 2.25-.25-1.5-.75-2-2.25-2.25 1.5-.25 2-.75 2.25-2.25Z" fill="currentColor"/></svg>
+                            Estudar
+                            <svg class="resumo-estudar__seta" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+
+                        <div class="rs-menu resumo-estudar__menu" id="menuEstudar" role="menu" aria-label="Estudar este resumo" hidden>
+                            <!-- Modo revisão: esconde os trechos marcados com
+                                 ==assim== para a pessoa tentar lembrar antes de
+                                 ver. Nasce escondido e o js/resumo-revisao.js só
+                                 o mostra se o texto TIVER marcação. Os olhos
+                                 (fechado = esconder, aberto = "Mostrar tudo")
+                                 trocam pelo aria-pressed, no CSS. -->
+                            <button class="rs-menu__item" id="btnRevisar" type="button" role="menuitemcheckbox"
+                                    aria-pressed="false" hidden>
+                                <span class="rs-menu__icone" aria-hidden="true">
+                                    <svg class="revisar-olho revisar-olho--fechado" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5Q10 16.5 17.5 9.5"/><path d="M6 13.5 5 16M10 14.5 10 17M14 13.5 15 16"/></svg>
+                                    <svg class="revisar-olho revisar-olho--aberto" viewBox="0 0 20 20" fill="none"><path d="M1.5 10S4 4.5 10 4.5 18.5 10 18.5 10 16 15.5 10 15.5 1.5 10 1.5 10z" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
+                                </span>
+                                <span class="rs-menu__nome" id="btnRevisarTexto">Modo revisão</span>
+                            </button>
+
+                            <!-- Quem acabou de ler um resumo está no melhor
+                                 momento para virá-lo em cartões. -->
+                            <button class="rs-menu__item" id="btnFlashcards" type="button" role="menuitem">
+                                <span class="rs-menu__icone" aria-hidden="true">
+                                    <svg viewBox="0 0 20 20" fill="none"><rect x="2.5" y="5.5" width="11" height="10" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 3.5H16a1.5 1.5 0 0 1 1.5 1.5v8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                                </span>
+                                <span class="rs-menu__nome">Gerar flashcards</span>
+                            </button>
+
+                            <!-- Exercícios com IA a partir do texto. Resumo só
+                                 de foto não tem o que a IA ler (o resumo.js
+                                 liga e desliga). -->
+                            <button class="rs-menu__item" id="btnExercicios" type="button" role="menuitem"<?= trim($RESUMO['corpo']) === '' ? ' hidden' : '' ?>>
+                                <span class="rs-menu__icone" aria-hidden="true">
+                                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 4.5h12M4 10h12M4 15.5h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M14.5 13l1.5 1.5 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span class="rs-menu__nome">Gerar exercícios</span>
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- Imprimir é também "salvar em PDF": o próprio diálogo
-                         do navegador oferece isso em todos os sistemas. Uma
-                         biblioteca de PDF no servidor faria o mesmo trabalho
-                         pior, e o projeto não usa nenhuma no frontend. -->
-                    <button class="dash-btn dash-btn--outline" id="btnImprimir" type="button">
+                         do navegador oferece isso em todos os sistemas. Só o
+                         ícone: é uma ação de vez em quando. -->
+                    <button class="dash-btn dash-btn--outline resumo-acoes__icone" id="btnImprimir" type="button"
+                            title="Imprimir ou salvar em PDF" aria-label="Imprimir ou salvar em PDF">
                         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 8V3h8v5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 12h8v5H6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-                        PDF
-                    </button>
-
-                    <!-- Gerar flashcards. Fica ao lado de "PDF" e não no
-                         fim: quem acabou de ler um resumo está no melhor
-                         momento possível para virá-lo em cartões, e o
-                         caminho de hoje (ir ao Flashcards, criar o
-                         baralho, redigitar tudo) é longo o bastante para
-                         ninguém percorrer. -->
-                    <button class="dash-btn dash-btn--outline" id="btnFlashcards" type="button">
-                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2.5" y="5.5" width="11" height="10" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 3.5H16a1.5 1.5 0 0 1 1.5 1.5v8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                        Flashcards
                     </button>
 
                     <button class="dash-btn dash-btn--primary" id="btnEditar">
@@ -197,6 +236,8 @@ if ($id > 0 && !$ERRO_BANCO) {
     <?php include __DIR__ . '/partes/modal-resumo.php'; ?>
     <?php /* O botão "Flashcards" do cabeçalho abre esta parte. */ ?>
     <?php include __DIR__ . '/partes/modal-flashcards.php'; ?>
+    <?php /* E o botão "Exercícios", este (o mesmo modal das matérias de exercícios). */ ?>
+    <?php include __DIR__ . '/partes/modal-exercicio-gerar.php'; ?>
 
     <script type="application/json" id="dadosResumo"><?= json_encode([
         'id'         => $RESUMO['id'],
@@ -205,6 +246,7 @@ if ($id > 0 && !$ERRO_BANCO) {
         'corpo'      => $RESUMO['corpo'],
         'caderno_id' => $RESUMO['caderno_id'],
         'imagens'    => $RESUMO['imagens'],
+        'exMaterias' => $EX_MATERIAS,
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 <?php endif; ?>
 
@@ -215,6 +257,7 @@ if ($id > 0 && !$ERRO_BANCO) {
     <script src="<?= asset('./js/combo-select.js') ?>"></script>
     <script src="<?= asset('./js/resumo-form.js') ?>"></script>
     <script src="<?= asset('./js/flashcards-gerar.js') ?>"></script>
+    <script src="<?= asset('./js/exercicio-gerar-form.js') ?>"></script>
     <script src="<?= asset('./js/resumo.js') ?>"></script>
     <script src="<?= asset('./js/resumo-revisao.js') ?>"></script>
     <script src="<?= asset('../shared/cursor.js') ?>"></script>

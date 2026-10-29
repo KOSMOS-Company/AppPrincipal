@@ -39,7 +39,6 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                     <div class="contCabeca__texto">
                         <?php $CAMINHO = [['Flashcards', null]]; require __DIR__ . '/partes/caminho.php'; ?>
                         <h1>Seus <span class="h-nome">Flashcards</span></h1>
-                        <p>Monte seus próprios baralhos e veja o que você já domina.</p>
                     </div>
                     <button class="dash-btn dash-btn--primary" id="btnNovoDeck">
                         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>

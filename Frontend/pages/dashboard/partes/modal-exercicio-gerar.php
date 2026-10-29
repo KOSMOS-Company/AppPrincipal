@@ -1,7 +1,8 @@
 <?php
 // ============================================================
 //  KOSMOS — Modal de gerar/salvar exercícios com IA
-//  Usado dentro de uma matéria (exercicio_materia.php).
+//  Usado dentro de uma matéria (exercicio_materia.php) e na prévia
+//  de um resumo (resumo.php), onde as questões saem do texto dele.
 //  Quem abre, gera e salva é o js/exercicio-gerar-form.js.
 // ============================================================
 if (!isset($USUARIO, $PREF)) {
@@ -29,10 +30,18 @@ if (!isset($USUARIO, $PREF)) {
                             <input id="exGerarTitulo" type="text" placeholder="Ex: Lista 1 — Derivadas" maxlength="140" required>
                         </div>
 
-                        <div class="campo">
+                        <!-- Só no resumo: onde a lista vai morar (as listas
+                             vivem dentro de uma matéria de exercícios). -->
+                        <div class="campo" id="exGerarDestinoCampo" hidden>
+                            <label for="exGerarDestino">Salvar na matéria</label>
+                            <select id="exGerarDestino" class="combo-select">
+                                <!-- preenchido pelo JS com as matérias de exercícios -->
+                            </select>
+                        </div>
+
+                        <div class="campo" id="exGerarConteudoCampo">
                             <label for="exGerarConteudo">Conteúdo específico <span class="campo__opcional">(obrigatório)</span></label>
                             <textarea id="exGerarConteudo" rows="4" maxlength="1000" placeholder="Descreva o tópico exato para gerar exercícios direcionados...&#10;Ex: Derivadas de funções polinomiais, regra da cadeia, derivadas de funções trigonométricas" required></textarea>
-                            <span class="campo__dica">Quanto mais específico você for, melhor a IA acerta no foco.</span>
                         </div>
 
                         <div class="campo">
@@ -42,7 +51,6 @@ if (!isset($USUARIO, $PREF)) {
                                 <button type="button" class="ex-dif__opcao" data-dificuldade="Médio" aria-pressed="true">Médio</button>
                                 <button type="button" class="ex-dif__opcao" data-dificuldade="Difícil" aria-pressed="false">Difícil</button>
                             </div>
-                            <span class="campo__dica">Pode marcar mais de uma — as questões saem misturadas.</span>
                         </div>
 
                         <div class="campo">
@@ -54,7 +62,7 @@ if (!isset($USUARIO, $PREF)) {
                         </div>
 
                         <div class="campo" id="exGerarPorDificuldade">
-                            <label>Quantas de cada</label>
+                            <label>Quantidade</label>
                             <div class="ex-qtd-dif" id="exGerarQtdsDif"></div>
                             <span class="campo__dica" id="exGerarTotalDif">Total: 5 de 15 questões.</span>
                         </div>

@@ -148,7 +148,7 @@ function passoFeito(array $passos, string $slug): bool {
                     </h1>
                     <p class="ini-hero__desc">
                         <?= $USUARIO['sequencia'] > 0
-                            ? 'Sua sequência está de pé — continue de onde parou.'
+                            ? 'Continue de onde parou.'
                             : 'Uma sessão de foco hoje já começa sua sequência.' ?>
                     </p>
                 </div>
@@ -208,10 +208,6 @@ function passoFeito(array $passos, string $slug): bool {
                              biblioteca), sempre de domingo a sábado. -->
                         <div class="ini-chart" id="iniChart" role="img"
                              aria-label="Tempo de foco desta semana"></div>
-                        <p class="ini-chart__aviso" id="iniChartAviso">
-                            Ainda não há sessões registradas. Assim que você estudar com o
-                            Pomodoro, seus dias aparecem aqui.
-                        </p>
                     </div>
 
                     <div class="ini-mes" id="iniMes" role="tabpanel" aria-labelledby="iniVistaMes" hidden>

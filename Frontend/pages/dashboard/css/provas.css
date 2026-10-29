@@ -17,23 +17,68 @@
 .pv-destaque {
     display: flex;
     align-items: center;
-    gap: 26px;
+    gap: 30px;
     margin-bottom: 36px;
 }
 .pv-destaque[hidden] { display: none; }
 
-/* A contagem. É o número que a pessoa veio ver, então ele tem o
-   tamanho de um título e não o de um dado. */
-
-
-
+/* A contagem. É o número que a pessoa veio ver, então ele é a maior
+   coisa da tela — e fica solto no painel, sem caixa própria (eram
+   dois cartões, um dentro do outro). Uma linha fina separa a
+   contagem do resto: "faltam / 5 / dias" lê como uma frase. */
+.pv-destaque__conta {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 112px;
+    padding-right: 30px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+}
+.pv-destaque__conta strong {
+    font-family: "Syne", sans-serif;
+    font-size: 4.4rem;
+    font-weight: 800;
+    line-height: .95;
+    letter-spacing: -.03em;
+    background: linear-gradient(180deg, #fff 30%, var(--accent-lt));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.pv-destaque__faltam,
+.pv-destaque__unidade {
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.pv-destaque__faltam  { margin-bottom: 4px; }
+.pv-destaque__unidade { margin-top: 6px; }
+.pv-destaque__unidade:empty { display: none; }
+/* "é hoje" / "é amanhã": palavra no lugar do número, um pouco menor */
+.pv-destaque--palavra .pv-destaque__conta strong { font-size: 1.9rem; line-height: 1.1; letter-spacing: -.01em; }
 
 /* Faltando uma semana ou menos, a contagem acende. */
 .pv-destaque--perto { border-color: rgba(165,65,255,.38); }
-.pv-destaque--perto 
-.pv-destaque--perto 
+.pv-destaque--perto .pv-destaque__conta strong {
+    background-image: linear-gradient(180deg, #e8d5ff 10%, var(--accent));
+    filter: drop-shadow(0 0 18px rgba(165,65,255,.45));
+}
+.pv-destaque--perto .pv-destaque__faltam { color: var(--accent-lt); }
 
 .pv-destaque__texto { flex: 1 1 auto; min-width: 0; }
+.pv-destaque__rotulo {
+    display: block;
+    margin-bottom: 6px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+}
 .pv-destaque__texto h2 {
     font-family: "Syne", sans-serif;
     font-size: 1.5rem;
@@ -49,37 +94,6 @@
 }
 .pv-destaque__barra[hidden] { display: none; }
 .pv-destaque__barra progress { flex: 1 1 auto; min-width: 0; margin: 0; }
-.pv-destaque__conta {
-    flex: none;
-    min-width: 128px;
-    text-align: center;
-    padding: 18px 14px;
-    border-radius: var(--radius-md);
-    background: rgba(165,65,255,.08);
-    border: 1px solid var(--border);
-}
-.pv-destaque__conta strong {
-    display: block;
-    font-family: "Syne", sans-serif;
-    font-size: 2.6rem;
-    font-weight: 800;
-    line-height: 1;
-    color: var(--text-dim);
-}
-.pv-destaque__conta span {
-    display: block;
-    margin-top: 6px;
-    font-size: .78rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-}
-.pv-destaque--perto .pv-destaque__conta {
-    background: var(--bg-nav);
-    border-color: rgba(165,65,255,.4);
-}
-.pv-destaque--perto .pv-destaque__conta strong { color: var(--accent-lt); }
-
 .pv-destaque__barra span {
     flex: none;
     font-size: .82rem;
@@ -87,9 +101,23 @@
     white-space: nowrap;
 }
 
+/* No celular a contagem vai para cima, numa linha só ("faltam 5 dias"),
+   e a linha fina passa a separar por baixo. */
 @media (max-width: 620px) {
-    .pv-destaque { flex-direction: column; align-items: stretch; gap: 18px; }
-    
+    .pv-destaque { flex-direction: column; align-items: stretch; gap: 16px; }
+    .pv-destaque__conta {
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: flex-start;
+        gap: 10px;
+        min-width: 0;
+        padding: 0 0 14px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .pv-destaque__conta strong { font-size: 3.4rem; }
+    .pv-destaque__faltam,
+    .pv-destaque__unidade { margin: 0; }
     .pv-destaque__barra { flex-wrap: wrap; gap: 8px; }
 }
 
@@ -444,10 +472,13 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-chip);
 }
-.pv-nota input { flex: 0 1 140px; }
-.pv-nota .qtd-stepper { min-width: 0; align-self: center; }
-/* a nota aceita decimais (ex.: 8.75): a caixa é um pouco mais larga */
-.pv-nota .qtd-stepper input[type="number"] { width: 96px; }
+/* O cartão tem 272px: stepper + botão mal cabem. O stepper NÃO pode
+   encolher (com min-width: 0 ele encolhia e o "Salvar" cobria o +);
+   se faltar espaço, o botão desce de linha. */
+.pv-nota { flex-wrap: wrap; align-items: center; }
+.pv-nota .qtd-stepper { flex: none; align-self: center; }
+/* a nota aceita decimais (ex.: 8.75): 76px cabem "10,00" */
+.pv-nota .qtd-stepper input[type="number"] { flex: none; width: 76px; }
 .pv-add input:focus,
 .pv-nota input:focus {
     outline: none;
