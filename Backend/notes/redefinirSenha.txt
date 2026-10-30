@@ -34,7 +34,7 @@ No banco, guardamos só o hash (SHA-256) desse token + a validade (agora + 1 hor
 Chama o n8n (servidor → servidor, com o token secreto no header) mandando { email, nome, link }.
 3. O n8n recebe no Webhook e o nó Send Email dispara o e-mail com o link de redefinição.
 
-🔑 Repare: a resposta pro navegador é sempre genérica ("se o e-mail estiver cadastrado, enviamos…"). Isso é de propósito (explico no fim).
+🔑 Repare: se o e-mail não tem conta, a resposta diz "E-mail não cadastrado." (até 2026-10-30 era genérica; explico no fim).
 
 FASE 2 — Redefinir a senha
 4. O usuário clica no link do e-mail e cai na página redefinir.html. O JavaScript dela lê o token da URL (?token=...).
@@ -53,7 +53,7 @@ Decisão	Por quê
 Guardar o hash do token (não o token puro)	Se o banco vazar, ninguém consegue redefinir senhas — o valor salvo é só uma "impressão digital". O token de verdade só existe no e-mail. (Mesma lógica das senhas.)
 Validade de 1 hora	Reduz a janela de risco se o e-mail for esquecido aberto ou interceptado.
 Uso único (zera após usar)	O link não pode ser reaproveitado.
-Resposta sempre genérica	Impede que alguém descubra quais e-mails têm conta ficando testando endereços.
+Avisar quando o e-mail não tem conta	Quem errou uma letra fica sabendo na hora. Esconder isso não protegia nada (o cadastro já diz "este e-mail já está cadastrado"); quem impede testar endereços em série é o limite de tentativas, que conta todo pedido.
 PHP → n8n (e não o navegador → n8n)	A URL do n8n e o token secreto nunca chegam ao cliente; ninguém consegue abusar do seu webhook.
 🗂️ Mapa dos arquivos
 Arquivo	Papel

@@ -59,7 +59,7 @@ O formato mora num lugar só, em [`api_util.php`](../Backend/php/api_util.php)
 | `confirmar_email.php` | POST | `token` | link do e-mail de confirmação (48 h, uso único); confirma e já abre a sessão. 400 link inválido/vencido |
 | `confirmar_reenviar.php` | POST | `email` | resposta **sempre** genérica; manda um link novo se a conta espera confirmação. Limite `confirma` (3/h por e-mail) |
 | `logout.php` | POST | — | só POST (antes um `<img>` de outro site deslogava a pessoa) |
-| `senha_esqueci.php` | POST | `email` | resposta **sempre** genérica; o e-mail sai pelo n8n |
+| `senha_esqueci.php` | POST | `email` | 200 link enviado (pelo n8n), 404 e-mail sem conta, 429 limite (3/h por e-mail, 10/h por IP, contando também e-mails sem conta), 502 o n8n não enviou |
 | `senha_resetar.php` | POST | `token`, `senha_nova` | token de 64 hex, uso único, 1 hora |
 | `usuario_atual.php` | GET | — | quem está logado. **Legado:** nenhuma tela chama mais (a dashboard faz isso no servidor, pelo `pagina_dashboard.php`) |
 | `sessao_estado.php` | GET | — | sempre 200: `{ logado }`. A página inicial, o login e o cadastro (`shared/ja-logado.js`) mandam quem já está logado — inclusive pelo "Lembrar de mim" — direto ao dashboard |
