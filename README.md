@@ -149,12 +149,27 @@ Cada pasta de página é autocontida, com seus próprios `css/`, `js/` e `imagen
    mora no banco (ciclos de foco, XP, limite de tentativas) e apaga o banco no
    fim — o `kosmos` nunca é tocado.
 
+   Há ainda o **teste de navegador** (PC e celular): abre todas as páginas e procura
+   erro de JavaScript, página mais larga que a tela e texto do usuário virando HTML,
+   além de testar cadastro, "Lembrar de mim", Pomodoro e 404. Ele cria uma conta de
+   teste no seu banco e a apaga no fim:
+   ```bash
+   cd Backend/testes/navegador
+   npm install
+   set KOSMOS_PHP=C:\xampp\php\php.exe
+   set KOSMOS_NAVEGADOR=msedge
+   node navegador.js
+   ```
+   (`KOSMOS_NAVEGADOR=msedge` usa o Edge que já vem no Windows; sem ele, rode antes
+   `npx playwright install chromium`.)
+
    **Scripts:** a Content-Security-Policy (`.htaccess` e `bootstrap.php`) só aceita scripts de
    arquivos `.js` do próprio site. `<script>` com código dentro do HTML e atributos como
    `onclick="..."` **não rodam** — use um arquivo `.js` e `addEventListener`. Dados do PHP
    para o JS vão num `<script type="application/json">` (ele não é executado).
 
-   Os mesmos testes, mais a checagem de sintaxe de todo PHP e JS, rodam no GitHub a cada push.
+   Os mesmos testes (inclusive o de navegador), mais a checagem de sintaxe de todo PHP e
+   JS, rodam no GitHub a cada push.
 
 **Dependências**: PHP 8.1+ com `pdo_mysql`, `mbstring`, `curl` e `fileinfo` (o XAMPP já traz
 todas) e Apache com `mod_rewrite` e `mod_headers`. Para comprimir e fazer cache dos arquivos,
@@ -200,6 +215,7 @@ alinhados (ver "Resolvidos" abaixo), e a regra continua como segunda proteção.
 | Login com Google (OAuth) | ✅ Funcional |
 | Senha obrigatória depois do login com Google | ✅ Funcional |
 | Sessões reais + proteção da dashboard **no servidor** | ✅ Funcional |
+| "Lembrar de mim" (30 dias) e sessão de 8 h (não cai no meio de um Pomodoro) | ✅ Funcional |
 | Redefinição de senha (e-mail via n8n) | ✅ Funcional |
 | **Conta** (perfil, segurança, estudo, notificações, privacidade, sobre) | ✅ Funcional |
 | **Foto de perfil** (upload + escolher o enquadramento) | ✅ Funcional |
@@ -217,16 +233,17 @@ alinhados (ver "Resolvidos" abaixo), e a regra continua como segunda proteção.
 | Exercícios: matérias, listas salvas, prática com correção no servidor | ✅ Funcional |
 | **Orion com IA** (guia do site, tutor de matérias, "o que estudo hoje?", "Por que eu errei?") | ✅ Funcional |
 | Geração de exercícios com IA (n8n + Groq) | ✅ Funcional |
-| E-mails de notificação (lembrete diário, resumo semanal) | 🟡 Envio funcionando (fluxo no n8n); falta agendar em um computador ou servidor |
-| Confirmação de e-mail no cadastro | 🔴 Não existe — ver abaixo |
+| E-mails de notificação (lembrete diário, resumo semanal) | 🟡 Envio funcionando e script de agendamento pronto; falta escolher **um** computador ou servidor para rodá-lo |
+| Confirmação de e-mail no cadastro | 🟡 Pronta no site; falta criar o fluxo no n8n e preencher `N8N_CONFIRMA_URL` (ver docs/CONFIGURACAO-LOCAL.md) |
 
 ---
 
 ## ⚠️ Problemas conhecidos (a resolver)
 
 - **E-mails de notificação ainda não saem sozinhos.** O fluxo do n8n envia os dois tipos
-  (testado), mas alguém precisa agendar o `Backend/tarefas/notificacoes.php` em **um**
-  computador ou servidor (ver [docs/PRODUCAO.md](docs/PRODUCAO.md) e o aviso em
+  (testado) e o `Backend/tarefas/agendar-windows.ps1` agenda tudo no Windows (no Linux,
+  o cron de [docs/PRODUCAO.md](docs/PRODUCAO.md)). Falta a equipe escolher **um**
+  computador ou servidor para rodá-lo (ver o aviso em
   [docs/CONFIGURACAO-LOCAL.md](docs/CONFIGURACAO-LOCAL.md)).
 
 - **A cota gratuita do Groq é compartilhada.** A geração de exercícios e o Orion usam a
@@ -234,12 +251,10 @@ alinhados (ver "Resolvidos" abaixo), e a regra continua como segunda proteção.
   com muita gente usando ao mesmo tempo o Groq pode recusar pedidos por alguns minutos. Nesse
   caso, o Orion cai nas respostas prontas, e a geração de exercícios mostra um aviso.
 
-- **O e-mail do cadastro não é confirmado.** Qualquer pessoa pode criar uma conta com o
-  e-mail de outra. Já existem duas proteções: o limite de tentativas, e o login com Google
-  descarta a senha de uma conta "pré-cadastrada" quando o dono de verdade entra. Pela mesma
-  razão, o cadastro ainda responde "este e-mail já está cadastrado", porque sem link de
-  confirmação não há outro jeito honesto de avisar quem errou de tela. A solução é enviar um
-  link de confirmação pelo n8n (o mesmo esquema da redefinição de senha).
+- **A confirmação do e-mail depende de um fluxo novo no n8n.** O site já manda o link,
+  bloqueia o login até a confirmação e deixa recadastrar uma conta que nunca confirmou
+  (assim ninguém "reserva" o e-mail de outra pessoa). Enquanto o `N8N_CONFIRMA_URL`
+  estiver vazio, a confirmação fica desligada e as contas nascem confirmadas, como antes.
 
 - **Sem a extensão GD no PHP local.** Por isso a foto de perfil é **reduzida no navegador**
   antes do upload, e o servidor só valida (tipo real, tamanho e dimensões).

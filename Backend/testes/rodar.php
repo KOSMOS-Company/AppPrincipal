@@ -29,6 +29,7 @@ require_once __DIR__ . '/../php/senha_util.php';
 require_once __DIR__ . '/../php/limite_util.php';
 require_once __DIR__ . '/../php/exercicios_ia_util.php';
 require_once __DIR__ . '/../php/orion_util.php';
+require_once __DIR__ . '/../php/pomodoro_util.php';
 
 $falhas = 0;
 $total  = 0;
@@ -224,6 +225,16 @@ confere('junta linhas em branco demais', textoDoResumoParaIA("a\n\n\n\nb"), "a\n
 $longo = textoDoResumoParaIA(str_repeat('Frase de teste do resumo. ', 400));
 confere('corta resumo longo no limite', mb_strlen($longo) <= IA_MAX_RESUMO, true);
 confere('corta no fim de uma frase', str_ends_with($longo, '.'), true);
+
+// ---------------------------------------------------------------
+echo "Início do ciclo de foco (pomodoro_util.php)\n";
+
+confere('sem Iniciar no servidor, o ciclo não vale', pomodoroCabeNoInicio(null, 25), false);
+confere('25 min passados cobrem um ciclo de 25', pomodoroCabeNoInicio(25 * 60, 25), true);
+confere('pausas no meio não reprovam', pomodoroCabeNoInicio(3 * 3600, 25), true);
+confere('a folga de 1 min absorve a demora do Iniciar', pomodoroCabeNoInicio(24 * 60 + 5, 25), true);
+confere('10 min não cobrem um ciclo de 25', pomodoroCabeNoInicio(10 * 60, 25), false);
+confere('início no futuro (relógio torto) não vale', pomodoroCabeNoInicio(-30, 1), false);
 
 // ---------------------------------------------------------------
 echo "\n" . ($total - $falhas) . " de $total testes passaram.\n";

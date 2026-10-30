@@ -6,7 +6,9 @@
 #   3. os testes com banco (Backend/testes/banco.php), num MariaDB
 #      descartável — a mesma família do MySQL do XAMPP;
 #   4. sintaxe de todo arquivo JavaScript (node --check);
-#   5. nenhum segredo commitado por engano (config.php / conexao.php).
+#   5. o site num navegador de verdade, PC e celular
+#      (Backend/testes/navegador/navegador.js);
+#   6. nenhum segredo commitado por engano (config.php / conexao.php).
 # ============================================================
 name: CI
 
@@ -69,6 +71,40 @@ jobs:
             node --check "$f" || falhou=1
           done < <(find Frontend -name '*.js' -print0)
           exit $falhou
+
+      # ---------- 6. O site num navegador de verdade (PC e celular) ----------
+      # Sobe o app no servidor embutido do PHP, com um banco "kosmos" novo
+      # importado do kosmos.sql, e roda Backend/testes/navegador/navegador.js:
+      # erros de JavaScript, página mais larga que a tela, HTML injetado e
+      # os fluxos de conta. A confirmação de e-mail fica LIGADA com um
+      # endereço que não existe: o fluxo roda inteiro e nenhum e-mail sai.
+      - name: Banco e configuração para o teste de navegador
+        run: |
+          mysql -h 127.0.0.1 -u root -pteste < Backend/kosmos.sql
+          php Backend/sql/migrar.php --marcar-todas
+          sed -e "s/'localhost'/'127.0.0.1'/" -e "s/define('DB_PASS',   '')/define('DB_PASS',   'teste')/" \
+              Backend/php/conexao.example.php > Backend/php/conexao.php
+          sed -e "s#define('N8N_CONFIRMA_URL', '')#define('N8N_CONFIRMA_URL', 'http://127.0.0.1:9/teste')#" \
+              Backend/php/config.example.php > Backend/php/config.php
+          grep -q "127.0.0.1:9/teste" Backend/php/config.php
+
+      - name: Teste de navegador (Backend/testes/navegador)
+        env:
+          KOSMOS_URL: http://127.0.0.1:8080
+          KOSMOS_PHP: php
+          PHP_CLI_SERVER_WORKERS: '4'
+        run: |
+          php -S 127.0.0.1:8080 -t . > /tmp/php-servidor.log 2>&1 &
+          cd Backend/testes/navegador
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node navegador.js
+
+      - name: Log do PHP (se o teste de navegador falhar)
+        if: failure()
+        run: |
+          cat Backend/logs/php-erros.log 2>/dev/null || true
+          tail -50 /tmp/php-servidor.log 2>/dev/null || true
 
       - name: Nenhum segredo no repositório
         run: |

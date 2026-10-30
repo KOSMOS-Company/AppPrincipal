@@ -9,6 +9,21 @@
 // ============================================================
 
 /**
+ * O ciclo declarado cabe no tempo que passou desde o Iniciar?
+ *
+ * $decorridos são os segundos desde o início guardado pelo
+ * pomodoro_inicio.php, medidos no relógio do MySQL (null = nenhum
+ * início guardado). Comparar com o relógio do SERVIDOR, e não com o
+ * `fim` que o navegador manda, deixa a conta imune a um computador
+ * com a hora errada. Pausas só aumentam o tempo decorrido, então
+ * nunca reprovam um ciclo de verdade. A folga de 1 minuto absorve a
+ * demora da requisição do Iniciar.
+ */
+function pomodoroCabeNoInicio(?int $decorridos, int $minutos): bool {
+    return $decorridos !== null && $decorridos >= $minutos * 60 - 60;
+}
+
+/**
  * Grava o ciclo que terminou no instante $fim (epoch, segundos).
  *
  * Devolve 'sobrepoe' => true (e não grava nada) quando ele se cruza

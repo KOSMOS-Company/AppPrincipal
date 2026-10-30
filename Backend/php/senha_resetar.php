@@ -47,6 +47,16 @@ try {
                            WHERE id = ?');
     $upd->execute([gerarHashSenha($nova), $user['id']]);
 
+    // O link chegou pelo e-mail: isso também confirma o e-mail da conta
+    // (à parte: sem a migração 2026-10-29_conta_extras.sql a coluna não existe)
+    try {
+        $pdo->prepare('UPDATE usuarios SET email_confirmado = 1, confirma_token = NULL, confirma_expira = NULL
+                        WHERE id = ? AND email_confirmado = 0')
+            ->execute([$user['id']]);
+    } catch (PDOException $e) {
+        registrarErro($e, 'redefinir senha: confirmar e-mail');
+    }
+
     apiResponder(['ok' => true, 'msg' => 'Senha redefinida com sucesso! Você já pode entrar.']);
 } catch (PDOException $e) {
     registrarErro($e, 'redefinir senha');

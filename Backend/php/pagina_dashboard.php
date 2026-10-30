@@ -105,6 +105,7 @@ $PREF = [
     'mostrar_onboarding'  => false,
     'mostrar_tutorial'    => false,
     'tutorial_premiado'   => false,
+    'dicas_vistas'        => [],
     'materias'            => [],
     'notif_lembrete'      => false,
     'notif_resumo'        => false,
@@ -253,6 +254,19 @@ try {
         } catch (PDOException $e) {
             registrarErro($e);
         }
+    }
+
+    // ---------- 4d) Dicas do Orion que esta conta já viu ----------
+    // Antes ficavam só no localStorage, e cada aparelho (ou aba anônima)
+    // mostrava tudo de novo. À parte pelo mesmo motivo do 4c: a coluna
+    // vem da migração 2026-10-29_conta_extras.sql.
+    try {
+        $stmt = $pdo->prepare('SELECT dicas_vistas FROM usuario_preferencias WHERE usuario_id = ?');
+        $stmt->execute([$USUARIO['id']]);
+        $lista = (string) ($stmt->fetchColumn() ?: '');
+        $PREF['dicas_vistas'] = $lista === '' ? [] : explode(',', $lista);
+    } catch (PDOException $e) {
+        registrarErro($e);
     }
 
     // ---------- 5) Números do que o usuário já produziu ----------

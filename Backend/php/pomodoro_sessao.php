@@ -9,6 +9,10 @@
 //  Chamado pelo js/pomodoro.js quando um ciclo de FOCO fecha —
 //  inclusive os que terminaram com a pessoa fora do app.
 //
+//  Só vale com um Iniciar guardado pelo pomodoro_inicio.php, no mesmo
+//  `aparelho`, há pelo menos `minutos` (relógio do MySQL); gravar o
+//  ciclo consome esse início. Sem ele, responde 409.
+//
 //  Por que o cliente manda o instante em vez de usarmos NOW():
 //  o timer roda pelo relógio do sistema e continua correndo com a
 //  aba fechada. Quando a pessoa volta, o ciclo pode ter terminado
@@ -93,12 +97,43 @@ try {
         estErro('Esta sessão de foco é anterior à criação da conta.', 409);
     }
 
+    /* O ciclo precisa de um Iniciar de verdade (pomodoro_inicio.php),
+       NESTE aparelho, e do tempo dele passado no relógio do banco. Sem
+       isto, bastava um POST com `fim` e `minutos` para inventar horas
+       de foco. O reenvio de um ciclo já gravado (outra aba,
+       recarregamento) pula a conferência: o início já foi consumido
+       por ele, e o pomodoroGravar() responde "não é novo" sem mudar nada. */
+    $aparelho = (string) ($corpo['aparelho'] ?? '');
+    $stmt = $pdo->prepare('SELECT 1 FROM pomodoro_sessoes WHERE usuario_id = ? AND fim_em = FROM_UNIXTIME(?)');
+    $stmt->execute([$usuario['id'], $fim]);
+    if (!$stmt->fetchColumn()) {
+        $decorridos = null;
+        if (preg_match('/^[0-9a-f]{32}$/', $aparelho)) {
+            $stmt = $pdo->prepare(
+                'SELECT TIMESTAMPDIFF(SECOND, inicio_em, NOW())
+                   FROM pomodoro_inicios WHERE usuario_id = ? AND aparelho = ?'
+            );
+            $stmt->execute([$usuario['id'], $aparelho]);
+            $lido = $stmt->fetchColumn();
+            $decorridos = $lido === false ? null : (int) $lido;
+        }
+        if (!pomodoroCabeNoInicio($decorridos, $minutos)) {
+            estErro('Este ciclo não tem um início registrado que o comporte.', 409);
+        }
+    }
+
     // Sobreposição e duplicata: regras e motivos no pomodoro_util.php
     $gravado = pomodoroGravar($pdo, (int) $usuario['id'], $minutos, $fim);
     if ($gravado['sobrepoe']) {
         estErro('Este ciclo se sobrepõe a outro já registrado.', 409);
     }
     $novo = $gravado['novo'];
+
+    // Um início vale um ciclo: sem consumir, ele cobriria vários
+    if ($novo) {
+        $pdo->prepare('DELETE FROM pomodoro_inicios WHERE usuario_id = ? AND aparelho = ?')
+            ->execute([$usuario['id'], $aparelho]);
+    }
 
     // Quanto já foi estudado hoje — é o que a tela usa para a meta.
     $hoje = $pdo->prepare(

@@ -58,7 +58,7 @@ try {
         'concursos'       => 'Concursos Públicos',
         'ensino_medio'    => 'Reforço no Ensino Médio',
         'faculdade'       => 'Faculdade / Ensino Superior',
-        'habito'          => 'Construir Hábito de Estudo',
+        'habito'          => 'Criar Hábito de Estudo',
     ];
     $objetivoRaw = trim((string) ($body['objetivo'] ?? ''));
     $objetivo = array_key_exists($objetivoRaw, $objetivosValidos) ? $objetivoRaw : 'vestibular_enem';

@@ -10,6 +10,7 @@ require_once __DIR__ . '/sessao.php';
 require_once __DIR__ . '/senha_util.php';
 require_once __DIR__ . '/limite_util.php';
 require_once __DIR__ . '/conta_dev_util.php';
+require_once __DIR__ . '/email_util.php';
 
 apiExigirPost();
 // Login vindo de outro site é recusado: sem isso, uma página maliciosa
@@ -51,6 +52,22 @@ try {
 
     limparTentativas($pdo, 'login', $email);
 
+    /* E-mail ainda não confirmado: a senha está certa, mas a conta só
+       abre depois do link (email_util.php). Só depois de conferir a
+       senha — senão a resposta contaria a qualquer um que a conta existe.
+       Com a confirmação desligada, ninguém fica preso aqui. */
+    if (confirmacaoLigada()) {
+        $stmt = $pdo->prepare('SELECT email_confirmado FROM usuarios WHERE id = ?');
+        $stmt->execute([$user['id']]);
+        if ((int) $stmt->fetchColumn() === 0) {
+            apiResponder([
+                'ok'             => false,
+                'nao_confirmado' => true,
+                'msg'            => 'Confirme seu e-mail para entrar: abra o link que enviamos para ' . $email . '.',
+            ], 403);
+        }
+    }
+
     // ---------- Login válido: grava a sessão ----------
     // A partir daqui o SERVIDOR "lembra" quem é este usuário.
     // O PHP envia um cookie (PHPSESSID) e, nas próximas requisições,
@@ -71,6 +88,18 @@ try {
 
     // Guarda a geração de sessões (ver "sair de todos os dispositivos")
     marcarVersaoSessao($pdo, (int) $user['id']);
+
+    // "Lembrar de mim": este aparelho fica logado por 30 dias (sessao.php).
+    // Sem marcar, uma lembrança antiga deste aparelho também sai.
+    try {
+        if (!empty($_POST['lembrar'])) {
+            criarLembranca($pdo, (int) $user['id']);
+        } else {
+            esquecerEsteAparelho($pdo);
+        }
+    } catch (PDOException $e) {
+        registrarErro($e, 'lembrar de mim');   // o login vale mesmo assim
+    }
 
     apiResponder([
         'ok'   => true,

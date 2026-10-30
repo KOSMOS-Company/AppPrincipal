@@ -40,7 +40,12 @@ CREATE TABLE `usuarios` (
   `criado_em` datetime NOT NULL DEFAULT current_timestamp(),
   `ultimo_acesso` date DEFAULT NULL,
   `sequencia` int(10) UNSIGNED NOT NULL DEFAULT 0,
-  `sessoes_versao` int(10) UNSIGNED NOT NULL DEFAULT 0
+  `sessoes_versao` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  -- confirmação do e-mail do cadastro (2026-10-29_conta_extras.sql):
+  -- 1 por padrão; só o cadastro por e-mail/senha cria a conta com 0
+  `email_confirmado` tinyint(1) NOT NULL DEFAULT 1,
+  `confirma_token` char(64) DEFAULT NULL,
+  `confirma_expira` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -54,7 +59,8 @@ ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD UNIQUE KEY `uk_google_id` (`google_id`),   -- 2026-10-19_seguranca.sql
-  ADD KEY `idx_reset_token` (`reset_token`);     -- 2026-10-19_seguranca.sql
+  ADD KEY `idx_reset_token` (`reset_token`),     -- 2026-10-19_seguranca.sql
+  ADD KEY `idx_confirma_token` (`confirma_token`); -- 2026-10-29_conta_extras.sql
 
 --
 -- AUTO_INCREMENT para tabelas despejadas
@@ -155,7 +161,9 @@ ALTER TABLE `usuario_preferencias`
   ADD COLUMN IF NOT EXISTS `ano_escolar` VARCHAR(50) DEFAULT NULL AFTER `objetivo`,
   ADD COLUMN IF NOT EXISTS `onboarding_completo` TINYINT(1) NOT NULL DEFAULT 0 AFTER `ano_escolar`,
   -- tour do Orion pelas abas (ver Backend/sql/2026-10-26_tutorial_orion.sql)
-  ADD COLUMN IF NOT EXISTS `tutorial_visto` TINYINT(1) NOT NULL DEFAULT 0 AFTER `onboarding_completo`;
+  ADD COLUMN IF NOT EXISTS `tutorial_visto` TINYINT(1) NOT NULL DEFAULT 0 AFTER `onboarding_completo`,
+  -- dicas do Orion já vistas, ids separados por vírgula (ver Backend/sql/2026-10-29_conta_extras.sql)
+  ADD COLUMN IF NOT EXISTS `dicas_vistas` VARCHAR(255) NOT NULL DEFAULT '' AFTER `tutorial_visto`;
 
 -- --------------------------------------------------------
 
@@ -698,7 +706,7 @@ UPDATE `niveis_config` SET `recompensa_descricao` = 'Destrava a moldura Big Bang
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `tentativas_acesso` (
   `id`        int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `tipo`      enum('login','reset','cadastro','ia','orion') NOT NULL,   -- cadastro/ia: 2026-10-19_seguranca.sql; orion: 2026-10-22_orion.sql
+  `tipo`      enum('login','reset','cadastro','ia','orion','confirma') NOT NULL,   -- cadastro/ia: 2026-10-19_seguranca.sql; orion: 2026-10-22_orion.sql; confirma: 2026-10-29_conta_extras.sql
   `email`     varchar(180) NOT NULL,
   `ip`        varchar(45) NOT NULL,
   `criado_em` datetime NOT NULL DEFAULT current_timestamp(),
@@ -706,6 +714,38 @@ CREATE TABLE IF NOT EXISTS `tentativas_acesso` (
   KEY `idx_tipo_email` (`tipo`, `email`, `criado_em`),
   KEY `idx_tipo_ip` (`tipo`, `ip`, `criado_em`),
   KEY `idx_criado` (`criado_em`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────
+--  "Lembrar de mim": um aparelho que fica logado por 30 dias
+--  (acrescentada em 2026-10-29 — ver Backend/sql/2026-10-29_conta_extras.sql)
+--  Lida e escrita só pelo Backend/php/sessao.php. O cookie leva
+--  "seletor:validador"; aqui fica só o HASH do validador.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `sessoes_lembradas` (
+  `seletor`        char(24) NOT NULL,
+  `validador_hash` char(64) NOT NULL,
+  `usuario_id`     int(10) UNSIGNED NOT NULL,
+  `sessoes_versao` int(10) UNSIGNED NOT NULL,   -- "sair de todos os aparelhos" sobe a da conta e esta fica para trás
+  `expira_em`      datetime NOT NULL,
+  `criado_em`      datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`seletor`),
+  KEY `idx_usuario` (`usuario_id`),
+  CONSTRAINT `fk_lembrada_usuario`
+    FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────
+--  Início do ciclo de foco, um por aparelho
+--  (acrescentada em 2026-10-29 — ver Backend/sql/2026-10-29_pomodoro_inicio.sql)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `pomodoro_inicios` (
+  `usuario_id` int(10) UNSIGNED NOT NULL,
+  `aparelho`   char(32) NOT NULL,
+  `inicio_em`  datetime NOT NULL,
+  PRIMARY KEY (`usuario_id`, `aparelho`),
+  CONSTRAINT `fk_pomo_inicio_usuario`
+    FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 COMMIT;

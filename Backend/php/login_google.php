@@ -122,6 +122,16 @@ try {
         }
         $id        = (int) $user['id'];
         $nomeFinal = $user['nome'];
+
+        // O Google já conferiu o e-mail: uma conta esperando confirmação
+        // fica confirmada (a senha de quem a pré-cadastrou já saiu acima)
+        try {
+            $pdo->prepare('UPDATE usuarios SET email_confirmado = 1, confirma_token = NULL, confirma_expira = NULL
+                            WHERE id = ? AND email_confirmado = 0')
+                ->execute([$id]);
+        } catch (PDOException $e) {
+            registrarErro($e, 'login Google: confirmar e-mail');   // migração pendente
+        }
     } else {
         // Não existe: cria conta nova (sem senha)
         $ins = $pdo->prepare('INSERT INTO usuarios (nome, email, google_id) VALUES (?, ?, ?)');
@@ -141,6 +151,17 @@ try {
 
     // Guarda a geração de sessões (ver "sair de todos os dispositivos")
     marcarVersaoSessao($pdo, $id);
+
+    // "Lembrar de mim" (só a tela de login tem a caixinha; ver login.php)
+    try {
+        if (!empty($_POST['lembrar'])) {
+            criarLembranca($pdo, $id);
+        } else {
+            esquecerEsteAparelho($pdo);
+        }
+    } catch (PDOException $e) {
+        registrarErro($e, 'lembrar de mim');
+    }
 
     // precisa_senha = conta sem senha própria (só Google). O frontend leva
     // esse usuário para a tela de criação de senha antes do dashboard.

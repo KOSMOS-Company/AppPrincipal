@@ -1,0 +1,2 @@
+# Sessões de login do PHP (Backend/php/sessao.php): nunca pelo navegador.
+Require all denied
