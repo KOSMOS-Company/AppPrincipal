@@ -381,10 +381,15 @@
     resize: none;
     background: transparent;
     color: var(--text);
-    font: 400 1rem/1.4 'DM Sans', sans-serif;
-    overflow-y: auto;
+    /* Linha de 22px fixos (e não 1.4): 9 + 22 + 9 = os 40px da caixa,
+       sem fração. Com 22,4px sobrava meio pixel, e o 'overflow: auto'
+       mostrava uma barrinha de rolagem dentro da caixa de uma linha.
+       A rolagem só liga quando o texto passa do max-height (orion-aba.js). */
+    font: 400 1rem/22px 'DM Sans', sans-serif;
+    overflow-y: hidden;
     scrollbar-width: thin;
 }
+.orion-chat-input.orion-chat-input--rola { overflow-y: auto; }
 .orion-chat-input::placeholder {
     color: var(--text-muted);
     /* uma linha só: em 320px, com a fonte de 16px do celular, ele
@@ -457,7 +462,23 @@
     .orion-msg-balao { font-size: .9rem; }
     .orion-msg-row--usuario .orion-msg-balao { max-width: 85%; }
 
-    .orion-rodape { padding: 6px 12px calc(var(--barra-mobile, 70px) + 10px); }
+    /* A caixa de mensagem fica PRESA no rodapé da tela. Antes ela era o
+       fim da coluna de 100dvh, e em navegador de celular sem dvh (ou com
+       a barra de endereço mudando de tamanho) a coluna passava da área
+       visível: o campo ficava escondido até a pessoa rolar a página.
+       Fixa, ela some só atrás do teclado — nunca atrás do navegador.
+       A conversa reserva embaixo a altura exata da caixa, que cresce com
+       o texto: o orion-aba.js mede e escreve em --orion-rodape-h. */
+    .orion-rodape {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 40;
+        padding: 10px 12px calc(var(--barra-mobile, 10px) + 8px);
+        background: linear-gradient(180deg, rgba(10, 1, 19, 0) 0%, rgba(10, 1, 19, .92) 28%, #0a0113 100%);
+    }
+    .orion-corpo { padding-bottom: calc(var(--orion-rodape-h, 84px) + 12px); }
     .orion-rodape__info { display: none; }   /* atalho de teclado não vale no toque */
 }
 

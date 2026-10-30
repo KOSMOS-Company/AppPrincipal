@@ -79,6 +79,13 @@ if ($c['fotos'] > 0) {
                                 aria-label="Excluir o caderno <?= hesc($c['nome']) ?>">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
+
+                        <?php /* no toque, os dois acima viram este "⋮" só (resumos.css) */ ?>
+                        <button type="button" class="caderno-card__editar caderno-card__mais" data-menu-caderno="<?= (int) $c['id'] ?>"
+                                aria-haspopup="menu" aria-expanded="false"
+                                aria-label="Ações do caderno <?= hesc($c['nome']) ?>">
+                            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><circle cx="10" cy="4" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="10" cy="16" r="1.6"/></svg>
+                        </button>
                     </div>
 
                     <!-- aparece quando um resumo está sendo arrastado por cima -->

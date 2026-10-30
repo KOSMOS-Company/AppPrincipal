@@ -75,6 +75,14 @@
 
     let menuAberto = null;
 
+    /* Ícones do menu no traço do site. O emoji só aparece quando o
+       próprio usuário escolheu um para o caderno. */
+    const ICONE_DOC    = '<svg viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    const ICONE_LIVRO  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5v-15Z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/><path d="M9 7h6"/></svg>';
+    const ICONE_LAPIS  = '<svg viewBox="0 0 20 20" fill="none"><path d="M4 16h3l8-8-3-3-8 8v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.5 4.5l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    const ICONE_CARTAS = '<svg viewBox="0 0 20 20" fill="none"><rect x="2.5" y="5.5" width="11" height="10" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 3.5H16a1.5 1.5 0 0 1 1.5 1.5v8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    const ICONE_LIXO   = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M11 11v5M13 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
     function fecharMenu() {
         if (!menuAberto) return;
         menuAberto.botao?.setAttribute("aria-expanded", "false");
@@ -113,7 +121,7 @@
         menu.setAttribute("role", "menu");
         menu.setAttribute("aria-label", `Ações do resumo ${resumo.titulo || ""}`);
 
-        const destinos = [{ id: null, nome: "Sem caderno", icone: "📄" }, ...cadernos];
+        const destinos = [{ id: null, nome: "Sem caderno", svg: ICONE_DOC }, ...cadernos];
 
         menu.innerHTML =
             '<span class="rs-menu__titulo">Mover para…</span>' +
@@ -123,20 +131,20 @@
                 <button type="button" class="rs-menu__item${aqui ? " rs-menu__item--aqui" : ""}"
                         role="menuitemradio" aria-checked="${aqui}"
                         data-destino="${c.id ?? ""}"${aqui ? " disabled" : ""}>
-                    <span class="rs-menu__icone" aria-hidden="true">${escaparHtml(c.icone || "📙")}</span>
+                    <span class="rs-menu__icone" aria-hidden="true">${c.icone ? escaparHtml(c.icone) : (c.svg || ICONE_LIVRO)}</span>
                     <span class="rs-menu__nome">${escaparHtml(c.nome)}</span>
                     ${aqui ? '<span class="rs-menu__aqui" aria-hidden="true">aqui</span>' : ""}
                 </button>`;
             }).join("") +
             ((acoes.aoEditar || acoes.aoApagar || acoes.aoFlashcards) ? '<span class="rs-menu__linha" role="separator"></span>' : "") +
-            (acoes.aoEditar ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="editar"><span class="rs-menu__icone" aria-hidden="true">✏️</span><span class="rs-menu__nome">Editar resumo</span></button>' : "") +
+            (acoes.aoEditar ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="editar"><span class="rs-menu__icone" aria-hidden="true">' + ICONE_LAPIS + '</span><span class="rs-menu__nome">Editar resumo</span></button>' : "") +
             /* "Gerar flashcards" só entra se a página souber fazer isso
                (ou seja, se ela incluiu o modal e o js/flashcards-gerar.js).
                Um item de menu que abre nada é pior do que item nenhum. */
-            (acoes.aoFlashcards ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="flashcards"><span class="rs-menu__icone" aria-hidden="true">🎴</span><span class="rs-menu__nome">Gerar flashcards</span></button>' : "") +
+            (acoes.aoFlashcards ? '<button type="button" class="rs-menu__item" role="menuitem" data-acao="flashcards"><span class="rs-menu__icone" aria-hidden="true">' + ICONE_CARTAS + '</span><span class="rs-menu__nome">Gerar flashcards</span></button>' : "") +
             /* No celular o lápis e a lixeira do cartão saem (resumos.css):
                o menu passa a ser o único caminho, então apagar mora aqui. */
-            (acoes.aoApagar ? '<button type="button" class="rs-menu__item rs-menu__item--perigo" role="menuitem" data-acao="apagar"><span class="rs-menu__icone" aria-hidden="true">🗑️</span><span class="rs-menu__nome">Excluir resumo</span></button>' : "");
+            (acoes.aoApagar ? '<button type="button" class="rs-menu__item rs-menu__item--perigo" role="menuitem" data-acao="apagar"><span class="rs-menu__icone" aria-hidden="true">' + ICONE_LIXO + '</span><span class="rs-menu__nome">Excluir resumo</span></button>' : "");
 
         document.body.appendChild(menu);
         posicionar(menu, botao);
@@ -171,6 +179,45 @@
             const destino = item.dataset.destino || null;
             fecharMenu();
             await mover(resumo.id, destino);
+        });
+    }
+
+    /**
+     * Um menu curto com a mesma cara do de cima, para quem não é
+     * resumo (ex.: o "⋮" do caderno no celular).
+     * `itens` = [{ nome, svg, perigo?, aoEscolher }]
+     */
+    function abrirMenuSimples(botao, rotulo, itens) {
+        if (menuAberto && menuAberto.botao === botao) {
+            fecharMenu();
+            return;
+        }
+        fecharMenu();
+
+        const menu = document.createElement("div");
+        menu.className = "rs-menu";
+        menu.setAttribute("role", "menu");
+        menu.setAttribute("aria-label", rotulo);
+        menu.innerHTML = itens.map((it, i) => `
+            <button type="button" class="rs-menu__item${it.perigo ? " rs-menu__item--perigo" : ""}"
+                    role="menuitem" data-item="${i}">
+                <span class="rs-menu__icone" aria-hidden="true">${it.svg || ""}</span>
+                <span class="rs-menu__nome">${escaparHtml(it.nome)}</span>
+            </button>`).join("");
+
+        document.body.appendChild(menu);
+        posicionar(menu, botao);
+        botao.setAttribute("aria-expanded", "true");
+        menuAberto = { el: menu, botao };
+
+        menu.querySelector(".rs-menu__item")?.focus();
+        document.addEventListener("keydown", noEscDoMenu, true);
+
+        menu.addEventListener("click", (e) => {
+            const item = e.target.closest("[data-item]");
+            if (!item) return;
+            fecharMenu();
+            itens[Number(item.dataset.item)]?.aoEscolher?.();
         });
     }
 
@@ -304,6 +351,8 @@
     window.KosmosMover = {
         mover,
         abrirMenu,
+        abrirMenuSimples,
+        icones: { lapis: ICONE_LAPIS, lixo: ICONE_LIXO },
         fecharMenu,
         ligarArrasteDeResumos,
         ligarAlvoDeResumo,

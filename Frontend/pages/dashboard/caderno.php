@@ -58,6 +58,10 @@ if ($id > 0 && !$ERRO_BANCO) {
         $RESUMOS = [];
     }
 }
+// a tela de "não encontrado" é uma resposta 404 de verdade
+if (!$CADERNO && !$ERRO_BANCO) {
+    http_response_code(404);
+}
 
 $TOTAL = count($RESUMOS);
 $FOTOS = array_sum(array_column($RESUMOS, 'fotos'));

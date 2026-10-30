@@ -256,7 +256,13 @@
         const chip = e.target.closest("[data-dificuldade]");
         if (!chip) return;
         const marcado = chip.getAttribute("aria-pressed") === "true";
-        if (marcado && el.iaDifs.querySelectorAll('[aria-pressed="true"]').length === 1) return;
+        if (marcado && el.iaDifs.querySelectorAll('[aria-pressed="true"]').length === 1) {
+            // o último marcado não sai: balança para dizer isso
+            chip.classList.remove("ex-dif__opcao--recusa");
+            void chip.offsetWidth;
+            chip.classList.add("ex-dif__opcao--recusa");
+            return;
+        }
         chip.setAttribute("aria-pressed", String(!marcado));
     }
 

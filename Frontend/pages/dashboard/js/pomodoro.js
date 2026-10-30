@@ -159,6 +159,19 @@ function tocar() {
        roda em todas as abas e por isso alcança a pessoa fora daqui. */
     if (window.KosmosPomoAviso) window.KosmosPomoAviso.pedirPermissao();
     if (restante <= 0) restante = totalSeg;   // recomeça depois de encerrado
+    /* Ciclo de foco novo (não a volta de uma pausa): o servidor marca o
+       início no relógio dele, e só aceita o registro do fim quando a
+       duração já passou de verdade (pomodoro_sessao.php). */
+    if (modoAtual === "foco" && restante === totalSeg) {
+        const corpo = new FormData();
+        corpo.append("aparelho", window.kosmosAparelho());
+        fetch("../../../Backend/php/pomodoro_inicio.php", {
+            method: "POST",
+            body: corpo,
+            credentials: "same-origin",
+            keepalive: true,
+        }).catch(() => { /* sem rede: o ciclo roda, só não entra no gráfico */ });
+    }
     rodando   = true;
     encerrado = false;
     fimEm     = Date.now() + restante * 1000;

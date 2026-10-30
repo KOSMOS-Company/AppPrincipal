@@ -110,7 +110,7 @@ if (!isset($USUARIO, $PREF)) {
                             <input id="cadernoCapa" type="file" accept="image/jpeg,image/png,image/webp" hidden>
 
                             <div class="cad-capa__previa" id="capaPrevia" hidden>
-                                <img id="capaImg" src="" alt="">
+                                <img id="capaImg" alt="">
                                 <button type="button" class="cad-capa__x" id="capaRemover"
                                         title="Remover a capa" aria-label="Remover a capa">
                                     <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>

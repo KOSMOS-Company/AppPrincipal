@@ -72,6 +72,8 @@
         try {
             const dados = new FormData();
             for (const k in campos) dados.append(k, campos[k]);
+            // a caixinha "Lembrar de mim" existe só na tela de login
+            if (document.getElementById("lembrar")?.checked) dados.append("lembrar", "1");
             const resposta = await fetch(`${BACKEND}/login_google.php`, { method: "POST", body: dados });
             const json = await resposta.json();
             window.mostrarMsg(json.msg, json.ok ? "sucesso" : "erro");

@@ -100,14 +100,14 @@
             }
         },
         kosmos: {
-            fala: 'A Kosmos junta resumo, flashcard, pomodoro e exercício com IA num lugar só. E você não paga nada.',
+            fala: 'Aqui você escreve o resumo, revisa, treina e controla o tempo, tudo sem sair da Kosmos.',
             fazer: function () {
                 orion.fecharOlhos(false);
                 orion.humor('comemorando');
             }
         },
         biblioteca: {
-            fala: 'Na Biblioteca você separa os cadernos por matéria. Dá pra digitar ou só tirar foto do caderno de papel.',
+            fala: 'Na Biblioteca cada matéria tem seu caderno. Dá pra digitar o resumo ou só tirar foto do caderno de papel.',
             fazer: function () {
                 orion.fecharOlhos(false);
                 orion.humor('curioso');
@@ -209,7 +209,7 @@
         'Já fez seu Pomodoro hoje?',
         'Travou em algum resumo? Me chama.',
         'Flashcard curtinho é o que mais gruda na cabeça.',
-        'Pode usar à vontade, aqui ninguém te cobra nada.',
+        'Uma revisão rápida antes de dormir ajuda muito.',
         'Também tenho prova amanhã... estuda comigo?'
     ];
     var proximoOi = 0;

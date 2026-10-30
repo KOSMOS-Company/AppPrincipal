@@ -40,12 +40,16 @@ document.querySelector('.form').addEventListener('submit', async function (e) {
 
         if (json.ok) {
             this.reset();
-            setTimeout(() => {
-                window.location.href = '../login/index.html';
-            }, 1800);
+            // Com confirmação de e-mail, a pessoa precisa abrir o e-mail
+            // antes de entrar: a mensagem fica na tela, sem redirecionar
+            if (!json.confirmar) {
+                setTimeout(() => {
+                    window.location.href = '../login/index.html';
+                }, 1800);
+            }
         }
     } catch (err) {
-        mostrarMsg('Não foi possível conectar ao servidor. Verifique se o XAMPP está rodando.', 'erro');
+        mostrarMsg('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.', 'erro');
     } finally {
         btn.disabled  = false;
         btn.innerHTML = btnHtml;

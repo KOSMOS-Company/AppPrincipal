@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ativarGavetaMobile();
     ativarSair();
     ativarBrilhoNosCards();
-    ativarTopoRecolhivel();
 });
 
 /* ------------------------------------------------------------
@@ -60,100 +59,6 @@ document.addEventListener("click", (e) => {
     input.value = String(Number(valor.toFixed(10)));
     input.dispatchEvent(new Event("input", { bubbles: true }));
 });
-
-/* ------------------------------------------------------------
-   Topo que some ao rolar (só no celular), como no Instagram
-
-   Rolou para baixo: o topo sai junto com o conteúdo, 1:1 com o dedo.
-   Rolou para cima (qualquer quantidade): ele volta, também 1:1. Quando
-   a rolagem para no meio do caminho, ele termina o movimento na direção
-   em que a pessoa rolava — subindo, abre; descendo, fecha. Nunca fica
-   meio topo pendurado, e uma rolada curta para cima já basta para vê-lo.
-
-   Como: o topo é `position: sticky` e escondê-lo é pôr um `top`
-   negativo. Sticky com top = -X fica na maior entre a posição normal
-   e -X, então no alto da página ele rola naturalmente e depois fica
-   exatamente X pixels escondido. Nada de transform — ver o comentário
-   do .contLateral no dashboard.css (a gaveta do celular mora dentro dele).
-   ------------------------------------------------------------ */
-function ativarTopoRecolhivel() {
-    const topo = document.querySelector(".contLateral");
-    if (!topo) return;
-
-    const celular = window.matchMedia("(max-width: 768px)");
-    const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    let altura = 0;        // quanto o topo precisa subir para sumir inteiro
-    let escondido = 0;     // 0 = todo visível ... altura = todo escondido
-    let ultimoY = 0;
-    let subindo = false;   // a direção da última rolada decide o encaixe
-    let agendado = false;
-    let parou = 0;
-
-    const aplicar = () => { topo.style.top = escondido ? -escondido + "px" : ""; };
-    const medir = () => { altura = topo.offsetHeight; };
-
-    // O painel do chip (sequência + nível) não pode ficar boiando sozinho
-    const avisarQueSumiu = () => document.dispatchEvent(new CustomEvent("kosmos:topo-escondido"));
-
-    function assentar(alvo) {
-        if (!semMovimento.matches) {
-            topo.classList.add("topo--assentando");
-            setTimeout(() => topo.classList.remove("topo--assentando"), 280);
-        }
-        escondido = alvo;
-        aplicar();
-        if (alvo) avisarQueSumiu();
-    }
-
-    function aoRolar() {
-        agendado = false;
-        if (!celular.matches) return;
-
-        // Rubber band do iOS (y < 0 ou além do fim) não conta como rolagem
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        const y = Math.min(Math.max(window.scrollY, 0), Math.max(max, 0));
-        const delta = y - ultimoY;
-        ultimoY = y;
-        if (!delta) return;
-        subindo = delta < 0;
-
-        topo.classList.remove("topo--assentando");
-        const antes = escondido;
-        escondido = Math.min(Math.max(escondido + delta, 0), altura);
-        if (escondido !== antes) {
-            aplicar();
-            if (escondido > 0 && antes === 0) avisarQueSumiu();
-        }
-
-        // Parou no meio? Termina o movimento na direção em que rolava.
-        clearTimeout(parou);
-        parou = setTimeout(() => {
-            if (escondido > 0 && escondido < altura) {
-                // no alto da página não há o que esconder: fica aberto
-                assentar(subindo || window.scrollY < altura ? 0 : altura);
-            }
-        }, 140);
-    }
-
-    window.addEventListener("scroll", () => {
-        if (!agendado) { agendado = true; requestAnimationFrame(aoRolar); }
-    }, { passive: true });
-
-    // Quem navega por teclado e entra no topo precisa enxergá-lo
-    topo.addEventListener("focusin", () => { if (escondido) assentar(0); });
-
-    const reiniciar = () => {
-        clearTimeout(parou);
-        escondido = 0;
-        aplicar();                 // no computador o topo é a barra lateral: sem `top` inline
-        medir();
-        ultimoY = Math.max(window.scrollY, 0);
-    };
-    celular.addEventListener("change", reiniciar);
-    window.addEventListener("resize", medir);
-    reiniciar();
-}
 
 /* ------------------------------------------------------------
    Recolher a barra lateral (só no computador)

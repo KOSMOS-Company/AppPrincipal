@@ -369,6 +369,7 @@
                 fim: Math.floor(s.fimEm / 1000),   // o PHP espera SEGUNDOS
                 minutos,
                 conta: s.conta,                    // o servidor recusa se for de outra conta
+                aparelho: window.kosmosAparelho ? window.kosmosAparelho() : "",   // de qual Iniciar é este ciclo
             }),
             keepalive: true,   // sobrevive se a pessoa fechar a aba agora
         }).catch(() => { /* ver o comentário acima */ });

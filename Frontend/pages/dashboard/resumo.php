@@ -52,6 +52,10 @@ if ($id > 0 && !$ERRO_BANCO) {
         $RESUMO = null;
     }
 }
+// a tela de "não encontrado" é uma resposta 404 de verdade
+if (!$RESUMO && !$ERRO_BANCO) {
+    http_response_code(404);
+}
 
 /* As matérias de exercícios da conta: o "Salvar na matéria" do modal
    de gerar exercícios a partir deste resumo. Falhar aqui só deixa a

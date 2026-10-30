@@ -54,6 +54,21 @@
 
         // delegação: os cartões são recriados quando a lista muda
         gridCadernos.addEventListener("click", (e) => {
+            /* No toque o lápis e a lixeira dão lugar a um "⋮" só,
+               que oferece as mesmas duas coisas (resumos.css) */
+            const mais = e.target.closest("[data-menu-caderno]");
+            if (mais) {
+                e.preventDefault();
+                const alvo = cadernos.find((c) => c.id === Number(mais.dataset.menuCaderno));
+                if (!alvo) return;
+                Mover?.abrirMenuSimples(mais, `Ações do caderno ${alvo.nome}`, [
+                    { nome: "Personalizar caderno", svg: Mover.icones.lapis,
+                      aoEscolher: () => window.KosmosCadernoForm?.abrir(alvo) },
+                    { nome: "Excluir caderno", svg: Mover.icones.lixo, perigo: true,
+                      aoEscolher: () => window.KosmosCadernoForm?.apagarDireto(alvo.id, alvo.nome) },
+                ]);
+                return;
+            }
             const lixeira = e.target.closest("[data-apagar-caderno]");
             if (lixeira) {
                 e.preventDefault();
@@ -454,6 +469,9 @@
                     <button type="button" class="caderno-card__editar caderno-card__apagar" data-apagar-caderno="${c.id}"
                             title="Excluir este caderno"
                             aria-label="Excluir o caderno ${escaparHtml(c.nome)}">${ICONE_LIXEIRA}</button>
+                    <button type="button" class="caderno-card__editar caderno-card__mais" data-menu-caderno="${c.id}"
+                            aria-haspopup="menu" aria-expanded="false"
+                            aria-label="Ações do caderno ${escaparHtml(c.nome)}">${ICONE_MENU}</button>
                 </div>
                 <span class="caderno-card__solte" aria-hidden="true">Solte para guardar aqui</span>
             </article>`).join("");
