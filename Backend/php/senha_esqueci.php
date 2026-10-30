@@ -5,6 +5,13 @@
 //  POST { email }: se o e-mail existir, gera um token de reset,
 //  salva (hasheado, com validade) e chama o webhook do n8n que
 //  envia o e-mail com o link de redefinição.
+//
+//  E-mail sem conta responde 404 "não encontramos" (antes a resposta
+//  era sempre "se estiver cadastrado, enviamos", e quem errou uma letra
+//  ficava esperando um e-mail que nunca vinha). Esconder isso não
+//  protegia nada: o cadastro já diz "este e-mail já está cadastrado".
+//  O que impede testar e-mails em série é o limite de tentativas,
+//  que conta todo pedido, exista a conta ou não.
 // ============================================================
 
 require_once __DIR__ . '/api_util.php';
@@ -22,12 +29,6 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     apiErro('Informe um e-mail válido.', 422);
 }
 
-// Resposta SEMPRE genérica (não revela se o e-mail existe ou não)
-$respostaGenerica = [
-    'ok'  => true,
-    'msg' => 'Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha.',
-];
-
 // O link do e-mail sai de urlDoFrontend() (email_util.php): em produção,
 // só do APP_URL — nunca do cabeçalho Host ("reset poisoning").
 
@@ -35,10 +36,10 @@ try {
     $pdo = conectar();
 
     // Limite de pedidos (ver limite_util.php): sem isso dava para lotar a
-    // caixa de alguém de e-mails. Conta mesmo quando o e-mail não existe,
-    // e a resposta continua genérica para não revelar se a conta existe.
+    // caixa de alguém de e-mails, ou testar em série quais e-mails têm
+    // conta. Conta ANTES de procurar, exista o e-mail ou não.
     if (limiteExcedido($pdo, 'reset', $email)) {
-        apiResponder($respostaGenerica);
+        apiErro('Muitos pedidos. Tente mais tarde.', 429);
     }
     registrarTentativa($pdo, 'reset', $email);
 
@@ -46,10 +47,13 @@ try {
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    // Se não existe, respondemos genérico (sem fazer nada)
+    if (!$user) {
+        apiErro('E-mail não cadastrado.', 404);
+    }
+
     $base = urlDoFrontend();
-    if (!$user || $base === null) {
-        apiResponder($respostaGenerica);
+    if ($base === null) {
+        apiErro('Não foi possível enviar. Tente mais tarde.', 503);
     }
 
     // Gera o token: o valor "puro" vai no link; no banco guardamos só o hash
@@ -62,17 +66,22 @@ try {
     $upd->execute([$hash, $user['id']]);
 
     // Monta o link e pede ao n8n para enviar o e-mail (email_util.php).
-    // A pessoa continua vendo a resposta genérica; quem mantém o app
-    // fica sabendo pelo log se o e-mail não saiu.
-    n8nEnviarEmail(N8N_RESET_URL, [
+    // Se o n8n falhar, a pessoa fica sabendo (e o motivo vai para o log).
+    $enviou = n8nEnviarEmail(N8N_RESET_URL, [
         'email' => $email,
         'nome'  => $user['nome'],
         'link'  => $base . '/login/redefinir.html?token=' . $token,
     ], 'reset');
+    if (!$enviou) {
+        apiErro('Não foi possível enviar. Tente mais tarde.', 502);
+    }
 
-    apiResponder($respostaGenerica);
+    apiResponder([
+        'ok'  => true,
+        'msg' => 'Link enviado! Confira seu e-mail.',
+    ]);
 } catch (PDOException $e) {
-    // Mesmo em erro interno, não vazamos detalhes
+    // Erro interno: sem detalhes para a pessoa, o motivo vai para o log
     registrarErro($e, 'esqueci a senha');
-    apiResponder($respostaGenerica);
+    apiErro('Erro no servidor. Tente mais tarde.', 500);
 }
