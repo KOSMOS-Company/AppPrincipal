@@ -242,26 +242,16 @@ em { font-style: normal; color: var(--accent-lt); }
     padding-left: 2px;
 }
 
-/* "Lembrar de mim" — um cartãozinho clicável inteiro (o <label>), com
-   a caixa no mesmo visual dos campos e uma linha dizendo o que faz */
+/* "Lembrar de mim" — a caixa e o texto numa linha só; o <label> inteiro
+   é clicável */
 .lembrar {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 14px;
-    background: var(--bg-nav);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: var(--radius-sm);
+    align-items: center;
+    gap: 10px;
+    min-height: 32px;
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    transition: var(--transition);
-}
-.lembrar:hover { border-color: rgba(165,65,255,.35); background: var(--bg-card); }
-/* marcado: o cartão acende junto com a caixa */
-.lembrar:has(.lembrar__caixa:checked) {
-    border-color: rgba(165,65,255,.5);
-    background: rgba(165,65,255,.08);
 }
 
 /* a caixa: sem o visual do navegador; o ✓ é um SVG que "salta" ao marcar */
@@ -269,11 +259,11 @@ em { font-style: normal; color: var(--accent-lt); }
     appearance: none;
     -webkit-appearance: none;
     flex: none;
-    width: 20px;
-    height: 20px;
-    margin: 1px 0 0;
+    width: 18px;
+    height: 18px;
+    margin: 0;
     border: 1.5px solid rgba(255,255,255,.25);
-    border-radius: 6px;
+    border-radius: 5px;
     background: var(--bg-card) no-repeat center / 0 0
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3.2 3.2L15 7' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     cursor: pointer;
@@ -283,15 +273,16 @@ em { font-style: normal; color: var(--accent-lt); }
 .lembrar:hover .lembrar__caixa { border-color: var(--accent); }
 .lembrar__caixa:checked {
     background-color: var(--accent);
-    background-size: 16px 16px;
+    background-size: 14px 14px;
     border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(165,65,255,.45);
 }
 .lembrar__caixa:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(165,65,255,.35); }
 
-.lembrar__texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.lembrar__titulo { font-size: .9rem; font-weight: 600; color: #fff; }
-.lembrar__dica { font-size: .78rem; line-height: 1.4; color: var(--text-muted); }
+/* título e dica lado a lado; numa tela estreita a dica desce sozinha */
+.lembrar__texto { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; min-width: 0; }
+.lembrar__titulo { font-size: .86rem; color: var(--text-dim); transition: color var(--transition); }
+.lembrar:hover .lembrar__titulo { color: #fff; }
+.lembrar__dica { font-size: .76rem; color: var(--text-muted); }
 
 /* "Reenviar link de confirmação", dentro da mensagem de erro do login */
 .btn-reenviar {
