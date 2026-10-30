@@ -69,6 +69,7 @@ $xpProxima   = $PROGRESSO['proxima_recompensa'] ?? null;
             'pagina'           => $PAGINA,
             'tutorial'         => !empty($PREF['mostrar_tutorial']),
             'tutorialPremiado' => !empty($PREF['tutorial_premiado']),
+            'dicasVistas'      => $PREF['dicas_vistas'],
             'tutorialCss'      => asset('./css/tutorial.css'),
             'tutorialJs'       => asset('./js/tutorial.js'),
         ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>

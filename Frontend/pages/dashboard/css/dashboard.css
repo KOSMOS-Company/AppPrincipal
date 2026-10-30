@@ -727,6 +727,9 @@ progress::-webkit-progress-value {
     letter-spacing: -.03em;
     line-height: 1.1;
     margin-bottom: 10px;
+    /* título é do usuário: uma palavra enorme ou um link colado
+       alargava a página no celular */
+    overflow-wrap: anywhere;
 }
 .contCabeca p {
     color: var(--text-dim);
@@ -766,6 +769,12 @@ progress::-webkit-progress-value {
     white-space: nowrap;
     text-decoration: none;
     transition: var(--transition);
+}
+/* área de toque de 25px sem mexer no layout: o padding cresce e a
+   margem negativa devolve o espaço (com 17px era difícil acertar no celular) */
+.caminho__item a {
+    padding: 4px 0;
+    margin: -4px 0;
 }
 .caminho__item a:hover {
     color: var(--accent-lt);

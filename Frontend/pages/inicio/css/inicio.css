@@ -2052,7 +2052,9 @@ em { font-style: normal; color: var(--accent-lt); }
     .marquee { padding: 12px 0; }
     .marquee__group { gap: 20px; padding-right: 20px; }
     .hero__scroll { display: none; }
-    .back-top { bottom: 18px; right: 16px; width: 42px; height: 42px; }
+    /* colado no canto: a 16px ele ficava em cima da setinha das
+       perguntas do FAQ e de links do rodapé */
+    .back-top { bottom: 14px; right: 10px; width: 40px; height: 40px; }
     .cta-final .cta-final__inner { padding: 56px 22px; }
 }
 
@@ -2815,6 +2817,9 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
     }
     .guia__corpo { order: 0; }
     .guia__mascote { width: 58px; --mascote-tam: 58px; }
+    /* dispensado, ele fica menor ainda: num celular de 375px os 56px
+       cobriam o começo das linhas de texto enquanto a página rolava */
+    .guia.quieto .guia__mascote { width: 44px; --mascote-tam: 44px; }
 
     .guia__balao {
         max-width: none;

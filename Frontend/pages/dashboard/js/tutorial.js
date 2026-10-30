@@ -64,7 +64,7 @@
           texto: 'Vou te mostrar o Kosmos aba por aba — e, no caminho, você já cria seu primeiro caderno, baralho e matéria.' },
         { id: 'painel', cap: 0, pagina: 'index.php', alvo: '.ini-painel', humor: 'curioso', anim: 'aponta',
           titulo: 'Seu painel da semana',
-          texto: 'Cada barra é um dia de estudo no Pomodoro. Embaixo ficam seus resumos, flashcards e exercícios, e os avisos do que revisar.' },
+          texto: 'Cada barra mostra quanto você estudou no Pomodoro naquele dia. Embaixo ficam seus resumos, flashcards e exercícios, e os avisos do que revisar.' },
 
         // ---------------- BIBLIOTECA ----------------
         { id: 'bib-criar', cap: 1, pagina: 'resumos.php', alvo: '#btnNovoCaderno', tipo: 'acao', ate: 'clique',
@@ -122,18 +122,18 @@
         // ---------------- POMODORO ----------------
         { id: 'pomo', cap: 4, pagina: 'pomodoro.php', alvo: '.pomo', humor: 'foco', anim: 'pop',
           titulo: 'Pomodoro',
-          texto: 'Clique em “Iniciar” e estude em blocos com pausas. Cada bloco vale XP e mantém sua sequência de dias 🔥' },
+          texto: 'Clique em “Iniciar” e estude em blocos, com pausas entre eles. Cada bloco de foco vale XP e mantém sua sequência de dias. 🔥' },
 
         // ---------------- MENU E CONTA ----------------
         // As abas simples não precisam de visita: o Orion acende o menu
         // e explica cada uma numa linha (4 páginas a menos para carregar)
         { id: 'menu', cap: 5, pagina: 'pomodoro.php', alvo: ['#btnMenuMobile', '.contLateral', '.botoesL'], humor: 'curioso', anim: 'aponta',
           titulo: 'O resto está no menu',
-          texto: '“Buscar” acha qualquer coisa sua. “Provas” conta os dias até cada prova. Em “Orion”, você conversa comigo. E seu nível leva às conquistas.' },
+          texto: '“Buscar” acha qualquer coisa sua. “Provas” conta os dias até cada prova. Em “Orion”, você conversa comigo. E, clicando no seu nível, você vê suas conquistas.' },
         { id: 'visual', cap: 5, pagina: 'conta.php', url: function () { return 'conta.php#estudo'; },
           alvo: '.visual-opcoes', humor: 'pensativo', anim: 'aponta',
           titulo: 'Modo Lite e modo foco',
-          texto: 'Aparelho lento? Escolha “Lite”, sem brilhos e animações. Com ele, o modo foco ainda esconde avisos e distrações.' },
+          texto: 'Aparelho lento? Escolha “Lite”, sem brilhos e animações. Com o Lite, você ainda pode adicionar o modo foco, que esconde avisos e distrações.' },
 
         // ---------------- FIM ----------------
         // Quem termina pela 1ª vez ganha 100 XP (tutorial_concluido.php) e
@@ -152,7 +152,9 @@
        AS DICAS DA PRIMEIRA VEZ
        Fora do tour, o Orion aparece rapidinho (2–3 falas) na primeira
        vez que a pessoa chega numa tela que o tour não detalha. Cada uma
-       aparece uma vez por conta neste aparelho (localStorage).
+       aparece uma vez por conta, em qualquer aparelho (a lista fica no
+       servidor: tutorial_dica.php; o localStorage é só a cópia local).
+       Clicar no que a dica acende fecha a dica e segue para o clique.
        paginas: onde ela pode aparecer — o carregador do sidebar.php tem
                 o mesmo mapa (DICAS_POR_ABA) para só baixar este arquivo
                 nas abas que ainda têm dica.
@@ -507,6 +509,16 @@
         limpezas.push(function () { clearInterval(vigia); });
 
         if (acao) esperarAcao(p);
+        if (dicaAtual) {
+            /* Na dica, o destaque também é clicável: acender "Nova prova" e
+               ignorar o clique nele parecia tela travada. O clique fecha a
+               dica e segue para o botão (a dica já está marcada como vista). */
+            var aoClicarAlvoDaDica = function (e) {
+                if (alvoAtual && alvoAtual.contains(e.target)) fechar();
+            };
+            document.addEventListener('click', aoClicarAlvoDaDica, true);
+            limpezas.push(function () { document.removeEventListener('click', aoClicarAlvoDaDica, true); });
+        }
         // sem focar o "Próximo": Enter e → já avançam (teclas()), e o foco
         // por script fazia o navegador desenhar um anel em volta dele
         else if (document.activeElement && raiz.contains(document.activeElement)) document.activeElement.blur();
@@ -573,7 +585,8 @@
         else { x = r.left; y = r.top; w = r.width; h = r.height; }
 
         var p = ROTEIRO[passoAtual] || {};
-        var furo = !!r && p.tipo === 'acao';
+        // dica também abre o furo: o botão aceso nela é clicável (ver aoClicarAlvoDaDica)
+        var furo = !!r && (p.tipo === 'acao' || !!dicaAtual);
 
         // A vigia chama isto 5 vezes por segundo, e quase sempre nada mudou:
         // reescrever seis estilos à toa fazia o navegador recalcular a
@@ -912,13 +925,21 @@
     }
 
     /* ---------- as dicas da primeira vez ---------- */
+    // as da conta (conta-inicial.js, vindas do servidor) + as deste navegador
     function dicasVistas() {
-        try { return JSON.parse(localStorage.getItem(CHAVE_DICAS) || '[]'); } catch (err) { return []; }
+        var locais = [];
+        try { locais = JSON.parse(localStorage.getItem(CHAVE_DICAS) || '[]'); } catch (err) { /* nada */ }
+        return (window.KOSMOS_DICAS_VISTAS || []).concat(Array.isArray(locais) ? locais : []);
     }
     function marcarDica(id) {
         var v = dicasVistas();
         if (v.indexOf(id) < 0) v.push(id);
-        try { localStorage.setItem(CHAVE_DICAS, JSON.stringify(v)); } catch (err) { /* privado: pode repetir */ }
+        try { localStorage.setItem(CHAVE_DICAS, JSON.stringify(v)); } catch (err) { /* privado: o servidor guarda */ }
+        // na conta, para não reaparecer em outro aparelho
+        var corpo = new FormData();
+        corpo.append('dicas', id);
+        fetch('../../../Backend/php/tutorial_dica.php', { method: 'POST', body: corpo, credentials: 'same-origin' })
+            .catch(function () { /* fica só neste aparelho */ });
     }
 
     // Uma checagem leve a cada 700 ms, só nas abas que ainda têm dica, e

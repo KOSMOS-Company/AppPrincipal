@@ -274,6 +274,8 @@
     transition: color .15s ease, border-color .15s ease;
 }
 .tut__pular::after { content: "»"; font-size: .95rem; line-height: 1; }
+/* moldura invisível: o texto tem ~21px de altura, pouco para o dedo */
+.tut__pular::before { content: ""; position: absolute; inset: -8px -8px; }
 .tut__pular:hover { color: #3d1a5e; border-bottom-color: currentColor; }
 
 .tut__acoes {

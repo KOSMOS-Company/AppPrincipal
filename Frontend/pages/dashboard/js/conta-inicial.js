@@ -29,6 +29,24 @@
     window.KOSMOS_CONTA = dados.conta | 0;
     window.kosmosChaveConta = function (base) { return base + ':conta' + window.KOSMOS_CONTA; };
 
+    /* Identificador DESTE aparelho (32 letras hexadecimais, sorteado
+       uma vez). O Pomodoro manda junto do Iniciar e do fim do ciclo:
+       o servidor guarda um início por aparelho, então um ciclo no PC
+       e outro no celular ao mesmo tempo não se atropelam. Sem
+       localStorage (aba privada), vale até fechar a aba. */
+    var aparelho = '';
+    window.kosmosAparelho = function () {
+        if (aparelho) return aparelho;
+        try { aparelho = localStorage.getItem('kosmos_aparelho') || ''; } catch (e) { /* privado */ }
+        if (!/^[0-9a-f]{32}$/.test(aparelho)) {
+            var bytes = new Uint8Array(16);
+            crypto.getRandomValues(bytes);
+            aparelho = Array.prototype.map.call(bytes, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+            try { localStorage.setItem('kosmos_aparelho', aparelho); } catch (e) { /* privado */ }
+        }
+        return aparelho;
+    };
+
     /* ---- Orion: o tour e as dicas da primeira vez (js/tutorial.js) ----
        O tutorial.js + tutorial.css (~50 KB) só descem quando há algo
        para mostrar NESTA aba: o tour em andamento, o tour para
@@ -60,10 +78,24 @@
         document.head.appendChild(veu);
         precisa = true;
     }
+    /* Dicas já vistas: as da CONTA (servidor, valem em qualquer aparelho)
+       mais as deste navegador. As que só este aparelho conhecia (de
+       antes de a lista ir para o servidor) sobem uma vez. */
+    var dicasServidor = Array.isArray(dados.dicasVistas) ? dados.dicasVistas : [];
+    var dicasLocais = [];
+    try { dicasLocais = JSON.parse(localStorage.getItem(window.kosmosChaveConta('kosmos_dicas')) || '[]'); } catch (e) { /* nada */ }
+    if (!Array.isArray(dicasLocais)) dicasLocais = [];
+    var soLocais = dicasLocais.filter(function (d) { return dicasServidor.indexOf(d) < 0; });
+    window.KOSMOS_DICAS_VISTAS = dicasServidor.concat(soLocais);
+    if (soLocais.length && window.KOSMOS_CONTA) {
+        var corpo = new FormData();
+        corpo.append('dicas', soLocais.join(','));
+        fetch('../../../Backend/php/tutorial_dica.php', { method: 'POST', body: corpo, credentials: 'same-origin' })
+            .catch(function () { /* tenta de novo no próximo carregamento */ });
+    }
+
     if (!precisa && DICAS_POR_ABA[window.KOSMOS_PAGINA]) {
-        var vistas = [];
-        try { vistas = JSON.parse(localStorage.getItem(window.kosmosChaveConta('kosmos_dicas')) || '[]'); } catch (e) { /* nada */ }
-        precisa = DICAS_POR_ABA[window.KOSMOS_PAGINA].some(function (d) { return vistas.indexOf(d) < 0; });
+        precisa = DICAS_POR_ABA[window.KOSMOS_PAGINA].some(function (d) { return window.KOSMOS_DICAS_VISTAS.indexOf(d) < 0; });
     }
     if (precisa) {
         var css = document.createElement('link');

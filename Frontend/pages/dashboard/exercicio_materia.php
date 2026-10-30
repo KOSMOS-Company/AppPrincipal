@@ -30,6 +30,10 @@ if ($id > 0 && !$ERRO_BANCO) {
         $MATERIA = null;
     }
 }
+// a tela de "não encontrado" é uma resposta 404 de verdade
+if (!$MATERIA && !$ERRO_BANCO) {
+    http_response_code(404);
+}
 
 /* As outras matérias — os destinos possíveis ao arrastar um exercício
    para fora desta. Sem outras matérias, a doca não aparece. */

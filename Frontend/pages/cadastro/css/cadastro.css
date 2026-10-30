@@ -383,6 +383,9 @@ em { font-style: normal; color: var(--accent-lt); }
 }
 .form-card__link { font-size: .86rem; color: var(--text-muted); text-decoration: none; transition: color var(--transition); }
 .form-card__link:hover { color: var(--text-dim); }
+/* moldura invisível: área de toque maior no celular sem mudar o layout */
+.form-card__link { position: relative; }
+.form-card__link::before { content: ""; position: absolute; inset: -6px -4px; }
 .form-card__link--accent { color: var(--accent); }
 .form-card__link--accent:hover { color: var(--accent-lt); }
 

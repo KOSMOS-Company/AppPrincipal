@@ -17,6 +17,7 @@ document.querySelector('.form').addEventListener('submit', async function (e) {
     const dados = new FormData();
     dados.append('email', email);
     dados.append('senha', senha);
+    if (document.getElementById('lembrar').checked) dados.append('lembrar', '1');
     btn.disabled    = true;
     btn.textContent = 'Aguarde...';
     try {
@@ -30,9 +31,11 @@ document.querySelector('.form').addEventListener('submit', async function (e) {
             sessionStorage.setItem('kosmos_usuario', json.nome);
             sessionStorage.setItem('kosmos_intro', '1'); // dispara o splash no dashboard
             setTimeout(() => { window.location.href = '../dashboard/index.php'; }, 1200);
+        } else if (json.nao_confirmado) {
+            oferecerReenvio(email);
         }
     } catch (err) {
-        mostrarMsg('Nao foi possivel conectar ao servidor. Verifique se o XAMPP esta rodando.', 'erro');
+        mostrarMsg('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.', 'erro');
     } finally {
         btn.disabled  = false;
         btn.innerHTML = btnHtml;
@@ -45,6 +48,31 @@ function mostrarMsg(texto, tipo) {
     div.textContent = texto;
     div.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:8px;font-size:0.875rem;font-weight:500;background:' + (tipo==='sucesso'?'rgba(52,211,153,0.15)':'rgba(239,68,68,0.15)') + ';color:' + (tipo==='sucesso'?'#34d399':'#f87171') + ';border:1px solid ' + (tipo==='sucesso'?'#34d39940':'#f8717140');
     document.querySelector('.form').after(div);
+}
+
+/* --- E-mail ainda não confirmado: botão para mandar o link de novo --- */
+function oferecerReenvio(email) {
+    const msg = document.querySelector('.msg-feedback');
+    if (!msg) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-reenviar';
+    btn.textContent = 'Reenviar link de confirmação';
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+        try {
+            const dados = new FormData();
+            dados.append('email', email);
+            const resp = await fetch('../../../Backend/php/confirmar_reenviar.php', { method: 'POST', body: dados });
+            const json = await resp.json();
+            mostrarMsg(json.msg, json.ok ? 'sucesso' : 'erro');
+        } catch (err) {
+            mostrarMsg('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.', 'erro');
+        }
+    });
+    msg.appendChild(document.createElement('br'));
+    msg.appendChild(btn);
 }
 
 /* --- Entrar com o Google: shared/google-login.js (usa o mostrarMsg acima) --- */

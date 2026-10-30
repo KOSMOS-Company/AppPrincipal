@@ -242,6 +242,73 @@ em { font-style: normal; color: var(--accent-lt); }
     padding-left: 2px;
 }
 
+/* "Lembrar de mim" — um cartãozinho clicável inteiro (o <label>), com
+   a caixa no mesmo visual dos campos e uma linha dizendo o que faz */
+.lembrar {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-nav);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: var(--transition);
+}
+.lembrar:hover { border-color: rgba(165,65,255,.35); background: var(--bg-card); }
+/* marcado: o cartão acende junto com a caixa */
+.lembrar:has(.lembrar__caixa:checked) {
+    border-color: rgba(165,65,255,.5);
+    background: rgba(165,65,255,.08);
+}
+
+/* a caixa: sem o visual do navegador; o ✓ é um SVG que "salta" ao marcar */
+.lembrar__caixa {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 1px 0 0;
+    border: 1.5px solid rgba(255,255,255,.25);
+    border-radius: 6px;
+    background: var(--bg-card) no-repeat center / 0 0
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3.2 3.2L15 7' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition),
+                background-size .2s cubic-bezier(.34,1.56,.64,1), box-shadow var(--transition);
+}
+.lembrar:hover .lembrar__caixa { border-color: var(--accent); }
+.lembrar__caixa:checked {
+    background-color: var(--accent);
+    background-size: 16px 16px;
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(165,65,255,.45);
+}
+.lembrar__caixa:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(165,65,255,.35); }
+
+.lembrar__texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lembrar__titulo { font-size: .9rem; font-weight: 600; color: #fff; }
+.lembrar__dica { font-size: .78rem; line-height: 1.4; color: var(--text-muted); }
+
+/* "Reenviar link de confirmação", dentro da mensagem de erro do login */
+.btn-reenviar {
+    margin-top: 8px;
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 1px solid currentColor;
+    border-radius: 8px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-reenviar:hover { background: rgba(255,255,255,.06); }
+.btn-reenviar:disabled { opacity: .6; cursor: default; }
+
 /* Submit */
 .btn-submit {
     position: relative;
@@ -297,6 +364,18 @@ em { font-style: normal; color: var(--accent-lt); }
     color: var(--text-muted);
     text-decoration: none;
     transition: color var(--transition);
+}
+/* Links soltos têm só ~17px de altura: uma moldura invisível em volta
+   aumenta a área de toque no celular sem mudar o layout */
+.field__link,
+.form-card__signup-link,
+.form-card__back { position: relative; }
+.field__link::before,
+.form-card__signup-link::before,
+.form-card__back::before {
+    content: "";
+    position: absolute;
+    inset: -6px -4px;
 }
 .form-card__back svg { transition: transform var(--transition); }
 .form-card__back:hover { color: var(--text-dim); }
