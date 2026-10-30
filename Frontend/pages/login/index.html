@@ -10,6 +10,8 @@
     <!-- Visual leve: a mesma escolha do dashboard (salva neste aparelho),
          lida antes de pintar. Os scripts de shared/ já respeitam a classe. -->
     <script src="../shared/visual-lite.js"></script>
+    <!-- já logado (inclusive pelo "Lembrar de mim"): vai direto para o dashboard -->
+    <script src="../shared/ja-logado.js"></script>
     <link rel="stylesheet" href="../shared/tokens.css">
     <link rel="stylesheet" href="./css/login.css">
     <link rel="stylesheet" href="../shared/mouse-tracker.css">
@@ -83,7 +85,7 @@
                         <input type="checkbox" id="lembrar" class="lembrar__caixa" aria-describedby="lembrarDica">
                         <span class="lembrar__texto">
                             <span class="lembrar__titulo">Lembrar de mim</span>
-                            <span class="lembrar__dica" id="lembrarDica">Fica conectado por 30 dias. Evite em computador compartilhado.</span>
+                            <span class="lembrar__dica" id="lembrarDica">Por 30 dias. Evite em PC compartilhado.</span>
                         </span>
                     </label>
 
