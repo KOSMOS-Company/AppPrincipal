@@ -34,6 +34,12 @@ define('APP_URL', '');
 // Webhook do n8n que ENVIA o e-mail de redefinicao (usa o mesmo Header Auth do n8n acima).
 define('N8N_RESET_URL', 'https://SEU-N8N/webhook/reset-senha');
 
+// ---------- Confirmacao do e-mail do cadastro (opcional) ----------
+// Webhook do n8n que ENVIA o link de confirmacao (mesmo Header Auth; o
+// e-mail esta em Backend/notes/email-confirmar.html). Vazio = desligada:
+// o cadastro cria a conta ja confirmada, como antes.
+define('N8N_CONFIRMA_URL', '');
+
 // ---------- Notificacoes por e-mail (opcional) ----------
 // Webhook do n8n que envia o lembrete diario e o resumo semanal.
 // Usado so pelo Backend/tarefas/notificacoes.php (agendado). Vazio =

@@ -1,0 +1,4 @@
+# Arquivos de sessão do PHP (Backend/php/sessao.php). Nada daqui vai para o git.
+*
+!.gitignore
+!.htaccess

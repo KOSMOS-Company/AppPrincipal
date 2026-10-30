@@ -53,9 +53,11 @@ O formato mora num lugar só, em [`api_util.php`](../Backend/php/api_util.php)
 
 | Endpoint | Método | Entrada | Observações |
 |---|---|---|---|
-| `login.php` | POST | `email`, `senha` | 401 genérico; o tempo de resposta é igual exista o e-mail ou não |
+| `login.php` | POST | `email`, `senha`, `lembrar` (opcional, `1`) | 401 genérico; o tempo de resposta é igual exista o e-mail ou não. 403 com `nao_confirmado: true` quando a senha confere mas o e-mail não foi confirmado (só com `N8N_CONFIRMA_URL`). `lembrar` liga o "Lembrar de mim": cookie `kosmos_lembrar` por 30 dias (`sessoes_lembradas`) |
 | `login_google.php` | POST | `access_token` ou `credential` | valida no Google e confere o `aud` (Client ID); `precisa_senha` na resposta |
-| `cadastro.php` | POST | `nome`, `email`, `senha` | 201 criado, 409 e-mail em uso, 429 limite |
+| `cadastro.php` | POST | `nome`, `email`, `senha` | 201 criado (com `confirmar: true` quando o link de confirmação foi enviado), 409 e-mail em uso por conta confirmada, 429 limite. Conta que nunca confirmou pode ser recadastrada |
+| `confirmar_email.php` | POST | `token` | link do e-mail de confirmação (48 h, uso único); confirma e já abre a sessão. 400 link inválido/vencido |
+| `confirmar_reenviar.php` | POST | `email` | resposta **sempre** genérica; manda um link novo se a conta espera confirmação. Limite `confirma` (3/h por e-mail) |
 | `logout.php` | POST | — | só POST (antes um `<img>` de outro site deslogava a pessoa) |
 | `senha_esqueci.php` | POST | `email` | resposta **sempre** genérica; o e-mail sai pelo n8n |
 | `senha_resetar.php` | POST | `token`, `senha_nova` | token de 64 hex, uso único, 1 hora |
@@ -71,6 +73,7 @@ O formato mora num lugar só, em [`api_util.php`](../Backend/php/api_util.php)
 | `conta_excluir.php` | POST | `senha` ou `confirmacao=EXCLUIR` | protegido: apaga a conta e tudo o que é dela |
 | `onboarding_salvar.php` | POST (JSON) | `objetivo`, `meta_diaria`, `materias[]`, `pular` | protegido |
 | `tutorial_visto.php` | POST | — | protegido (marca o tour do Orion como visto) |
+| `tutorial_dica.php` | POST | `dicas` (ids separados por vírgula) | protegido; acrescenta às dicas do Orion já vistas pela conta (só cresce) |
 | `tutorial_concluido.php` | POST | — | protegido: recompensa do tour (75 XP + conquista "Decolagem"), uma vez por conta |
 | `recompensas_equipar.php` | POST | `tipo` (moldura/cor/emblema), `slug` | protegido; o nível é conferido no servidor |
 
@@ -82,7 +85,8 @@ Os endpoints com várias operações recebem o campo `acao`.
 |---|---|---|
 | `inicio_dados.php` | GET | semana, hoje, meta, métricas, primeiros passos e missões |
 | `foco_mensal.php` | GET | `?mes=AAAA-MM` — calendário de foco do mês |
-| `pomodoro_sessao.php` | POST (JSON) | `fim` (epoch em segundos), `minutos` — idempotente |
+| `pomodoro_inicio.php` | POST | `aparelho` (32 hex, sorteado pelo navegador) — marca o início de um ciclo de foco neste aparelho, no relógio do MySQL |
+| `pomodoro_sessao.php` | POST (JSON) | `fim` (epoch em segundos), `minutos`, `aparelho` — idempotente; 409 sem um `pomodoro_inicio.php` do mesmo aparelho de pelo menos `minutos` atrás (gravar consome o início) |
 | `busca.php` | GET | `?q=termo` — resumos, cadernos, baralhos, cartões e exercícios |
 | `estatisticas.php` | GET | `?de=biblioteca` (resumos, cadernos, semana, prontos) ou `?de=exercicios` (matérias, questões, respostas, acerto %) — os números do topo das abas |
 | `resumos_listar.php` | GET | `?caderno=ID` (opcional; `0` = soltos) |

@@ -88,6 +88,7 @@ acrescentá-las.
 | `N8N_NOTIF_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/notificacoes` | pode copiar daqui |
 | `N8N_ORION_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/orion` | pode copiar daqui (sem ele, o Orion usa só as respostas prontas) |
 | `N8N_IA_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/kosmos-ia` | pode copiar daqui (sem ele, a IA dos resumos fica desligada) |
+| `N8N_CONFIRMA_URL` | vazio, até o fluxo existir | depois de criar o fluxo (ver "Confirmação de e-mail" abaixo), `https://n8n.srv1779459.hstgr.cloud/webhook/confirmar-email`. Vazio = confirmação desligada |
 
 O resultado fica assim (com os seus valores):
 
@@ -101,6 +102,7 @@ define('N8N_RESET_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/reset-senha'
 define('N8N_NOTIF_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/notificacoes');
 define('N8N_ORION_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/orion');
 define('N8N_IA_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/kosmos-ia');
+define('N8N_CONFIRMA_URL', '');   // ver "Confirmação de e-mail"
 ```
 
 > **Sobre o `N8N_IA_URL`:** é o fluxo "Kosmos — IA", que tenta três IAs em sequência
@@ -213,6 +215,38 @@ O lembrete diário e o resumo semanal saem pelo script `Backend/tarefas/notifica
   C:\xampp\php\php.exe Backend/tarefas/notificacoes.php lembrete
   ```
   Acrescente `--enviar` no fim para enviar de verdade.
+- **Para agendar** (só no computador escolhido): na raiz do projeto, rode
+  ```bash
+  powershell -ExecutionPolicy Bypass -File Backend	arefas\agendar-windows.ps1
+  ```
+  Ele cria três tarefas no Agendador do Windows: lembrete (todo dia, 19h), resumo
+  (domingo, 18h) e a limpeza do banco (todo dia, 3h). Para desfazer, rode de novo com
+  `-Remover` no fim. O PC precisa estar com o XAMPP (MySQL) ligado; se estiver desligado
+  no horário, a tarefa roda quando ele ligar.
+
+---
+
+## ✉️ Confirmação de e-mail: criar o fluxo no n8n (uma vez só)
+
+O site já está pronto: com `N8N_CONFIRMA_URL` preenchido, o cadastro manda um link e o
+login só entra depois da confirmação. Falta o fluxo no n8n, que é uma **cópia do fluxo de
+redefinição de senha** com duas mudanças:
+
+1. No n8n, abra o fluxo de redefinição de senha (webhook `reset-senha`) e use
+   **Duplicate**.
+2. No nó **Webhook** da cópia, troque o *Path* para `confirmar-email`. A autenticação
+   (Header Auth, `X-Kosmos-Token`) continua a mesma.
+3. No nó **Send Email**, troque o assunto para *Confirme seu e-mail no Kosmos* e cole no
+   campo HTML todo o conteúdo de `Backend/notes/email-confirmar.html`.
+4. **Ative** o fluxo e copie a *Production URL* do Webhook.
+5. No `config.php` de cada pessoa (e do servidor), preencha:
+   ```php
+   define('N8N_CONFIRMA_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/confirmar-email');
+   ```
+
+O PHP manda para o fluxo o mesmo formato do reset: `{ email, nome, link }`. Para testar:
+cadastre um e-mail seu, abra o link que chegar e confira se você entra direto no
+dashboard. Contas que já existiam, as do Google e a conta de dev não precisam confirmar.
 - **Para receber os seus:** ligue as opções em **Conta › Notificações**. O lembrete só
   vai para quem **ainda não estudou no dia**. Se você já estudou hoje, ele não te
   seleciona, e isso é o esperado.

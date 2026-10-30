@@ -10,7 +10,7 @@
 require_once __DIR__ . '/api_util.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/sessao.php';
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/email_util.php';
 require_once __DIR__ . '/limite_util.php';
 
 apiExigirPost();
@@ -28,31 +28,8 @@ $respostaGenerica = [
     'msg' => 'Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha.',
 ];
 
-/**
- * Endereço das páginas do frontend, para montar o link do e-mail.
- *
- * Em produção o APP_URL do config.php é OBRIGATÓRIO. Montar o link a
- * partir do cabeçalho Host da requisição deixaria um atacante pedir o
- * reset da vítima com Host: site-dele.com — e o e-mail verdadeiro
- * levaria o token para lá ("reset poisoning").
- *
- * Em desenvolvimento (localhost) o APP_URL pode ficar vazio: o link é
- * descoberto pela pasta onde o app está, em qualquer instalação.
- */
-function urlDoFrontend(): ?string {
-    if (defined('APP_URL') && APP_URL !== '') {
-        return rtrim(APP_URL, '/');
-    }
-    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
-    if (!preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i', $host)) {
-        error_log('[KOSMOS reset] APP_URL vazio no config.php fora do localhost: e-mail não enviado.');
-        return null;
-    }
-    // .../Backend/php/senha_esqueci.php -> raiz do app
-    $raiz = dirname(str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '')), 3);
-    $esquema = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') ? 'https' : 'http';
-    return $esquema . '://' . $host . rtrim($raiz, '/') . '/Frontend/pages';
-}
+// O link do e-mail sai de urlDoFrontend() (email_util.php): em produção,
+// só do APP_URL — nunca do cabeçalho Host ("reset poisoning").
 
 try {
     $pdo = conectar();
@@ -84,33 +61,14 @@ try {
     $upd = $pdo->prepare('UPDATE usuarios SET reset_token = ?, reset_expira = NOW() + INTERVAL 1 HOUR WHERE id = ?');
     $upd->execute([$hash, $user['id']]);
 
-    // Monta o link e pede ao n8n para enviar o e-mail
-    $payload = json_encode([
+    // Monta o link e pede ao n8n para enviar o e-mail (email_util.php).
+    // A pessoa continua vendo a resposta genérica; quem mantém o app
+    // fica sabendo pelo log se o e-mail não saiu.
+    n8nEnviarEmail(N8N_RESET_URL, [
         'email' => $email,
         'nome'  => $user['nome'],
         'link'  => $base . '/login/redefinir.html?token=' . $token,
-    ], JSON_UNESCAPED_UNICODE);
-
-    $ch = curl_init(N8N_RESET_URL);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => $payload,
-        CURLOPT_HTTPHEADER     => [
-            'Content-Type: application/json',
-            N8N_TOKEN_HEADER . ': ' . N8N_TOKEN_VALOR,
-        ],
-        CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_TIMEOUT        => 20,
-    ]);
-    $resp = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    // A pessoa continua vendo a resposta genérica; quem mantém o app
-    // fica sabendo pelo log que o e-mail não saiu
-    if ($resp === false || $code >= 400) {
-        error_log("[KOSMOS reset] n8n não enviou o e-mail (HTTP $code).");
-    }
+    ], 'reset');
 
     apiResponder($respostaGenerica);
 } catch (PDOException $e) {

@@ -92,17 +92,27 @@ Redirecione todo o `http` para `https` no VirtualHost.
 |---|---|---|
 | Lembrete diário | todo dia, 19h | `php Backend/tarefas/notificacoes.php lembrete --enviar` |
 | Resumo semanal | domingo, 18h | `php Backend/tarefas/notificacoes.php resumo --enviar` |
+| Limpeza | todo dia, 3h | `php Backend/tarefas/limpeza.php --apagar` |
 
 ```cron
 0 19 * * *  cd /var/www/kosmos && php Backend/tarefas/notificacoes.php lembrete --enviar
 0 18 * * 0  cd /var/www/kosmos && php Backend/tarefas/notificacoes.php resumo   --enviar
+0 3  * * *  cd /var/www/kosmos && php Backend/tarefas/limpeza.php --apagar
 ```
 
-No Windows: Agendador de Tarefas → Criar tarefa básica → programa
-`C:\xampp\php\php.exe`, argumentos `Backend\tarefas\notificacoes.php lembrete --enviar`,
-"iniciar em" a pasta do app.
+No Windows, o script `Backend\tarefas\agendar-windows.ps1` cria as três tarefas no
+Agendador (e `-Remover` as apaga):
 
-Sem `--enviar` o script só **simula** e lista quem receberia. Rode assim primeiro.
+```powershell
+powershell -ExecutionPolicy Bypass -File Backend\tarefas\agendar-windows.ps1
+```
+
+Sem `--enviar` (ou `--apagar`, na limpeza) os scripts só **simulam**. Rode assim primeiro.
+
+**Sessões:** o PHP guarda os logins em `Backend/sessoes/` (não na pasta comum do
+servidor, onde o cron do Debian/Ubuntu apagaria tudo com mais de 24 min). O usuário
+do Apache precisa poder escrever nela, e ela não pode ser servida: o `.htaccess` dela
+já nega o acesso no Apache; no nginx, bloqueie `/Backend/` inteiro.
 
 ## 7. Logs
 

@@ -11,23 +11,49 @@ require_once __DIR__ . '/conexao.php';
 // quem ainda tem uma cópia antiga dele (ver bootstrap.php)
 require_once __DIR__ . '/bootstrap.php';
 
+/* Quanto tempo uma sessão PARADA continua valendo no servidor. O padrão
+   do PHP (24 min) é menor que um Pomodoro: quem deixava o timer correndo
+   sem mexer no site voltava deslogado, e o ciclo se perdia. */
+const SESSAO_DURACAO_SEG = 8 * 3600;
+
+/* "Lembrar de mim": o aparelho fica logado por este tempo, mesmo depois
+   de fechar o navegador. Ver criarLembranca() e restaurarLembranca(). */
+const LEMBRAR_COOKIE = 'kosmos_lembrar';
+const LEMBRAR_DIAS   = 30;
+
+/** O site está em HTTPS? (o cookie só sai com `secure` nesse caso) */
+function sessaoEmHttps(): bool {
+    return !empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off';
+}
+
 /**
  * Inicia a sessão do PHP (apenas uma vez, com segurança).
  * Chame isto antes de ler ou escrever qualquer coisa em $_SESSION.
  */
 function iniciarSessao(): void {
     if (session_status() === PHP_SESSION_NONE) {
+        /* As sessões do Kosmos moram numa pasta só delas (Backend/sessoes,
+           bloqueada na web). Na pasta comum, quem faz a faxina é o
+           primeiro script que roda — o phpMyAdmin no XAMPP, o cron do
+           Debian/Ubuntu — e ele apaga tudo com mais de 24 min, ignorando
+           o SESSAO_DURACAO_SEG daqui. Na nossa pasta, a faxina é nossa. */
+        $pasta = __DIR__ . '/../sessoes';
+        if (is_dir($pasta) && is_writable($pasta)) {
+            session_save_path($pasta);
+            ini_set('session.gc_probability', '1');
+            ini_set('session.gc_divisor', '100');
+        }
+        ini_set('session.gc_maxlifetime', (string) SESSAO_DURACAO_SEG);
         // Endurece o cookie antes de abri-lo (só vale se vier antes do session_start):
         //  - httponly: JavaScript (e um eventual XSS) não lê o PHPSESSID;
         //  - samesite Lax: o navegador não manda o cookie em POSTs vindos de
         //    outros sites, o que já barra o CSRF clássico nos endpoints;
         //  - secure só sob HTTPS, senão o login quebraria no XAMPP em http;
         //  - path '/' é o mesmo padrão de antes (php.ini), nada muda para o app.
-        $https = !empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off';
         session_set_cookie_params([
             'httponly' => true,
             'samesite' => 'Lax',
-            'secure'   => $https,
+            'secure'   => sessaoEmHttps(),
             'path'     => '/',
         ]);
         // strict_mode: o PHP recusa IDs de sessão que ele não criou, o que
@@ -44,7 +70,8 @@ function iniciarSessao(): void {
 function usuarioLogado(): ?array {
     iniciarSessao();
 
-    if (empty($_SESSION['usuario_id'])) {
+    // Sessão vencida, mas o aparelho foi lembrado: entra de novo sozinho
+    if (empty($_SESSION['usuario_id']) && !restaurarLembranca()) {
         return null;
     }
 
@@ -160,6 +187,129 @@ function marcarVersaoSessao(PDO $pdo, int $usuarioId): void {
     $stmt->execute([$usuarioId]);
     $row = $stmt->fetch();
     $_SESSION['sessoes_versao'] = $row ? (int) $row['sessoes_versao'] : 0;
+
+    // O "Lembrar de mim" deste aparelho acompanha: no "sair de todos os
+    // dispositivos" e na troca de senha, só os OUTROS ficam para trás
+    $lembranca = lerCookieLembranca();
+    if ($lembranca !== null) {
+        try {
+            $pdo->prepare('UPDATE sessoes_lembradas SET sessoes_versao = ? WHERE seletor = ? AND usuario_id = ?')
+                ->execute([$_SESSION['sessoes_versao'], $lembranca[0], $usuarioId]);
+        } catch (PDOException $e) {
+            registrarErro($e);   // migração pendente: o login segue, só sem lembrança
+        }
+    }
+}
+
+/* ============================================================
+   "LEMBRAR DE MIM"
+   O cookie leva "seletor:validador". O seletor acha a linha em
+   sessoes_lembradas; do validador o banco guarda só o hash — se o
+   banco vazar, ninguém entra com o que está lá (mesma ideia do token
+   de redefinição de senha). A linha também guarda a "geração" de
+   sessões da conta: o "sair de todos os dispositivos" sobe a da
+   conta, e as lembranças antigas param de valer sem precisar apagar.
+   ============================================================ */
+
+/** [seletor, validador] do cookie deste aparelho, ou null. */
+function lerCookieLembranca(): ?array {
+    $bruto = (string) ($_COOKIE[LEMBRAR_COOKIE] ?? '');
+    if (!preg_match('/^([0-9a-f]{24}):([0-9a-f]{64})$/', $bruto, $m)) {
+        return null;
+    }
+    return [$m[1], $m[2]];
+}
+
+function gravarCookieLembranca(string $valor, int $expira): void {
+    setcookie(LEMBRAR_COOKIE, $valor, [
+        'expires'  => $expira,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+        'secure'   => sessaoEmHttps(),
+    ]);
+}
+
+/** Liga o "Lembrar de mim" neste aparelho (chame depois do marcarVersaoSessao()). */
+function criarLembranca(PDO $pdo, int $usuarioId): void {
+    esquecerEsteAparelho($pdo);   // uma lembrança por aparelho
+    $seletor   = bin2hex(random_bytes(12));
+    $validador = bin2hex(random_bytes(32));
+
+    $pdo->prepare('DELETE FROM sessoes_lembradas WHERE usuario_id = ? AND expira_em < NOW()')
+        ->execute([$usuarioId]);
+    $pdo->prepare(
+        'INSERT INTO sessoes_lembradas (seletor, validador_hash, usuario_id, sessoes_versao, expira_em)
+         SELECT ?, ?, id, sessoes_versao, NOW() + INTERVAL ' . LEMBRAR_DIAS . ' DAY FROM usuarios WHERE id = ?'
+    )->execute([$seletor, hash('sha256', $validador), $usuarioId]);
+
+    gravarCookieLembranca($seletor . ':' . $validador, time() + LEMBRAR_DIAS * 86400);
+}
+
+/** Desliga o "Lembrar de mim" deste aparelho (logout, login sem marcar). */
+function esquecerEsteAparelho(?PDO $pdo): void {
+    $lembranca = lerCookieLembranca();
+    if ($lembranca !== null && $pdo !== null) {
+        $pdo->prepare('DELETE FROM sessoes_lembradas WHERE seletor = ?')->execute([$lembranca[0]]);
+    }
+    if (isset($_COOKIE[LEMBRAR_COOKIE])) {
+        gravarCookieLembranca('', time() - 42000);
+        unset($_COOKIE[LEMBRAR_COOKIE]);
+    }
+}
+
+/**
+ * Sem sessão, mas com o cookie do "Lembrar de mim": confere e, se
+ * valer, abre a sessão de novo, como um login. Devolve se entrou.
+ *
+ * O validador NÃO é trocado a cada uso: o dashboard dispara várias
+ * requisições juntas, e com troca a 2ª chegava com o valor antigo e
+ * derrubava o login. A validade é que se renova (30 dias desde o
+ * último uso).
+ */
+function restaurarLembranca(): bool {
+    $lembranca = lerCookieLembranca();
+    if ($lembranca === null) {
+        return false;
+    }
+    [$seletor, $validador] = $lembranca;
+
+    try {
+        $pdo  = conectar();
+        $stmt = $pdo->prepare(
+            'SELECT l.validador_hash, l.sessoes_versao AS versao_lembranca,
+                    u.id, u.nome, u.sessoes_versao AS versao_conta
+               FROM sessoes_lembradas l
+               JOIN usuarios u ON u.id = l.usuario_id
+              WHERE l.seletor = ? AND l.expira_em > NOW()
+              LIMIT 1'
+        );
+        $stmt->execute([$seletor]);
+        $l = $stmt->fetch();
+
+        if (!$l || !hash_equals($l['validador_hash'], hash('sha256', $validador))
+            || (int) $l['versao_lembranca'] < (int) $l['versao_conta']) {
+            esquecerEsteAparelho($pdo);
+            return false;
+        }
+
+        // Mesmo cuidado do login: ID de sessão novo ao autenticar
+        session_regenerate_id(true);
+        $_SESSION['usuario_id']     = (int) $l['id'];
+        $_SESSION['usuario_nome']   = $l['nome'];
+        $_SESSION['sessoes_versao'] = (int) $l['versao_conta'];
+
+        $pdo->prepare('UPDATE sessoes_lembradas SET expira_em = NOW() + INTERVAL ' . LEMBRAR_DIAS . ' DAY WHERE seletor = ?')
+            ->execute([$seletor]);
+        gravarCookieLembranca($seletor . ':' . $validador, time() + LEMBRAR_DIAS * 86400);
+
+        registrarAcesso($pdo, (int) $l['id']);   // conta para a sequência, como um login
+        return true;
+    } catch (Throwable $e) {
+        // sem a tabela (migração pendente) ou banco fora: segue deslogado
+        registrarErro($e);
+        return false;
+    }
 }
 
 /**
@@ -195,6 +345,15 @@ function sessaoAindaValida(PDO $pdo, int $usuarioId): bool {
  */
 function encerrarSessao(): void {
     iniciarSessao();
+    // sair também desliga o "Lembrar de mim" deste aparelho
+    if (lerCookieLembranca() !== null) {
+        try {
+            esquecerEsteAparelho(conectar());
+        } catch (Throwable $e) {
+            registrarErro($e);
+            esquecerEsteAparelho(null);   // o cookie sai mesmo assim
+        }
+    }
     $_SESSION = [];
     if (ini_get('session.use_cookies')) {
         $p = session_get_cookie_params();

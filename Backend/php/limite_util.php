@@ -25,6 +25,9 @@ const LIMITES = [
     // conversa com o Orion: mensagens são curtas e frequentes, mas
     // também gastam a cota (2026-10-22_orion.sql)
     'orion'    => ['minutos' => 60, 'email' => 40,   'ip' => 120],
+    // "Reenviar link" da confirmação de e-mail: como o 'reset', cada
+    // pedido manda um e-mail de verdade (2026-10-29_conta_extras.sql)
+    'confirma' => ['minutos' => 60, 'email' => 3,    'ip' => 10],
 ];
 
 /** IP de quem fez a requisição (REMOTE_ADDR: o X-Forwarded-For é forjável). */

@@ -1,0 +1,11 @@
+{
+  "name": "kosmos-teste-navegador",
+  "private": true,
+  "description": "Teste de navegador do Kosmos (PC e celular). Ver navegador.js.",
+  "scripts": {
+    "test": "node navegador.js"
+  },
+  "devDependencies": {
+    "playwright": "1.48.2"
+  }
+}

@@ -38,6 +38,8 @@ erDiagram
     provas ||--o{ prova_topicos      : "cai"
 
     usuarios ||--o{ pomodoro_sessoes : "foca"
+    usuarios ||--o{ pomodoro_inicios : "inicia"
+    usuarios ||--o{ sessoes_lembradas : "lembra"
 ```
 
 Tabelas sem ligação com `usuarios`: `niveis_config` e `recompensas` (catálogos
@@ -48,8 +50,8 @@ tentativas, indexada por e-mail/IP) e `migracoes` (controle do `migrar.php`).
 
 | Tabela | Para quê | Observações |
 |---|---|---|
-| `usuarios` | conta, senha (bcrypt), Google, sequência de dias | `email` e `google_id` únicos; `sessoes_versao` derruba as outras sessões; `reset_token` guarda só o **hash** do token |
-| `usuario_preferencias` | avatar, tempos do pomodoro, meta diária, matérias, onboarding, notificações | 1 linha por usuário, criada no primeiro acesso |
+| `usuarios` | conta, senha (bcrypt), Google, sequência de dias | `email` e `google_id` únicos; `sessoes_versao` derruba as outras sessões; `reset_token` e `confirma_token` guardam só o **hash** do token; `email_confirmado` = 0 só no cadastro por e-mail ainda não confirmado |
+| `usuario_preferencias` | avatar, tempos do pomodoro, meta diária, matérias, onboarding, tour e dicas do Orion já vistas, notificações | 1 linha por usuário, criada no primeiro acesso |
 | `usuario_progresso` | XP total, nível e título atuais | cache: a verdade é a soma de `historico_xp` |
 | `historico_xp` | cada ganho de XP, com a origem | nada soma XP sem deixar uma linha aqui |
 | `niveis_config` | XP de cada nível e o título | catálogo (50 níveis) |
@@ -63,7 +65,9 @@ tentativas, indexada por e-mail/IP) e `migracoes` (controle do `migrar.php`).
 | `exercicio_respostas` | cada resposta, para o XP | 1 XP por questão por dia (UNIQUE) |
 | `provas` / `prova_topicos` | provas marcadas e os assuntos que caem | |
 | `pomodoro_sessoes` | cada ciclo de foco concluído | UNIQUE (`usuario_id`, `fim_em`): duas abas não duplicam |
-| `tentativas_acesso` | limite de login, cadastro, "esqueci a senha" e IA | linhas com mais de 1 dia são apagadas sozinhas |
+| `pomodoro_inicios` | o Iniciar de cada ciclo de foco, por aparelho | o ciclo só é gravado se a duração dele passou desde aqui; gravar apaga a linha |
+| `sessoes_lembradas` | o "Lembrar de mim" de cada aparelho (30 dias) | guarda só o **hash** do validador do cookie; `sessoes_versao` antiga = não vale mais |
+| `tentativas_acesso` | limite de login, cadastro, "esqueci a senha", reenvio da confirmação e IA | linhas com mais de 1 dia são apagadas sozinhas |
 | `migracoes` | quais arquivos de `Backend/sql/` já rodaram | criada pelo `migrar.php` |
 
 ## Regra de datas
