@@ -62,6 +62,7 @@ O formato mora num lugar só, em [`api_util.php`](../Backend/php/api_util.php)
 | `senha_esqueci.php` | POST | `email` | resposta **sempre** genérica; o e-mail sai pelo n8n |
 | `senha_resetar.php` | POST | `token`, `senha_nova` | token de 64 hex, uso único, 1 hora |
 | `usuario_atual.php` | GET | — | quem está logado. **Legado:** nenhuma tela chama mais (a dashboard faz isso no servidor, pelo `pagina_dashboard.php`) |
+| `sessao_estado.php` | GET | — | sempre 200: `{ logado }`. A página inicial, o login e o cadastro (`shared/ja-logado.js`) mandam quem já está logado — inclusive pelo "Lembrar de mim" — direto ao dashboard |
 | `config_publica.php` | GET | — | público: `google_client_id` (vem do `config.php`) |
 | `conta_dados.php` | GET | — | protegido: perfil e números da conta |
 | `conta_perfil.php` | POST | `nome`, `email` | protegido; 409 se o e-mail for de outra conta |

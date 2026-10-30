@@ -155,9 +155,13 @@ async function conferirPagina(page, rotulo, url, statusEsperado = 200) {
     const cookies = await ctx.cookies();
     confere('o cookie do "Lembrar de mim" foi criado', cookies.some((c) => c.name === 'kosmos_lembrar' && c.httpOnly));
 
-    await ctx.clearCookies({ name: 'PHPSESSID' });   // a sessão "venceu"
-    await page.goto(PAGES + 'dashboard/index.php');
-    confere('sessão vencida + lembrado = continua logado', page.url().includes('/dashboard/index.php'), page.url());
+    await ctx.clearCookies({ name: 'PHPSESSID' });   // fechou o navegador: a sessão foi embora
+    await page.goto(RAIZ + '/');                      // abre o site pelo endereço de sempre
+    await page.waitForURL(/\/dashboard\/index\.php/, { timeout: 20000 }).catch(() => {});
+    confere('reabrir o site com "Lembrar de mim" vai direto ao dashboard', page.url().includes('/dashboard/index.php'), page.url());
+    await page.goto(PAGES + 'login/index.html');
+    await page.waitForURL(/\/dashboard\/index\.php/, { timeout: 20000 }).catch(() => {});
+    confere('logado, o "Entrar" também leva ao dashboard', page.url().includes('/dashboard/index.php'), page.url());
 
     await api(page, 'logout.php');
     confere('sair apaga o "Lembrar de mim"', !(await ctx.cookies()).some((c) => c.name === 'kosmos_lembrar'));
