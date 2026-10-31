@@ -1,0 +1,11 @@
+Oi, {{ $json.body.nome.split(' ')[0] }}!
+
+Sua conta no Kosmos está quase pronta. Para confirmar que este e-mail é seu e já entrar, abra o link abaixo:
+
+{{ $json.body.link }}
+
+O link vale por 48 horas e só funciona uma vez. Venceu? Tente entrar no Kosmos e clique em "Reenviar link".
+
+Não criou uma conta? Ignore este e-mail: sem a confirmação, ninguém entra com ele.
+
+Kosmos — este é um e-mail automático, não precisa responder.
