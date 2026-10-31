@@ -88,7 +88,7 @@ acrescentá-las.
 | `N8N_NOTIF_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/notificacoes` | pode copiar daqui |
 | `N8N_ORION_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/orion` | pode copiar daqui (sem ele, o Orion usa só as respostas prontas) |
 | `N8N_IA_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/kosmos-ia` | pode copiar daqui (sem ele, a IA dos resumos fica desligada) |
-| `N8N_CONFIRMA_URL` | vazio, até o fluxo existir | depois de criar o fluxo (ver "Confirmação de e-mail" abaixo), `https://n8n.srv1779459.hstgr.cloud/webhook/confirmar-email`. Vazio = confirmação desligada |
+| `N8N_CONFIRMA_URL` | `https://n8n.srv1779459.hstgr.cloud/webhook/confirmar-email` | pode copiar daqui (o fluxo já existe; vazio = confirmação de e-mail desligada) |
 
 O resultado fica assim (com os seus valores):
 
@@ -102,7 +102,7 @@ define('N8N_RESET_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/reset-senha'
 define('N8N_NOTIF_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/notificacoes');
 define('N8N_ORION_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/orion');
 define('N8N_IA_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/kosmos-ia');
-define('N8N_CONFIRMA_URL', '');   // ver "Confirmação de e-mail"
+define('N8N_CONFIRMA_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/confirmar-email');
 ```
 
 > **Sobre o `N8N_IA_URL`:** é o fluxo "Kosmos — IA", que tenta três IAs em sequência
@@ -226,7 +226,11 @@ O lembrete diário e o resumo semanal saem pelo script `Backend/tarefas/notifica
 
 ---
 
-## ✉️ Confirmação de e-mail: criar o fluxo no n8n (uma vez só)
+## ✉️ Confirmação de e-mail: como o fluxo do n8n foi criado
+
+> **O fluxo já existe** (`confirmar-email`). Para ligar no seu PC, basta a linha
+> `N8N_CONFIRMA_URL` do passo 3. Os passos abaixo ficam como registro, caso seja
+> preciso recriar o fluxo.
 
 O site já está pronto: com `N8N_CONFIRMA_URL` preenchido, o cadastro manda um link e o
 login só entra depois da confirmação. Falta o fluxo no n8n, que é uma **cópia do fluxo de
