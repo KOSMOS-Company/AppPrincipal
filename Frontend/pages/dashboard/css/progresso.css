@@ -347,11 +347,11 @@
     /* Telas estreitas: o logo cede um pouco, o topo aperta a margem e
        o chip encolhe a chama e o anel. */
     @media (max-width: 400px) {
-        .contLogo .klogo { font-size: 1.4rem; }
+        .contLogo .klogo { font-size: 1.32rem; }
     }
     @media (max-width: 360px) {
         .contLateral { padding-left: 12px; padding-right: 12px; }
-        .contLogo .klogo { font-size: 1.25rem; }
+        .contLogo .klogo { font-size: 1.2rem; }
         .topo-status { gap: 4px; padding-left: 6px; }
         .topo-status__seq { padding-right: 4px; gap: 2px; }
         .topo-status .topo-status__seq svg { width: 15px; height: 15px; }
@@ -359,7 +359,7 @@
         .topo-status .topo-status__nivel svg { width: 26px; height: 26px; }
     }
     @media (max-width: 340px) {
-        .contLogo .klogo { font-size: 1.18rem; }
+        .contLogo .klogo { font-size: 1.1rem; }
     }
 }
 @media (min-width: 769px) {
