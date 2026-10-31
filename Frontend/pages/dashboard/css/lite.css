@@ -130,6 +130,10 @@ html.kosmos-lite .trilha__no--liberado .trilha__marca::after { box-shadow: none;
 html.kosmos-lite .trilha__no--proximo .trilha__card { box-shadow: var(--shadow-neutral); }
 html.kosmos-lite .pomo-selo { box-shadow: 0 12px 32px rgba(0, 0, 0, .5); }
 html.kosmos-lite .pomo-selo:hover { box-shadow: 0 16px 38px rgba(0, 0, 0, .55); }
+/* Provas: a contagem perto da data segue acesa pela cor, sem a auréola */
+html.kosmos-lite .pv-destaque--perto .pv-destaque__conta strong { filter: none; }
+/* Resumo: o pontinho do "Estudar" no modo revisão é estado — fica, sem brilho */
+html.kosmos-lite .resumo-acoes:has(#btnRevisar[aria-pressed="true"]) #btnEstudar::after { box-shadow: none; }
 
 /* ── Logo ── o planeta do "o" fica, sem auréola */
 html.kosmos-lite .contLogo .klogo__o::before,
