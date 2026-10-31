@@ -110,7 +110,8 @@ Os endpoints com várias operações recebem o campo `acao`.
 | `exercicios_listar.php` | GET | `?materia_id=ID` ou `?id=ID` |
 | `exercicios_salvar.php` | POST | `criar`, `editar`, `excluir` |
 | `exercicios_responder.php` | POST | `exercicio`, `questao`, `escolhida` — o gabarito é do servidor |
-| `orion_chat.php` | POST (JSON) | `mensagem` (≤ 1000), `historico` (últimas 8), `pagina`, `questao` (do "Por que eu errei?") — devolve `resposta` e `humor` do mascote; chama o n8n (Groq), espera até 45 s; sem `N8N_ORION_URL` responde 503 e as telas usam as respostas prontas |
+| `orion_chat.php` | POST (JSON) | `mensagem` (≤ 1000), `historico` (últimas 8), `pagina`, `questao` (do "Por que eu errei?"), `conversa_id` (opcional) — devolve `resposta`, `humor` do mascote e `conversa_id`; grava a pergunta e a resposta na conversa salva (sem `conversa_id`, ou com um que não é da conta, cria uma nova); chama o n8n (Groq), espera até 45 s; sem `N8N_ORION_URL` responde 503 e as telas usam as respostas prontas (essas não são gravadas) |
+| `orion_conversas.php` | GET / POST | GET: as últimas 100 conversas salvas (`id`, `titulo`, `atualizada_em`) e o `hoje` do MySQL; `?id=ID`: a conversa com as mensagens; POST `excluir` (`id`) — apaga a conversa e as mensagens |
 | `gerar_exercicios.php` | POST | `materia` (≤ 200), `conteudo` (≤ 1000), `plano` (JSON, até 15 questões) — chama o n8n, espera até 90 s. Com `resumo` (id) no lugar de `materia`/`conteudo`, as questões saem do texto do resumo (até 6000 caracteres) pelo fluxo com reserva de IAs (`N8N_IA_URL`: Groq → Gemini → OpenRouter); sem a URL, 503 |
 
 ## Arquivos que não são endpoints

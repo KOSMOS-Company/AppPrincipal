@@ -135,6 +135,16 @@ try {
                            WHERE uc.usuario_id = ?
                            ORDER BY uc.desbloqueado_em', [$id]);
 
+    // ---------- Conversas com o Orion ----------
+    $orionConversas = $secao('SELECT id, titulo, criada_em, atualizada_em
+                                FROM orion_conversas WHERE usuario_id = ?
+                               ORDER BY criada_em, id', [$id]);
+    $orionMensagens = $secao('SELECT m.conversa_id, m.autor, m.texto, m.criada_em
+                                FROM orion_mensagens m
+                                JOIN orion_conversas c ON c.id = m.conversa_id
+                               WHERE c.usuario_id = ?
+                               ORDER BY m.id', [$id]);
+
     // Data da exportação pelo relógio do MySQL (a regra de datas do projeto, ver README)
     $agora = $pdo->query('SELECT NOW() AS agora, CURDATE() AS hoje')->fetch();
 
@@ -167,6 +177,10 @@ try {
             'resumo'       => $progresso[0] ?? null,
             'historico_xp' => $historico,
             'conquistas'   => $conquistas,
+        ],
+        'orion' => [
+            'conversas' => $orionConversas,
+            'mensagens' => $orionMensagens,
         ],
     ];
 

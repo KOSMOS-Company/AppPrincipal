@@ -9,7 +9,15 @@
 //    pagina     -> a aba onde ela está (ex.: "flashcards.php"), opcional
 //    questao    -> opcional, do botão "Por que eu errei?":
 //                  {enunciado, alternativas[], correta, escolhida}
-//  Devolve { ok, resposta, humor }.
+//    conversa_id -> opcional, a conversa salva em que esta mensagem entra
+//                  (sem ele, ou com o id de uma conversa que não é mais
+//                  da pessoa, começa uma conversa nova)
+//  Devolve { ok, resposta, humor, conversa_id }.
+//
+//  Conversas salvas (2026-10-31): a pergunta e a resposta são gravadas
+//  juntas, só depois que a IA responde (orion_conversas e
+//  orion_mensagens). Se a gravação falhar, a resposta vai do mesmo
+//  jeito, com conversa_id null: a pessoa não perde a resposta por isso.
 //
 //  Quem usa: js/orion-ia.js (a aba Orion e o chat flutuante).
 //
@@ -21,7 +29,9 @@
 //
 //  Privacidade: vão para a IA só o primeiro nome e números de estudo
 //  (sequência, nível, minutos, cartões vencidos, próximas provas).
-//  Nunca o e-mail, nem o texto dos resumos.
+//  Nunca o e-mail, nem o texto dos resumos. As conversas ficam no
+//  nosso banco, presas à conta: saem na exportação de dados e somem
+//  com a exclusão da conta (ON DELETE CASCADE).
 // ============================================================
 
 require_once __DIR__ . '/api_util.php';
@@ -69,11 +79,13 @@ if ($questao !== null) {
 if (isset($corpo['questao']) && $questao === null) {
     error_log('[KOSMOS Orion] questão recebida em formato inválido; seguindo sem ela');
 }
-$pagina    = basename((string) ($corpo['pagina'] ?? ''));
-$usuarioId = (int) $usuario['id'];
+$pagina     = basename((string) ($corpo['pagina'] ?? ''));
+$usuarioId  = (int) $usuario['id'];
+$conversaId = filter_var($corpo['conversa_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: null;
 
 // ---------- Limite de uso + o que a IA precisa saber da pessoa ----------
 $contexto = '';
+$pdo      = null;
 try {
     $pdo = conectar();
 
@@ -113,7 +125,60 @@ if ($saida['resposta'] === '') {
     apiErro('O Orion se embananou na resposta. Pode perguntar de novo?', 502);
 }
 
-apiResponder(['ok' => true, 'resposta' => $saida['resposta'], 'humor' => $saida['humor']]);
+$conversaId = $pdo ? orionGuardarTroca($pdo, $usuarioId, $conversaId, $mensagem, $saida['resposta'], $saida['humor']) : null;
+
+apiResponder([
+    'ok'          => true,
+    'resposta'    => $saida['resposta'],
+    'humor'       => $saida['humor'],
+    'conversa_id' => $conversaId,
+]);
+
+/* ============================================================
+   Grava a pergunta e a resposta na conversa salva
+   Devolve o id da conversa (nova, se não veio uma da pessoa) ou
+   null se o banco falhou.
+   ============================================================ */
+function orionGuardarTroca(PDO $pdo, int $usuarioId, ?int $conversaId, string $pergunta, string $resposta, string $humor): ?int {
+    try {
+        $pdo->beginTransaction();
+
+        // O usuario_id no WHERE é o que impede escrever na conversa de
+        // outra pessoa trocando o id. Não achou (apagada em outro
+        // aparelho, id de outra conta): segue numa conversa nova.
+        // Confere com SELECT, e não pelo rowCount() do UPDATE: o MySQL
+        // conta só linhas que MUDARAM, e duas mensagens no mesmo segundo
+        // deixariam atualizada_em igual — 0 linhas, conversa "sumida".
+        if ($conversaId !== null) {
+            $q = $pdo->prepare('SELECT id FROM orion_conversas WHERE id = ? AND usuario_id = ? FOR UPDATE');
+            $q->execute([$conversaId, $usuarioId]);
+            if ($q->fetchColumn() === false) {
+                $conversaId = null;
+            } else {
+                $pdo->prepare('UPDATE orion_conversas SET atualizada_em = NOW() WHERE id = ?')
+                    ->execute([$conversaId]);
+            }
+        }
+        if ($conversaId === null) {
+            $pdo->prepare('INSERT INTO orion_conversas (usuario_id, titulo) VALUES (?, ?)')
+                ->execute([$usuarioId, orionTituloConversa($pergunta)]);
+            $conversaId = (int) $pdo->lastInsertId();
+        }
+
+        $pdo->prepare("INSERT INTO orion_mensagens (conversa_id, autor, texto, humor)
+                       VALUES (?, 'usuario', ?, NULL), (?, 'orion', ?, ?)")
+            ->execute([$conversaId, $pergunta, $conversaId, $resposta, $humor]);
+
+        $pdo->commit();
+        return $conversaId;
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        registrarErro($e, 'Orion: salvar conversa');
+        return null;
+    }
+}
 
 /* ============================================================
    Chamada ao fluxo do n8n

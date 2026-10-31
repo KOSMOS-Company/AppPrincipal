@@ -187,6 +187,13 @@ confere('histórico: guarda só as últimas',
     count(orionHistoricoLimpo(array_fill(0, 20, ['autor' => 'usuario', 'texto' => 'x']))), ORION_MAX_HISTORICO);
 confere('histórico que não é lista vira vazio', orionHistoricoLimpo('texto'), []);
 
+confere('título: pergunta curta fica inteira, numa linha só',
+    orionTituloConversa("  O que é\nmitose? "), 'O que é mitose?');
+$titulo = orionTituloConversa(str_repeat('fotossíntese ', 20));
+confere('título: pergunta longa é cortada em palavra inteira, com reticências',
+    [mb_strlen($titulo) <= ORION_MAX_TITULO + 1, str_ends_with($titulo, 'fotossíntese…')], [true, true]);
+confere('título: pergunta vazia ganha um nome', orionTituloConversa('   '), 'Conversa com o Orion');
+
 $questao = orionQuestaoLimpa(['enunciado' => '2+2?', 'alternativas' => ['3', '4', '5'], 'correta' => 1, 'escolhida' => 0]);
 confere('questão válida é aceita', $questao['correta'] ?? null, 1);
 confere('questão com gabarito fora da faixa é recusada',

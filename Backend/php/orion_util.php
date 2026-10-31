@@ -31,6 +31,9 @@ const ORION_MAX_TEXTO_HIST   = 600;    // corte de cada mensagem antiga
 const ORION_MAX_ENUNCIADO    = 1500;
 const ORION_MAX_ALTERNATIVA  = 300;
 
+/** Título da conversa salva (orion_conversas.titulo é varchar(80)). */
+const ORION_MAX_TITULO       = 60;
+
 /** Abas que a tela pode dizer que a pessoa está vendo. */
 const ORION_ABAS = [
     'index.php' => 'Início', 'resumos.php' => 'Biblioteca', 'caderno.php' => 'Biblioteca (um caderno)',
@@ -135,6 +138,27 @@ function orionHistoricoLimpo($bruto): array {
         $saida[] = ['autor' => $autor, 'texto' => mb_substr($texto, 0, ORION_MAX_TEXTO_HIST)];
     }
     return array_slice($saida, -ORION_MAX_HISTORICO);
+}
+
+/**
+ * O título de uma conversa salva: a primeira pergunta numa linha só,
+ * cortada na última palavra inteira que cabe, com "…" se cortou.
+ * Como no ChatGPT, mas sem gastar uma chamada da IA para inventar um.
+ */
+function orionTituloConversa(string $pergunta): string {
+    $t = trim(preg_replace('/\s+/u', ' ', $pergunta));
+    if ($t === '') {
+        return 'Conversa com o Orion';
+    }
+    if (mb_strlen($t) <= ORION_MAX_TITULO) {
+        return $t;
+    }
+    $corte  = mb_substr($t, 0, ORION_MAX_TITULO);
+    $espaco = mb_strrpos($corte, ' ');
+    if ($espaco !== false && $espaco > ORION_MAX_TITULO / 2) {
+        $corte = mb_substr($corte, 0, $espaco);
+    }
+    return rtrim($corte, " ,.;:!?-") . '…';
 }
 
 /**
