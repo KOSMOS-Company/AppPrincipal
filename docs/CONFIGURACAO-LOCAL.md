@@ -240,8 +240,11 @@ redefinição de senha** com duas mudanças:
    **Duplicate**.
 2. No nó **Webhook** da cópia, troque o *Path* para `confirmar-email`. A autenticação
    (Header Auth, `X-Kosmos-Token`) continua a mesma.
-3. No nó **Send Email**, troque o assunto para *Confirme seu e-mail no Kosmos* e cole no
-   campo HTML todo o conteúdo de `Backend/notes/email-confirmar.html`.
+3. No nó **Send Email**, troque o assunto para
+   `Bem-vindo ao Kosmos, {{ $json.body.nome.split(' ')[0] }}!` (evite "Confirme seu
+   e-mail": é o assunto dos golpes e cai no spam). Em **Email Format**, escolha **Both**;
+   cole no campo HTML todo o `Backend/notes/email-confirmar.html` e no campo Text todo o
+   `Backend/notes/email-confirmar.txt`.
 4. **Ative** o fluxo e copie a *Production URL* do Webhook.
 5. No `config.php` de cada pessoa (e do servidor), preencha:
    ```php

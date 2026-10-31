@@ -3,12 +3,20 @@
      Cole TODO este conteúdo no campo "HTML" do nó Send Email do fluxo
      de confirmação no n8n (o passo a passo está em
      docs/CONFIGURACAO-LOCAL.md, "Confirmação de e-mail").
+     Assunto sugerido: Bem-vindo ao Kosmos, (primeiro nome)!
+     — com a mesma expressão do primeiro nome usada no texto abaixo.
+
+     Escrito como BOAS-VINDAS, e não como "confirme seu e-mail": o
+     formato "confirme/verifique sua conta + botão" é o mesmo dos
+     e-mails de golpe, e por isso ia para o spam. O endereço do link
+     também aparece escrito (golpe esconde o link atrás do botão), e
+     não há texto escondido no topo.
+
      Usa tabelas + estilo inline (compatível com Gmail/Outlook).
      As expressões entre chaves duplas são preenchidas pelo n8n
      (não escreva chaves duplas nestes comentários: o n8n as executa).
      A logo vem do GitHub (Frontend/pages/shared/logo-email.png no main).
      ============================================================ -->
-<div style="display:none;max-height:0;overflow:hidden">Falta só um clique para começar a estudar no Kosmos.</div>
 <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0d0118" style="background:#0d0118;padding:32px 12px">
 <tr><td align="center">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">
@@ -19,27 +27,26 @@
 
   <tr><td bgcolor="#1a0230" style="background:#1a0230;border:1px solid #2f0a4b;border-radius:20px;padding:36px 32px;font-family:'Segoe UI',Arial,sans-serif">
 
-    <p style="margin:0 0 16px;font-size:40px;line-height:1">🚀</p>
-    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:#ffffff">Confirme seu e-mail</h1>
-    <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:#b8a8cc">Oi, {{ $json.body.nome.split(' ')[0] }}! Sua conta no Kosmos está quase pronta. Clique no botão abaixo para confirmar que este e-mail é seu e já entrar:</p>
+    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:#ffffff">Bem-vindo ao Kosmos, {{ $json.body.nome.split(' ')[0] }}!</h1>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#b8a8cc">Que bom ter você aqui. No Kosmos você organiza seus resumos, revisa com flashcards, treina com exercícios e estuda no ritmo do Pomodoro.</p>
+    <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:#b8a8cc">Para começar, é só ativar sua conta:</p>
 
     <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto"><tr>
       <td align="center" bgcolor="#8200db" style="background:#8200db;border-radius:12px">
-        <a href="{{ $json.body.link }}" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none">Confirmar e entrar</a>
+        <a href="{{ $json.body.link }}" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none">Ativar minha conta</a>
       </td>
     </tr></table>
 
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:28px"><tr>
-      <td bgcolor="#12011f" style="background:#12011f;border-radius:12px;padding:16px 18px;font-size:13px;line-height:1.6;color:#b8a8cc">
-        ⏳ O link vale por <strong style="color:#ffffff">48 horas</strong> e só funciona <strong style="color:#ffffff">uma vez</strong>. Venceu? Tente entrar e clique em "Reenviar link".<br>
-        🛡️ Não criou uma conta? Ignore este e-mail: sem a confirmação, ninguém entra com ele.
-      </td>
-    </tr></table>
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#9180a8">Se o botão não funcionar, copie este endereço no navegador:<br>
+      <a href="{{ $json.body.link }}" style="color:#c97cff;word-break:break-all">{{ $json.body.link }}</a></p>
+
+    <p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:#9180a8">O link vale por 48 horas. Se você não criou uma conta no Kosmos, pode ignorar esta mensagem.</p>
 
   </td></tr>
 
   <tr><td align="center" style="padding:20px 24px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;line-height:1.6;color:#9180a8">
-    Este é um e-mail automático do Kosmos. Não precisa responder.
+    Kosmos — plataforma de estudos feita por estudantes.<br>
+    Você recebeu este e-mail porque criou uma conta no Kosmos.
   </td></tr>
 
 </table>
