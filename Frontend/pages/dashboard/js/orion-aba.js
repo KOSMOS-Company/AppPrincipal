@@ -4,6 +4,8 @@
    - Padrão Chatbot normal: área de mensagens rolável independente.
    - Input fixo no rodapé: NUNCA move ou abaixa a tela do usuário ao digitar.
    - Respostas inteligentes estruturadas e reações de humor do mascote 3D.
+   - Conversas salvas: o painel "Conversas" lista, abre e apaga as
+     conversas da conta; "Nova conversa" começa outra sem apagar a atual.
    ============================================================ */
 
 (function () {
@@ -310,17 +312,214 @@
             });
         });
 
-        // Limpar conversa
+        /* Nova conversa: a tela volta para o começo. A conversa anterior
+           não é apagada — ela está salva e aparece em "Conversas". */
+        function novaConversa() {
+            if (conversa) conversa.limpar();
+            historico = [];
+            listaMensagens.innerHTML = '';
+            if (heroInicial) heroInicial.style.display = 'flex';
+            definirHumor('normal');
+            marcarAtual();
+        }
+
         if (btnLimpar) {
             btnLimpar.addEventListener('click', () => {
-                historico = [];
-                salvarHistorico();
-                listaMensagens.innerHTML = '';
-                if (heroInicial) heroInicial.style.display = 'flex';
-                definirHumor('normal');
+                if (aguardando) return;
+                novaConversa();
+                fecharPainel();
                 input.focus();
             });
         }
+
+        /* ------------------------------------------------------------
+           Conversas salvas (como no ChatGPT): o painel da direita lista
+           as conversas da conta, agrupadas por quando foram usadas.
+           Quem fala com o servidor é o orion-ia.js (KosmosOrionIA.conversas).
+           ------------------------------------------------------------ */
+        const salvas = window.KosmosOrionIA ? window.KosmosOrionIA.conversas : null;
+        const painel = document.getElementById('orionConversas');
+        const veu = document.getElementById('orionConversasVeu');
+        const listaConversas = document.getElementById('orionConversasLista');
+        const btnConversas = document.getElementById('orionBtnConversas');
+        const btnFecharPainel = document.getElementById('orionConversasFechar');
+        let listaDesatualizada = true;
+
+        function painelAberto() {
+            return painel && !painel.hidden;
+        }
+
+        function abrirPainel() {
+            if (!painel || !salvas) return;
+            painel.hidden = false;
+            if (veu) veu.hidden = false;
+            if (btnConversas) btnConversas.setAttribute('aria-expanded', 'true');
+            if (listaDesatualizada) carregarLista();
+            (painel.querySelector('[aria-current="true"]') || btnFecharPainel || painel).focus();
+        }
+
+        function fecharPainel(devolverFoco) {
+            if (!painelAberto()) return;
+            painel.hidden = true;
+            if (veu) veu.hidden = true;
+            if (btnConversas) {
+                btnConversas.setAttribute('aria-expanded', 'false');
+                if (devolverFoco) btnConversas.focus();
+            }
+        }
+
+        /* "Hoje", "Ontem", "Últimos 7 dias", "Mais antigas": a conta é
+           feita contra o "hoje" do MySQL, que vem junto da lista (regra
+           de datas: um relógio só). Datas como AAAA-MM-DD, em UTC, para
+           o horário de verão não tirar uma hora do dia. */
+        function grupoDaData(dataHora, hoje) {
+            const dia = (s) => {
+                const [a, m, d] = String(s).slice(0, 10).split('-').map(Number);
+                return Date.UTC(a, m - 1, d);
+            };
+            const dias = Math.round((dia(hoje) - dia(dataHora)) / 86400000);
+            if (dias <= 0) return 'Hoje';
+            if (dias === 1) return 'Ontem';
+            if (dias < 7) return 'Últimos 7 dias';
+            return 'Mais antigas';
+        }
+
+        function mensagemNaLista(texto) {
+            listaConversas.innerHTML = '';
+            const p = document.createElement('p');
+            p.className = 'orion-conversas__vazio';
+            p.textContent = texto;
+            listaConversas.appendChild(p);
+        }
+
+        async function carregarLista() {
+            if (!salvas || !listaConversas) return;
+            if (!listaConversas.children.length) mensagemNaLista('Carregando…');
+            try {
+                const { conversas: itens, hoje } = await salvas.listar();
+                listaDesatualizada = false;
+                desenharLista(itens || [], hoje);
+            } catch (erro) {
+                mensagemNaLista(erro.status === 0
+                    ? 'Sem conexão. Tente de novo em instantes.'
+                    : 'Não foi possível carregar as conversas agora.');
+            }
+        }
+
+        const ICONE_APAGAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6"/><path d="m5.5 6 1 13.5A1.5 1.5 0 0 0 8 21h8a1.5 1.5 0 0 0 1.5-1.5L18.5 6"/></svg>';
+
+        function desenharLista(itens, hoje) {
+            listaConversas.innerHTML = '';
+            if (!itens.length) {
+                mensagemNaLista('Nenhuma conversa salva ainda. Faça uma pergunta e ela aparece aqui.');
+                return;
+            }
+            let grupoAtual = '';
+            itens.forEach((c) => {
+                const grupo = grupoDaData(c.atualizada_em, hoje);
+                if (grupo !== grupoAtual) {
+                    grupoAtual = grupo;
+                    const h = document.createElement('h3');
+                    h.className = 'orion-conversas__grupo';
+                    h.textContent = grupo;
+                    listaConversas.appendChild(h);
+                }
+
+                const item = document.createElement('div');
+                item.className = 'orion-conversa';
+                item.dataset.id = c.id;
+
+                const abrir = document.createElement('button');
+                abrir.type = 'button';
+                abrir.className = 'orion-conversa__abrir';
+                abrir.textContent = c.titulo;
+                abrir.title = c.titulo;
+                abrir.addEventListener('click', () => abrirConversa(c.id));
+
+                const apagar = document.createElement('button');
+                apagar.type = 'button';
+                apagar.className = 'orion-conversa__apagar';
+                apagar.innerHTML = ICONE_APAGAR;
+                apagar.setAttribute('aria-label', 'Apagar a conversa "' + c.titulo + '"');
+                apagar.title = 'Apagar conversa';
+                apagar.addEventListener('click', () => apagarConversa(c.id, c.titulo));
+
+                item.append(abrir, apagar);
+                listaConversas.appendChild(item);
+            });
+            marcarAtual();
+        }
+
+        /** Destaca na lista a conversa que está aberta na tela. */
+        function marcarAtual() {
+            if (!listaConversas) return;
+            const atual = salvas ? salvas.atual() : null;
+            listaConversas.querySelectorAll('.orion-conversa').forEach((el) => {
+                const sim = Number(el.dataset.id) === atual;
+                el.classList.toggle('orion-conversa--atual', sim);
+                el.querySelector('.orion-conversa__abrir').setAttribute('aria-current', String(sim));
+            });
+        }
+
+        async function abrirConversa(id) {
+            if (aguardando) return;
+            if (salvas.atual() === id) { fecharPainel(); return; }
+            try {
+                historico = await salvas.abrir(id);
+            } catch (erro) {
+                await confirmar({ titulo: 'Não foi possível abrir', texto: erro.message, botao: 'Entendi' });
+                if (erro.status === 404) carregarLista();   // apagada em outro aparelho
+                return;
+            }
+            listaMensagens.innerHTML = '';
+            if (historico.length) {
+                historico.forEach(m => renderizarMensagem(m.autor === 'usuario' ? 'usuario' : 'orion', m.texto));
+            } else if (heroInicial) {
+                heroInicial.style.display = 'flex';
+            }
+            definirHumor('normal');
+            marcarAtual();
+            fecharPainel();
+            input.focus();
+        }
+
+        async function apagarConversa(id, titulo) {
+            const ok = await confirmar({
+                titulo: 'Apagar conversa?',
+                texto: '"' + titulo + '" some de vez, em todos os aparelhos.',
+                botao: 'Apagar',
+                perigo: true,
+            });
+            if (!ok) return;
+            const eraAtual = salvas.atual() === id;
+            try {
+                await salvas.excluir(id);
+            } catch (erro) {
+                if (erro.status !== 404) {
+                    await confirmar({ titulo: 'Não foi possível apagar', texto: erro.message, botao: 'Entendi' });
+                    return;
+                }
+            }
+            if (eraAtual && !aguardando) novaConversa();
+            carregarLista();
+        }
+
+        if (btnConversas) {
+            btnConversas.addEventListener('click', () => (painelAberto() ? fecharPainel(true) : abrirPainel()));
+        }
+        if (btnFecharPainel) btnFecharPainel.addEventListener('click', () => fecharPainel(true));
+        if (veu) veu.addEventListener('click', () => fecharPainel(true));
+        document.addEventListener('keydown', (e) => {
+            // o modal de confirmação tem o Esc dele: aqui só se ele não está aberto
+            if (e.key === 'Escape' && painelAberto() && !document.querySelector('.modal.open')) fecharPainel(true);
+        });
+
+        // Cada resposta salva mexe na lista (conversa nova, ordem, "Hoje")
+        document.addEventListener('kosmos:orion-salvo', () => {
+            listaDesatualizada = true;
+            if (painelAberto()) carregarLista();
+            else marcarAtual();
+        });
 
         /* Pergunta que chegou de outra aba: no modo foco, o "?"
            (Questionar erro) dos exercícios não tem o chat flutuante

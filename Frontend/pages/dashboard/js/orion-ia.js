@@ -19,7 +19,13 @@
                     (IA fora do ar, sem internet, não configurada).
 
    window.KosmosOrionIA.historico.ler() / .salvar(lista) / .limpar()
-     A conversa única das duas telas (ver o bloco no fim do arquivo).
+     A conversa aberta nas duas telas (ver o bloco no fim do arquivo).
+     limpar() = começar uma conversa nova (a anterior continua salva).
+
+   window.KosmosOrionIA.conversas.listar() / .abrir(id) / .excluir(id) / .atual()
+     As conversas salvas no servidor (Backend/php/orion_conversas.php).
+     Cada resposta da IA entra na conversa aberta; o servidor devolve o
+     id dela e dispara o evento "kosmos:orion-salvo" no document.
 
    window.KosmosOrionIA.pendente.guardar({texto, questao}) / .consumir()
      Uma pergunta que vai ser enviada pela aba Orion ao carregar
@@ -30,6 +36,7 @@
 
     // Relativo à PÁGINA (Frontend/pages/dashboard/*.php): três níveis até a raiz
     const ENDPOINT = "../../../Backend/php/orion_chat.php";
+    const ENDPOINT_CONVERSAS = "../../../Backend/php/orion_conversas.php";
 
     /** Códigos em que a mensagem do servidor deve aparecer para a pessoa. */
     const MOSTRAR_MSG = [400, 401, 422, 429];
@@ -45,6 +52,8 @@
             pagina: paginaAtual(),
         };
         if (extras && extras.questao) corpo.questao = extras.questao;
+        const conversaId = idAtual();
+        if (conversaId) corpo.conversa_id = conversaId;
 
         let resp;
         try {
@@ -61,6 +70,12 @@
         try { json = await resp.json(); } catch (e) { /* resposta não-JSON */ }
 
         if (resp.ok && json && json.ok && json.resposta) {
+            // null = o servidor não conseguiu gravar: a conversa segue
+            // só neste navegador, e a próxima pergunta tenta de novo.
+            if (json.conversa_id) {
+                definirId(json.conversa_id);
+                document.dispatchEvent(new CustomEvent("kosmos:orion-salvo", { detail: json.conversa_id }));
+            }
             return { resposta: json.resposta, humor: json.humor || "feliz" };
         }
         const msg = (json && json.msg) || "O Orion não conseguiu responder agora.";
@@ -80,14 +95,33 @@
        o que se falava num não aparecia no outro.
 
        Formato único: [{autor: 'usuario'|'orion', texto, humor?}]
-       Fica no sessionStorage (some ao fechar a aba do navegador) e
-       por conta (kosmosChaveConta, da sidebar.php), como antes.
+       Fica no sessionStorage e por conta (kosmosChaveConta, da
+       sidebar.php): é a cópia da conversa ABERTA, para trocar de aba
+       sem esperar o servidor. A cópia que dura é a do banco (ver
+       "Conversas salvas", abaixo); o id dela fica ao lado.
        ------------------------------------------------------------ */
     const BASE_CHAVE = "kosmos_orion_conversa";
+    const BASE_CHAVE_ID = "kosmos_orion_conversa_id";
     const MAX_MENSAGENS = 60;
 
     function chave(base) {
         return window.kosmosChaveConta ? window.kosmosChaveConta(base) : base;
+    }
+
+    function idAtual() {
+        try {
+            const n = parseInt(sessionStorage.getItem(chave(BASE_CHAVE_ID)) || "", 10);
+            return n > 0 ? n : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function definirId(id) {
+        try {
+            if (id) sessionStorage.setItem(chave(BASE_CHAVE_ID), String(id));
+            else sessionStorage.removeItem(chave(BASE_CHAVE_ID));
+        } catch (e) { /* sem storage: cada pergunta abre uma conversa nova */ }
     }
 
     function valida(m) {
@@ -136,6 +170,54 @@
         },
         limpar() {
             try { sessionStorage.removeItem(chave(BASE_CHAVE)); } catch (e) { /* idem */ }
+            definirId(null);
+        },
+    };
+
+    /* ------------------------------------------------------------
+       Conversas salvas (Backend/php/orion_conversas.php)
+       A lista e a abertura de uma conversa antiga. Abrir troca a
+       conversa aberta (a cópia do sessionStorage e o id), então o
+       chat flutuante das outras abas continua nela.
+       ------------------------------------------------------------ */
+    async function pedir(url, opcoes) {
+        let resp;
+        try {
+            resp = await fetch(url, opcoes);
+        } catch (e) {
+            throw falha("Sem conexão com o servidor.", 0, false);
+        }
+        let json = null;
+        try { json = await resp.json(); } catch (e) { /* resposta não-JSON */ }
+        if (resp.ok && json && json.ok) return json;
+        throw falha((json && json.msg) || "Não foi possível carregar as conversas.", resp.status, true);
+    }
+
+    const conversas = {
+        atual: idAtual,
+
+        /** Devolve { conversas: [{id, titulo, atualizada_em}], hoje: 'AAAA-MM-DD' }. */
+        listar() {
+            return pedir(ENDPOINT_CONVERSAS);
+        },
+
+        /** Abre uma conversa salva e devolve as mensagens dela. */
+        async abrir(id) {
+            const json = await pedir(ENDPOINT_CONVERSAS + "?id=" + encodeURIComponent(id));
+            const lista = (json.mensagens || []).filter(valida);
+            historico.salvar(lista);
+            definirId(json.conversa.id);
+            return lista;
+        },
+
+        /** Apaga de vez. Se era a aberta, a tela volta para uma conversa nova. */
+        async excluir(id) {
+            await pedir(ENDPOINT_CONVERSAS, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ acao: "excluir", id }),
+            });
+            if (idAtual() === id) historico.limpar();
         },
     };
 
@@ -168,5 +250,5 @@
         },
     };
 
-    window.KosmosOrionIA = { perguntar, historico, paraIA, pendente };
+    window.KosmosOrionIA = { perguntar, historico, conversas, paraIA, pendente };
 })();
