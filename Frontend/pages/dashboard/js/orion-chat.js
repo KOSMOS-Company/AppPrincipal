@@ -88,12 +88,14 @@
             setTimeout(function () { alternarChat(true); }, 200);
         }
 
+        /* Nova conversa: a anterior não some, fica salva na aba Orion
+           (orion-ia.js → orion_conversas.php). */
         if (btnLimpar) {
             btnLimpar.addEventListener('click', function () {
                 historico = [];
                 if (conversa) conversa.limpar();
                 if (msgsContainer) msgsContainer.innerHTML = '';
-                enviarMensagemOrion('Conversa apagada! Sobre o que vamos falar agora? ✦', 'feliz', false);
+                enviarMensagemOrion('Conversa nova! A anterior ficou salva na aba Orion. Sobre o que vamos falar agora? ✦', 'feliz', false);
                 mostrarSugestoes();
             });
         }

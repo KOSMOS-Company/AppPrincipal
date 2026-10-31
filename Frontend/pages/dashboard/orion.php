@@ -34,7 +34,7 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
         <main class="contMeio">
             <div class="orion-app">
 
-                <!-- Topo leve: quem é o Orion + nova conversa -->
+                <!-- Topo leve: quem é o Orion + as conversas salvas + nova conversa -->
                 <header class="orion-topo">
                     <div class="orion-topo__id">
                         <div class="orion-topo__mascote">
@@ -46,11 +46,31 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
                         </div>
                     </div>
 
-                    <button type="button" class="orion-topo__nova" id="orionBtnLimpar" title="Apagar esta conversa">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6"/><path d="m5.5 6 1 13.5A1.5 1.5 0 0 0 8 21h8a1.5 1.5 0 0 0 1.5-1.5L18.5 6"/><path d="M10 11v6M14 11v6"/></svg>
-                        Apagar conversa
-                    </button>
+                    <div class="orion-topo__acoes">
+                        <button type="button" class="orion-topo__nova" id="orionBtnConversas"
+                                aria-controls="orionConversas" aria-expanded="false" title="Conversas salvas">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.8 7L4 20.5l1.5-4.8A8 8 0 1 1 21 12Z"/><path d="M8.5 10h7M8.5 13.5h4.5"/></svg>
+                            <span class="orion-topo__rotulo">Conversas</span>
+                        </button>
+                        <button type="button" class="orion-topo__nova" id="orionBtnLimpar" title="Nova conversa (a atual fica salva)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                            <span class="orion-topo__rotulo">Nova conversa</span>
+                        </button>
+                    </div>
                 </header>
+
+                <!-- Conversas salvas: painel que desliza da direita (o orion-aba.js
+                     monta a lista a partir do orion_conversas.php) -->
+                <div class="orion-conversas__veu" id="orionConversasVeu" hidden></div>
+                <aside class="orion-conversas" id="orionConversas" aria-labelledby="orionConversasTitulo" hidden>
+                    <div class="orion-conversas__topo">
+                        <h2 class="orion-conversas__titulo" id="orionConversasTitulo">Conversas</h2>
+                        <button type="button" class="orion-conversas__fechar" id="orionConversasFechar" aria-label="Fechar a lista de conversas">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="orion-conversas__lista" id="orionConversasLista" aria-live="polite"></div>
+                </aside>
 
                 <!-- Corpo rolável: tela inicial e, depois, a conversa -->
                 <div class="orion-corpo" id="orionChatCorpo">
@@ -156,6 +176,8 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
         </main>
 
     </div>
+
+    <?php include __DIR__ . '/partes/modal-confirma.php'; ?>
 
     <script src="<?= asset('./js/util.js') ?>"></script>
     <script src="<?= asset('./js/dashboard.js') ?>"></script>

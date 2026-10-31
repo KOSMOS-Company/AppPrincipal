@@ -30,8 +30,8 @@
         </div>
 
         <div class="orion-chat__acoes">
-            <button type="button" class="orion-chat__btn-acao" id="orionChatLimpar" title="Apagar conversa" aria-label="Apagar a conversa">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6"/><path d="m5.5 6 1 13.5A1.5 1.5 0 0 0 8 21h8a1.5 1.5 0 0 0 1.5-1.5L18.5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            <button type="button" class="orion-chat__btn-acao" id="orionChatLimpar" title="Nova conversa" aria-label="Começar uma conversa nova (a atual fica salva)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             </button>
             <a class="orion-chat__btn-acao" href="orion.php" title="Abrir em tela cheia" aria-label="Abrir a conversa em tela cheia">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
