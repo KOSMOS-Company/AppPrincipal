@@ -1248,7 +1248,7 @@ progress::-webkit-progress-value {
         margin: 0 !important;
         display: grid !important;
         grid-template-columns: minmax(42px, 1fr) auto minmax(max-content, 1fr);
-        column-gap: 8px;
+        column-gap: 22px;        /* respiro entre o logo e o chip de sequência/nível */
         align-items: center;
         width: 100%;
         position: relative;
@@ -1262,8 +1262,9 @@ progress::-webkit-progress-value {
         width: 42px;
         height: 42px;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(165, 65, 255, 0.22);
+        /* Sem cartão em volta: só as três barrinhas */
+        background: transparent;
+        border: 0;
         color: rgba(185, 145, 235, 0.85);
         cursor: pointer;
         padding: 0;
@@ -1271,16 +1272,8 @@ progress::-webkit-progress-value {
         transition: color .2s ease, border-color .2s ease, background .2s ease, transform .15s ease, box-shadow .2s ease;
         -webkit-tap-highlight-color: transparent;
     }
-    .topo-btn-ferramentas:active {
-        transform: scale(0.94);
-        background: rgba(165, 65, 255, 0.16);
-    }
-    .topo-btn-ferramentas.ativo {
-        color: var(--accent-lt);
-        border-color: var(--accent);
-        background: rgba(165, 65, 255, 0.14);
-        box-shadow: 0 0 16px rgba(165, 65, 255, 0.35);
-    }
+    .topo-btn-ferramentas:active { transform: scale(0.94); color: var(--accent-lt); }
+    .topo-btn-ferramentas.ativo { color: var(--accent-lt); }
     .topo-btn-ferramentas svg {
         width: 22px;
         height: 22px;
@@ -1314,15 +1307,20 @@ progress::-webkit-progress-value {
         color: var(--text-muted);
     }
 
+    /* min-width: max-content desfaz o `min-width: 0` do computador: com
+       ele a coluna do meio da grade podia ficar mais estreita que a
+       wordmark, e o texto vazava por cima do espaço até o chip de
+       sequência/nível. Agora quem cede é a coluna da esquerda. */
     .contLogo {
         margin: 0 !important;
+        min-width: max-content;
         text-align: center;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     .contLogo .klogo {
-        font-size: 1.6rem;
+        font-size: 1.45rem;
         font-weight: 800;
         letter-spacing: -.01em;
         line-height: 1.1;
