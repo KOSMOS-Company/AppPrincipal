@@ -40,6 +40,9 @@ erDiagram
     usuarios ||--o{ pomodoro_sessoes : "foca"
     usuarios ||--o{ pomodoro_inicios : "inicia"
     usuarios ||--o{ sessoes_lembradas : "lembra"
+
+    usuarios ||--o{ orion_conversas  : "conversa"
+    orion_conversas ||--o{ orion_mensagens : "contém"
 ```
 
 Tabelas sem ligação com `usuarios`: `niveis_config` e `recompensas` (catálogos
@@ -66,6 +69,7 @@ tentativas, indexada por e-mail/IP) e `migracoes` (controle do `migrar.php`).
 | `provas` / `prova_topicos` | provas marcadas e os assuntos que caem | |
 | `pomodoro_sessoes` | cada ciclo de foco concluído | UNIQUE (`usuario_id`, `fim_em`): duas abas não duplicam |
 | `pomodoro_inicios` | o Iniciar de cada ciclo de foco, por aparelho | o ciclo só é gravado se a duração dele passou desde aqui; gravar apaga a linha |
+| `orion_conversas` / `orion_mensagens` | conversas salvas com o Orion e as mensagens de cada uma | gravadas pelo `orion_chat.php` só quando a IA responde; o título é o começo da primeira pergunta; `atualizada_em` ordena a lista |
 | `sessoes_lembradas` | o "Lembrar de mim" de cada aparelho (30 dias) | guarda só o **hash** do validador do cookie; `sessoes_versao` antiga = não vale mais |
 | `tentativas_acesso` | limite de login, cadastro, "esqueci a senha", reenvio da confirmação e IA | linhas com mais de 1 dia são apagadas sozinhas |
 | `migracoes` | quais arquivos de `Backend/sql/` já rodaram | criada pelo `migrar.php` |
