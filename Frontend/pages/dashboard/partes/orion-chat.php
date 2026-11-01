@@ -54,7 +54,7 @@
     <div class="orion-chat__sugestoes" id="orionSugestoes">
         <button type="button" class="orion-chip" data-prompt="O que eu estudo hoje?">O que eu estudo hoje?</button>
         <button type="button" class="orion-chip" data-prompt="Me explica um conteúdo de um jeito simples, com exemplo.">Me explica um conteúdo</button>
-        <button type="button" class="orion-chip" data-prompt="Me dá um tour rápido pelas abas do Kosmos.">Tour pelo Kosmos</button>
+        <button type="button" class="orion-chip" data-prompt="Me dá um tour rápido pelas abas da Kosmos.">Tour pela Kosmos</button>
         <button type="button" class="orion-chip" data-prompt="Tô sem foco. Me ajuda a começar agora?">Tô sem foco</button>
     </div>
 

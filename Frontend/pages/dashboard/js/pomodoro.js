@@ -251,7 +251,7 @@ window.addEventListener("focus", sincronizar);
 // Guarda o estado antes de sair da página (navegação no menu, fechar aba).
 window.addEventListener("pagehide", salvar);
 
-/* Se outra aba do Kosmos mexer no timer, esta acompanha. */
+/* Se outra aba da Kosmos mexer no timer, esta acompanha. */
 window.addEventListener("storage", (e) => {
     if (e.key !== CHAVE) return;
     clearInterval(intervalo);

@@ -402,7 +402,7 @@ $ESTILO_ABAS = [
                                  quem troca é o js/visual.js, carregado pela sidebar. */ ?>
                         <div class="ini-card conta-cartao">
                             <h2 class="painel__titulo">Visual neste aparelho</h2>
-                            <div class="visual-opcoes" role="radiogroup" aria-label="Visual do Kosmos">
+                            <div class="visual-opcoes" role="radiogroup" aria-label="Visual da Kosmos">
                                 <button type="button" class="visual-opcao" role="radio" aria-checked="true" data-visual-opcao="completo">
                                     <span class="visual-opcao__previa" aria-hidden="true"></span>
                                     <strong>Completo</strong>
@@ -520,7 +520,7 @@ $ESTILO_ABAS = [
                     <!-- ============ NOTIFICAÇÕES ============ -->
                     <section class="conta-secao" data-painel="notificacoes" hidden>
                         <div class="ini-card conta-cartao">
-                            <h2 class="painel__titulo">E-mails do Kosmos</h2>
+                            <h2 class="painel__titulo">E-mails da Kosmos</h2>
 
                             <div class="conta-toggle">
                                 <div class="conta-toggle__texto">
@@ -578,7 +578,7 @@ $ESTILO_ABAS = [
                     <!-- ============ SOBRE ============ -->
                     <section class="conta-secao" data-painel="sobre" hidden>
                         <div class="ini-card conta-cartao">
-                            <h2 class="painel__titulo">Sobre o Kosmos</h2>
+                            <h2 class="painel__titulo">Sobre a Kosmos</h2>
                             <p class="painel__sub">
                                 Plataforma gratuita de organização de estudos, feita como Trabalho de
                                 Conclusão de Curso por estudantes de T.I.

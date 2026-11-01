@@ -6,7 +6,7 @@
 //  (renderizado pelo PHP com MATERIAS_KOSMOS). Aqui cada um vira
 //  um combobox com o dropdown NO ESTILO DO APP: o popup nativo do
 //  datalist não aceita CSS e saía fora do tema — parecia o seletor
-//  do sistema, não parte do Kosmos.
+//  do sistema, não parte da Kosmos.
 //
 //  O <datalist> é a fonte das opções; depois de montar, o atributo
 //  `list` sai do input para o popup nativo não aparecer em dobro.

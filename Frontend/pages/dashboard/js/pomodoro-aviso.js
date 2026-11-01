@@ -104,8 +104,8 @@
         const foiFoco = s.modo === "foco";
         const titulo = foiFoco ? "Ciclo de foco concluído!" : "Pausa encerrada!";
         const corpo  = foiFoco
-            ? "Hora de respirar um pouco. Volte ao Kosmos para começar a pausa."
-            : "Descanso terminado. Volte ao Kosmos para retomar o foco.";
+            ? "Hora de respirar um pouco. Volte à Kosmos para começar a pausa."
+            : "Descanso terminado. Volte à Kosmos para retomar o foco.";
 
         beep();
 

@@ -113,7 +113,7 @@ require_once __DIR__ . '/../../../Backend/php/pagina_dashboard.php';
                      uma prova é uma ação que a pessoa pode fazer agora, e
                      esconder a seção seria esconder o recurso. -->
                 <p class="ini-provas__vazio" id="pvVazio">
-                    Nenhuma prova marcada. Cadastre a próxima e o Kosmos conta os dias
+                    Nenhuma prova marcada. Cadastre a próxima e a Kosmos conta os dias
                     — e guarda o que cai.
                 </p>
             </section>
