@@ -177,7 +177,7 @@ $ESTILO_ABAS = [
                                     <button type="button" class="dash-btn dash-btn--outline" id="btnRemoverFoto"<?= $temFoto ? '' : ' hidden' ?>>
                                         Remover foto
                                     </button>
-                                    <span class="campo__dica">JPG, PNG ou WEBP, até 2 MB.</span>
+                                    <span class="campo__dica">JPG, PNG ou WEBP. Fotos grandes são reduzidas automaticamente.</span>
                                 </div>
 
                                 <!-- o enquadramento é escolhido arrastando a foto no

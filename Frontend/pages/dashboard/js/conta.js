@@ -680,13 +680,19 @@
 
     /* ------------------------------------------------------------
        Foto de perfil
-       A imagem é reduzida aqui no navegador (256x256, recorte no
-       centro) antes de subir: economiza banda, padroniza o avatar e
+       A imagem é reduzida aqui no navegador (512px no maior lado, sem
+       recorte) antes de subir: economiza banda, padroniza o avatar e
        evita depender da extensão GD no servidor. O backend ainda
-       valida tipo, tamanho e dimensões por conta própria.
+       valida tipo, tamanho (2 MB) e dimensões por conta própria.
+
+       O limite abaixo é da foto ORIGINAL, antes de reduzir. Antes ele
+       era os mesmos 2 MB do servidor, e barrava quase toda foto tirada
+       com o celular (3 a 8 MB), que depois de reduzida vira ~50 KB.
+       Ainda existe um teto para o celular não travar abrindo um
+       arquivo absurdo.
        ------------------------------------------------------------ */
     const FOTO_LADO      = 512;   // limite do maior lado (sem recorte)
-    const FOTO_MAX_BYTES = 2 * 1024 * 1024;
+    const FOTO_MAX_BYTES = 25 * 1024 * 1024;
 
     function ativarFoto() {
         const input = document.getElementById("inputFoto");
@@ -708,7 +714,7 @@
                 return;
             }
             if (arquivo.size > FOTO_MAX_BYTES) {
-                msg("msgFoto", "A imagem precisa ter até 2 MB.", "erro");
+                msg("msgFoto", "A imagem precisa ter até 25 MB.", "erro");
                 return;
             }
 
