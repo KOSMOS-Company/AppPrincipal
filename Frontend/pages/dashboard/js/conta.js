@@ -479,7 +479,7 @@
         if (emailNovo !== salvoPerfil.email) {
             const ok = await confirmar({
                 titulo: "Trocar o e-mail de acesso?",
-                texto: `Você passará a entrar no Kosmos com ${emailNovo} em vez de ${salvoPerfil.email}. ` +
+                texto: `Você passará a entrar na Kosmos com ${emailNovo} em vez de ${salvoPerfil.email}. ` +
                        "Sua senha continua a mesma.",
                 botao: "Trocar e-mail",
             });
@@ -604,7 +604,7 @@
             titulo: "Sair da conta?",
             texto: pendentes.size
                 ? "Você tem alterações que ainda não foram salvas — elas serão perdidas."
-                : "Você vai precisar entrar de novo para usar o Kosmos.",
+                : "Você vai precisar entrar de novo para usar a Kosmos.",
             botao: "Sair",
             perigo: true,
         });

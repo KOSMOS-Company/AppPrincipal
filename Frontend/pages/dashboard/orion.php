@@ -86,7 +86,7 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
                             Oi, <span class="h-nome"><?= hesc($primeiroNome) ?></span>. Por onde começamos?
                         </h2>
                         <p class="orion-hero__desc">
-                            Pergunte sobre qualquer matéria, peça um plano de estudo ou descubra onde fica cada coisa no Kosmos.
+                            Pergunte sobre qualquer matéria, peça um plano de estudo ou descubra onde fica cada coisa na Kosmos.
                         </p>
 
                         <!-- Sugestões: o orion-aba.js envia o data-pergunta -->
@@ -127,12 +127,12 @@ $primeiroNome = explode(' ', trim($USUARIO['nome'] ?? 'Estudante'))[0];
                                     <span>Onde e como revisar hoje</span>
                                 </span>
                             </button>
-                            <button type="button" class="orion-card-sugestao" data-pergunta="Me dá um tour rápido pelas abas do Kosmos: o que cada uma faz?">
+                            <button type="button" class="orion-card-sugestao" data-pergunta="Me dá um tour rápido pelas abas da Kosmos: o que cada uma faz?">
                                 <span class="orion-card-sugestao__ico" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg>
                                 </span>
                                 <span class="orion-card-sugestao__txt">
-                                    <strong>Tour pelo Kosmos</strong>
+                                    <strong>Tour pela Kosmos</strong>
                                     <span>O que cada aba faz</span>
                                 </span>
                             </button>

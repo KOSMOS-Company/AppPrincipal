@@ -61,7 +61,7 @@
         // ---------------- INÍCIO ----------------
         { id: 'oi', cap: 0, pagina: 'index.php', humor: 'feliz', anim: 'acena',
           titulo: 'Oi! Eu sou o Orion ✦',
-          texto: 'Vou te mostrar o Kosmos aba por aba — e, no caminho, você já cria seu primeiro caderno, baralho e matéria.' },
+          texto: 'Vou te mostrar a Kosmos aba por aba — e, no caminho, você já cria seu primeiro caderno, baralho e matéria.' },
         { id: 'painel', cap: 0, pagina: 'index.php', alvo: '.ini-painel', humor: 'curioso', anim: 'aponta',
           titulo: 'Seu painel da semana',
           texto: 'Cada barra mostra quanto você estudou no Pomodoro naquele dia. Embaixo ficam seus resumos, flashcards e exercícios, e os avisos do que revisar.' },
@@ -99,7 +99,7 @@
         { id: 'fc-dentro', cap: 2, pagina: 'flashcards.php', requer: 'deck', alvo: '#viewCartoes .contCabeca',
           humor: 'comemorando', anim: 'pula',
           titulo: 'Você entrou no baralho!',
-          texto: 'Em “Novo cartão” você escreve a pergunta e a resposta. Em “Estudar”, revisa — e o Kosmos marca sozinho a próxima vez.' },
+          texto: 'Em “Novo cartão” você escreve a pergunta e a resposta. Em “Estudar”, revisa — e a Kosmos marca sozinha a próxima vez.' },
 
         // ---------------- EXERCÍCIOS ----------------
         { id: 'ex-criar', cap: 3, pagina: 'exercicios.php', alvo: '#btnNovaMateria', tipo: 'acao', ate: 'clique',

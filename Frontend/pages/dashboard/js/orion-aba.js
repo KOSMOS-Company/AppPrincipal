@@ -16,7 +16,7 @@
         {
             chaves: ['pomodoro', 'foco', 'tempo', 'minutos', '25', 'descanso', 'temporizador'],
             humor: 'foco',
-            resposta: `O **Método Pomodoro** é a ferramenta ideal no Kosmos para manter foco absoluto e não cansar a mente! ⏱️\n\n` +
+            resposta: `O **Método Pomodoro** é a ferramenta ideal na Kosmos para manter foco absoluto e não cansar a mente! ⏱️\n\n` +
                       `✦ **Como aplicar com alta produtividade:**\n` +
                       `1. **25 minutos de Foco Total:** escolha uma matéria e estude sem olhar nenhuma notificação.\n` +
                       `2. **5 minutos de Pausa Curta:** levante, beba água e relaxe os olhos.\n` +
@@ -64,7 +64,7 @@
         {
             chaves: ['oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'opa', 'quem é você', 'quem e voce'],
             humor: 'feliz',
-            resposta: `Olá! Eu sou o **Orion**, seu copiloto acadêmico do Kosmos! 🪐✦\n\n` +
+            resposta: `Olá! Eu sou o **Orion**, seu copiloto acadêmico da Kosmos! 🪐✦\n\n` +
                       `Estou aqui para responder suas perguntas sobre matérias, técnicas de estudo, memorização e uso das ferramentas da plataforma. O que vamos estudar hoje?`
         },
         {

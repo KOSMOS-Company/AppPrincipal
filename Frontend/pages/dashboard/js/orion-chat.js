@@ -58,7 +58,7 @@
                    `children` e não hasChildNodes(): o HTML tem um comentário
                    e espaços lá dentro, que contam como nós. */
                 if (msgsContainer && msgsContainer.children.length === 0) {
-                    enviarMensagemOrion('Olá! Sou o Orion, seu assistente de estudos no Kosmos. ✦\nComo posso te ajudar hoje?', 'feliz', false);
+                    enviarMensagemOrion('Olá! Sou o Orion, seu assistente de estudos na Kosmos. ✦\nComo posso te ajudar hoje?', 'feliz', false);
                 }
                 setTimeout(function () { if (input) input.focus(); }, 250);
                 rolarFim();
@@ -303,7 +303,7 @@
             // 1. Pomodoro
             if (tem(q, ['pomodoro', 'tempo', 'timer', 'foco'])) {
                 enviarMensagemOrion(
-                    'O Pomodoro do Kosmos divide seu estudo em blocos de alta concentração:\n\n' +
+                    'O Pomodoro da Kosmos divide seu estudo em blocos de alta concentração:\n\n' +
                     '⏱️ 25 minutos de FOCO TOTAL (sem celular ou distrações)\n' +
                     '☕ 5 minutos de PAUSA para esticar o corpo\n\n' +
                     'A cada 4 ciclos, você ganha uma pausa longa de 15 minutos! Você pode iniciar direto na aba "Pomodoro".',
@@ -318,7 +318,7 @@
                     'Os Flashcards são a arma secreta da memorização ativa! 🎴\n\n' +
                     '1. Crie cartões com uma PERGUNTA na frente e a RESPOSTA no verso.\n' +
                     '2. Tente lembrar ANTES de virar o cartão.\n' +
-                    '3. O Kosmos usa repetição espaçada: cartões que você erra aparecem com mais frequência até você dominar!',
+                    '3. A Kosmos usa repetição espaçada: cartões que você erra aparecem com mais frequência até você dominar!',
                     'curioso'
                 );
                 return;
@@ -367,7 +367,7 @@
             }
 
             if (tem(q, ['quem e voce', 'seu nome', 'orion'])) {
-                enviarMensagemOrion('Sou o Orion, o mascote e assistente cósmico do Kosmos! Meu objetivo é te ajudar a manter a disciplina, organizar matérias e atingir sua melhor performance nos estudos. 🚀', 'curioso');
+                enviarMensagemOrion('Sou o Orion, o mascote e assistente cósmico da Kosmos! Meu objetivo é te ajudar a manter a disciplina, organizar matérias e atingir sua melhor performance nos estudos. 🚀', 'curioso');
                 return;
             }
 

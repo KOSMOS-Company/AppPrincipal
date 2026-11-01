@@ -3,7 +3,7 @@
 //
 //  O <select> de Caderno do modal de resumo com o MESMO design
 //  do campo de Matéria (combo-materia.js): o select nativo saía
-//  fora do tema — parecia o seletor do sistema, não do Kosmos.
+//  fora do tema — parecia o seletor do sistema, não da Kosmos.
 //
 //  O select continua sendo a fonte da verdade (value, options,
 //  selectedOptions, change) e só fica escondido. Quem aparece no
