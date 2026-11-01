@@ -1,5 +1,5 @@
 ﻿# ============================================================
-#  KOSMOS — Agenda as tarefas do Kosmos no Agendador do Windows
+#  KOSMOS — Agenda as tarefas da Kosmos no Agendador do Windows
 #  Arquivo: Backend/tarefas/agendar-windows.ps1
 #
 #  Cria (ou recria) três tarefas no Agendador de Tarefas:

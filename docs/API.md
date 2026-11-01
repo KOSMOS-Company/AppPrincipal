@@ -56,8 +56,8 @@ O formato mora num lugar só, em [`api_util.php`](../Backend/php/api_util.php)
 | `login.php` | POST | `email`, `senha`, `lembrar` (opcional, `1`) | 401 genérico; o tempo de resposta é igual exista o e-mail ou não. 403 com `nao_confirmado: true` quando a senha confere mas o e-mail não foi confirmado (só com `N8N_CONFIRMA_URL`). `lembrar` liga o "Lembrar de mim": cookie `kosmos_lembrar` por 30 dias (`sessoes_lembradas`) |
 | `login_google.php` | POST | `access_token` ou `credential` | valida no Google e confere o `aud` (Client ID); `precisa_senha` na resposta |
 | `cadastro.php` | POST | `nome`, `email`, `senha` | 201 criado (com `confirmar: true` quando o link de confirmação foi enviado), 409 e-mail em uso por conta confirmada, 429 limite. Conta que nunca confirmou pode ser recadastrada |
-| `confirmar_email.php` | POST | `token` | link do e-mail de confirmação (48 h, uso único); confirma e já abre a sessão. 400 link inválido/vencido |
 | `confirmar_reenviar.php` | POST | `email` | resposta **sempre** genérica; manda um link novo se a conta espera confirmação. Limite `confirma` (3/h por e-mail) |
+| `Frontend/pages/login/confirmar.php` | GET | `token` | não é endpoint JSON: é a página que o botão do e-mail de confirmação abre. Confirma no servidor (sem JavaScript) e mostra o resultado; não abre sessão. O link vale 48 h e pode ser aberto de novo (o Gmail/Outlook às vezes abrem antes da pessoa). 400 link inválido/vencido |
 | `logout.php` | POST | — | só POST (antes um `<img>` de outro site deslogava a pessoa) |
 | `senha_esqueci.php` | POST | `email` | 200 link enviado (pelo n8n), 404 e-mail sem conta, 429 limite (3/h por e-mail, 10/h por IP, contando também e-mails sem conta), 502 o n8n não enviou |
 | `senha_resetar.php` | POST | `token`, `senha_nova` | token de 64 hex, uso único, 1 hora |

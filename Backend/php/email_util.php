@@ -102,6 +102,6 @@ function enviarConfirmacao(PDO $pdo, int $usuarioId, string $email, string $nome
     return n8nEnviarEmail(N8N_CONFIRMA_URL, [
         'email' => $email,
         'nome'  => $nome,
-        'link'  => $base . '/login/confirmar.html?token=' . $token,
+        'link'  => $base . '/login/confirmar.php?token=' . $token,
     ], 'confirmação');
 }

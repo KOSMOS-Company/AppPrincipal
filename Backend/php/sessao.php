@@ -32,7 +32,7 @@ function sessaoEmHttps(): bool {
  */
 function iniciarSessao(): void {
     if (session_status() === PHP_SESSION_NONE) {
-        /* As sessões do Kosmos moram numa pasta só delas (Backend/sessoes,
+        /* As sessões da Kosmos moram numa pasta só delas (Backend/sessoes,
            bloqueada na web). Na pasta comum, quem faz a faxina é o
            primeiro script que roda — o phpMyAdmin no XAMPP, o cron do
            Debian/Ubuntu — e ele apaga tudo com mais de 24 min, ignorando

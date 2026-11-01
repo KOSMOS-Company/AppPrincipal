@@ -1,6 +1,6 @@
-# 🛠️ Configurar o Kosmos no seu PC
+# 🛠️ Configurar a Kosmos no seu PC
 
-Algumas coisas que fazem o Kosmos funcionar **não vão para o GitHub**: elas ficam só
+Algumas coisas que fazem a Kosmos funcionar **não vão para o GitHub**: elas ficam só
 no computador de cada um. Este guia mostra como deixar o seu PC igual ao de quem já
 está com tudo funcionando: login, redefinição de senha, exercícios com IA, o Orion
 com IA, a IA nos resumos e notificações por e-mail.
@@ -112,7 +112,7 @@ define('N8N_CONFIRMA_URL', 'https://n8n.srv1779459.hstgr.cloud/webhook/confirmar
 
 > ⚠️ **O token e o endereço dos exercícios são segredos.** Peça por mensagem privada,
 > nunca coloque num arquivo que vai para o GitHub, num print ou no grupo. Com o token,
-> qualquer pessoa consegue mandar e-mails em nome do Kosmos. O fluxo de exercícios
+> qualquer pessoa consegue mandar e-mails em nome da Kosmos. O fluxo de exercícios
 > não pede token, então quem tiver o endereço dele consegue gastar a cota de IA do
 > projeto.
 >
@@ -241,7 +241,7 @@ redefinição de senha** com duas mudanças:
 2. No nó **Webhook** da cópia, troque o *Path* para `confirmar-email`. A autenticação
    (Header Auth, `X-Kosmos-Token`) continua a mesma.
 3. No nó **Send Email**, troque o assunto para
-   `Bem-vindo ao Kosmos, {{ $json.body.nome.split(' ')[0] }}!` (evite "Confirme seu
+   `Bem-vindo à Kosmos, {{ $json.body.nome.split(' ')[0] }}!` (evite "Confirme seu
    e-mail": é o assunto dos golpes e cai no spam). Em **Email Format**, escolha **Both**;
    cole no campo HTML todo o `Backend/notes/email-confirmar.html` e no campo Text todo o
    `Backend/notes/email-confirmar.txt`.
@@ -268,6 +268,7 @@ dashboard. Contas que já existiam, as do Google e a conta de dev não precisam 
 | Erro com `bootstrap.php` em tudo | código desatualizado | faça o `git pull` (passo 1) |
 | "Esqueci a senha" diz que enviou, mas o e-mail não chega | `N8N_RESET_URL` errado, token diferente do n8n, ou o e-mail não tem conta no seu banco | confira o passo 3; o motivo aparece em `Backend/logs/php-erros.log` |
 | O link do e-mail abre uma página que não existe | `APP_URL` com o nome errado da pasta | confira o `APP_URL` (passo 3) |
+| O botão do e-mail não abre no celular | o `APP_URL` aponta para `localhost`, que no celular é o próprio celular | com o celular no mesmo Wi-Fi, troque `localhost` no `APP_URL` pelo IP do PC na rede (veja com `ipconfig`, ex.: `http://192.168.15.13/AppPrincipal/Frontend/pages`). Se o celular não abrir `http://SEU-IP/AppPrincipal`, libere a porta 80 no firewall (PowerShell como administrador): `New-NetFirewallRule -DisplayName "Apache XAMPP" -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow`. O login com Google não funciona pelo IP |
 | Botão do Google fica em "ainda está carregando" | `GOOGLE_CLIENT_ID` vazio | passo 3 |
 | "Gerar exercícios" dá erro | `N8N_EXERCICIOS_URL` errado ou vazio | peça o endereço ao Matheus |
 | O Orion só dá respostas prontas ("Estou sem sinal com a minha IA") | `N8N_ORION_URL` faltando ou errado, ou token diferente do n8n | confira o passo 3; o motivo aparece em `Backend/logs/php-erros.log` (linha `[KOSMOS Orion]`) |
