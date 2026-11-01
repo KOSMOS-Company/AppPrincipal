@@ -78,8 +78,30 @@ function n8nEnviarEmail(string $url, array $dados, string $rotulo): bool {
 /** Quanto tempo o link de confirmação vale. */
 const CONFIRMA_HORAS = 48;
 
+/**
+ * Por enquanto o celular não pede confirmação: o link do e-mail só abre
+ * no celular quando o APP_URL aponta para um endereço que ele alcança
+ * (ver docs/CONFIGURACAO-LOCAL.md), e quem se cadastrava por lá ficava
+ * preso. Cadastro feito no celular já nasce confirmado, e o login pelo
+ * celular entra mesmo numa conta que ainda não confirmou.
+ *
+ * Atenção: o "é celular" vem do User-Agent, que o navegador informa e
+ * dá para trocar (o modo celular do DevTools já basta). É um atalho
+ * temporário, não uma proteção. Para voltar a pedir em todo lugar,
+ * troque para true.
+ */
+const CONFIRMA_NO_CELULAR = false;
+
+function acessoPeloCelular(): bool {
+    return (bool) preg_match('/Android|iPhone|iPad|iPod|Mobile/i', (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+}
+
+/** A confirmação vale para ESTE acesso? (desligada no config.php ou, por enquanto, no celular) */
 function confirmacaoLigada(): bool {
-    return defined('N8N_CONFIRMA_URL') && N8N_CONFIRMA_URL !== '';
+    if (!defined('N8N_CONFIRMA_URL') || N8N_CONFIRMA_URL === '') {
+        return false;
+    }
+    return CONFIRMA_NO_CELULAR || !acessoPeloCelular();
 }
 
 /**
