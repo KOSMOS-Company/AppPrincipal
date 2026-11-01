@@ -41,11 +41,15 @@ document.querySelector('.form').addEventListener('submit', async function (e) {
         if (json.ok) {
             this.reset();
             // Com confirmação de e-mail, a pessoa precisa abrir o e-mail
-            // antes de entrar: a mensagem fica na tela, sem redirecionar
+            // antes de entrar: a mensagem fica na tela, sem redirecionar.
+            // Sem ela, o cadastro já abriu a sessão: vai direto para o
+            // dashboard, com a mesma abertura do login.
             if (!json.confirmar) {
+                sessionStorage.setItem('kosmos_usuario', json.nome);
+                sessionStorage.setItem('kosmos_intro', '1');
                 setTimeout(() => {
-                    window.location.href = '../login/index.html';
-                }, 1800);
+                    window.location.href = '../dashboard/index.php';
+                }, 1200);
             }
         }
     } catch (err) {
