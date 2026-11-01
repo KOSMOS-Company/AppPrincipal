@@ -66,13 +66,18 @@ $base = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/")), "
             background:linear-gradient(120deg,#a541ff,#c97cff);
             -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
         }
+        /* Sem cápsula: só o texto espaçado, entre dois traços que somem nas pontas */
         .tag {
-            display:inline-flex; align-items:center; gap:8px;
-            font-size:.76rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
-            color:var(--accent-lt); background:rgba(165,65,255,.12);
-            border:1px solid rgba(165,65,255,.3); padding:5px 16px; border-radius:100px;
+            display:inline-flex; align-items:center; gap:14px;
+            font-size:.78rem; font-weight:600; letter-spacing:.32em; text-transform:uppercase;
+            color:var(--accent-lt);
             margin-bottom:20px;
         }
+        .tag::before, .tag::after {
+            content:""; width:36px; height:1px;
+            background:linear-gradient(90deg, transparent, rgba(201,124,255,.7));
+        }
+        .tag::after { transform:scaleX(-1); margin-left:-.32em; } /* desconta o letter-spacing da última letra */
         h1 { font-family:'Syne',sans-serif; font-weight:700; font-size:clamp(1.4rem,4vw,2rem); margin-bottom:12px; }
         p { color:var(--text-dim); font-size:1.02rem; line-height:1.6; margin-bottom:32px; max-width:400px; }
 
@@ -115,10 +120,7 @@ $base = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/")), "
         <p>O link que você seguiu pode estar quebrado ou a página foi movida para outra órbita.</p>
 
         <div class="actions">
-            <a href="inicio/index.html" class="btn btn--primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Voltar ao início
-            </a>
+            <a href="inicio/index.html" class="btn btn--primary">Voltar ao início</a>
             <a href="login/index.html" class="btn btn--ghost">Fazer login</a>
         </div>
     </div>
