@@ -106,6 +106,7 @@ try {
         // ---------- Sem confirmação: cria o hash da senha e insere ----------
         $pdo->prepare('INSERT INTO usuarios (nome, email, senha_hash) VALUES (?, ?, ?)')
             ->execute([$nome, $email, gerarHashSenha($senha)]);
+        $id = (int) $pdo->lastInsertId();
     }
 
     if ($confirmar) {
@@ -118,7 +119,21 @@ try {
         ], 201);
     }
 
-    apiResponder(['ok' => true, 'msg' => 'Conta criada com sucesso! Redirecionando para o login…'], 201);
+    // ---------- Sem confirmação: já entra (mesmos passos do login.php) ----------
+    // Mandar a pessoa para o login para digitar de novo o que acabou de
+    // escrever era só um passo a mais.
+    iniciarSessao();
+    session_regenerate_id(true);
+    $_SESSION['usuario_id']   = $id;
+    $_SESSION['usuario_nome'] = $nome;
+    registrarAcesso($pdo, $id);
+    marcarVersaoSessao($pdo, $id);
+
+    apiResponder([
+        'ok'   => true,
+        'msg'  => 'Conta criada! Entrando…',
+        'nome' => $nome,
+    ], 201);
 
 } catch (PDOException $e) {
     // 23000 = violação do UNIQUE: outro cadastro com o mesmo e-mail
