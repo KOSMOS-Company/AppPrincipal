@@ -114,9 +114,10 @@ async function conferirPagina(page, rotulo, url, statusEsperado = 200) {
         const ctx = await navegador.newContext(opcoes);
         const page = await ctx.newPage();
         for (const p of ['inicio/index.html', 'login/index.html', 'cadastro/index.html', 'cadastro/termos.html',
-                         'cadastro/politica.html', 'login/redefinir.html', 'login/confirmar.html']) {
+                         'cadastro/politica.html', 'login/redefinir.html']) {
             await conferirPagina(page, p, PAGES + p);
         }
+        await conferirPagina(page, 'login/confirmar.php sem token', PAGES + 'login/confirmar.php', 400);
         await conferirPagina(page, 'página que não existe', PAGES + 'nao-existe-' + Date.now() + '.html', 404);
         await ctx.close();
     }
@@ -135,13 +136,19 @@ async function conferirPagina(page, rotulo, url, statusEsperado = 200) {
         confere('cadastro avisa que mandou o link', cad.json && cad.json.confirmar === true);
         const antes = await api(page, 'login.php', { email: EMAIL, senha: SENHA });
         confere('login antes de confirmar é barrado', antes.status === 403 && antes.json.nao_confirmado === true, JSON.stringify(antes));
-        const invalido = await api(page, 'confirmar_email.php', { token: 'f'.repeat(64) });
+        const abrirLink = async (token) => {
+            const resp = await page.goto(PAGES + 'login/confirmar.php?token=' + token);
+            return { status: resp.status(), titulo: await page.textContent('h1') };
+        };
+        const invalido = await abrirLink('f'.repeat(64));
         confere('link de confirmação inventado é recusado', invalido.status === 400);
         const { token } = semear('token');
-        const conf = await api(page, 'confirmar_email.php', { token });
-        confere('link de confirmação confirma e entra', conf.status === 200 && conf.json.ok, JSON.stringify(conf));
-        const deNovo = await api(page, 'confirmar_email.php', { token });
-        confere('o mesmo link não vale duas vezes', deNovo.status === 400);
+        const conf = await abrirLink(token);
+        confere('o botão do e-mail confirma a conta', conf.status === 200 && /confirmado/.test(conf.titulo), JSON.stringify(conf));
+        // o Gmail/Outlook podem abrir o link antes da pessoa: o clique dela continua dando certo
+        const deNovo = await abrirLink(token);
+        confere('abrir o link de novo continua mostrando confirmado', deNovo.status === 200, JSON.stringify(deNovo));
+        await page.goto(PAGES + 'login/index.html');   // o api() de baixo chama a partir da tela de login
     } else {
         console.log('  (confirmação de e-mail desligada neste config.php: N8N_CONFIRMA_URL vazio — pulado)');
     }

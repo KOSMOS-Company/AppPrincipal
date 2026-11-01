@@ -13,7 +13,7 @@
 //
 //  Confirmação do e-mail (com N8N_CONFIRMA_URL no config.php): a conta
 //  nasce com email_confirmado = 0 e o n8n manda um link
-//  (confirmar_email.php). Até confirmar, o login não entra. Uma conta
+//  (login/confirmar.php). Até confirmar, o login não entra. Uma conta
 //  que nunca confirmou pode ser recadastrada — ver abaixo.
 //
 //  Sobre "este e-mail já está cadastrado": a mensagem revela que a
