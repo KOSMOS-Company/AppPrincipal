@@ -1,4 +1,4 @@
-# 🚀 Colocando o KOSMOS em produção
+# 🚀 Colocando a KOSMOS em produção
 
 O XAMPP é para desenvolvimento: usuário `root` sem senha, `http` e erros
 detalhados. Este guia lista o que muda num servidor de verdade.
@@ -137,7 +137,7 @@ navegador). Configure a rotação do arquivo para ele não crescer sem limite:
 - [ ] `https://seu-dominio/.git/config` responde 403
 - [ ] `https://seu-dominio/Backend/kosmos.sql` responde 403
 - [ ] `https://seu-dominio/Backend/uploads/avatares/` responde 403 (sem listagem)
-- [ ] uma URL inexistente mostra a página 404 do Kosmos
+- [ ] uma URL inexistente mostra a página 404 da Kosmos
 - [ ] `php Backend/testes/rodar.php` passa no servidor
 - [ ] `composer check-platform-reqs` sem pendências
 - [ ] Client ID do Google de produção, com a origem `https` autorizada

@@ -1,11 +1,11 @@
-Bem-vindo ao Kosmos, {{ $json.body.nome.split(' ')[0] }}!
+Bem-vindo à Kosmos, {{ $json.body.nome.split(' ')[0] }}!
 
-Que bom ter você aqui. No Kosmos você organiza seus resumos, revisa com flashcards, treina com exercícios e estuda no ritmo do Pomodoro.
+Que bom ter você aqui. Na Kosmos você organiza seus resumos, revisa com flashcards, treina com exercícios e estuda no ritmo do Pomodoro.
 
 Para começar, é só ativar sua conta neste endereço:
 {{ $json.body.link }}
 
-O link vale por 48 horas. Se você não criou uma conta no Kosmos, pode ignorar esta mensagem.
+O link vale por 48 horas. Se você não criou uma conta na Kosmos, pode ignorar esta mensagem.
 
 Kosmos — plataforma de estudos feita por estudantes.
-Você recebeu este e-mail porque criou uma conta no Kosmos.
+Você recebeu este e-mail porque criou uma conta na Kosmos.

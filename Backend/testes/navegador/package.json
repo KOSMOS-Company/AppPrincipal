@@ -1,7 +1,7 @@
 {
   "name": "kosmos-teste-navegador",
   "private": true,
-  "description": "Teste de navegador do Kosmos (PC e celular). Ver navegador.js.",
+  "description": "Teste de navegador da Kosmos (PC e celular). Ver navegador.js.",
   "scripts": {
     "test": "node navegador.js"
   },

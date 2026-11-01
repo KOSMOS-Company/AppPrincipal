@@ -3,7 +3,7 @@
      Cole TODO este conteúdo no campo "HTML" do nó Send Email do fluxo
      de confirmação no n8n (o passo a passo está em
      docs/CONFIGURACAO-LOCAL.md, "Confirmação de e-mail").
-     Assunto sugerido: Bem-vindo ao Kosmos, (primeiro nome)!
+     Assunto sugerido: Bem-vindo à Kosmos, (primeiro nome)!
      — com a mesma expressão do primeiro nome usada no texto abaixo.
 
      Escrito como BOAS-VINDAS, e não como "confirme seu e-mail": o
@@ -27,8 +27,8 @@
 
   <tr><td bgcolor="#1a0230" style="background:#1a0230;border:1px solid #2f0a4b;border-radius:20px;padding:36px 32px;font-family:'Segoe UI',Arial,sans-serif">
 
-    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:#ffffff">Bem-vindo ao Kosmos, {{ $json.body.nome.split(' ')[0] }}!</h1>
-    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#b8a8cc">Que bom ter você aqui. No Kosmos você organiza seus resumos, revisa com flashcards, treina com exercícios e estuda no ritmo do Pomodoro.</p>
+    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:#ffffff">Bem-vindo à Kosmos, {{ $json.body.nome.split(' ')[0] }}!</h1>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#b8a8cc">Que bom ter você aqui. Na Kosmos você organiza seus resumos, revisa com flashcards, treina com exercícios e estuda no ritmo do Pomodoro.</p>
     <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:#b8a8cc">Para começar, é só ativar sua conta:</p>
 
     <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto"><tr>
@@ -40,13 +40,13 @@
     <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#9180a8">Se o botão não funcionar, copie este endereço no navegador:<br>
       <a href="{{ $json.body.link }}" style="color:#c97cff;word-break:break-all">{{ $json.body.link }}</a></p>
 
-    <p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:#9180a8">O link vale por 48 horas. Se você não criou uma conta no Kosmos, pode ignorar esta mensagem.</p>
+    <p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:#9180a8">O link vale por 48 horas. Se você não criou uma conta na Kosmos, pode ignorar esta mensagem.</p>
 
   </td></tr>
 
   <tr><td align="center" style="padding:20px 24px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;line-height:1.6;color:#9180a8">
     Kosmos — plataforma de estudos feita por estudantes.<br>
-    Você recebeu este e-mail porque criou uma conta no Kosmos.
+    Você recebeu este e-mail porque criou uma conta na Kosmos.
   </td></tr>
 
 </table>

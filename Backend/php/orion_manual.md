@@ -1,4 +1,4 @@
-# Manual do Kosmos (o que o Orion sabe sobre o site)
+# Manual da Kosmos (o que o Orion sabe sobre o site)
 <!--
   Lido pelo Backend/php/orion_chat.php e enviado à IA em toda mensagem.
   MANTENHA CURTO: cada palavra gasta cota do Groq (tokens por minuto).
@@ -6,7 +6,7 @@
   O .htaccess do Backend bloqueia .md no navegador.
 -->
 
-Kosmos: app gratuito de organização de estudos para ensino médio, ENEM e vestibular. Menu lateral (no celular, barra de baixo + botão "Mais"): Início, Orion, Buscar, Biblioteca, Flashcards, Exercícios, Pomodoro, Provas. No rodapé do menu: barra de XP/nível (abre Conquistas), avatar (abre Conta) e engrenagem (atalhos de configuração).
+Kosmos: plataforma gratuita de organização de estudos para ensino médio, ENEM e vestibular. Menu lateral (no celular, barra de baixo + botão "Mais"): Início, Orion, Buscar, Biblioteca, Flashcards, Exercícios, Pomodoro, Provas. No rodapé do menu: barra de XP/nível (abre Conquistas), avatar (abre Conta) e engrenagem (atalhos de configuração).
 
 ## Abas
 - **Início**: resumo do dia. Gráfico "Esta semana" com minutos de foco por dia (clicar abre o calendário do mês), meta diária, atalhos, "Revisar hoje" (aparece quando há cartões vencidos), "Primeiros passos" (escrever 1 resumo, criar 1 flashcard, fazer 1 Pomodoro) e depois "Missões da semana" (4 por semana: estudar em X dias, somar minutos de foco, escrever resumos, revisar flashcards, criar cartões, responder questões).
