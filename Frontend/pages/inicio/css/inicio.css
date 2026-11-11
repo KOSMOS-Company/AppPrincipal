@@ -1,39 +1,44 @@
 /* ═══════════════════════════════════════════════════════
-   KOSMOS — styles.css  (Início)
-   Paleta: #000  |  #0d0118  |  #12011f  |  #2f0a4b
-            #7203bd  |  #8200db  |  #a541ff  |  #c97cff
+   KOSMOS — inicio.css (landing page)
+
+   A página é curta de propósito: hero → faixa → constelação de
+   ferramentas → convite → rodapé. Tokens base em
+   ../shared/tokens.css (carregado antes); aqui só o que é dela.
+
+   Ordem do arquivo:
+     1. base  2. header  3. hero  4. faixa  5. constelação
+     6. miniaturas  7. convite e rodapé  8. flutuantes (Orion, topo)
+     9. movimento (html.scrolly) e profundidade  10. Lite e acessibilidade
    ═══════════════════════════════════════════════════════ */
 
-/* ── Scrollbar customizada ── */
+/* ════════════════════════════════
+   1. BASE
+   ════════════════════════════════ */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #0d0118; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #7203bd 0%, #a541ff 100%);
+    background: linear-gradient(180deg, var(--purple-md) 0%, var(--accent) 100%);
     border-radius: 100px;
-    border: 2px solid #0d0118;
+    border: 2px solid var(--bg-deep);
 }
-::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #a541ff 0%, #c97cff 100%); }
-* { scrollbar-width: thin; scrollbar-color: #a541ff #0d0118; }
+* { scrollbar-width: thin; scrollbar-color: var(--accent) var(--bg-deep); }
 
-/* ── Reset & Base ── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-    /* Base (cores, raios, sombras): shared/tokens.css, carregado antes.
-       Aqui fica só o que é desta página. */
-    /* O céu vem de ../shared/cosmos.css; aqui só o que é desta página.
-       z-index 0 (e não o padrão negativo) porque as seções da landing
-       já declaram z-index 1 — ver a lista logo antes do `.veu`. */
+    /* O céu (../shared/cosmos.css). z 0, e não negativo, porque as
+       seções declaram z 1 logo abaixo. */
     --cosmos-z: 0;
     --veu-z: 0;
     --veu-forca: .52;
-    /* Aqui o céu é o assunto, então o grão pode aparecer mais */
-    --ruido-forca: .07;
+    --ruido-forca: .07;        /* aqui o céu é o assunto: o grão aparece mais */
+
+    --xp-dourado: #f5b942;     /* o mesmo do dashboard: XP e nível */
+    --superficie-lp: linear-gradient(150deg, rgba(30,6,54,.80) 0%, rgba(18,2,32,.86) 100%);
 }
 
 html {
     scroll-behavior: smooth;
-    /* impede que elementos largos/rotacionados (marquee) alarguem a página */
     overflow-x: hidden;
     overflow-x: clip;
 }
@@ -43,15 +48,13 @@ body {
     background-color: var(--black);
     color: var(--text);
     line-height: 1.65;
-    /* clip (e não hidden): hidden viraria scroll-container e
-       quebraria o position:sticky das seções pinadas do V3 */
+    /* clip, e não hidden: hidden viraria contêiner de rolagem e
+       quebraria o position: sticky da seção pinada */
     overflow-x: hidden;
     overflow-x: clip;
 }
 
-/* ── Typography ── */
-h1,h2,h3,h4 { font-family: 'Syne', sans-serif; line-height: 1.15; }
-
+h1, h2, h3, h4 { font-family: 'Syne', sans-serif; line-height: 1.15; }
 em { font-style: normal; color: var(--accent-lt); }
 
 .section-tag {
@@ -63,9 +66,6 @@ em { font-style: normal; color: var(--accent-lt); }
     letter-spacing: .14em;
     text-transform: uppercase;
     color: var(--accent-lt);
-    background: none;
-    border: none;
-    padding: 0;
     margin-bottom: 20px;
 }
 .section-tag::before {
@@ -74,24 +74,16 @@ em { font-style: normal; color: var(--accent-lt); }
     height: 2px;
     border-radius: 2px;
     background: linear-gradient(90deg, var(--accent), var(--accent-lt));
-    box-shadow: 0 0 12px rgba(165,65,255,.5);
 }
 
 .section-title {
-    font-size: clamp(1.75rem, 3.5vw, 2.8rem);
+    font-size: clamp(1.9rem, 3.8vw, 3rem);
     font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 20px;
+    letter-spacing: -.02em;
+    line-height: 1.12;
+    margin-bottom: 18px;
 }
 
-/* Neutralizar o destaque do <em> na seção do meio (recursos) */
-.recursos .section-title em {
-    font-style: normal;
-    color: inherit;
-    font-weight: inherit;
-}
-
-/* ── Container ── */
 .container {
     width: 100%;
     max-width: 1200px;
@@ -99,10 +91,11 @@ em { font-style: normal; color: var(--accent-lt); }
     padding: 0 24px;
 }
 
-/* ── Buttons ── */
+/* ── Botões ── */
 .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     font-family: 'DM Sans', sans-serif;
     font-size: .95rem;
@@ -112,9 +105,13 @@ em { font-style: normal; color: var(--accent-lt); }
     border: none;
     cursor: pointer;
     text-decoration: none;
-    transition: var(--transition);
     white-space: nowrap;
+    touch-action: manipulation;
+    transition: background var(--transition), border-color var(--transition),
+                color var(--transition), box-shadow var(--transition), transform .1s ease;
 }
+.btn:active { transform: scale(.97); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 .btn--primary {
     background: linear-gradient(120deg, var(--purple) 0%, var(--accent) 100%);
@@ -125,67 +122,63 @@ em { font-style: normal; color: var(--accent-lt); }
 
 .btn--ghost {
     background: var(--bg-card);
-    color: var(--accent);
+    color: var(--accent-lt);
     border: 1px solid rgba(165,65,255,.3);
 }
 .btn--ghost:hover { background: var(--bg-nav); border-color: var(--accent); }
 
 .btn--outline {
-    background: var(--bg-card);
+    background: rgba(26,2,48,.6);
     color: var(--text-dim);
     border: 1px solid rgba(255,255,255,.15);
 }
 .btn--outline:hover { background: var(--bg-nav); border-color: rgba(255,255,255,.35); color: #fff; }
 
-/* Botão Google neutro */
-.btn--google {
-    background: #f5f5f5;
-    color: #1a1a1a;
-    border: 1px solid rgba(0,0,0,.1);
-}
-.btn--google:hover { background: #eaeaea; border-color: rgba(0,0,0,.15); }
-
 .btn--lg { font-size: 1rem; padding: 14px 32px; border-radius: var(--radius-md); }
 
+/* As partes da página vivem acima do céu e do véu. O header, a barra
+   de progresso e os flutuantes ficam fora da lista de propósito: são
+   position: fixed com z-index próprio, e entrar aqui trocaria o
+   fixed por relative (o header parava de grudar no topo). */
+.hero,
+.marquee,
+.constelacao,
+.cta-final,
+.footer {
+    position: relative;
+    z-index: 1;
+}
 
 /* ════════════════════════════════
-   HEADER
+   2. HEADER
    ════════════════════════════════ */
 .header {
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 100;
-    padding: 0;
     transition: background var(--transition), box-shadow var(--transition);
 }
-
 .header--scrolled {
-    background: rgba(13,1,24,.92);
-    box-shadow: 0 1px 0 rgba(0,0,0,.3);
+    background: rgba(13,1,24,.88);
+    box-shadow: 0 1px 0 rgba(165,65,255,.12);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
 }
 
 .header__inner {
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: 24px;
     height: 72px;
     padding: 0 32px;
     max-width: 1280px;
     margin: 0 auto;
 }
 
-/* Logo */
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    flex-shrink: 0;
-}
-.logo__icon { width: 36px; height: 36px; flex-shrink: 0; }
+.logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; border-radius: 6px; }
+.logo:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .logo__text { font-family: 'Syne', sans-serif; font-size: 1.35rem; font-weight: 800; color: #fff; letter-spacing: -.02em; }
 
-/* Nav */
 .nav { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .nav__link {
     font-size: .9rem;
@@ -194,20 +187,20 @@ em { font-style: normal; color: var(--accent-lt); }
     text-decoration: none;
     padding: 8px 14px;
     border-radius: 8px;
-    transition: var(--transition);
+    transition: color var(--transition);
 }
-.nav__link:hover { color: #fff; background: transparent; }
+.nav__link:hover { color: #fff; }
+.nav__link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.header__actions { display: flex; align-items: center; gap: 10px; margin-left: 16px; }
+.header__actions { display: flex; align-items: center; gap: 10px; }
 
-/* Hamburger */
-.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; margin-left: auto; }
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 10px 6px; margin-left: auto; border-radius: 8px; }
+.hamburger:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .hamburger span { display: block; width: 24px; height: 2px; background: #fff; border-radius: 2px; transition: var(--transition); }
 .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
 .hamburger.active span:nth-child(2) { opacity: 0; }
 .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
-/* Mobile nav */
 .mobile-nav {
     display: none;
     flex-direction: column;
@@ -216,149 +209,91 @@ em { font-style: normal; color: var(--accent-lt); }
     background: rgba(13,1,24,.98);
     max-height: 0;
     overflow: hidden;
-    transition: max-height .4s ease, padding .4s ease, border-color .4s ease;
+    visibility: hidden;
+    transition: max-height .4s ease, padding .4s ease, visibility 0s .4s;
     border-top: 1px solid transparent;
 }
 .mobile-nav.open {
-    max-height: 600px;
+    max-height: 400px;
     padding: 20px 24px 28px;
+    visibility: visible;
+    transition: max-height .4s ease, padding .4s ease;
     border-top-color: rgba(165,65,255,.15);
 }
 .mobile-nav__link { font-size: 1rem; color: var(--text-dim); text-decoration: none; padding: 10px 4px; border-bottom: 1px solid rgba(255,255,255,.05); }
 .mobile-nav__link:hover { color: #fff; }
-.mobile-nav .btn { justify-content: center; margin-top: 4px; }
+.mobile-nav .btn { margin-top: 4px; }
+
+.scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--purple-md), var(--accent), var(--accent-lt));
+    transform: scaleX(0);
+    transform-origin: left;
+    z-index: 200;
+    pointer-events: none;
+}
 
 /* ════════════════════════════════
-   HERO
+   3. HERO
    ════════════════════════════════ */
 .hero {
-    position: relative;
     min-height: 100vh;
+    min-height: 100svh;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 120px 24px 80px;
+    padding: 120px 24px 96px;
     overflow: hidden;
 }
 
-.hero__bg { position: absolute; inset: 0; pointer-events: none; }
-
+.hero__bg { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 .hero__orb {
     position: absolute;
     border-radius: 50%;
     filter: blur(100px);
-    opacity: .55;
+    opacity: .5;
 }
 .hero__orb--1 {
     width: 600px; height: 600px;
-    top: -200px; left: 50%;
-    background: radial-gradient(circle, #7203bd 0%, transparent 70%);
+    top: -220px; left: 50%;
+    background: radial-gradient(circle, var(--purple-md) 0%, transparent 70%);
     animation: orbFloat 8s ease-in-out infinite;
 }
 .hero__orb--2 {
     width: 400px; height: 400px;
-    bottom: -100px; right: -100px;
-    background: radial-gradient(circle, #a541ff 0%, transparent 70%);
-    opacity: .3;
+    bottom: -120px; right: -100px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    opacity: .25;
     animation: orbDrift 10s ease-in-out infinite;
-}
-
-.hero__grid {
-    position: absolute; inset: 0;
-    background-image:
-        linear-gradient(rgba(165,65,255,.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(165,65,255,.06) 1px, transparent 1px);
-    background-size: 50px 50px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, #000 40%, transparent 100%);
-}
-
-/* O `.cosmos` e o `.veu` moram em ../shared/cosmos.css — são os
-   mesmos em todas as páginas do projeto. Esta página só muda as
-   variáveis (no :root, lá em cima) e acrescenta o `.veu::after`
-   do hero, no fim deste arquivo.
-
-/* As SEÇÕES passam a viver acima do cosmos e do véu.
-
-   O cabeçalho, a barra de progresso e o "voltar ao topo" ficam de
-   fora desta lista de propósito: eles são position:fixed com o
-   próprio z-index (o header é 100). Incluí-los aqui trocava o
-   `fixed` por `relative` e o header parava de grudar no topo —
-   foi exatamente o que aconteceu na primeira versão. Como são
-   posicionados e vêm depois do canvas no HTML, já pintam por cima
-   sem precisar de ajuda. */
-.hero,
-.marquee,
-.sobre,
-.recursos,
-.demo,
-.historia,
-.orion,
-.faq,
-.cta-final,
-.footer {
-    position: relative;
-    z-index: 1;
 }
 
 .hero__inner {
     position: relative;
-    /* Era 760px, a medida do título. A prévia do produto precisa de mais,
-       então quem guarda a medida de leitura agora é o próprio `.hero__title`
-       (logo abaixo) — alargar os dois juntos deixaria o h1 com linhas
-       largas demais para ler. */
-    max-width: 1020px;
+    z-index: 4;
+    max-width: 820px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0;
-}
-
-.hero__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: .82rem;
-    font-weight: 500;
-    color: var(--accent-lt);
-    background: none;
-    border: none;
-    padding: 0;
-    margin-bottom: 28px;
-    animation: fadeDown .8s ease both;
-}
-.hero__badge-dot {
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
 }
 
 .hero__title {
-    max-width: 760px;          /* a medida que o .hero__inner tinha antes */
-    /* Era clamp(3rem, 7vw, 6rem). A 6rem o título sozinho ocupava a dobra
-       inteira e empurrava a prévia do produto para fora da tela — o que
-       anula justamente o motivo de ela existir. Nesta medida cabem
-       título, subtítulo, os dois botões e o topo da janela numa tela só. */
-    font-size: clamp(2.5rem, 5.4vw, 4.5rem);
+    font-size: clamp(2.6rem, 6vw, 5rem);
     font-weight: 800;
-    letter-spacing: -.03em;
-    line-height: 1.05;
-    margin-bottom: 24px;
+    letter-spacing: -.035em;
+    line-height: 1.02;
+    margin-bottom: 26px;
     animation: fadeUp .9s ease .1s both;
-}
-.hero__title-highlight {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-lt) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .hero__desc {
-    max-width: 520px;
+    max-width: 440px;
     font-size: clamp(1rem, 1.5vw, 1.15rem);
     color: var(--text-dim);
-    margin-bottom: 36px;
+    margin-bottom: 40px;
     animation: fadeUp .9s ease .2s both;
 }
 
@@ -367,1129 +302,19 @@ em { font-style: normal; color: var(--accent-lt); }
     gap: 12px;
     flex-wrap: wrap;
     justify-content: center;
-    margin-bottom: 56px;
     animation: fadeUp .9s ease .3s both;
 }
 
-.hero__stats {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    animation: fadeUp .9s ease .4s both;
-}
-.hero__stat { text-align: center; }
-.hero__stat strong { display: block; font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--accent-lt); line-height: 1; }
-.hero__stat > span { font-size: .78rem; color: var(--text-muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
-.hero__stat-divider { width: 1px; height: 36px; background: rgba(165,65,255,.25); }
-
-/* ════════════════════════════════
-   SOBRE
-   ════════════════════════════════ */
-.sobre {
-    padding: 120px 0;
-    background: none;
-}
-
-.sobre__inner {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 72px;
-    align-items: center;
-}
-
-.sobre__img-wrap {
-    position: relative;
-    border-radius: var(--radius-lg);
-    overflow: visible;
-}
-.sobre__img {
-    width: 100%;
-    border-radius: var(--radius-lg);
-    object-fit: cover;
-    aspect-ratio: 4/3;
-    display: block;
-    border: 1px solid rgba(165,65,255,.2);
-    box-shadow: var(--shadow-neutral);
-}
-.sobre__img-glow {
-    position: absolute;
-    inset: -1px;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 0 60px rgba(130,0,219,.4), inset 0 0 60px rgba(130,0,219,.05);
-    pointer-events: none;
-}
-
-.sobre__text { color: var(--text-dim); margin-bottom: 16px; font-size: 1.02rem; }
-.sobre__text:last-of-type { margin-bottom: 32px; }
-
-/* ════════════════════════════════
-   RECURSOS
-   ════════════════════════════════ */
-.recursos {
-    padding: 120px 0;
-}
-
-.recursos__header {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto 64px;
-}
-.recursos__subtitle { color: var(--text-dim); font-size: 1.05rem; }
-
-.recursos__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-}
-
-.card {
-    background: var(--bg-card);
-    border: 1px solid rgba(165,65,255,.12);
-    border-radius: var(--radius-md);
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    transition: var(--transition);
-    opacity: 0;
-    transform: translateY(8px);          /* entrada leve (era 24px + escala) */
-    position: relative;
-    overflow: hidden;
-    transform-style: preserve-3d;
-    will-change: transform;
-    box-shadow: var(--shadow-neutral);
-}
-
-/* Brilho que segue o cursor dentro do card */
-.card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 0%), rgba(165,65,255,.10), transparent 42%);
-    opacity: 0;
-    transition: opacity .3s ease;
-    pointer-events: none;
-    z-index: 0;
-}
-.card:hover::after { opacity: 1; }
-/* conteúdo acima do brilho */
-.card > * { position: relative; z-index: 1; }
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(165,65,255,.5), transparent);
-    opacity: 0;
-    transition: var(--transition);
-}
-.card:hover { border-color: rgba(165,65,255,.35); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.5); }
-.card:hover::before { opacity: 1; }
-.card.visible { opacity: 1; transform: none; }
-
-.card--featured {
-    background: var(--bg-card);
-    border-color: rgba(165,65,255,.35);
-    grid-column: span 2;
-}
-.card--featured .card__title { font-size: 1.35rem; }
-
-.card__icon-wrap {
-    width: 52px; height: 52px;
-    background: rgba(165,65,255,.12);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
-}
-.card:hover .card__icon-wrap {
-    transform: scale(1.08) rotate(-5deg);
-    background: rgba(165,65,255,.22);
-    box-shadow: 0 0 24px rgba(165,65,255,.35);
-}
-.card__icon { width: 32px; height: 32px; object-fit: contain; }
-.card__svg  { width: 40px; height: 40px; }
-.card__title { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
-.card__desc { color: var(--text-dim); font-size: .92rem; line-height: 1.6; }
-.card__tag {
-    margin-top: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: .72rem;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--accent-lt);
-    background: none;
-    padding: 0;
-    border-radius: var(--radius-sm);
-}
-/* Esconder tag em cards pares */
-.card:nth-child(2n) .card__tag { display: none; }
-.card__tag::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent-lt));
-    box-shadow: 0 0 8px rgba(165,65,255,.45);
-}
-
-/* stagger cards */
-.card:nth-child(1) { transition-delay: .05s; }
-.card:nth-child(2) { transition-delay: .1s; }
-.card:nth-child(3) { transition-delay: .15s; }
-.card:nth-child(4) { transition-delay: .2s; }
-.card:nth-child(5) { transition-delay: .25s; }
-.card:nth-child(6) { transition-delay: .3s; }
-
-/* ════════════════════════════════
-   HISTORIA
-   ════════════════════════════════ */
-.historia {
-    padding: 120px 0;
-    background: none;
-}
-
-.historia__inner {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 72px;
-    align-items: center;
-}
-
-.historia__text { color: var(--text-dim); font-size: 1.02rem; margin-bottom: 16px; }
-.historia__text:last-of-type { margin-bottom: 28px; }
-
-.historia__text abbr[title] {
-    text-decoration: underline rgba(165,65,255,.4);
-}
-.historia__badges { display: flex; flex-wrap: wrap; gap: 10px; }
-.historia__badge {
-    display: inline-flex;
-    align-items: center;
-    font-size: .82rem;
-    font-weight: 500;
-    color: var(--text-dim);
-    background: none;
-    border: none;
-    padding: 6px 14px;
-    border-left: 2px solid rgba(165,65,255,.35);
-    transition: color var(--transition), border-color var(--transition);
-}
-.historia__badge:hover {
-    color: var(--accent-lt);
-    border-left-color: var(--accent);
-}
-
-.historia__img-wrap {
-    position: relative;
-    /* mesmo arredondado da imagem: o efeito de passar o mouse
-       ([data-relevo]) desenha sombra, contorno e brilho NESTA caixa —
-       sem o raio, aparecia um quadrado fino em volta da foto */
-    border-radius: var(--radius-lg);
-}
-.historia__img {
-    width: 100%;
-    border-radius: var(--radius-lg);
-    object-fit: cover;
-    aspect-ratio: 4/3;
-    display: block;
-    border: 1px solid rgba(165,65,255,.2);
-    box-shadow: var(--shadow-neutral);
-}
-.historia__img-glow {
-    position: absolute;
-    inset: -1px;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 0 60px rgba(130,0,219,.4);
-    pointer-events: none;
-}
-
-/* ════════════════════════════════
-   FAQ
-   ════════════════════════════════ */
-.faq { padding: 120px 0; }
-.faq__inner { max-width: 800px; }
-.faq__lista { display: flex; flex-direction: column; gap: 14px; }
-.faq__item {
-    background: var(--bg-card);
-    border: 1px solid rgba(165,65,255,.14);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    transition: border-color var(--transition);
-    box-shadow: var(--shadow-neutral);
-}
-.faq__item.aberto { border-color: rgba(165,65,255,.4); box-shadow: var(--shadow-neutral); }
-.faq__pergunta {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    text-align: left;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 22px 24px;
-    font-family: 'Syne', sans-serif;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--text);
-    transition: color var(--transition);
-}
-.faq__pergunta:hover { color: var(--accent-lt); }
-.faq__icone {
-    width: 22px; height: 22px;
-    flex-shrink: 0;
-    color: var(--accent);
-    transition: transform var(--transition);
-}
-.faq__item.aberto .faq__icone { transform: rotate(180deg); }
-.faq__resposta {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height .4s cubic-bezier(.4,0,.2,1);
-}
-.faq__item.aberto .faq__resposta { max-height: 260px; }
-.faq__resposta p {
-    padding: 0 24px 22px;
-    color: var(--text-dim);
-    font-size: .96rem;
-    line-height: 1.65;
-}
-
-@media (max-width: 680px) {
-    .faq { padding: 72px 0; }
-    .faq__pergunta { font-size: .98rem; padding: 18px 18px; }
-    .faq__resposta p { padding: 0 18px 18px; }
-}
-
-/* ════════════════════════════════
-   CTA FINAL
-   ════════════════════════════════ */
-.cta-final {
-    padding: 120px 24px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-.cta-final__orb {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    width: 700px; height: 400px;
-    background: radial-gradient(ellipse, rgba(114,3,189,.35) 0%, transparent 70%);
-    pointer-events: none;
-    filter: blur(40px);
-}
-
-.cta-final__inner {
-    position: relative;
-    max-width: 620px;
-    margin: 0 auto;
-    background: var(--bg-card);
-    border: 1px solid rgba(165,65,255,.15);
-    border-radius: var(--radius-lg);
-    padding: 48px;
-    box-shadow: var(--shadow-neutral);
-}
-
-.cta-final__title { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; margin-bottom: 16px; }
-.cta-final__desc { color: var(--text-dim); font-size: 1.05rem; margin-bottom: 40px; }
-.cta-final__actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-
-/* Celular: com 120px + 48px de respiro a caixa ficava com ~230px de
-   texto e o título (2rem em Syne, letra larga) saía uma palavra por
-   linha, cinco linhas de "Pronto / para / organizar / seus / estudos?". */
-@media (max-width: 560px) {
-    .cta-final { padding: 72px 16px; }
-    .cta-final__inner { padding: 36px 18px; }
-    /* 6.2vw: em 320px "organizar" (a palavra mais larga) ainda cabe */
-    .cta-final__title { font-size: clamp(1.15rem, 6.2vw, 1.8rem); line-height: 1.15; }
-    .cta-final__title br { display: none; }
-    .cta-final__desc { font-size: .98rem; margin-bottom: 28px; }
-    .cta-final__actions .btn { flex: 1 1 100%; justify-content: center; }
-}
-
-/* ════════════════════════════════
-   FOOTER
-   ════════════════════════════════ */
-.footer {
-    position: relative;
-    /* translúcido como o resto: o cosmos atravessa até aqui embaixo */
-    background: var(--bg-nav);
-    border-top: 1px solid rgba(165,65,255,.15);
-    padding: 64px 0 32px;
-}
-/* traço de gradiente no topo, combinando com a barra de progresso */
-.footer::before {
-    content: '';
-    position: absolute;
-    top: -1px; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #7203bd, #a541ff, #c97cff, transparent);
-    opacity: .7;
-}
-
-.footer__inner {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr 1fr 1fr;
-    gap: 40px;
-    margin-bottom: 48px;
-}
-
-.footer__brand { display: flex; flex-direction: column; align-items: flex-start; }
-.footer__tagline { font-size: .9rem; color: var(--text-dim); margin-top: 8px; max-width: 260px; }
-.footer__cta { margin-top: 20px; font-size: .9rem; padding: 10px 20px; }
-
-/* Redes sociais */
-.footer__social { display: flex; gap: 10px; margin-top: 24px; }
-.footer__social-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    color: var(--text-dim);
-    background: var(--bg-card);
-    border: 1px solid rgba(165,65,255,.2);
-    transition: var(--transition);
-}
-.footer__social-link:hover {
-    color: #fff;
-    background: var(--accent);
-    border-color: var(--accent);
-}
-
-/* Colunas de links */
-.footer__col { display: flex; flex-direction: column; gap: 12px; }
-.footer__col-title {
-    font-family: 'Syne', sans-serif;
-    font-size: .82rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: #fff;
-    margin-bottom: 4px;
-}
-.footer__col a {
-    font-size: .9rem;
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color var(--transition);
-    width: fit-content;
-}
-.footer__col a:hover { color: var(--accent-lt); }
-
-.footer__bottom {
-    border-top: 1px solid rgba(255,255,255,.06);
-    padding-top: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px 20px;
-    color: var(--text-muted);
-    font-size: .84rem;
-}
-.footer__bottom-links {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px 20px;
-}
-.footer__bottom-links a {
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color var(--transition);
-}
-.footer__bottom-links a:hover { color: var(--accent-lt); }
-.footer__made span { color: var(--accent); }
-
-/* Responsividade do footer */
-@media (max-width: 900px) {
-    .footer__inner {
-        grid-template-columns: 1fr 1fr;
-        gap: 36px 24px;
-    }
-    .footer__brand { grid-column: 1 / -1; }
-}
-@media (max-width: 560px) {
-    /* Embaixo, o Orion guia (canto esquerdo) e o "voltar ao topo"
-       (direito) ficam fixos por cima do rodapé: sem esta folga eles
-       cobriam o "© Kosmos" e os links de termos e privacidade. */
-    .footer { padding: 48px 0 calc(96px + env(safe-area-inset-bottom)); }
-    .footer__inner { grid-template-columns: 1fr; gap: 32px; }
-    .footer__bottom { flex-direction: column; text-align: center; }
-}
-
-/* ════════════════════════════════
-   KEYFRAMES
-   ════════════════════════════════ */
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-16px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulse {
-    0%,100% { opacity: 1; }
-    50% { opacity: .4; }
-}
-@keyframes orbFloat {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50%       { transform: translateX(-50%) translateY(-28px); }
-}
-@keyframes orbDrift {
-    0%, 100% { transform: translate(0, 0); }
-    50%       { transform: translate(-22px, -18px); }
-}
-
-/* ════════════════════════════════
-   SCROLL REVEAL
-   ════════════════════════════════ */
-/* Entrada LEVE, quase imperceptível: um fade curto com poucos pixels
-   de deslocamento. Antes eram 44–52px em .75s — a página parecia
-   "chegar" a cada rolada, o que pesava demais visualmente. */
-.reveal {
-    opacity: 0;
-    transition: opacity .45s ease, transform .45s ease;
-}
-.reveal--up    { transform: translateY(10px); }
-.reveal--left  { transform: translateX(-12px); }
-.reveal--right { transform: translateX(12px); }
-.reveal--scale { transform: translateY(8px); }
-
-.reveal.visible { opacity: 1; transform: none; }
-
-.reveal--d1 { transition-delay: .05s; }
-.reveal--d2 { transition-delay: .1s; }
-.reveal--d3 { transition-delay: .15s; }
-.reveal--d4 { transition-delay: .2s; }
-
-@media (prefers-reduced-motion: reduce) {
-    .reveal, .card { transition: none !important; opacity: 1 !important; transform: none !important; }
-    .hero__orb--1, .hero__orb--2 { animation: none !important; }
-}
-
-/* ════════════════════════════════
-   ORION — a seção do mascote
-   Mesma paleta e mesmos tokens do resto da página. O desenho do
-   Orion em si vem de shared/mascote.css (é o mesmo do login e do
-   404); aqui só cuidamos do palco em volta dele.
-   ════════════════════════════════ */
-.orion {
-    position: relative;
-    padding: 120px 0;
-    overflow: hidden;
-    background: none;
-}
-
-/* ── Fundo: o mesmo vocabulário do hero (orbe + grade) ── */
-.orion__bg {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-}
-.orion__orb {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 620px;
-    height: 620px;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(130,3,219,.20) 0%, transparent 68%);
-    filter: blur(50px);
-    animation: orionPulsa 9s ease-in-out infinite;
-}
-.orion__grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(165,65,255,.055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(165,65,255,.055) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 78%);
-    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 78%);
-}
-
-.orion .container { position: relative; z-index: 1; }
-
-.orion__cabeca {
-    max-width: 720px;
-    margin: 0 auto 56px;
-    text-align: center;
-}
-.orion__cabeca .section-tag { justify-content: center; }
-.orion__intro {
-    color: var(--text-dim);
-    font-size: 1.02rem;
-}
-
-/* ── O palco: Orion à esquerda, conversa à direita ── */
-.orion__palco {
-    display: grid;
-    grid-template-columns: minmax(280px, .85fr) 1fr;
-    gap: 56px;
-    align-items: center;
-}
-
-/* ════════ Lado esquerdo: a figura ════════ */
-.orion__figura {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 380px;
-}
-
-/* brilho por trás, que respira junto com o flutuar do mascote */
-.orion__halo {
-    position: absolute;
-    top: 46%;
-    left: 50%;
-    width: 340px;
-    height: 340px;
-    max-width: 90%;
-    aspect-ratio: 1;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(165,65,255,.30) 0%, rgba(114,3,189,.12) 45%, transparent 70%);
-    filter: blur(22px);
-    animation: orionRespira 4.8s ease-in-out infinite;
-}
-
-/* anel inclinado com dois satélites girando */
-.orion__orbita {
-    position: absolute;
-    top: 46%;
-    left: 50%;
-    width: 330px;
-    height: 330px;
-    max-width: 88%;
-    aspect-ratio: 1;
-    transform: translate(-50%, -50%) rotateX(68deg);
-    border: 1px solid rgba(165,65,255,.22);
-    border-radius: 50%;
-    transform-style: preserve-3d;
-    animation: orionGira 18s linear infinite;
-}
-.orion__satelite {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 8px;
-    height: 8px;
-    margin: -4px 0 0 -4px;
-    border-radius: 50%;
-    background: var(--accent-lt);
-    box-shadow: 0 0 12px rgba(201,124,255,.9);
-}
-/* posicionados na borda do anel por translate no raio */
-.orion__satelite--1 { transform: rotate(0deg)   translateX(165px); }
-.orion__satelite--2 { transform: rotate(150deg) translateX(165px); width: 5px; height: 5px; opacity: .7; }
-
-/* o botão que embrulha o desenho: sem cara de botão, com alvo de clique */
-.orion__corpo {
-    position: relative;
-    z-index: 2;
-    display: block;
-    padding: 0;
-    border: none;
-    background: none;
-    border-radius: 50%;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-}
-.orion__corpo:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 10px;
-}
-.orion__corpo:active { transform: scale(.97); }
-
-.orion__mascote {
-    display: block;
-    /* bem maior que o padrão: aqui ele é o assunto, não um enfeite */
-    --mascote-tam: 300px;
-    width: min(300px, 62vw);
-}
-
-/* "Clique nele" — some na primeira interação */
-.orion__dica {
-    position: relative;
-    z-index: 2;
-    margin-top: 6px;
-    font-size: .82rem;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    animation: orionDicaPisca 2.6s ease-in-out infinite;
-    transition: opacity .4s ease, transform .4s ease;
-}
-.orion__dica.sumiu {
-    opacity: 0;
-    transform: translateY(6px);
-    pointer-events: none;
-    animation: none;
-}
-
-/* ════════ Lado direito: fala e roteiro ════════ */
-.orion__conversa { min-width: 0; }
-
-/* ── Balão de fala ── */
-.orion__balao {
-    position: relative;
-    padding: 20px 24px;
-    margin-bottom: 26px;
-    background: var(--bg-card);
-    border: 1px solid rgba(165,65,255,.28);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-neutral);
-    overflow: visible;
-    max-width: 100%;
-}
-.orion__balao::before,
-.orion__balao::after {
-    content: "";
-    position: absolute;
-    top: 34px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-}
-/* duas setas sobrepostas: a de trás faz a "borda" do bico */
-.orion__balao::before {
-    left: -13px;
-    border-width: 11px 13px 11px 0;
-    border-color: transparent rgba(165,65,255,.28) transparent transparent;
-}
-.orion__balao::after {
-    left: -11px;
-    border-width: 10px 12px 10px 0;
-    border-color: transparent #1a052f transparent transparent;
-}
-
-.orion__fala {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(1.05rem, 1.9vw, 1.35rem);
-    font-weight: 600;
-    line-height: 1.45;
-    color: var(--text);
-    /* reserva duas linhas: sem isso o balão pula de altura a cada frase */
-    min-height: 2.9em;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-.orion__cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    margin-left: 3px;
-    vertical-align: -.12em;
-    background: var(--accent);
-    animation: orionCursor 1s steps(2) infinite;
-}
-
-.orion__conversa-dica {
-    margin-bottom: 14px;
-    font-size: .85rem;
-    color: var(--text-muted);
-}
-
-/* ── Os passos do roteiro ── */
-.orion__roteiro {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.orion-passo {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    width: 100%;
-    padding: 15px 18px;
-    text-align: left;
-    background: var(--bg-card);
-    border: 1px solid rgba(165,65,255,.14);
-    border-radius: var(--radius-sm);
-    color: inherit;
-    font-family: inherit;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: var(--shadow-neutral);
-}
-.orion-passo:hover,
-.orion-passo.ativo {
-    background: var(--bg-nav);
-    border-color: rgba(165,65,255,.5);
-    transform: translateX(5px);
-    box-shadow: var(--shadow-neutral);
-}
-.orion-passo:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-/* ── Ícone inline ──
-   Igual ao .ico da dashboard: os pictogramas deixaram de ser emoji
-   (que cada sistema desenha à sua maneira e que nunca herdou a cor
-   do tema) e viraram SVG de traço em currentColor. O tamanho segue
-   vindo do font-size de quem o contém. */
-.ico {
-    width: 1em;
-    height: 1em;
-    flex: none;
-    vertical-align: -.125em;
-}
-
-.orion-passo__ico {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    border-radius: var(--radius-sm);
-    background: rgba(165,65,255,.14);
-    font-size: 1.12rem;
-    line-height: 1;
-    transition: var(--transition);
-}
-.orion-passo:hover .orion-passo__ico,
-.orion-passo.ativo .orion-passo__ico {
-    background: var(--accent);
-    transform: scale(1.08);
-}
-
-.orion-passo__texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.orion-passo__texto strong {
-    font-family: 'Syne', sans-serif;
-    font-size: .98rem;
-    font-weight: 600;
-}
-.orion-passo__texto span {
-    font-size: .87rem;
-    line-height: 1.5;
-    color: var(--text-muted);
-}
-.orion-passo.ativo .orion-passo__texto span { color: var(--text-dim); }
-
-/* ════════ Faixa de baixo: os campos de teste ════════ */
-.orion__teste {
-    margin-top: 56px;
-    padding: 32px;
-    background: var(--bg-card);
-    border: 1px solid rgba(165,65,255,.16);
-    border-radius: var(--radius-lg);
-    display: grid;
-    grid-template-columns: 1fr 1.15fr;
-    gap: 28px 40px;
-    align-items: center;
-    box-shadow: var(--shadow-neutral);
-}
-.orion__teste-texto h3 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-}
-.orion__teste-texto p {
-    font-size: .92rem;
-    color: var(--text-muted);
-}
-
-.orion__campos {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-.orion__campo {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    min-width: 0;
-}
-.orion__campo > span:first-child {
-    font-size: .82rem;
-    font-weight: 500;
-    color: var(--text-dim);
-}
-.orion__campo input {
-    width: 100%;
-    padding: 12px 14px;
-    background: var(--bg-nav);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: var(--radius-sm);
-    color: #fff;
-    font-family: 'DM Sans', sans-serif;
-    font-size: .95rem;
-    transition: var(--transition);
-}
-.orion__campo input::placeholder { color: var(--text-muted); }
-.orion__campo input:focus {
-    outline: none;
-    border-color: var(--accent);
-    background: var(--bg-card);
-    box-shadow: 0 0 0 3px rgba(165,65,255,.12);
-}
-
-/* o campo de senha com o olho dentro */
-.orion__campo-senha { position: relative; display: block; }
-.orion__campo-senha input { padding-right: 48px; }
-.orion__olho {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 9px;
-    background: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: var(--transition);
-}
-.orion__olho svg { width: 19px; height: 19px; }
-.orion__olho:hover { color: var(--accent-lt); background: rgba(165,65,255,.14); }
-.orion__olho.ativo { color: var(--accent); }
-/* Senha escondida: olho fechado. Senha à mostra: olho aberto (igual ao cadastro). */
-.orion__olho .orion__olho-aberto { display: none; }
-.orion__olho.ativo .orion__olho-fechado { display: none; }
-.orion__olho.ativo .orion__olho-aberto { display: block; }
-.orion__olho:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-.orion__aviso {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: .82rem;
-    color: var(--text-muted);
-}
-.orion__aviso svg { flex: none; width: 17px; height: 17px; color: var(--accent); }
-
-/* ── Coluna esquerda: o Orion e, embaixo, o teste de senha ──
-   O teste morava numa faixa larga depois da seção, e a coluna do
-   Orion ficava vazia ao lado dos passos. Agora ele mora logo abaixo
-   do Orion — que é quem tapa os olhos quando a senha é digitada. */
-.orion__esquerda {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    min-width: 0;
-}
-.orion__teste--lateral {
-    margin-top: 0;
-    padding: 18px 20px;
-    grid-template-columns: 1fr;
-    gap: 12px;
-    border-radius: var(--radius-md);
-}
-.orion__teste--lateral .orion__teste-texto h3 { font-size: 1.02rem; margin-bottom: 4px; }
-.orion__teste--lateral .orion__teste-texto p { font-size: .84rem; line-height: 1.45; }
-.orion__teste--lateral .orion__campos { gap: 12px; }
-.orion__teste--lateral .orion__campo { gap: 5px; }
-.orion__teste--lateral .orion__campo > span:first-child { font-size: .78rem; }
-.orion__teste--lateral .orion__campo input { padding: 10px 12px; font-size: .9rem; }
-.orion__teste--lateral .orion__aviso { font-size: .76rem; }
-
-/* ════════ Animações ════════ */
-@keyframes orionPulsa {
-    0%, 100% { opacity: .75; transform: translate(-50%, -50%) scale(1); }
-    50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.08); }
-}
-@keyframes orionRespira {
-    0%, 100% { opacity: .8;  transform: translate(-50%, -50%) scale(1); }
-    50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.07); }
-}
-@keyframes orionGira {
-    from { transform: translate(-50%, -50%) rotateX(68deg) rotateZ(0deg); }
-    to   { transform: translate(-50%, -50%) rotateX(68deg) rotateZ(360deg); }
-}
-@keyframes orionCursor {
-    0%, 49%   { opacity: 1; }
-    50%, 100% { opacity: 0; }
-}
-@keyframes orionDicaPisca {
-    0%, 100% { opacity: .45; }
-    50%      { opacity: 1; }
-}
-
-/* ════════ Responsividade ════════ */
-@media (max-width: 900px) {
-    .orion { padding: 88px 0; }
-
-    /* o Orion vai para cima: na tela estreita ele é a apresentação */
-    .orion__palco {
-        grid-template-columns: 1fr;
-        gap: 36px;
-    }
-    .orion__figura { min-height: 300px; }
-    .orion__mascote { width: min(240px, 58vw); }
-    .orion__halo, .orion__orbita { width: 270px; height: 270px; }
-    .orion__satelite--1 { transform: rotate(0deg)   translateX(135px); }
-    .orion__satelite--2 { transform: rotate(150deg) translateX(135px); }
-
-    /* o bico do balão passa a apontar para cima, na direção do Orion */
-    .orion__balao::before,
-    .orion__balao::after { top: auto; left: 34px; }
-    .orion__balao::before {
-        top: -13px;
-        border-width: 0 11px 13px 11px;
-        border-color: transparent transparent rgba(165,65,255,.28) transparent;
-    }
-    .orion__balao::after {
-        top: -11px;
-        left: 36px;
-        border-width: 0 10px 12px 10px;
-        border-color: transparent transparent #1a052f transparent;
-    }
-
-    .orion__teste { grid-template-columns: 1fr; padding: 26px; }
-}
-
-@media (max-width: 560px) {
-    .orion__campos { grid-template-columns: 1fr; }
-    .orion__teste { padding: 22px 18px; }
-    .orion-passo { padding: 13px 14px; gap: 12px; }
-    .orion-passo__ico { width: 34px; height: 34px; font-size: 1rem; }
-    /* no toque não há hover: o deslocamento só faria o cartão tremer */
-    .orion-passo:hover { transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .orion__orb,
-    .orion__halo,
-    .orion__orbita,
-    .orion__cursor,
-    .orion__dica {
-        animation: none !important;
-    }
-    .orion-passo:hover,
-    .orion-passo.ativo { transform: none; }
-    .orion__corpo:active { transform: none; }
-}
-
-/* ── Trilho de progresso da apresentação (só no desktop pinado) ── */
-.orion__trilho {
-    display: none;
-    position: relative;
-    height: 3px;
-    margin-top: 22px;
-    border-radius: 3px;
-    background: rgba(165,65,255,.14);
-    overflow: hidden;
-}
-.orion__trilho span {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 0;
-    border-radius: 3px;
-    background: linear-gradient(90deg, var(--purple-md), var(--accent-lt));
-    box-shadow: 0 0 12px rgba(165,65,255,.5);
-    transition: width .12s linear;
-}
-
-/* ════════════════════════════════
-   RESPONSIVIDADE
-   ════════════════════════════════ */
-
-@media (max-width: 1024px) {
-    .nav { display: none; }
-    .header__actions { display: none; }
-    .hamburger { display: flex; }
-    .mobile-nav { display: flex; }
-
-    .recursos__grid { grid-template-columns: repeat(2, 1fr); }
-
-    .sobre__inner,
-    .historia__inner { grid-template-columns: 1fr; gap: 40px; }
-
-    .historia__inner .historia__img-wrap { order: -1; }
-}
-
-@media (max-width: 680px) {
-    .hero { padding: 100px 20px 60px; }
-    .hero__stats { gap: 20px; }
-    .hero__stat strong { font-size: 1.3rem; }
-
-    .recursos__grid { grid-template-columns: 1fr; }
-
-    .sobre, .recursos, .historia, .cta-final { padding: 72px 0; }
-
-    .header__inner { padding: 0 20px; gap: 12px; }
-}
-
-/* Era `max-width: 400px`, e essa conta não fechava: os dois botões `--lg`
-   somam ~420px de texto e padding, mais os 40px de padding do hero — abaixo
-   de ~460px eles não cabem lado a lado. A regra antiga só empilhava abaixo
-   de 400, então a faixa de 400 a 460 ficava quebrada, e é justamente onde
-   moram o Pixel (412) e o iPhone Plus/Max (414). 560px cobre tudo com folga. */
-@media (max-width: 560px) {
-    .hero__cta { flex-direction: column; align-items: center; }
-    .hero__cta .btn { width: 100%; justify-content: center; }
-    .cta-final__actions { flex-direction: column; }
-    .cta-final__actions .btn { justify-content: center; }
-}
-
-/* ═══════════════════════════════════════════════════════
-   V2 — INTERATIVIDADE (barra de progresso, marquee,
-   demos interativas, CTA com borda animada, voltar ao topo)
-   ═══════════════════════════════════════════════════════ */
-
-/* ── Barra de progresso de scroll ── */
-.scroll-progress {
-    position: fixed;
-    top: 0; left: 0;
-    height: 3px;
-    width: 0%;
-    background: linear-gradient(90deg, #7203bd, #a541ff, #c97cff);
-    box-shadow: 0 0 12px rgba(165,65,255,.6);
-    z-index: 200;
-    pointer-events: none;
-}
-
-/* ── Hero: palavra rotativa (efeito máquina de escrever) ── */
-/* Segura "e <palavra>" inteiro numa linha só (ver o comentário no
-   index.html). O nowrap tem que estar AQUI, no avô, e não só no rotator:
-   é entre o rotator e o que vem depois que a quebra acontecia. */
+/* "e <palavra>" inteiro numa linha só. O nowrap tem que estar no
+   avô: é entre o rotator e o que vem depois que a quebra acontecia. */
 .hero__linha { white-space: nowrap; }
-
-/* No celular o nowrap SAI. Ali a linha não cabe, e `nowrap` não encolhe:
-   ele estoura o container e dá rolagem horizontal à página inteira. O
-   `min-width` vem do JS por atributo inline (reservarLargura), então só
-   `!important` o vence — e sem a largura reservada a palavra pode pular
-   alguns pixels, o que num título que já quebra em três linhas ninguém
-   percebe. */
-@media (max-width: 680px) {
-    .hero__linha { white-space: normal; }
-    .hero__rotator { width: auto !important; }
-    /* Com 2.5rem, "e não render" não cabia: a palavra (inline-block)
-       descia inteira e o "e" ficava sozinho numa linha. Nesta medida a
-       maior das palavras cabe ao lado do "e" de 320px para cima; a
-       quebra livre acima continua só como rede de segurança. */
-    .hero__title { font-size: clamp(1.7rem, 8.4vw, 2.5rem); }
-}
-
 .hero__rotator {
     white-space: nowrap;
     display: inline-block;
-    /* A largura vem do JS (inicio.js): a da palavra DA VEZ, trocada só
-       entre uma palavra e outra, com a linha vazia. Antes era sempre a da
-       MAIOR palavra, e com uma curta o vão invisível à direita entortava
-       a linha centralizada. O deslize leva a linha ao novo centro antes
-       de a próxima palavra começar a ser digitada. */
-    transition: width .38s cubic-bezier(.2, .8, .2, 1);
-
-    /* Alinhada à esquerda: a palavra nasce colada no "e" e cresce para a
-       direita, dentro da própria caixa — que já tem a largura dela. */
     text-align: left;
+    /* largura vem do inicio.js: a da palavra da vez, trocada com a
+       linha vazia, deslizando para o novo centro */
+    transition: width .38s cubic-bezier(.2, .8, .2, 1);
 }
 .hero__rotator #rotatorWord { color: var(--accent-lt); }
 .hero__caret {
@@ -1503,21 +328,30 @@ em { font-style: normal; color: var(--accent-lt); }
     transform: translateY(.1em);
     animation: caretBlink 1s steps(1) infinite;
 }
-@keyframes caretBlink {
-    0%, 49% { opacity: 1; }
-    50%, 100% { opacity: 0; }
+
+/* No celular o nowrap sai: ali a linha não cabe, e nowrap estoura a
+   página para o lado. A largura vem inline do JS, então só !important. */
+@media (max-width: 680px) {
+    .hero__linha { white-space: normal; }
+    .hero__rotator { width: auto !important; }
+    /* Com 2.5rem, "e não render" não cabia: a palavra (inline-block)
+       descia inteira e o "e" ficava sozinho numa linha. Nesta medida a
+       maior das palavras cabe ao lado do "e" de 320px para cima. */
+    .hero__title { font-size: clamp(1.7rem, 8.4vw, 2.5rem); }
 }
 
-/* ── Hero: indicador de scroll ── */
 .hero__scroll {
     position: absolute;
+    z-index: 4;
     bottom: 26px;
     left: 50%;
     transform: translateX(-50%);
     opacity: .7;
+    border-radius: 14px;
     transition: opacity var(--transition);
 }
 .hero__scroll:hover { opacity: 1; }
+.hero__scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .hero__scroll-mouse {
     display: block;
     width: 24px; height: 38px;
@@ -1534,27 +368,18 @@ em { font-style: normal; color: var(--accent-lt); }
     border-radius: 2px;
     animation: scrollWheel 1.8s ease-in-out infinite;
 }
-@keyframes scrollWheel {
-    0%   { transform: translateY(0); opacity: 1; }
-    60%  { transform: translateY(12px); opacity: 0; }
-    61%  { transform: translateY(0); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
-}
 
-/* ── Marquee (faixa animada) ── */
+/* ════════════════════════════════
+   4. FAIXA (marquee)
+   ════════════════════════════════ */
 .marquee {
-    position: relative;
     width: 100%;
-    margin-left: 0;
-    transform: none;
-    background: var(--bg-nav);
+    background: rgba(18,1,31,.82);
     border-top: 1px solid rgba(165,65,255,.15);
     border-bottom: 1px solid rgba(165,65,255,.15);
     padding: 14px 0;
-    margin-top: 20px;
     overflow: hidden;
     z-index: 2;
-    box-shadow: var(--shadow-neutral);
 }
 .marquee__track {
     display: flex;
@@ -1582,398 +407,497 @@ em { font-style: normal; color: var(--accent-lt); }
     font-size: .9rem;
     animation: starDrift 3.2s ease-in-out infinite;
 }
-.marquee__group .marquee__star:nth-child(4n) { animation-delay: -1.2s; }
+.marquee__group .marquee__star:nth-child(4n)   { animation-delay: -1.2s; }
 .marquee__group .marquee__star:nth-child(4n+1) { animation-delay: -.6s; font-size: 1.1rem; }
 .marquee__group .marquee__star:nth-child(4n+2) { animation-delay: -2s; font-size: .7rem; }
-@keyframes marqueeMove {
-    to { transform: translateX(-50%); }
-}
-@keyframes starDrift {
-    0%, 100% { transform: translateY(0) scale(1); opacity: .85; }
-    50% { transform: translateY(-5px) scale(1.25); opacity: 1; }
-}
 
-/* ── Seção demo interativa ── */
-.demo {
-    position: relative;
-    padding: 120px 0;
-    background: none;
-    overflow: hidden;
-}
-.demo__orb {
-    position: absolute;
-    top: 10%; right: -180px;
-    width: 480px; height: 480px;
-    background: radial-gradient(circle, rgba(114,3,189,.3) 0%, transparent 70%);
-    filter: blur(60px);
-    pointer-events: none;
-}
-.demo__grid {
+/* ════════════════════════════════
+   5. CONSTELAÇÃO DE FERRAMENTAS
+   Ver js/constelacao.js. As estrelas são posicionadas pela escala do
+   viewBox do SVG (400 × 300): --x/--y no HTML, e aqui só a conversão
+   para porcentagem.
+   ════════════════════════════════ */
+.constelacao { padding: 140px 0 120px; }
+
+.constelacao__inner {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    align-items: stretch;
-}
-.demo__panel {
-    background: var(--bg-card);
-    border: 1px solid rgba(165,65,255,.14);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    transition: border-color var(--transition), box-shadow var(--transition);
-    box-shadow: var(--shadow-neutral);
-}
-.demo__panel:hover {
-    border-color: rgba(165,65,255,.35);
-    box-shadow: 0 12px 32px rgba(0,0,0,.5);
-}
-.demo__panel-head {
-    display: flex;
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    gap: 64px;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
 }
-.demo__panel-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
-.demo__panel .card__tag {
-    gap: 6px;
-    font-size: .68rem;
-    color: var(--accent-lt);
-    border-left: 2px solid rgba(165,65,255,.4);
-    padding-left: 8px;
-    border-radius: var(--radius-sm);
-}
-.demo__panel .card__tag::before { display: none; }
-.demo__action {
-    align-self: center;
-    margin-top: auto;
-    font-size: .88rem;
-    padding: 9px 20px;
-    border-radius: var(--radius-sm);
-}
-.demo__note {
-    font-size: .74rem;
-    color: var(--text-muted);
-    text-align: center;
-}
-.demo__cta {
-    text-align: center;
-    margin-top: 44px;
+
+.constelacao__sub {
     color: var(--text-dim);
-    font-size: 1.02rem;
+    max-width: 380px;
+    margin-bottom: 36px;
 }
-.demo__cta a { color: var(--accent-lt); font-weight: 600; }
-.demo__cta a:hover { color: #fff; }
 
-/* As três prévias copiam o desenho das abas do dashboard
-   (dashboard/css/flashcards.css, pomodoro.css e exercicios.css).
-   Mudou lá? Mude aqui também. */
-
-.demo__contador {
-    font-size: .74rem;
-    font-weight: 600;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    color: var(--text-muted);
+/* Todos os painéis na mesma célula: a altura é a do maior e nada pula */
+.constelacao__paineis { display: grid; max-width: 440px; }
+.ferramenta {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity .3s ease, transform .4s cubic-bezier(.2,.8,.2,1), visibility 0s .3s;
 }
-/* o .btn é inline-flex e passaria por cima do [hidden] */
-.demo__action[hidden] { display: none; }
-
-/* ── FlashCards (tela "Revisar" do dashboard) ── */
-.flashcard {
-    perspective: 1200px;
-    height: 220px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+.ferramenta.ativa {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity .35s ease .05s, transform .45s cubic-bezier(.2,.8,.2,1) .05s, visibility 0s;
 }
-.flashcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--radius-md); }
-.flashcard__inner {
+.ferramenta__nome {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.ferramenta__desc { color: var(--text-dim); font-size: .98rem; }
+
+/* ── O mapa ── */
+.constelacao__mapa {
     position: relative;
-    width: 100%; height: 100%;
-    transform-style: preserve-3d;
-    transition: transform .6s cubic-bezier(.4,0,.2,1);
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    justify-self: center;
 }
-.flashcard.flipped .flashcard__inner { transform: rotateY(180deg); }
-.flashcard__face {
+.constelacao__linhas {
     position: absolute;
     inset: 0;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.constelacao__guia {
+    fill: none;
+    stroke: rgba(201,124,255,.2);
+    stroke-width: 1;
+    stroke-dasharray: 2 6;
+}
+.constelacao__traco {
+    fill: none;
+    stroke: var(--accent-lt);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px rgba(165,65,255,.9));
+}
+/* fora do pin a linha se desenha sozinha quando a seção aparece */
+.constelacao.desenhada .constelacao__traco {
+    transition: stroke-dashoffset 2.2s cubic-bezier(.45,0,.2,1);
+}
+
+/* ── As estrelas ── */
+.estrela {
+    position: absolute;
+    left: calc(var(--x) / 400 * 100%);
+    top: calc(var(--y) / 300 * 100%);
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+.estrela:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+
+.estrela__ponto {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px 1px rgba(255,255,255,.55), 0 0 16px 4px rgba(165,65,255,.3);
+    transition: transform .45s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease;
+}
+/* os raios da estrela: dois fios cruzados que crescem quando ela acende */
+.estrela__ponto::before,
+.estrela__ponto::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1.5px;
+    height: 0;
+    border-radius: 2px;
+    background: linear-gradient(transparent, rgba(255,255,255,.95), transparent);
+    transform: translate(-50%, -50%);
+    transition: height .45s cubic-bezier(.2,.8,.2,1);
+}
+.estrela__ponto::after { transform: translate(-50%, -50%) rotate(90deg); }
+
+/* o anel que respira em volta da acesa */
+.estrela::after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,124,255,.55);
+    opacity: 0;
+    transform: scale(.6);
+    transition: opacity .3s ease, transform .4s ease;
+    pointer-events: none;
+}
+
+.estrela:hover .estrela__ponto { transform: scale(1.35); }
+.estrela.ativa .estrela__ponto {
+    transform: scale(1.6);
+    box-shadow: 0 0 8px 2px #fff, 0 0 26px 8px rgba(165,65,255,.6);
+}
+.estrela.ativa .estrela__ponto::before,
+.estrela.ativa .estrela__ponto::after { height: 30px; }
+.estrela.ativa::after {
+    opacity: 1;
+    transform: none;
+    animation: anelRespira 2.6s ease-in-out infinite;
+}
+
+.estrela__nome {
+    position: absolute;
+    top: calc(50% + 20px);
+    left: 50%;
+    transform: translateX(var(--rotulo, -50%));
+    white-space: nowrap;
+    font-size: .82rem;
+    font-weight: 500;
+    letter-spacing: .02em;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: color .3s ease;
+}
+/* nome em cima quando a linha passa por baixo da estrela */
+.estrela--acima .estrela__nome { top: auto; bottom: calc(50% + 20px); }
+.estrela:hover .estrela__nome { color: var(--text-dim); }
+.estrela.ativa .estrela__nome { color: #fff; }
+
+.constelacao__contador {
+    display: none;
+    position: absolute;
+    right: 0;
+    bottom: -8px;
+    font-family: 'Syne', sans-serif;
+    font-size: .85rem;
+    letter-spacing: .12em;
+    color: var(--text-muted);
+}
+.constelacao__contador span { color: var(--accent-lt); }
+
+/* ════════════════════════════════
+   6. MINIATURAS (uma por ferramenta)
+   Regra de escrita: o estilo BASE é o quadro final, e as animações
+   só dizem de onde partem (`from` + fill both). Assim, com "reduzir
+   movimento", basta desligar a animação e o quadro final fica.
+   E elas só rodam no painel aceso: reacender recomeça do zero.
+   ════════════════════════════════ */
+.mini {
+    position: relative;
+    height: 210px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 22px 24px;
+    margin-bottom: 24px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(165,65,255,.2);
+    background: var(--superficie-lp);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-neutral);
+    overflow: hidden;
+}
+/* fio de luz no topo: a iluminação da identidade vem de cima */
+.mini::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,124,255,.4), transparent);
+    pointer-events: none;
+}
+
+/* ── Exercícios com IA ── */
+.mini-ia__topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mini-ia__chip {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: rgba(165,65,255,.14);
+}
+.mini-ia__gerando { font-size: .78rem; color: var(--text-muted); opacity: 0; }
+.mini-ia__pergunta { font-size: .98rem; color: #fff; line-height: 1.4; }
+.mini-ia__pergunta b { color: var(--accent-lt); }
+.mini-ia__opcoes {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.mini-ia__opcoes li {
+    font-size: .84rem;
+    color: var(--text-dim);
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.03);
+}
+.mini-ia__opcoes li.certa {
+    color: #fff;
+    border-color: var(--ok);
+    background: rgba(34,197,94,.14);
+}
+.mini-ia__opcoes li.certa::after { content: "  ✓"; color: var(--ok); font-weight: 700; }
+
+.ferramenta.ativa .mini-ia__gerando { animation: iaGerando 1s ease both; }
+.ferramenta.ativa .mini-ia__pergunta { animation: subir .45s ease .55s both; }
+.ferramenta.ativa .mini-ia__opcoes li { animation: subir .4s ease both; }
+.ferramenta.ativa .mini-ia__opcoes li:nth-child(1) { animation-delay: .8s; }
+.ferramenta.ativa .mini-ia__opcoes li:nth-child(2) { animation-delay: .9s; }
+.ferramenta.ativa .mini-ia__opcoes li:nth-child(3) { animation-delay: 1s; }
+.ferramenta.ativa .mini-ia__opcoes li:nth-child(4) { animation-delay: 1.1s; }
+.ferramenta.ativa .mini-ia__opcoes li.certa { animation: subir .4s ease .9s both, iaCerta .4s ease 2.2s both; }
+
+/* ── Flashcards (vira de verdade) ── */
+.mini-fc { align-items: stretch; perspective: 900px; }
+.mini-fc__cartao {
+    position: relative;
+    height: 132px;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform .6s cubic-bezier(.4,.2,.2,1);
+    border-radius: var(--radius-sm);
+    touch-action: manipulation;
+}
+.mini-fc__cartao:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.mini-fc__cartao.virado { transform: rotateY(180deg); }
+.mini-fc__face {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 6px;
+    padding: 12px 18px;
     text-align: center;
-    padding: 24px 22px 18px;
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(165,65,255,.2);
-    background: var(--bg-card);
-}
-.flashcard__face--back {
-    transform: rotateY(180deg);
-    background: var(--purple-dk);
-}
-.flashcard__face p {
     font-family: 'Syne', sans-serif;
     font-size: 1.05rem;
-    font-weight: 700;
-    line-height: 1.35;
-    color: var(--text);
+    font-weight: 600;
+    line-height: 1.3;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(165,65,255,.3);
+    background: rgba(165,65,255,.08);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
-.flashcard__label {
+.mini-fc__face small {
+    font-family: 'DM Sans', sans-serif;
     font-size: .68rem;
     font-weight: 600;
-    letter-spacing: .14em;
+    letter-spacing: .12em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--accent-lt);
 }
-.flashcard__hint {
-    margin-top: auto;
-    font-size: .76rem;
-    color: var(--text-muted);
-}
-
-/* "Você lembrava dessa?" — ocupa o lugar desde o início (sem pular a
-   tela) e só acende depois de virar o cartão */
-.fc-avaliacao {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(6px);
-    transition: opacity .3s ease, transform .3s ease, visibility .3s;
-}
-.fc-avaliacao--visivel { opacity: 1; visibility: visible; transform: none; }
-.fc-avaliacao__pergunta { font-size: .86rem; color: var(--text-dim); }
-.fc-avaliacao__botoes { display: flex; gap: 8px; }
-.fc-avaliacao__botoes .btn { font-size: .84rem; padding: 8px 16px; justify-content: center; }
-.fc-btn--acertei {
-    background: rgba(34,197,94,.12);
-    color: var(--ok);
-    border: 1px solid rgba(34,197,94,.3);
-}
-.fc-btn--acertei:hover { background: rgba(34,197,94,.2); border-color: var(--ok); }
-.fc-btn--errei {
-    background: rgba(240,167,66,.12);
-    color: #f0a742;
-    border: 1px solid rgba(240,167,66,.3);
-}
-.fc-btn--errei:hover { background: rgba(240,167,66,.22); border-color: #f0a742; }
-
-.demo__progresso {
-    height: 4px;
-    margin-top: auto;
-    border-radius: 999px;
-    background: rgba(255,255,255,.06);
-    overflow: hidden;
-}
-.demo__progresso span {
-    display: block;
-    height: 100%;
-    width: 25%;
-    border-radius: inherit;
-    background: var(--accent);
-    transition: width .4s ease;
-}
-
-/* ── Pomodoro (aba Pomodoro do dashboard) ── */
-.pomo { display: flex; flex-direction: column; align-items: center; gap: 16px; flex: 1; }
-.pomo__modos {
-    display: flex;
-    gap: 4px;
-    padding: 4px;
-    border-radius: 100px;
-    background: var(--bg-nav);
-    border: 1px solid rgba(165,65,255,.2);
-}
-.pomo-modo {
+.mini-fc__face--verso {
+    transform: rotateY(180deg);
     font-family: 'DM Sans', sans-serif;
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--text-dim);
-    background: none;
-    border: none;
-    padding: 7px 13px;
-    border-radius: 100px;
-    cursor: pointer;
-    transition: var(--transition);
-    white-space: nowrap;
+    font-size: .95rem;
+    font-weight: 500;
+    border-color: rgba(34,197,94,.4);
+    background: rgba(34,197,94,.08);
 }
-.pomo-modo:hover { color: #fff; background: rgba(255,255,255,.08); }
-.pomo-modo.active { background: rgba(165,65,255,.18); color: var(--accent-lt); }
+.mini-fc__face--verso small { color: var(--ok); }
+.mini-fc__dica { font-size: .76rem; color: var(--text-muted); text-align: center; }
+/* um aceno ao acender, para dizer "eu viro" */
+.ferramenta.ativa .mini-fc__cartao:not(.virado) { animation: fcAceno 1.1s ease .5s both; }
 
-.pomo__circle {
+/* ── Resumos ── */
+.mini-resumo { gap: 10px; justify-content: flex-start; padding-top: 26px; }
+.mini-resumo__tag {
+    align-self: flex-start;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent-lt);
+}
+.mini-resumo__titulo { font-family: 'Syne', sans-serif; font-size: 1.15rem; margin-bottom: 6px; }
+.mini-resumo__linha {
     position: relative;
-    width: 160px; height: 160px;
+    display: block;
+    height: 8px;
+    width: 92%;
+    border-radius: 4px;
+    background: rgba(255,255,255,.13);
 }
-.pomo__ring { width: 100%; height: 100%; transform: rotate(-90deg); }
-.pomo__ring-bg {
-    fill: none;
-    stroke: var(--purple-dk);
-    stroke-width: 7;
+.mini-resumo__linha:nth-child(4) { width: 80%; }   /* filhos: tag, título, linhas */
+.mini-resumo__linha:nth-child(5) { width: 88%; }
+.mini-resumo__linha--curta { width: 46%; }
+/* o marca-texto passando por cima de uma linha */
+.mini-resumo__linha--marca::after {
+    content: "";
+    position: absolute;
+    inset: -4px -4px -4px -4px;
+    border-radius: 4px;
+    background: rgba(201,124,255,.38);
+    transform-origin: left;
 }
-.pomo__ring-fill {
+.ferramenta.ativa .mini-resumo__linha {
+    transform-origin: left;
+    animation: escrever .5s ease both;
+    animation-delay: calc(.3s + var(--l) * .35s);
+}
+.ferramenta.ativa .mini-resumo__linha--marca::after { animation: marcar .6s ease 1.9s both; }
+
+/* ── Pomodoro ── */
+.mini-pomo { display: grid; place-items: center; }
+.mini-pomo > * { grid-area: 1 / 1; }
+.mini-pomo__anel { width: 150px; height: 150px; transform: rotate(-90deg); }
+.mini-pomo__fundo { fill: none; stroke: rgba(255,255,255,.08); stroke-width: 6; }
+.mini-pomo__cheio {
     fill: none;
     stroke: var(--accent);
-    stroke-width: 7;
+    stroke-width: 6;
     stroke-linecap: round;
     stroke-dasharray: 100;
     stroke-dashoffset: 0;
-    transition: stroke-dashoffset .4s linear, stroke .3s ease;
+    filter: drop-shadow(0 0 6px rgba(165,65,255,.7));
 }
-.pomo__center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-}
-.pomo__time {
+.mini-pomo__tempo {
     font-family: 'Syne', sans-serif;
-    font-size: 2.1rem;
-    font-weight: 800;
-    letter-spacing: -.02em;
-    font-variant-numeric: tabular-nums;
-}
-.pomo__state { font-size: .8rem; color: var(--text-muted); }
-
-/* Nas pausas o anel e o modo ficam verdes, como no dashboard */
-.pomo--pausa .pomo__ring-fill { stroke: var(--ok); }
-.pomo--pausa .pomo-modo.active { background: rgba(34,197,94,.12); color: var(--ok); }
-
-.pomo__controls { display: flex; gap: 10px; justify-content: center; }
-.pomo__controls .btn { font-size: .88rem; padding: 9px 20px; }
-.pomo__play { min-width: 110px; justify-content: center; }
-.pomo__ciclos { font-size: .84rem; color: var(--text-dim); }
-.pomo__ciclos strong { color: var(--accent-lt); font-family: 'Syne', sans-serif; }
-
-/* ── Exercícios com IA ("Praticar" da aba Exercícios) ── */
-.quiz { display: flex; flex-direction: column; gap: 12px; flex: 1; }
-.quiz__progresso {
-    font-size: .74rem;
-    font-weight: 600;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-}
-.quiz__pergunta {
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
+    font-size: 1.9rem;
     font-weight: 700;
-    line-height: 1.45;
+    font-variant-numeric: tabular-nums;
+    transform: translateY(-8px);
 }
-.quiz__dica-botao {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 2px 0;
-    border-radius: 4px;
-    background: none;
-    border: none;
+.mini-pomo__estado {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
     color: var(--accent-lt);
-    font-family: 'DM Sans', sans-serif;
-    font-size: .78rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
+    transform: translateY(22px);
 }
-.quiz__dica-botao:hover { color: #fff; }
-.quiz__dica-botao:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.quiz__dica-botao svg { width: 13px; height: 13px; flex: none; }
-.quiz__dica-texto {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    margin-top: 0;
-    padding: 0 12px;
-    font-size: .82rem;
-    line-height: 1.5;
-    color: var(--text-dim);
-    background: rgba(201,124,255,.08);
-    border: 1px dashed rgba(201,124,255,.3);
-    border-radius: var(--radius-sm);
-    transition: max-height .35s ease, opacity .35s ease, padding .35s ease, margin-top .35s ease;
-}
-.quiz__dica-texto.aberta { max-height: 120px; opacity: 1; padding: 8px 12px; margin-top: 8px; }
 
-.quiz__opcoes { display: flex; flex-direction: column; gap: 8px; }
-.quiz__opcao {
+/* ── Provas ── */
+.mini-prova { flex-direction: row; align-items: center; gap: 28px; }
+.mini-prova__contagem { display: flex; flex-direction: column; align-items: flex-start; }
+.mini-prova__contagem strong {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.6rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent-lt);
+    font-variant-numeric: tabular-nums;
+    min-width: 2ch;
+}
+.mini-prova__contagem span { font-size: .8rem; color: var(--text-muted); line-height: 1.3; margin-top: 6px; }
+.mini-prova__assuntos { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.mini-prova__assuntos li {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 100%;
-    text-align: left;
-    font-family: 'DM Sans', sans-serif;
     font-size: .9rem;
-    color: var(--text);
-    background: rgba(255,255,255,.03);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: var(--radius-sm);
-    padding: 9px 12px;
-    cursor: pointer;
-    transition: var(--transition);
+    color: var(--text-dim);
 }
-.quiz__opcao:hover:not(:disabled) {
-    border-color: rgba(165,65,255,.5);
-    background: rgba(165,65,255,.1);
-    transform: translateY(-1px);
-}
-.quiz__opcao:disabled { cursor: default; }
-.quiz__letra {
-    flex: none;
+.mini-prova__assuntos li::before {
+    content: "✓";
     display: grid;
     place-items: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 1px solid currentColor;
-    font-size: .76rem;
+    width: 18px;
+    height: 18px;
+    font-size: .7rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: #fff;
+    border-radius: 5px;
+    border: 1.5px solid var(--ok);
+    background: var(--ok);
 }
-.quiz__opcao--correta,
-.quiz__opcao--correta:disabled {
-    border-color: var(--ok);
-    background: rgba(34,197,94,.12);
-    color: var(--ok);
-}
-.quiz__opcao--correta .quiz__letra { color: var(--ok); }
-.quiz__opcao--errada,
-.quiz__opcao--errada:disabled {
-    border-color: var(--erro);
-    background: rgba(239,68,68,.12);
-    color: var(--erro);
-}
-.quiz__opcao--errada .quiz__letra { color: var(--erro); }
-
-/* "Você acertou!" / "Você errou…" na mesma caixa do dashboard (.msg) */
-.quiz__feedback:empty { display: none; }
-.quiz__feedback {
-    padding: 9px 13px;
-    border-radius: var(--radius-sm);
-    font-size: .84rem;
-    font-weight: 500;
-    line-height: 1.45;
-}
-.quiz__feedback--ok {
-    background: rgba(52,211,153,.15);
-    color: #34d399;
-    border: 1px solid rgba(52,211,153,.25);
-}
-.quiz__feedback--erro {
-    background: rgba(239,68,68,.15);
-    color: #f87171;
-    border: 1px solid rgba(239,68,68,.25);
+.ferramenta.ativa .mini-prova__assuntos li::before {
+    animation: marcarCaixa .3s ease both;
+    animation-delay: calc(.9s + var(--i) * .4s);
 }
 
-/* ── CTA final: borda em gradiente girando ── */
+/* ── Sequência e XP ── */
+.mini-xp { gap: 14px; }
+.mini-xp__nivel { display: flex; align-items: baseline; gap: 8px; }
+.mini-xp__nivel span { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+.mini-xp__nivel strong { font-family: 'Syne', sans-serif; font-size: 1.8rem; color: var(--xp-dourado); line-height: 1; }
+.mini-xp__barra {
+    height: 8px;
+    border-radius: 100px;
+    background: rgba(255,255,255,.08);
+    overflow: hidden;
+}
+.mini-xp__barra span {
+    display: block;
+    height: 100%;
+    width: 82%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--xp-dourado), #ffd98a);
+    transform-origin: left;
+}
+.mini-xp__ganho {
+    position: absolute;
+    top: 22px;
+    right: 24px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: .95rem;
+    color: var(--xp-dourado);
+    opacity: 0;
+}
+.mini-xp__dias { display: flex; gap: 8px; margin-top: 6px; }
+.mini-xp__dias i {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple) 0%, var(--accent) 100%);
+    box-shadow: 0 0 10px rgba(165,65,255,.45);
+}
+.mini-xp__dias i:last-child { box-shadow: 0 0 0 2px var(--accent-lt), 0 0 14px rgba(201,124,255,.7); }
+
+.ferramenta.ativa .mini-xp__barra span { animation: xpEnche 1.2s cubic-bezier(.2,.8,.2,1) .4s both; }
+.ferramenta.ativa .mini-xp__ganho { animation: xpSobe 1.6s ease .9s both; }
+.ferramenta.ativa .mini-xp__dias i {
+    animation: diaAcende .35s cubic-bezier(.34,1.56,.64,1) both;
+    animation-delay: calc(.3s + var(--i) * .12s);
+}
+
+/* ════════════════════════════════
+   7. CONVITE E RODAPÉ
+   ════════════════════════════════ */
+.cta-final {
+    padding: 120px 24px;
+    text-align: center;
+    overflow: hidden;
+}
+.cta-final__orb {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(114,3,189,.35) 0%, transparent 70%);
+    pointer-events: none;
+    filter: blur(40px);
+}
+/* borda em gradiente girando */
 .cta-final__box {
     position: relative;
     max-width: 720px;
@@ -1988,23 +912,96 @@ em { font-style: normal; color: var(--accent-lt); }
     inset: -150%;
     background: conic-gradient(from 0deg,
         transparent 0%, transparent 62%,
-        rgba(165,65,255,.9) 78%, #c97cff 85%,
+        rgba(165,65,255,.9) 78%, var(--accent-lt) 85%,
         rgba(165,65,255,.9) 92%, transparent 100%);
     animation: spinBorder 7s linear infinite;
 }
-@keyframes spinBorder {
-    to { transform: rotate(360deg); }
-}
-.cta-final .cta-final__inner {
+.cta-final__inner {
     position: relative;
-    max-width: none;
-    margin: 0;
-    background: linear-gradient(150deg, #17052a 0%, #0d0118 100%);
+    background: linear-gradient(150deg, #17052a 0%, var(--bg-deep) 100%);
     border-radius: calc(var(--radius-lg) - 2px);
     padding: 72px 32px;
 }
+.cta-final__title { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; letter-spacing: -.02em; margin-bottom: 16px; }
+.cta-final__desc { color: var(--text-dim); font-size: 1.05rem; margin-bottom: 40px; }
+.cta-final__actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
-/* ── Botão voltar ao topo ── */
+.footer {
+    background: rgba(18, 1, 31, .78);
+    border-top: 1px solid rgba(165,65,255,.15);
+    padding: 56px 0 32px;
+}
+.footer::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--purple-md), var(--accent), var(--accent-lt), transparent);
+    opacity: .7;
+}
+.footer__inner {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+.footer__brand { display: flex; flex-direction: column; align-items: flex-start; }
+.footer__tagline { font-size: .9rem; color: var(--text-dim); margin-top: 8px; }
+
+.footer__social { display: flex; gap: 10px; margin-top: 20px; }
+.footer__social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px solid rgba(165,65,255,.2);
+    transition: var(--transition);
+}
+.footer__social-link:hover { color: #fff; background: var(--accent); border-color: var(--accent); }
+.footer__social-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.footer__col { display: flex; flex-direction: column; gap: 12px; }
+.footer__col-title {
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.footer__col a,
+.footer__bottom-links a {
+    font-size: .9rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    width: fit-content;
+    border-radius: 4px;
+    transition: color var(--transition);
+}
+.footer__col a:hover,
+.footer__bottom-links a:hover { color: var(--accent-lt); }
+.footer__col a:focus-visible,
+.footer__bottom-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.footer__bottom {
+    border-top: 1px solid rgba(255,255,255,.06);
+    padding-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    color: var(--text-muted);
+    font-size: .84rem;
+}
+.footer__bottom-links { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.footer__bottom-links a { font-size: .84rem; }
+
+/* ════════════════════════════════
+   8. FLUTUANTES
+   ════════════════════════════════ */
 .back-top {
     position: fixed;
     bottom: 26px;
@@ -2024,675 +1021,33 @@ em { font-style: normal; color: var(--accent-lt); }
     transform: translateY(14px);
     transition: opacity var(--transition), transform var(--transition), visibility var(--transition), background var(--transition);
 }
-.back-top.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-.back-top:hover {
-    background: var(--accent);
-    color: #fff;
-    box-shadow: 0 8px 28px rgba(165,65,255,.45);
-}
+.back-top.show { opacity: 1; visibility: visible; transform: none; }
+.back-top:hover { background: var(--accent); color: #fff; }
+.back-top:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-/* ── Imagens com tilt 3D ── */
-.tilt { will-change: transform; }
-
-/* ── Responsividade das novas seções ── */
-@media (max-width: 1024px) {
-    .demo__grid {
-        grid-template-columns: 1fr;
-        max-width: 480px;
-        margin: 0 auto;
-    }
-}
-
-@media (max-width: 680px) {
-    .demo { padding: 72px 0; }
-    .marquee { padding: 12px 0; }
-    .marquee__group { gap: 20px; padding-right: 20px; }
-    .hero__scroll { display: none; }
-    /* colado no canto: a 16px ele ficava em cima da setinha das
-       perguntas do FAQ e de links do rodapé */
-    .back-top { bottom: 14px; right: 10px; width: 40px; height: 40px; }
-    .cta-final .cta-final__inner { padding: 56px 22px; }
-}
-
-/* ── Movimento reduzido: desliga as novas animações ── */
-@media (prefers-reduced-motion: reduce) {
-    .marquee,
-    .marquee::before,
-    .marquee::after,
-    .marquee__track,
-    .marquee__group .marquee__star,
-    .hero__caret,
-    .hero__scroll-wheel,
-    .cta-final__box::before {
-        animation: none !important;
-    }
-    .flashcard__inner { transition: none !important; }
-    .pomo__ring-fill { transition: none !important; }
-    .quiz__opcao--errada { animation: none !important; }
-}
-
-/* ============================================================
-   V3 — SCROLLYTELLING (estilo Elementor)
-   Pinned sections, animações dirigidas pelo scroll e parallax.
-   Regras de movimento só valem quando o JS liga html.scrolly
-   (desktop + sem prefers-reduced-motion). Mobile/tablet caem
-   no layout normal acima.
-   ============================================================ */
-
-/* ── Palavra-fantasma gigante ao fundo (parallax) ──
-   display:none por padrão: fora do modo pin as vistas não são
-   sticky (positioned), e o absoluto ancoraria na página inteira,
-   vazando por cima do hero/footer no mobile. Liga só no pin. */
-.ghost {
-    display: none;
-    position: absolute;
-    top: 4vh;
-    left: 50%;
-    z-index: 0;
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(90px, 17vw, 230px);
-    font-weight: 800;
-    letter-spacing: -.02em;
-    white-space: nowrap;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(165, 65, 255, .10);
-    pointer-events: none;
-    user-select: none;
-    transform: translateX(calc(-50% + var(--gp, 0) * -160px));
-    will-change: transform;
-}
-.ghost--demo { top: auto; bottom: 3vh; }
-
-/* ── Títulos: palavras sobem uma a uma (split feito no JS) ── */
-html.scrolly .section-title .palavra {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(6px);          /* leve: era 26px + giro */
-    transition: opacity .4s ease, transform .4s ease;
-    transition-delay: calc(var(--wi, 0) * 35ms);
-}
-html.scrolly .section-title.visible .palavra {
-    opacity: 1;
-    transform: none;
-}
-
-/* ── FAQ: itens em cascata quando a lista aparece ── */
-html.scrolly .faq__lista .faq__item {
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity .4s ease, transform .4s ease;
-}
-html.scrolly .faq__lista .faq__item:nth-child(1) { transition-delay: .03s; }
-html.scrolly .faq__lista .faq__item:nth-child(2) { transition-delay: .06s; }
-html.scrolly .faq__lista .faq__item:nth-child(3) { transition-delay: .09s; }
-html.scrolly .faq__lista .faq__item:nth-child(4) { transition-delay: .12s; }
-html.scrolly .faq__lista .faq__item:nth-child(5) { transition-delay: .15s; }
-html.scrolly .faq__lista .faq__item:nth-child(6) { transition-delay: .18s; }
-html.scrolly .faq__lista.visible .faq__item { opacity: 1; transform: none; }
-
-/* ── Hero: saída em camadas (parallax dirigido por --hp 0..1) ── */
-/* (deslocamentos pequenos de propósito: o movimento existe, mas quase
-   não se nota — antes eram 90/160/220px e o topo "afundava") */
-html.scrolly .hero__inner {
-    transform: translateY(calc(var(--hp, 0) * 20px));
-    opacity: calc(1 - var(--hp, 0) * .35);
-}
-html.scrolly .hero__orb--1 { transform: translateY(calc(var(--hp, 0) * 36px)); }
-html.scrolly .hero__orb--2 { transform: translateY(calc(var(--hp, 0) * 50px)); }
-html.scrolly .hero__scroll { opacity: calc(1 - var(--hp, 0) * 3); }
-
-/* ── Parallax sutil (elementos com --pv -1..1, viewport-centrado) ── */
-html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18px)); }
-/* deriva do marquee só no desktop: o alargamento (+160px) causava
-   deslocamento horizontal em telas menores */
-@media (min-width: 1025px) {
-    html.scrolly .marquee {
-        width: calc(100% + 160px);
-        margin-left: -80px;
-        transform: translateX(calc(var(--pv, 0) * 18px));
-    }
-}
-
-/* ── Barra de progresso da esteira de recursos ── */
-.recursos__barra {
-    display: block;
-    margin-top: 28px !important;
-    width: min(420px, 60vw);
-    height: 3px;
-    margin: 0 auto;
-    border-radius: 99px;
-    background: rgba(165, 65, 255, .15);
-    overflow: hidden;
-}
-.recursos__barra span {
-    display: block;
-    height: 100%;
-    width: 0;
-    border-radius: 99px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-lt));
-}
-
-/* ════════════════════════════════════════════════════════════
-   CARROSSEL COM SETAS — "Por que nos escolher?" e "Experimente"
-   Antes as duas seções prendiam a rolagem e trocavam o conteúdo
-   sozinhas conforme a pessoa descia. Agora é ela quem troca, pelas
-   setas nas laterais (js/inicio.js, bloco CARROSSEIS).
-   ════════════════════════════════════════════════════════════ */
-.carrossel { position: relative; }
-.carrossel__seta {
-    position: absolute;
-    top: 50%;
-    z-index: 3;
-    display: grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    border: 1px solid rgba(165, 65, 255, .35);
-    background: rgba(18, 1, 31, .85);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    color: var(--accent-lt);
-    cursor: pointer;
-    transform: translateY(-50%);
-    transition: var(--transition);
-}
-.carrossel__seta svg { width: 20px; height: 20px; transition: transform .2s ease; }
-.carrossel__seta:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
-/* no hover o ícone "empurra" na direção da seta; no clique o botão afunda */
-.carrossel__seta--ant:hover:not(:disabled) svg  { transform: translateX(-2px); }
-.carrossel__seta--prox:hover:not(:disabled) svg { transform: translateX(2px); }
-.carrossel__seta:active:not(:disabled) { transform: translateY(-50%) scale(.92); }
-.carrossel__seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.carrossel__seta:disabled { opacity: .3; cursor: default; }
-.carrossel__seta--ant  { left: 12px; }
-.carrossel__seta--prox { right: 12px; }
-
-/* ---- Recursos: a esteira rola de lado; as setas andam um card ---- */
-.recursos__esteira {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    scrollbar-width: none;                 /* a barra embaixo já mostra a posição */
-    -webkit-overflow-scrolling: touch;
-}
-.recursos__esteira::-webkit-scrollbar { display: none; }
-.recursos .recursos__grid {
-    display: flex;
-    width: max-content;
-    gap: 24px;
-    padding: 8px max(24px, calc((100vw - 1200px) / 2 + 24px)) 12px;
-}
-.recursos .recursos__grid .card {
-    width: 330px;
-    flex-shrink: 0;
-    scroll-snap-align: center;
-}
-/* no carrossel o card em destaque (Exercícios com IA) tem o MESMO tamanho
-   dos outros; o destaque fica só na borda mais forte */
-.recursos .recursos__grid .card--featured .card__title { font-size: 1.15rem; }
-/* card cortado na borda do carrossel: meio apagado até entrar inteiro */
-.recursos .recursos__grid .card { transition: var(--transition), opacity .35s ease; }
-.recursos .recursos__grid .card.visible.card--borda { opacity: .45; }
-
-/* ---- Experimente: passos 1-2-3 viram abas + um palco com setas ---- */
-.demo__scrolly {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 56px;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-}
-.demo__scrolly .demo__header { text-align: left; margin: 0 0 28px; max-width: none; }
-.demo__passos { position: relative; padding-left: 18px; }
-.demo__lista {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-.demo__passo {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    opacity: .45;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: opacity .25s ease;
-}
-.demo__passo:hover { opacity: .8; }
-.demo__passo--ativo,
-.demo__passo--ativo:hover { opacity: 1; }
-.demo__passo:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
-.demo__passo-num {
-    flex-shrink: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    border: 1px solid rgba(165, 65, 255, .45);
-    font-family: 'Syne', sans-serif;
-    font-size: .82rem;
-    font-weight: 700;
-    color: var(--accent-lt);
-    background: rgba(165, 65, 255, .08);
-    transition: background .25s ease, color .25s ease;
-}
-.demo__passo--ativo .demo__passo-num { background: var(--accent); color: #fff; }
-.demo__passo h3 { font-size: 1.02rem; font-weight: 700; margin: 4px 0 4px; }
-.demo__passo p { font-size: .88rem; color: var(--text-dim); line-height: 1.5; }
-
-/* trilho ao lado dos passos: enche conforme a aba (1/3, 2/3, 3/3) */
-.demo__trilho {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 8px;
-    bottom: 8px;
-    width: 3px;
-    border-radius: 99px;
-    background: rgba(165, 65, 255, .15);
-    overflow: hidden;
-}
-.demo__trilho span {
-    display: block;
-    width: 100%;
-    height: 33.4%;
-    border-radius: 99px;
-    background: linear-gradient(180deg, var(--accent), var(--accent-lt));
-    transition: height .35s ease;
-}
-
-/* Palco: as três demonstrações empilhadas na mesma célula da grade
-   (a altura é a da maior), só a ativa aparece. Troca com um fade
-   curto — nada de painel subindo. */
-.demo__palco { padding: 0 64px; }
-.demo .demo__stage {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);   /* vence as 3 colunas do .demo__grid */
-    max-width: 560px;
-    margin: 0 auto;
-}
-.demo .demo__stage .demo__panel {
-    grid-area: 1 / 1;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .3s ease, visibility .3s;
-}
-.demo .demo__stage .demo__panel--ativa { opacity: 1; visibility: visible; }
-.demo__palco .carrossel__seta--ant  { left: 0; }
-.demo__palco .carrossel__seta--prox { right: 0; }
-
-@media (max-width: 1024px) {
-    .demo__scrolly { grid-template-columns: 1fr; gap: 28px; }
-    .demo__scrolly .demo__header { text-align: center; }
-    /* no celular os passos viram uma fileira de números (as setas e o
-       toque nos números trocam a demonstração) */
-    .demo__passos { padding-left: 0; }
-    .demo__lista { flex-direction: row; justify-content: center; gap: 12px; }
-    .demo__passo > div { display: none; }
-    .demo__trilho { display: none; }
-}
-@media (max-width: 600px) {
-    .demo__palco { padding: 0; }
-    .demo__palco .carrossel__seta { top: auto; bottom: -62px; transform: none; }
-    .demo__palco .carrossel__seta:active:not(:disabled) { transform: scale(.92); }
-    .demo__palco .carrossel__seta--ant  { left: calc(50% - 56px); }
-    .demo__palco .carrossel__seta--prox { right: calc(50% - 56px); }
-    .recursos .recursos__grid .card,
-    .recursos .recursos__grid .card--featured { width: min(300px, 78vw); }
-    .carrossel__seta { width: 40px; height: 40px; }
-}
-
-/* Celular: sem setas — os recursos rolam com o dedo (a esteira já é
-   rolável) e o "Experimente" troca deslizando o palco (js/inicio.js).
-   Os passos 1-2-3 viram bolinhas embaixo da demonstração, como as de
-   um post com várias fotos: a da vez acende na cor da marca. */
-@media (max-width: 768px) {
-    .carrossel__seta { display: none !important; }
-    .demo .demo__stage { touch-action: pan-y; }
-
-    /* o cabeçalho em cima, o palco no meio e as bolinhas embaixo */
-    .demo__passos { display: contents; }
-    .demo__scrolly .demo__header { order: 1; margin-bottom: 0; }
-    .demo__palco { order: 2; }
-    .demo__lista { order: 3; gap: 8px; margin-top: -8px; }
-
-    .demo__passo { opacity: 1; padding: 6px 0; }   /* a área de toque é maior que o ponto */
-    .demo__passo-num {
-        width: 7px;
-        height: 7px;
-        border: 0;
-        font-size: 0;                 /* o número continua no HTML para leitor de tela */
-        color: transparent;
-        background: rgba(201, 124, 255, .28);
-        transition: background-color .25s ease, transform .25s ease;
-    }
-    .demo__passo--ativo .demo__passo-num { background: var(--accent); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .recursos__esteira { scroll-behavior: auto; }
-    .demo .demo__stage .demo__panel { transition: none; }
-}
-
-/* ============================================================
-   MODO PIN — só desktop e sem reduced-motion
-   ============================================================ */
-@media (min-width: 1025px) and (prefers-reduced-motion: no-preference) {
-
-    /* ---------- ORION: apresentação pinada ----------
-       A seção trava por ~3,5 telas e cada trecho da rolagem aciona um
-       comportamento real do Orion. Vive dentro do mesmo bloco
-       @media (min-width:1025px) das outras seções pinadas: no celular
-       nada disso existe, e a seção volta a ser empilhada e rolável.  */
-    html.scrolly .orion { padding: 0; overflow: visible; }
-    html.scrolly .orion__pin { height: 520vh; }   /* sete passos */
-    html.scrolly .orion__vista {
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-    }
-    /* Depois que a pessoa passou pela seção uma vez (js/inicio.js põe
-       .orion--visto), ela deixa de prender a rolagem: vira uma seção
-       comum de uma tela, e subir passa direto por ela. */
-    html.scrolly .orion--visto .orion__pin { height: auto; }
-    html.scrolly .orion--visto .orion__vista { position: relative; }
-    /* O título ficou FORA do pin (.orion__topo), no tamanho padrão e
-       com o mesmo respiro das outras seções. O palco preso só reserva
-       o espaço do cabeçalho fixo do site (72px) no topo. */
-    html.scrolly .orion__topo { padding-top: 120px; }
-    /* conteúdo colado logo abaixo do cabeçalho fixo (e não centralizado na
-       tela): centralizado, sobrava um vão enorme entre o título e o Orion */
-    /* O palco gruda LOGO ABAIXO do cabeçalho fixo (72px) e tem a altura da
-       tela menos ele: assim não sobra vão entre o título e o Orion, e o
-       espaço do cabeçalho não vira área vazia dentro do palco. */
-    html.scrolly .orion:not(.orion--sem-pin):not(.orion--visto) .orion__vista {
-        top: 72px;
-        height: calc(100vh - 72px);
-    }
-    html.scrolly .orion__vista { padding-top: 28px; box-sizing: border-box; align-items: flex-start; }
-    html.scrolly .orion__topo .orion__cabeca { margin-bottom: 0; }
-    /* com o teste de senha embaixo, o Orion encolhe um pouco para a coluna
-       da esquerda caber na tela (solto, .orion--sem-pin, volta ao normal) */
-    html.scrolly .orion:not(.orion--sem-pin) .orion__mascote { --mascote-tam: 240px; width: 240px; }
-    html.scrolly .orion__figura { min-height: 0; }
-
-    /* o Orion respira junto com a narrativa: cresce um pouco no
-       começo e volta — dirigido por --op (0..1) no JS */
-    html.scrolly .orion__corpo {
-        transform: scale(calc(1 + var(--op, 0) * .06));
-        transition: transform .5s cubic-bezier(.4,0,.2,1);
-    }
-
-    /* o passo em foco salta; os outros recuam. É isto que faz o
-       roteiro "andar" com a rolagem em vez de ficar toda acesa */
-    html.scrolly .orion-passo {
-        opacity: .38;
-        transform: scale(.975);
-        transition: opacity .45s ease, transform .45s cubic-bezier(.4,0,.2,1),
-                    background .3s ease, border-color .3s ease;
-    }
-    html.scrolly .orion-passo.ativo {
-        opacity: 1;
-        transform: scale(1) translateX(5px);
-    }
-    /* passar o mouse ainda acende, mesmo fora do trecho */
-    html.scrolly .orion-passo:hover { opacity: 1; }
-
-    html.scrolly .orion__trilho { display: block; }
-
-    /* a dica de clique não faz sentido enquanto a rolagem conduz */
-    html.scrolly .orion__vista .orion__conversa-dica { opacity: .55; }
-}
-
-/* Sem o modo scrolly (mobile/tablet/reduced-motion), a demo mantém
-   o grid normal e os painéis todos visíveis — nada muda do layout V2. */
-
-/* ── Movimento reduzido: neutraliza qualquer resto do V3 ── */
-@media (prefers-reduced-motion: reduce) {
-    .ghost { transform: translateX(-50%); }
-    html.scrolly .section-title .palavra,
-    html.scrolly .faq__lista .faq__item {
-        opacity: 1 !important;
-        transform: none !important;
-        transition: none !important;
-    }
-}
-
-
-/* ════════════════════════════════════════════════════════════
-   Esta camada fica no FIM do arquivo de propósito. Ela sobrepõe o
-   fundo de caixas que são definidas em vários pontos acima (o
-   .demo__panel, por exemplo, é declarado lá embaixo, junto do
-   scrollytelling). Como todas essas regras têm a mesma
-   especificidade, quem vence é a última — então a camada de
-   profundidade só funciona se vier por último.
-   ════════════════════════════════════════════════════════════ */
-/* ════════════════════════════════
-   PROFUNDIDADE — as caixas passam a flutuar NO espaço
-   Antes cada card era uma caixa opaca colada num fundo preto: o
-   cosmos existia atrás, mas ficava tapado. Agora eles deixam passar
-   um pouco do céu e ganham sombra de corpo suspenso, para parecerem
-   estar A UMA DISTÂNCIA do fundo, não grudados nele.
-   ════════════════════════════════ */
-.card,
-.faq__item,
-.demo__panel,
-.orion__balao,
-.orion__teste,
-.historia__badge {
-    background: var(--bg-card);
-    box-shadow: var(--shadow-neutral);
-}
-
-/* borda superior clareada: lê como luz batendo de cima, que é de
-   onde a iluminação vem em todo o resto da identidade */
-.card::before,
-.orion__teste::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,124,255,.35), transparent);
-    border-radius: inherit;
-    pointer-events: none;
-}
-.orion__teste { position: relative; }
-
-/* ── Deriva por profundidade ──
-   Cada faixa de conteúdo anda um pouquinho diferente conforme cruza
-   a tela (--pv vai de -1 a 1). São poucos pixels de propósito: o
-   suficiente para o olho perceber camadas, longe do bastante para
-   ninguém sentir a página "escorregando". */
-
-/* O hero deixa de ter o próprio campo de estrelas (agora é da página
-   inteira), mas os orbes continuam dando volume ao primeiro quadro. */
-.hero__grid { opacity: .7; }
-
-@media (prefers-reduced-motion: reduce) {
-    html.scrolly .sobre__content,
-    html.scrolly .historia__content,
-    html.scrolly .orion__figura,
-    html.scrolly .orion__conversa,
-    html.scrolly .faq__lista { transform: none !important; }
-}
-
-/* O desfoque de fundo é caro em telas pequenas e o ganho é pequeno:
-   no celular ficam os fundos translúcidos, sem o blur. */
-@media (max-width: 768px) {
-    .card,
-    .faq__item,
-    .demo__panel,
-    .orion__balao,
-    .orion__teste,
-    .historia__badge {
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        background: linear-gradient(150deg, rgba(30,6,54,.94) 0%, rgba(18,2,32,.96) 100%);
-    }
-}
-
-/* ── O roteiro virou uma lista ordenada: são passos numa ordem, e
-      um leitor de tela deve anunciar "item 3 de 7". Visualmente os
-      marcadores saem — a numeração já está no próprio desenho. ── */
-.orion__roteiro { list-style: none; }
-.orion__roteiro > li { display: block; }
-
-/* ════════════════════════════════════════════════════════════
-   No desktop pinado são SETE passos dentro de uma tela só. Abertos
-   eles não cabem, então só o passo em foco mostra a descrição: os
-   outros encolhem para uma linha. Além de resolver a altura, é isso
-   que faz o roteiro parecer andar — o trecho atual se abre e os
-   vizinhos recuam.
-   ════════════════════════════════════════════════════════════ */
-@media (min-width: 1025px) and (prefers-reduced-motion: no-preference) {
-    html.scrolly .orion__roteiro { gap: 6px; }
-
-    html.scrolly .orion-passo {
-        padding: 9px 14px;
-        gap: 12px;
-        align-items: center;
-    }
-    html.scrolly .orion-passo__ico {
-        width: 30px;
-        height: 30px;
-        font-size: .95rem;
-        border-radius: 9px;
-    }
-    html.scrolly .orion-passo__texto strong { font-size: .92rem; }
-
-    /* a descrição some nos passos parados e volta no ativo */
-    html.scrolly .orion-passo__texto span {
-        display: block;
-        max-height: 0;
-        opacity: 0;
-        overflow: hidden;
-        transition: max-height .45s cubic-bezier(.4,0,.2,1), opacity .35s ease;
-    }
-    html.scrolly .orion-passo.ativo {
-        padding: 13px 16px;
-    }
-    html.scrolly .orion-passo.ativo .orion-passo__texto span {
-        max-height: 4em;
-        opacity: 1;
-    }
-    html.scrolly .orion-passo.ativo .orion-passo__ico {
-        width: 36px;
-        height: 36px;
-        font-size: 1.1rem;
-    }
-
-    /* o balão encolhe: com sete passos, cada pixel conta */
-    html.scrolly .orion__balao { padding: 16px 20px; margin-bottom: 18px; }
-    html.scrolly .orion__fala { font-size: clamp(1rem, 1.55vw, 1.2rem); min-height: 2.8em; }
-    html.scrolly .orion__vista .orion__conversa-dica { margin-bottom: 10px; font-size: .8rem; }
-    html.scrolly .orion__trilho { margin-top: 16px; }
-}
-
-/* ── Telas de pouca altura (notebooks menores) ──
-   O palco do Orion tem a altura exata da tela e corta o que passa
-   dela: em telas baixas o último passo (o do 404) ficava cortado.
-   Aqui tudo aperta um pouco — e, se nem assim couber, o js/inicio.js
-   solta o pin (.orion--sem-pin, logo abaixo) e nada é cortado. */
-@media (min-width: 1025px) and (max-height: 860px) and (prefers-reduced-motion: no-preference) {
-    /* Tela baixa: NADA encolhe (fonte, Orion, passos ficam no tamanho
-       normal) — só sai o que é dispensável. Se ainda faltar altura, o
-       js/inicio.js aplica um zoom só do que faltar. */
-    html.scrolly .orion:not(.orion--sem-pin) .orion__vista .orion__conversa-dica { display: none; }
-    html.scrolly .orion:not(.orion--sem-pin) .orion__trilho { margin-top: 10px; }
-}
-
-/* Rede de segurança: o conteúdo não coube na altura da tela nem
-   apertado (o JS mede). A seção deixa de prender a rolagem e vira
-   uma seção comum — nada é cortado; os passos seguem respondendo ao
-   mouse e ao clique. */
-@media (min-width: 1025px) {
-    html.scrolly .orion--sem-pin .orion__pin { height: auto; }
-    html.scrolly .orion--sem-pin .orion__vista {
-        position: relative;
-        height: auto;
-        overflow: visible;
-        padding: 56px 0 40px;           /* 56px: o mesmo vão entre título e conteúdo das outras seções */
-    }
-
-    /* Solta, ela não precisa caber numa tela: volta ao tamanho PADRÃO
-       das outras seções (título, Orion, balão e passos com as
-       descrições à vista), em vez de ficar com a versão apertada. */
-    html.scrolly .orion--sem-pin .orion__figura { min-height: 380px; }
-    html.scrolly .orion--sem-pin .orion__balao { padding: 20px 24px; margin-bottom: 26px; }
-    html.scrolly .orion--sem-pin .orion__fala { font-size: clamp(1.05rem, 1.9vw, 1.35rem); min-height: 2.9em; }
-    html.scrolly .orion--sem-pin .orion__vista .orion__conversa-dica { opacity: 1; margin-bottom: 14px; font-size: .85rem; }
-    html.scrolly .orion--sem-pin .orion__roteiro { gap: 10px; }
-    html.scrolly .orion--sem-pin .orion-passo,
-    html.scrolly .orion--sem-pin .orion-passo.ativo {
-        padding: 15px 18px;
-        gap: 14px;
-        align-items: flex-start;
-        opacity: 1;
-        transform: none;
-    }
-    html.scrolly .orion--sem-pin .orion-passo__ico,
-    html.scrolly .orion--sem-pin .orion-passo.ativo .orion-passo__ico {
-        width: 38px;
-        height: 38px;
-        font-size: 1.12rem;
-        border-radius: var(--radius-sm);
-    }
-    html.scrolly .orion--sem-pin .orion-passo__texto strong { font-size: .98rem; }
-    html.scrolly .orion--sem-pin .orion-passo__texto span { max-height: none; opacity: 1; }
-    html.scrolly .orion--sem-pin .orion__trilho { display: none; }   /* a rolagem não conduz mais */
-}
-
-/* SOBRE e NOSSA HISTÓRIA não prendem mais a rolagem (os pins de 170vh,
-   com a imagem se aproximando e o texto entrando em camadas, pesavam
-   demais). Agora são seções comuns com a entrada leve do .reveal. */
-
-/* ════════════════════════════════════════════════════════════
-   ORION GUIA — o acompanhante que anda com a pessoa pela página
-   Fica no canto inferior ESQUERDO: o "voltar ao topo" já ocupa o
-   direito, e um não pode cobrir o outro.
-   Ver js/orion-guia.js para o comportamento.
-   ════════════════════════════════════════════════════════════ */
+/* ── Orion guia: o acompanhante (js/orion-guia.js) ──
+   Canto inferior ESQUERDO: o "voltar ao topo" mora no direito. */
 .guia {
     position: fixed;
     left: 24px;
     bottom: 24px;
     z-index: 80;
-
     display: flex;
     align-items: flex-end;
     gap: 12px;
-
-    /* O contêiner é só um posicionador — no celular ele ocupa a
-       largura toda e passaria por cima do "voltar ao topo". Quem
-       recebe clique são os filhos, não ele. */
+    /* o contêiner só posiciona; quem recebe clique são os filhos */
     pointer-events: none;
-
-    /* entra deslizando de baixo; a classe .dentro é posta pelo JS */
     opacity: 0;
     transform: translateY(18px);
     transition: opacity .32s ease, transform .32s cubic-bezier(.4,0,.2,1);
 }
 .guia.dentro { opacity: 1; transform: none; }
 
-/* ── O planetinha ── */
 .guia__corpo {
     pointer-events: auto;
     position: relative;
     flex: none;
-    order: -1;                 /* ele à esquerda, o balão à direita */
+    order: -1;
     display: block;
     padding: 0;
     border: none;
@@ -2710,12 +1065,9 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
     display: block;
     --mascote-tam: 76px;
     width: 76px;
-    /* um brilho por baixo, para ele não sumir num fundo estrelado */
     filter: drop-shadow(0 6px 18px rgba(0,0,0,.6))
             drop-shadow(0 0 16px rgba(165,65,255,.35));
 }
-
-/* pontinho de "tenho algo a dizer", quando ele está calado */
 .guia__ponto {
     position: absolute;
     top: 4px;
@@ -2728,13 +1080,10 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
     box-shadow: 0 0 10px rgba(201,124,255,.9);
     animation: guiaPulsa 2s ease-in-out infinite;
 }
-
-/* dispensado: ele encolhe e fica quieto num canto */
 .guia.quieto .guia__mascote { width: 56px; --mascote-tam: 56px; }
 .guia.quieto { opacity: .8; }
 .guia.quieto:hover { opacity: 1; }
 
-/* ── O balão ── */
 .guia__balao {
     pointer-events: auto;
     position: relative;
@@ -2746,8 +1095,6 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
     box-shadow: var(--shadow-neutral);
     animation: guiaBalaoEntra .26s cubic-bezier(.34,1.56,.64,1);
 }
-
-/* bico apontando para o planetinha, à esquerda e embaixo */
 .guia__balao::before,
 .guia__balao::after {
     content: "";
@@ -2765,15 +1112,9 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
 .guia__balao::after {
     left: -10px;
     border-width: 8px 11px 8px 0;
-    border-color: transparent #1a052f transparent transparent;
+    border-color: transparent var(--bg-card) transparent transparent;
 }
-
-.guia__fala {
-    font-size: .88rem;
-    line-height: 1.5;
-    color: var(--text-dim);
-}
-
+.guia__fala { font-size: .88rem; line-height: 1.5; color: var(--text-dim); }
 .guia__x {
     position: absolute;
     top: 8px;
@@ -2793,93 +1134,71 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
 .guia__x:hover { color: #fff; background: rgba(165,65,255,.25); }
 .guia__x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-@keyframes guiaPulsa {
-    0%, 100% { transform: scale(1);   opacity: 1; }
-    50%      { transform: scale(1.25); opacity: .6; }
-}
-@keyframes guiaBalaoEntra {
-    from { opacity: 0; transform: translateX(-10px) scale(.94); }
-    to   { opacity: 1; transform: none; }
-}
+/* ════════════════════════════════
+   9. MOVIMENTO (html.scrolly) E PROFUNDIDADE
+   html.scrolly é ligado pelo inicio.js só com movimento e fora do
+   Lite. A seção pinada só existe acima de 1025px.
+   ════════════════════════════════ */
 
-/* ── Telas pequenas ──
-   Ele encolhe e o balão passa a ocupar a largura disponível, sempre
-   ACIMA dele, para não empurrar a página de lado. No celular o balão
-   só aparece quando a pessoa toca (ver o JS). */
-@media (max-width: 640px) {
-    .guia {
-        left: 14px;
-        right: 14px;
-        bottom: 14px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    .guia__corpo { order: 0; }
-    .guia__mascote { width: 58px; --mascote-tam: 58px; }
-    /* dispensado, ele fica menor ainda: num celular de 375px os 56px
-       cobriam o começo das linhas de texto enquanto a página rolava */
-    .guia.quieto .guia__mascote { width: 44px; --mascote-tam: 44px; }
-
-    .guia__balao {
-        max-width: none;
-        width: 100%;
-        padding: 12px 36px 12px 14px;
-    }
-    /* o bico desce para o canto de baixo, apontando para o planetinha */
-    .guia__balao::before,
-    .guia__balao::after { bottom: -12px; left: 22px; }
-    .guia__balao::before {
-        border-width: 12px 9px 0 9px;
-        border-color: rgba(165,65,255,.35) transparent transparent transparent;
-    }
-    .guia__balao::after {
-        bottom: -10px;
-        left: 24px;
-        border-width: 11px 8px 0 8px;
-        border-color: #1a052f transparent transparent transparent;
-    }
+/* Títulos: as palavras sobem uma a uma (o split é do inicio.js) */
+html.scrolly .section-title .palavra {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .4s ease, transform .4s ease;
+    transition-delay: calc(var(--wi, 0) * 35ms);
 }
+html.scrolly .section-title.visible .palavra { opacity: 1; transform: none; }
 
-/* Quem pediu menos movimento não recebe o acompanhante (o JS nem o
-   liga); esta regra é a rede de segurança, caso ele já esteja no ar. */
-@media (prefers-reduced-motion: reduce) {
-    .guia { display: none; }
+/* Hero: saída leve conforme rola (--hp 0..1) */
+html.scrolly .hero__inner {
+    transform: translateY(calc(var(--hp, 0) * 20px));
+    opacity: calc(1 - var(--hp, 0) * .35);
+}
+html.scrolly .hero__scroll { opacity: calc(.7 - var(--hp, 0) * 3); }
+html.scrolly .cta-final__orb { transform: translate(-50%, calc(-50% + var(--pv, 0) * 18px)); }
+
+@media (min-width: 1025px) {
+    /* a faixa deriva de lado; alargada para a ponta não aparecer */
+    html.scrolly .marquee {
+        width: calc(100% + 160px);
+        margin-left: -80px;
+        transform: translateX(calc(var(--pv, 0) * 18px));
+    }
+
+    /* A constelação pinada: 6 trechos de rolagem, um por estrela.
+       330vh = 230vh de percurso, ~38vh por estrela: dá para ler cada
+       uma sem a seção parecer não acabar nunca. */
+    html.scrolly .constelacao { padding: 0; }
+    html.scrolly .constelacao__pin { height: 330vh; }
+    html.scrolly .constelacao__vista {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        padding-top: 64px;
+    }
+    /* o mapa nunca passa da altura da tela (notebook baixo) */
+    html.scrolly .constelacao__mapa { width: min(100%, calc((100vh - 170px) * 4 / 3)); }
+    html.scrolly .constelacao__contador { display: block; }
 }
 
-/* ════════════════════════════════════════════════════════════
-   PROFUNDIDADE — parallax, eixo Z e microinterações
-   As contas vivem em js/profundidade.js, que escreve variáveis CSS
-   (--py, --scrub, --lx, --ly, --inc-x, --inc-y). Aqui só se decide
-   o que FAZER com elas — é o que permite calibrar um efeito sem
-   abrir um arquivo de JavaScript.
-   ════════════════════════════════════════════════════════════ */
+/* ── Entrada na rolagem ── */
+.reveal { opacity: 0; transition: opacity .45s ease, transform .45s ease; }
+.reveal--up    { transform: translateY(10px); }
+.reveal--scale { transform: translateY(8px); }
+.reveal.visible { opacity: 1; transform: none; }
 
-/* A regra única do parallax: quem declarar um plano no HTML já anda.
-   translate3d (e não translateY) para a GPU assumir a composição. */
+/* ── Profundidade (as contas estão em js/profundidade.js) ── */
 [data-plano],
 [data-parallax] {
     transform: translate3d(0, var(--py, 0px), 0);
     will-change: transform;
 }
 
-/* ── ESTRATIFICAÇÃO NO EIXO Z ──
-   A ordem importa mais que os números: cosmos (canvas, z 0) →
-   orbes → grade → texto. É essa pilha que mantém o texto legível
-   por cima de um fundo que nunca para de se mexer. */
-.hero__bg    { z-index: 1; }
-.hero__orb--1,
-.hero__orb--2 { z-index: 1; }
-.hero__grid  { z-index: 2; }
-.hero__inner { position: relative; z-index: 4; }
-.hero__scroll { position: relative; z-index: 4; }
-
-/* ── MICROINTERAÇÕES ESPACIAIS ──
-   O elemento inclina e ganha um brilho especular que nasce onde o
-   ponteiro está (ou para onde o aparelho está inclinado). A sombra
-   muda de ângulo junto, como um objeto real pegando luz. */
+/* inclina e ganha um brilho que nasce onde o ponteiro está */
 [data-relevo] {
-    position: relative;
     transform:
         perspective(900px)
         rotateX(calc(var(--inc-x, 0) * 5deg))
@@ -2887,15 +1206,10 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
         translate3d(0, var(--py, 0px), 0);
     transition: transform .32s cubic-bezier(.4,0,.2,1), box-shadow .32s ease;
 }
-/* enquanto o ponteiro está em cima, a resposta é imediata */
 [data-relevo].relevo-ativo {
     transition: transform .08s linear, box-shadow .2s ease;
-    box-shadow:
-        0 28px 60px rgba(0,0,0,.5),
-        0 0 0 1px rgba(201,124,255,.16);
+    box-shadow: 0 28px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(201,124,255,.16);
 }
-
-/* o reflexo: um brilho que segue a luz e some quando ela sai */
 [data-relevo]::after {
     content: "";
     position: absolute;
@@ -2912,48 +1226,7 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
 }
 [data-relevo].relevo-ativo::after { opacity: 1; }
 
-/* ── Nada disso com "reduzir movimento" ──
-   O JS nem liga o motor; esta regra é a rede de segurança para o
-   caso de um elemento já ter recebido uma variável. */
-@media (prefers-reduced-motion: reduce) {
-    [data-plano],
-    [data-parallax],
-    [data-relevo] { transform: none !important; }
-    [data-relevo]::after { display: none; }
-}
-
-/* ── Telas pequenas ──
-   O parallax é dividido pela metade: num celular o percurso de
-   rolagem é curto e o deslocamento cheio faria os elementos
-   escorregarem visivelmente dentro da própria seção. */
-@media (max-width: 768px) {
-    [data-plano],
-    [data-parallax] { transform: translate3d(0, calc(var(--py, 0px) * .5), 0); }
-
-
-    /* sem ponteiro não há reflexo a seguir: fica só a caixa */
-    [data-relevo] { transform: translate3d(0, calc(var(--py, 0px) * .5), 0); }
-    [data-relevo]::after { display: none; }
-}
-
-
-/* ════════════════════════════════════════════════════════════
-   O VÉU — uma folha só sobre a página inteira
-
-   Antes cada seção tinha o seu degradê: escuro nas pontas, claro no
-   meio. Só que metade das seções não tinha véu nenhum, e a outra
-   metade tinha — então em TODA emenda aparecia uma faixa horizontal
-   dura, com um lado preto e o outro roxo. Era o degradê, e não o
-   cosmos, que estava desenhando aquela linha.
-
-   Agora o véu é um só, fixo na viewport, com opacidade constante:
-   as seções não têm mais fundo próprio, logo não há onde emendar.
-   Ele fica ENTRE o cosmos (z 0) e o conteúdo (z 1), então segura a
-   legibilidade do texto sem apagar o céu.
-   ════════════════════════════════════════════════════════════ */
-/* O hero respira mais: ali o céu é o assunto, e quase não há texto
-   corrido para proteger. A máscara tira o véu do alto da página e o
-   traz gradualmente — sem linha, porque é um degradê de 60vh. */
+/* O véu respira no alto da página: ali o céu é o assunto */
 .veu::after {
     content: "";
     position: absolute;
@@ -2963,30 +1236,161 @@ html.scrolly .cta-final__orb { transform: translate(-50%, calc(var(--pv, 0) * 18
     -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
 }
 
-/* O rodapé continua mais fechado: é o pé da página, cheio de links. */
-.footer { background: rgba(18, 1, 31, .78); }
+/* ════════════════════════════════
+   KEYFRAMES
+   ════════════════════════════════ */
+@keyframes fadeUp      { from { opacity: 0; transform: translateY(24px); } }
+@keyframes subir       { from { opacity: 0; transform: translateY(6px); } }
+@keyframes orbFloat    { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-28px); } }
+@keyframes orbDrift    { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-22px, -18px); } }
+@keyframes caretBlink  { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes scrollWheel {
+    0%   { transform: translateY(0); opacity: 1; }
+    60%  { transform: translateY(12px); opacity: 0; }
+    61%  { transform: translateY(0); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes marqueeMove { to { transform: translateX(-50%); } }
+@keyframes starDrift   { 0%, 100% { transform: translateY(0) scale(1); opacity: .85; } 50% { transform: translateY(-5px) scale(1.25); opacity: 1; } }
+@keyframes spinBorder  { to { transform: rotate(360deg); } }
+@keyframes guiaPulsa   { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: .6; } }
+@keyframes guiaBalaoEntra { from { opacity: 0; transform: translateX(-10px) scale(.94); } }
+@keyframes anelRespira { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.18); opacity: .45; } }
 
+@keyframes iaGerando   { 0% { opacity: 0; } 15%, 70% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes iaCerta     { from { color: var(--text-dim); border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.03); } }
+@keyframes fcAceno     { 0%, 100% { transform: rotateY(0); } 40% { transform: rotateY(-22deg); } 70% { transform: rotateY(6deg); } }
+@keyframes escrever    { from { transform: scaleX(0); } }
+@keyframes marcar      { from { transform: scaleX(0); } }
+@keyframes marcarCaixa { from { background: transparent; border-color: rgba(255,255,255,.25); color: transparent; transform: scale(.8); } }
+@keyframes xpEnche     { from { transform: scaleX(.4); } }
+@keyframes xpSobe      { 0% { opacity: 0; transform: translateY(10px); } 25% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+@keyframes diaAcende   { from { opacity: .25; transform: scale(.6); box-shadow: none; } }
 
-/* A seção "Experimente" já teve um painel em volta de tudo (.demo__vista::before,
-   fundo roxo translúcido com borda). Saiu: agora só os cards de cada
-   demonstração (.demo__panel) têm caixa. */
-.demo__vista { position: relative; }
+/* ════════════════════════════════
+   10. RESPONSIVO, LITE E ACESSIBILIDADE
+   ════════════════════════════════ */
+@media (max-width: 1024px) {
+    .nav, .header__actions { display: none; }
+    .hamburger { display: flex; }
+    .mobile-nav { display: flex; }
+}
 
+/* Uma coluna: título → mapa → painel. O .constelacao__texto some como
+   caixa (display: contents) para o mapa poder entrar ANTES do painel
+   sem duplicar HTML. */
+@media (max-width: 900px) {
+    .constelacao { padding: 96px 0 80px; }
+    .constelacao__inner { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+    .constelacao__texto { display: contents; }
+    .constelacao__texto .section-tag { align-self: flex-start; }
+    .constelacao__sub { margin-bottom: 20px; }
+    .constelacao__mapa { order: 1; max-width: 560px; margin: 0 auto 28px; }
+    .constelacao__paineis { order: 2; max-width: 560px; width: 100%; margin: 0 auto; }
 
-/* ════════════════════════════════════════════════════════════
-   VISUAL LEVE (html.kosmos-lite) — a mesma escolha do dashboard
-   O JS já deixa de ligar o scrollytelling, o parallax, o relevo e
-   o cursor animado; o céu fica parado (shared/cosmos*.js). Aqui sai
-   o que é só CSS: o vidro (backdrop-filter), os brilhos roxos e a
-   inclinação dos cards ao passar o mouse.
-   ════════════════════════════════════════════════════════════ */
+    .footer__inner { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
+    .footer__brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 680px) {
+    .hero { padding: 100px 20px 80px; }
+    .header__inner { padding: 0 20px; gap: 12px; }
+    .cta-final { padding: 72px 0; }
+    .cta-final__inner { padding: 52px 22px; }
+}
+
+@media (max-width: 560px) {
+    .hero__cta { flex-direction: column; align-items: stretch; width: 100%; max-width: 340px; }
+
+    /* Com o respiro de computador a caixa ficava com ~230px de texto e o
+       título (Syne, letra larga) saía uma palavra por linha. */
+    .cta-final { padding: 72px 16px; }
+    .cta-final__inner { padding: 36px 18px; }
+    /* 6.2vw: em 320px a palavra mais larga ainda cabe */
+    .cta-final__title { font-size: clamp(1.15rem, 6.2vw, 1.8rem); line-height: 1.15; }
+    .cta-final__title br { display: none; }
+    .cta-final__desc { font-size: .98rem; margin-bottom: 28px; }
+    .cta-final__actions .btn { flex: 1 1 100%; }
+
+    /* colado no canto: mais para dentro ele cobria links do rodapé */
+    .back-top { bottom: 14px; right: 10px; width: 40px; height: 40px; }
+
+    .estrela { width: 46px; height: 46px; }
+    .estrela__nome { font-size: .72rem; top: calc(50% + 16px); }
+    .estrela--acima .estrela__nome { top: auto; bottom: calc(50% + 16px); }
+    .estrela.ativa .estrela__ponto::before,
+    .estrela.ativa .estrela__ponto::after { height: 24px; }
+
+    .mini { height: 196px; padding: 18px; }
+    .mini-prova { gap: 18px; }
+    .mini-prova__contagem strong { font-size: 3rem; }
+
+    /* O Orion guia (esquerda) e o "voltar ao topo" (direita) ficam
+       fixos por cima do rodapé: sem esta folga eles cobriam o
+       "© Kosmos" e os links de termos e privacidade. */
+    .footer { padding: 48px 0 calc(96px + env(safe-area-inset-bottom)); }
+    .footer__inner { grid-template-columns: 1fr; gap: 32px; }
+    .footer__bottom { flex-direction: column; text-align: center; }
+}
+
+/* Orion guia em tela pequena: menor, e o balão ACIMA dele, na largura
+   toda. No celular ele só fala quando tocado (ver o JS). */
+@media (max-width: 640px) {
+    .guia { left: 14px; right: 14px; bottom: 14px; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .guia__corpo { order: 0; }
+    .guia__mascote { width: 58px; --mascote-tam: 58px; }
+    /* dispensado, menor ainda: em 375px os 56px cobriam o começo das linhas */
+    .guia.quieto .guia__mascote { width: 44px; --mascote-tam: 44px; }
+    .guia__balao { max-width: none; width: 100%; padding: 12px 36px 12px 14px; }
+    .guia__balao::before,
+    .guia__balao::after { bottom: -12px; left: 22px; }
+    .guia__balao::before { border-width: 12px 9px 0 9px; border-color: rgba(165,65,255,.35) transparent transparent transparent; }
+    .guia__balao::after { bottom: -10px; left: 24px; border-width: 11px 8px 0 8px; border-color: var(--bg-card) transparent transparent transparent; }
+}
+
+/* O vidro custa caro em tela pequena: ficam só as superfícies */
+@media (max-width: 768px) {
+    .mini { -webkit-backdrop-filter: none; backdrop-filter: none; background: linear-gradient(150deg, rgba(30,6,54,.94) 0%, rgba(18,2,32,.96) 100%); }
+    [data-plano],
+    [data-parallax] { transform: translate3d(0, calc(var(--py, 0px) * .5), 0); }
+    [data-relevo] { transform: none; }
+    [data-relevo]::after { display: none; }
+}
+
+/* ── Reduzir movimento: o JS nem liga os efeitos; isto é a rede de
+      segurança. As miniaturas ficam no quadro final (ver a seção 6). ── */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        animation-iteration-count: 1 !important;
+    }
+    .marquee__track { animation: none !important; }
+    .reveal { transition: none; opacity: 1; transform: none; }
+    .ferramenta, .ferramenta.ativa, .mini-fc__cartao, .constelacao.desenhada .constelacao__traco { transition: none; }
+    .ferramenta { transform: none; }
+    .hero__orb--1, .hero__orb--2 { animation: none !important; }
+    [data-plano], [data-parallax], [data-relevo] { transform: none !important; }
+    [data-relevo]::after { display: none; }
+    .guia { display: none; }
+}
+
+/* ── Visual Lite (a mesma escolha do dashboard) ──
+   O JS já deixa de ligar o pin, o parallax, o relevo e o cursor
+   animado; o céu fica parado. Aqui sai o que é só CSS: o vidro e
+   os brilhos decorativos. As miniaturas continuam: mostram como a
+   ferramenta funciona, não enfeitam. */
 html.kosmos-lite *,
 html.kosmos-lite *::before,
 html.kosmos-lite *::after {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
 }
-html.kosmos-lite .card:hover { transform: none; }
 html.kosmos-lite :is(.btn--primary, .btn--primary:hover) { box-shadow: var(--shadow-neutral); }
-html.kosmos-lite :is(.hero__orb--1, .hero__orb--2) { animation: none !important; }
-html.kosmos-lite .carrossel__seta { background: var(--bg-card); }
+html.kosmos-lite :is(.hero__orb--1, .hero__orb--2, .marquee__star) { animation: none !important; }
+/* (pseudo-elemento não entra em :is — fica numa regra própria) */
+html.kosmos-lite .cta-final__box::before { animation: none !important; }
+html.kosmos-lite .estrela.ativa::after { animation: none; }
+html.kosmos-lite .constelacao__traco { filter: none; }
+html.kosmos-lite .mini { background: linear-gradient(150deg, rgba(30,6,54,.96) 0%, rgba(18,2,32,.98) 100%); }

@@ -11,9 +11,8 @@
 
    • Ele NÃO aparece no hero. A primeira tela é da Kosmos, não dele;
      ele entra quando a pessoa decide descer.
-   • Ele SOME na seção da visita guiada, onde já existe um Orion em
-     tamanho grande. Dois Orions na tela ao mesmo tempo seria
-     estranho.
+   • Se uma seção já tiver um Orion grande (SECAO_DELE), ele some
+     ali. Dois Orions na tela ao mesmo tempo seria estranho.
    • Dá para dispensar. Dispensado, ele encolhe para o planetinha
      quieto e só volta a falar se for chamado. A escolha vale a
      visita (sessionStorage), não para sempre: dispensar uma vez não
@@ -54,25 +53,9 @@
        `humor` é o estado real do mascote (shared/mascote.js).
        ------------------------------------------------------------ */
     var FALAS = {
-        sobre: {
-            texto: 'Aqui tem o resumo do que dá pra fazer na Kosmos.',
+        constelacao: {
+            texto: 'Cada estrela é uma ferramenta. Passa o mouse ou toca numa delas pra ver funcionando.',
             humor: 'curioso'
-        },
-        recursos: {
-            texto: 'Passa pelos cartões pra conhecer cada ferramenta.',
-            humor: 'foco'
-        },
-        demo: {
-            texto: 'Aqui dá pra testar de verdade. Vira o flashcard, liga o pomodoro, responde a questão.',
-            humor: 'surpreso'
-        },
-        historia: {
-            texto: 'Essa é a turma que me criou. Teve muita noite virada nisso aqui.',
-            humor: 'timido'
-        },
-        faq: {
-            texto: 'Ficou com alguma dúvida? Dá uma olhada aqui, é rapidinho.',
-            humor: 'pensativo'
         },
         fim: {
             texto: 'Fim do passeio. Se quiser continuar, é só criar sua conta.',
@@ -80,8 +63,10 @@
         }
     };
 
-    /* A seção onde ele já aparece grande: ali o acompanhante se cala. */
-    var SECAO_DELE = 'orion';
+    /* Seção onde já existe um Orion grande: ali o acompanhante se cala.
+       Hoje nenhuma (a visita guiada saiu da página); o mecanismo fica
+       para quando voltar a existir. */
+    var SECAO_DELE = null;
 
     /* ------------------------------------------------------------
        Estado
@@ -177,7 +162,7 @@
        evita ele ficar trocando de assunto na fronteira entre duas.
        ------------------------------------------------------------ */
     var secoes = [];
-    ['sobre', 'recursos', 'demo', 'historia', 'orion', 'faq'].forEach(function (id) {
+    ['constelacao'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) secoes.push({ nome: id, el: el });
     });
